@@ -1,0 +1,61 @@
+@import "./index";
+.m-modal{
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0,0,0,0.2);
+  z-index: 1001;
+  transition: opacity .5s;
+  .m-modal-state{
+    background-color: #fff;
+    position: absolute;
+    width: 600px;
+    height: 335px;
+    top: 0;
+    left: 0;
+    right:0;
+    bottom:0;
+    margin: auto;
+    border: 1px solid @borderColor;
+    border-radius: 10px;
+    -webkit-transition: height 0.88s;
+    transition: height 0.88s;
+    .m-modal-head{
+      padding: 10px 20px;
+      .flex-row(flex-end);
+      .m-close{
+        font-size: 45px;
+        color: #a4a4a4;
+      }
+    }
+    .m-modal-content{
+      padding: 0 100px;
+      h3{
+        font-size: 34px;
+        font-weight: 600;
+        margin-bottom: 30px;
+      }
+      p{
+        font-size: 28px;
+        color: #a4a4a4;
+      }
+    }
+    .m-modal-foot{
+      .flex-row(space-around);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 95px;
+      line-height: 95px;
+      border-top: 1px solid @borderColor;
+      margin-top: 20px;
+      .m-modal-foot-btn{
+        color: @blue;
+        text-align: center;
+      }
+    }
+  }
+}
