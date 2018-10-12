@@ -103,10 +103,8 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-<<<<<<< HEAD
 #.idea
-/python-calorie/calorie/.idea
-=======
+.idea
+
 # mac
 .DS_Store
->>>>>>> 91563f088e2d9a717bd114364d92eda87cac8ae9
