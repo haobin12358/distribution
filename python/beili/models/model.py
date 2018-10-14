@@ -1,7 +1,8 @@
 # -*- coding:utf8 -*-
 from sqlalchemy import Column, create_engine, Integer, String, Text, Float, Boolean, orm
-from WeiDian.config import dbconfig as cfg
-from WeiDian.models.base_model import BaseModel, auto_createtime
+from config import dbconfig as cfg
+# from models.base_model import BaseModel, auto_createtime
+from base_model import Base
 
 DB_PARAMS = "{0}://{1}:{2}@{3}/{4}?charset={5}".format(
     cfg.sqlenginename,
@@ -10,20 +11,21 @@ DB_PARAMS = "{0}://{1}:{2}@{3}/{4}?charset={5}".format(
     cfg.host,
     cfg.database,
     cfg.charset)
-mysql_engine = create_engine(DB_PARAMS, echo=False)
+print(DB_PARAMS)
+mysql_engine = create_engine(DB_PARAMS, echo=True)
 
-class User(BaseModel):
+class User(Base):
     """
     普通用户
     """
     __tablename__ = 'user'
     USid = Column(String(64), primary_key=True)
     USname = Column(String(64), nullable=False)  # 用户名
-    Spassword = Column(String(255))              # 密码
-    USphone = Column(String(16))                 # 手机号
+    USpassword = Column(String(255))             # 密码
+    USphone = Column(String(16), nullable=False)  # 手机号
     USheader = Column(String(255))               # 头像
-    USgender = Column(String(64))                # 性别
     USage = Column(Integer)                      # 年龄
+    USbail = Column(Boolean)                     # 是否缴纳保证金
     USmount = Column(Float)                      # 账户余额
     USqrcode = Column(String(255))               # 邀请二维码
     USlastlogin = Column(String(64))             # 用户上次登录时间
@@ -33,7 +35,8 @@ class User(BaseModel):
     accesstoken = Column(String(255))            # 微信token
     subscribe = Column(Integer)                  # 是否关注公众号
 
-class SuperUser(BaseModel):
+
+class SuperUser(Base):
     """
     超级用户
     """
@@ -47,7 +50,7 @@ class SuperUser(BaseModel):
     SUidfreeze = Column(Boolean, default=False)  # 是否被冻结
     SUisdelete = Column(Boolean, default=False)  # 是否被删除
 
-class ProductCategory(BaseModel):
+class ProductCategory(Base):
     """
     商品分类
     """
@@ -57,7 +60,7 @@ class ProductCategory(BaseModel):
     PAtype = Column(Integer)  # 类目级别{1 一级分类, 2 二级分类, 3 三级分类}
     Parentid = Column(String(64), default=0)  # 父类别id, 默认0
 
-class InvitaLink():
+class InvitaLink(Base):
     """
     邀请链接
     """
@@ -69,12 +72,13 @@ class InvitaLink():
     ILendtime = Column(String(14))  # 失效时间
     ILtimes = Column(String(64))  # 有效次数
 
-class InvitaRecordInfo():
     """
+class InvitaRecordInfo(Base):
+    
     邀请记录详情(人工审核)
-    """
-    __table__ = 'invitarecordinfo'
-    IRIod = Column(String(64), primary_key=True)
+    
+    __tablename__ = 'invitarecordinfo'
+    IRIid = Column(String(64), primary_key=True)
     ILid = Column(String(64))  # 邀请链接id
     IRIname = Column(String(64))  # 被邀请人姓名
     IRIphonenum = Column(String(64))  # 被邀请人电话号码
@@ -92,21 +96,21 @@ class InvitaRecordInfo():
     IRIproof = Column(String(255))  # 被邀请人凭证
     IRIstatus = Column(String(64))  # 邀请状态:{0:待审核, 1:审核通过, 2:审核不通过}
     IRIcreatetime = Column(String(14))  # 记录创建时间
-
-class InvitaOfAlipay():
+    """
+class InvitaOfAlipay(Base):
     """
     支付宝打款邀请详情
     """
-    __table__ = 'invitaofalipay'
+    __tablename__ = 'invitaofalipay'
     IOAid = Column(String(64), primary_key=True)
     IRIod = Column(String(64))  # 对应邀请记录id
     IOAnum = Column(String(64))  # 支付宝账户
 
-class InvitaOfBank():
+class InvitaOfBank(Base):
     """
     银行卡打款邀请详情
     """
-    __table__ = 'invitaofbank'
+    __tablename__ = 'invitaofbank'
     IOBid = Column(String(64), primary_key=True)
     IRIod = Column(String(64))  # 对应邀请记录id
     IOBbankname = Column(String(64))  # 开户银行
@@ -114,11 +118,11 @@ class InvitaOfBank():
     IOBcardnum = Column(String(64))  # 银行卡号
 
 
-class InvitaRecordInfo2():
+class InvitaRecordInfoo(Base):
     """
     邀请记录详情(线上审核，如果需要)
-
-    __table__ = 'invitarecordinfo'
+    """
+    __tablename__ = 'invitarecordinfoo'
     IRIod = Column(String(64), primary_key=True)
     ILid = Column(String(64))  # 邀请链接id
     IRIname = Column(String(64))  # 被邀请人姓名
@@ -137,9 +141,9 @@ class InvitaRecordInfo2():
     IRIproof = Column(String(255))  # 被邀请人凭证
     IRIstatus = Column(String(64))  # 邀请状态:{0:待审核, 1:审核通过, 2:审核不通过}
     IRIcreatetime = Column(String(14))  # 记录创建时间
-    """
 
-class OrderInfo(BaseModel):
+
+class OrderInfo(Base):
     """订单信息"""
     __tablename__ = 'orderinfo'
     OIid = Column(String(64), primary_key=True)
@@ -160,7 +164,7 @@ class OrderInfo(BaseModel):
     OIcreatetime = Column(String(14))  # 订单创建时间
     OIisdelete = Column(Boolean, default=False)  # 是否删除
 
-class LoanRecharge():
+class LoanRecharge(Base):
     """
     贷款充值记录表(人工充值，与线上微信充值对立)
     """
@@ -173,7 +177,7 @@ class LoanRecharge():
     LRremark = Column(String(64))  # 充值备注
     LRcreatetime = Column(String(14))  # 记录创建时间
 
-class AlipyRecharge():
+class AlipyRecharge(Base):
     """
     贷款充值记录表，通过支付宝打款的详情
     """
@@ -182,7 +186,7 @@ class AlipyRecharge():
     LRid = Column(String(64))  # 贷款充值记录id
     ARacount = Column(String(64))  # 支付宝账户
 
-class BankRecharge():
+class BankRecharge(Base):
     """
     贷款充值记录表，通过银行卡转账的详情
     """
@@ -193,7 +197,7 @@ class BankRecharge():
     BRaccountname = Column(String(64))  # 开户名称
     BRcardnum = Column(String(64))  # 银行卡账户
 
-class Bail():
+class Bail(Base):
     """
     保证金
     """
@@ -204,10 +208,10 @@ class Bail():
 
 
 
-class OnlineRecharge():
+class OnlineRecharge(Base):
     """
     微信线上充值记录表(如果需要)
-
+    """
     __tablename__ = 'onlinerecharge'
     ONRid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户
@@ -216,12 +220,12 @@ class OnlineRecharge():
     ONRstatus = Column(Integer)  # 记录状态: {0: 全部, 1: 充值中, 2: 充值成功, 3: 充值失败}
     ONDcreatetime = Column(String(14))  # 创建时间
     ONDtradenum = Column(String(125))  # 交易号, (如果有)
-    """
 
-class OnlineDraw():
+
+class OnlineDraw(Base):
     """
     微信线上提现记录表（如果需要）
-
+    """
     __tablename__ = 'onlinedraw'
     ONDid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户
@@ -230,9 +234,9 @@ class OnlineDraw():
     ONDstatus = Column(Integer)  # 记录状态: {0: 全部, 1: 提现中, 2: 提现成功, 3: 提现失败}
     ONDcreatetime = Column(String(14))  # 创建时间
     ONDtradenum = Column(String(125))  # 交易号, (如果有)
-    """
 
-class OfflineDraw():
+
+class OfflineDraw(Base):
     """
     银行卡线下提现记录表
     """
@@ -250,7 +254,7 @@ class OfflineDraw():
     OFDtradenum = Column(String(125))  # 交易号, (如果有)
 
 
-class Product():
+class Product(Base):
     """
     商品表
     """
@@ -267,7 +271,7 @@ class Product():
     PRmodifytime = Column(String(14))  # 修改时间
     PRlogisticsfee = Column(Float)  # 物流费
 
-class Reward():
+class Reward(Base):
     """
     奖金表
     """
@@ -278,7 +282,7 @@ class Reward():
     REberefid = Column(String(64))  # 被推荐人id
     REamount = Column(Float)  # 奖金金额
 
-class AgentMessage():
+class AgentMessage(Base):
     """
     代理消息表
     """
@@ -289,7 +293,7 @@ class AgentMessage():
     AMtype = Column(Boolean)  # 种类: {0: 订单信息, 1: 款项消息, 2: 代理信息}
     AMtext = Column(String(128), nullable=False)  # 消息详情
 
-class ComMessage():
+class ComMessage(Base):
     """
     公司消息表
     """
@@ -300,7 +304,7 @@ class ComMessage():
     CMtext = Column(String(128), nullable=False)  # 消息详情
     CMpic = Column(String(255), nullable=False)  # 附加图片
 
-class Question():
+class Question(Base):
     """
     问题反馈记录表
     """
@@ -309,7 +313,7 @@ class Question():
     QUdate = Column(String(64))  # 反馈问题时间
     QUtext = Column(String(128), nullable=False)  # 问题详情
 
-class UserLoginTime(BaseModel):
+class UserLoginTime(Base):
     """
     用来记录用户的登录时间
     """
@@ -319,7 +323,7 @@ class UserLoginTime(BaseModel):
     USTcreatetime = Column(String(14))  # 登录时间
     USTip = Column(String(64))  # 登录ip地址
 
-class Province(BaseModel):
+class Province(Base):
     """省"""
     __tablename__ = 'province'
     id = Column(Integer, primary_key=True)
@@ -327,7 +331,7 @@ class Province(BaseModel):
     provinceid = Column(String(8), nullable=False)
 
 
-class City(BaseModel):
+class City(Base):
     """市"""
     __tablename__ = 'city'
     id = Column(Integer, primary_key=True)
@@ -336,7 +340,7 @@ class City(BaseModel):
     provinceid = Column(String(8), nullable=False)
 
 
-class Area(BaseModel):
+class Area(Base):
     """区县"""
     __tablename__ = 'area'
     id = Column(Integer, primary_key=True)
@@ -345,7 +349,7 @@ class Area(BaseModel):
     cityid = Column(String(8), nullable=False)
 
 
-class UserAddress(BaseModel):
+class UserAddress(Base):
     """用户收货地址"""
     __tablename__ = 'useraddress'
     UAid = Column(String(64), primary_key=True)
@@ -358,7 +362,7 @@ class UserAddress(BaseModel):
     UAcreatetime = Column(String(14))                   # 创建时间
     areaid = Column(String(8), nullable=False)          # 关联的区域id
 
-class IdentifyingCode(BaseModel):
+class IdentifyingCode(Base):
     """验证码"""
     __tablename__ = "identifyingcode"
     ICid = Column(String(64), primary_key=True)
@@ -366,3 +370,5 @@ class IdentifyingCode(BaseModel):
     ICcode = Column(String(8), nullable=False)    # 获取到的验证码
     ICtime = Column(String(14), nullable=False)    # 获取的时间，格式为20180503100322
 
+
+Base.metadata.create_all(mysql_engine)

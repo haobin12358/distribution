@@ -3,8 +3,8 @@ import sys
 import os
 from sqlalchemy.orm import sessionmaker
 
-from WeiDian.common.query_session import Session
-from WeiDian.models import model
+from common.query_session import Session
+from models import model
 sys.path.append(os.path.dirname(os.getcwd()))
 
 

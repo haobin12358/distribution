@@ -5,12 +5,12 @@ import datetime
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired
 from flask import current_app, request
 
-from WeiDian.service.DBSession import db_session
+from service.DBSession import db_session
 
 
-def usid_to_token(id, model='User', expiration=''):
+def usid_to_token(phonenum, model='User', expiration=''):
     """生成令牌
-    id: 用户id
+    phonenum: 用户电话号码
     model: 用户类型(User 或者 SuperUser)
     expiration: 过期时间, 默认20个小时, 在common/setting中修改
     """
@@ -19,7 +19,7 @@ def usid_to_token(id, model='User', expiration=''):
     s = Serializer(current_app.config['SECRET_KEY'], expires_in=expiration)
     time_now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return s.dumps({
-        'id': id,
+        'phonenum': phonenum,
         'model': model,
         'time': time_now,
     })

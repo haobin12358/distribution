@@ -7,7 +7,6 @@ import uuid
 import model
 import pymysql
 from sqlalchemy.orm import scoped_session, sessionmaker
-from WeiDian.service.SActivity import SActivity
 sys.path.append(os.path.dirname(os.getcwd()))  # 增加系统路径
 
 change_index = 10  # 循环中改变type的点
@@ -16,7 +15,7 @@ info_count = 22  # 需要插入的数据库条数
 
 class MakeData():
     def __init__(self):
-        self.act = SActivity()
+#        self.act = SActivity()
         self.session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
                                          bind=model.mysql_engine))
@@ -96,28 +95,8 @@ class MakeData():
             self.session.add(comment)
             self.session.commit()
 
-    def add_tags(self):
-        from model import ActivityTag
-        for i in self.tag_id:
-            tag = ActivityTag()
-            tag.ATid = str(i)
-            tag.ACid = random.choice(self.activity_id)
-            tag.ATname = random.choice(['活动', '爆款', '其他'])
-            self.session.add(tag)
-            self.session.commit()
 
-    def add_hotmessage(self):
-        from model import HotMessage
-        for i in self.hotmessege_id: 
-            hm = HotMessage()
-            hm.HMid = str(i)
-            hm.PRid = random.choice(self.product_id) 
-            hm.HMstarttime = str(random.randint(2017, 2019))+'0510000000'
-            hm.HMendtime = str( random.randint(2017, 2019))+'0510000000'
-            hm.HMtext = 'hello 这是热文' + str(i)
-            hm.HMsort = random.randint(1, 30)
-            self.session.add(hm)
-            self.session.commit()
+
 
     def add_product(self):
         from model import Product
@@ -167,13 +146,14 @@ class MakeData():
             self.session.add(rb)
             self.session.commit()
 
-    def add_user_ordinary(self):
+    def add_user(self):
         from model import User
         from werkzeug.security import generate_password_hash
         user = User()
         user.USid = '4304cf38-c3cf-401f-8ba7-f8ce040f064f'
         user.USname = 'name'
-        user.USpassword = generate_password_hash('pass')
+        user.USphone = '13511112222'
+        user.USpassword = generate_password_hash('123')
         self.session.add(user)
         self.session.commit()
     
@@ -271,7 +251,7 @@ if __name__ == "__main__":
 
     else:
         create()
-        # data = MakeData()
+        data = MakeData()
         # # tshop_ids = data.make_id()
         # # print("over")
         # data.add_activity()
@@ -283,5 +263,5 @@ if __name__ == "__main__":
         # data.add_product()
         # data.add_super()
         # data.add_recommendbanner()
-        # data.add_user_ordinary()
+        data.add_user()
         # data.add_user_partner()

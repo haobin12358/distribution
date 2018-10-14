@@ -7,7 +7,7 @@ from sqlalchemy import inspection, log, util
 from sqlalchemy.orm import Query as _Query, Session as _Session
 from sqlalchemy.sql.sqltypes import NullType
 
-from WeiDian.config.response import PARAMS_ERROR
+from config.response import PARAMS_ERROR
 
 
 def _generative(*assertions):
