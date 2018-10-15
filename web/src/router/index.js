@@ -1,30 +1,28 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Layout from '../pages/layout/index';
 
 Vue.use(Router)
+
+const message = r => require.ensure([], () => r(require('../pages/message/message')), 'message')
+
+const home = r => require.ensure([], () => r(require('../pages/home/index')), 'home')
+
+const personal = r => require.ensure([], () => r(require('../pages/personal/personal')), 'personal')
 
 
 export const constantRouterMap = [
   {
     path: '/',
-    component: Layout,
-    redirect: 'home/index',
-    children: [{
-      path: 'index',
-      component: () => import('../pages/home/index'),
-      name: 'home',
-      meta: { title: 'home', icon: 'home', noCache: true }
-    }],
+    redirect: '/home'
   },{
     path: '/home',
-    component: Layout,
-    redirect: 'home/index',
-    children: [{
-      path: 'index',
-      component: () => import('../pages/home/index'),
-      meta: { title: 'home', icon: 'home', noCache: true }
-    }],
+    component: home
+  },{
+    path: '/message',
+    component: message
+  },{
+    path: '/personal',
+    component: personal
   },
 ];
 

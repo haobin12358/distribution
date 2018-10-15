@@ -8,66 +8,73 @@
 html, body {
   background-color: @bgMainColor;
   height: 100%;
-  -webkit-text-size-adjust:none;
+  -webkit-text-size-adjust: none;
 }
+
 /*上下拉动滚动条时卡顿、慢*/
 body {
   -webkit-overflow-scrolling: touch;
   overflow-scrolling: touch;
 }
-body{
+
+body {
   -webkit-touch-callout: none;
   -webkit-appearance: none;
-  -webkit-tap-highlight-color:rgba(255,255,255,0)
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0)
 }
-.m-flex-between{
+
+.m-flex-between {
   display: flex;
   flex-flow: row;
   align-items: center;
   justify-content: space-between;
 }
-.m-flex-start{
+
+.m-flex-start {
   display: flex;
   flex-flow: row;
   align-items: center;
   justify-content: flex-start;
 }
 
-.m-flex-around{
+.m-flex-around {
   display: flex;
   flex-flow: row;
   align-items: center;
   justify-content: space-around;
 }
-.m-flex-center{
+
+.m-flex-center {
   display: flex;
   flex-flow: row;
   align-items: center;
   justify-content: center;
 }
 
-.flex-col(@x){
+.flex-col(@x) {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: @x;
 }
-.flex-row(@x){
+
+.flex-row(@x) {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: @x;
 }
 
-.fz(@x){
+.fz(@x) {
   font-size: @x
 }
 
-.m-toast{
+.m-toast {
   background-size: 100% 100%;
   width: 220px;
   height: 255px;
 }
+
 //toast的提示样式
 .m-toast-success {
   background-size: 100% 100%;
@@ -75,11 +82,42 @@ body{
   height: 255px;
   background: url("/static/images/toast_success.png") no-repeat;
 }
+
 .m-toast-fail {
   background: url("/static/images/toast_fail.png") no-repeat;
 }
+
 .m-toast-warning {
   background: url("/static/images/toast_warning.png") no-repeat;
 }
+
+.wl(@width,@height) {
+  width: @width;
+  height: @height;
+}
+
+.sc(@size, @color) {
+  font-size: @size;
+  color: @color;
+}
+
+.bd(@thick: 1px,@color: #bbbbbb) {
+  border: @thick solid @color;
+}
+
+.fj(@type: space-between;) {
+  display: flex;
+  justify-content: @type;
+}
+
+.fontc(@line-height){
+  text-align: center;
+  line-height: @line-height;
+}
+
+
+
+
+
 
 
