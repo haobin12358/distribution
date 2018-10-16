@@ -152,10 +152,11 @@ class MakeData():
         user = User()
         user.USid = '4304cf38-c3cf-401f-8ba7-f8ce040f064f'
         user.USname = 'name'
-        user.USphone = '13511112222'
-        user.USpassword = generate_password_hash('123')
+        user.USphonenum = '13511112222'
+        user.USpassword = "123"
         self.session.add(user)
         self.session.commit()
+
     
     def add_user_partner(self):
         from model import User
@@ -252,6 +253,8 @@ if __name__ == "__main__":
     else:
         create()
         data = MakeData()
+        data.add_user()
+        print "OK!"
         # # tshop_ids = data.make_id()
         # # print("over")
         # data.add_activity()
@@ -263,5 +266,4 @@ if __name__ == "__main__":
         # data.add_product()
         # data.add_super()
         # data.add_recommendbanner()
-        data.add_user()
         # data.add_user_partner()
