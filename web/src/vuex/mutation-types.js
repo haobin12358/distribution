@@ -1,0 +1,1 @@
+export const SAVE_READING_MESSAGE = 'SAVE_READING_MESSAGE'  // 暂存

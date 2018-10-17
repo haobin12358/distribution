@@ -11,6 +11,10 @@ Vue.config.productionTip = false
 import Mint from 'mint-ui';
 Vue.use(Mint);
 Vue.prototype.$toast = Mint.Toast;
+
+import headerTop from "components/header/header"
+Vue.component('header-top',headerTop)
+
 import 'mint-ui/lib/style.css'
 import VueClipboard from 'vue-clipboard2'
 

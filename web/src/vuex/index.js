@@ -7,13 +7,14 @@ import getters from "./getters"
 Vue.use(Vuex);
 
 const state = {
-  login: false, // 是否登录
-  userInfo: {}, // 用户信息
+    login: false, // 是否登录
+    userInfo: {}, // 用户信息
+    readingMessage: {}, // 正在阅读的公司消息
 }
 
 export default new Vuex.Store({
-  state,
-  getters,
-  mutations,
-  actions,
+    state,
+    getters,
+    mutations,
+    actions,
 })

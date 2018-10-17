@@ -6,7 +6,7 @@
 <template>
   <div>
     <mt-header :title="title">
-      <section slot="left" @click="$route.back()">
+      <section v-if="showBack" slot="left" @click="goBack">
         <mt-button icon="back"></mt-button>
       </section>
       <section slot="right">
@@ -20,7 +20,7 @@
   export default {
     name: "headerTop",
 
-    props: ['title'],
+    props: ['title', 'showBack'],
 
     data() {
       return {}
@@ -28,7 +28,11 @@
 
     components: {},
 
-    methods: {},
+    methods: {
+        goBack(){
+            this.$router.back();
+        }
+    },
   }
 </script>
 
