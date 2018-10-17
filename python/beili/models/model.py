@@ -1,7 +1,7 @@
 # -*- coding:utf8 -*-
 from sqlalchemy import Column, create_engine, Integer, String, Text, Float, Boolean, orm
 from config import dbconfig as cfg
-# from models.base_model import BaseModel, auto_createtime
+# from models.base_model import Base, auto_createtime
 from base_model import Base
 
 DB_PARAMS = "{0}://{1}:{2}@{3}/{4}?charset={5}".format(
@@ -22,7 +22,7 @@ class User(Base):
     USid = Column(String(64), primary_key=True)
     USname = Column(String(64), nullable=False)  # 用户名
     USpassword = Column(String(255))             # 密码
-    USphone = Column(String(16), nullable=False)  # 手机号
+    USphonenum = Column(String(16), nullable=False)  # 手机号
     USheader = Column(String(255))               # 头像
     USage = Column(Integer)                      # 年龄
     USbail = Column(Boolean)                     # 是否缴纳保证金
@@ -366,7 +366,7 @@ class IdentifyingCode(Base):
     """验证码"""
     __tablename__ = "identifyingcode"
     ICid = Column(String(64), primary_key=True)
-    ICtelphone = Column(String(14), nullable=False)  # 获取验证码的手机号
+    ICphonenum = Column(String(14), nullable=False)  # 获取验证码的手机号
     ICcode = Column(String(8), nullable=False)    # 获取到的验证码
     ICtime = Column(String(14), nullable=False)    # 获取的时间，格式为20180503100322
 

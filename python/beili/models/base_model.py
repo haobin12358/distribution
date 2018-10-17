@@ -4,19 +4,18 @@ from datetime import datetime
 from config.response import NOT_FOUND
 from sqlalchemy import orm
 from sqlalchemy.ext.declarative import declarative_base, AbstractConcreteBase
-
 from common.timeformat import format_for_db
 
 Base = declarative_base()
-#
-#
+
+
 # def auto_createtime(f):
 #     def inner(self, *args, **kwargs):
 #         res = f(self, *args, **kwargs)
 #         self.auto_creatdatatime()
 #         return res
 #     return inner
-
+#
 #
 # class BaseModel(AbstractConcreteBase, Base):
 #     __table_args__ = {"useexisting": True}

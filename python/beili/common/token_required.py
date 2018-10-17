@@ -8,9 +8,9 @@ from flask import current_app, request
 from service.DBSession import db_session
 
 
-def usid_to_token(phonenum, model='User', expiration=''):
+def usid_to_token(id, type='User', expiration=''):
     """生成令牌
-    phonenum: 用户电话号码
+    id: 用户id
     model: 用户类型(User 或者 SuperUser)
     expiration: 过期时间, 默认20个小时, 在common/setting中修改
     """
@@ -19,8 +19,8 @@ def usid_to_token(phonenum, model='User', expiration=''):
     s = Serializer(current_app.config['SECRET_KEY'], expires_in=expiration)
     time_now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return s.dumps({
-        'phonenum': phonenum,
-        'model': model,
+        'id': id,
+        'type':type,
         'time': time_now,
     })
 
@@ -63,28 +63,27 @@ def verify_token_decorator(func):
             return func(self, *args, **kwargs)
         id = data['id']
         time = data['time']
-        model = data['model']
-        if model != 'User' and model != 'SuperUser':
+        type = data['type']
+        if type != 'User' and type != 'SuperUser':
             return func(self, *args, **kwargs)
         sessions = db_session()
         try:
-            if model == 'User':
-                from WeiDian.models.model import User
+            if type == 'User':
+                from models.model import User
                 user = sessions.query(User).filter_by(USid=id).first()
                 if not user:
                     # 不存在的用户
                     return func(self, *args, **kwargs)
                 user.id = user.USid
-                user.scope = 'User'
-                user.level = user.USlevel
-            if model == 'SuperUser':
-                from WeiDian.models.model import SuperUser
+                user.type = 'User'
+            if type == 'SuperUser':
+                from models.model import SuperUser
                 user = sessions.query(SuperUser).filter_by(SUid=id).first()
                 if not user:
                     # 不存在的管理
                     return func(self, *args, **kwargs)
                 user.id = user.SUid
-                user.scope = 'SuperUser'
+                user.type = 'SuperUser'
                 user.level = user.SUlevel
             sessions.expunge_all()
             sessions.commit()
@@ -96,28 +95,20 @@ def verify_token_decorator(func):
     return inner
 
 
+def is_ordirnaryuser():
+    """普通用户"""
+    return (hasattr(request, 'user') and request.user.scope == 'User')
+
 def is_admin():
-    """是否是管理员(不包括客服)"""
-    return (hasattr(request, 'user') and request.user.scope == 'SuperUser' and request.user.SUlevel > 0)
-
-
-def is_customerservice():
-    """客服"""
+    """是否是管理员"""
     return (hasattr(request, 'user') and request.user.scope == 'SuperUser' and request.user.SUlevel == 0)
 
-
-def is_ordirnaryuser():
-    """普通用户(不包括合伙人)"""
-    return (hasattr(request, 'user') and request.user.scope == 'User' and request.user.USlevel == 0)
-
-
-def is_partner():
-    """合伙人"""
-    return (hasattr(request, 'user') and request.user.scope == 'User' and request.user.USlevel > 0)
-
+def is_admin():
+    """是否是超级管理员"""
+    return (hasattr(request, 'user') and request.user.scope == 'SuperUser' and request.user.SUlevel ==1)
 
 def is_tourist():
-    """游客"""
+    """游客，未登录"""
     return (not hasattr(request, 'user'))
 # if __name__ == '__main__':
 #     from WeiDian import create_app

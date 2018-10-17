@@ -1,12 +1,9 @@
 # *- coding:utf8 *-
 # 引用python类
-import flask_restful
 from flask import Flask as _Flask
 from flask.wrappers import Request as _Request
 from flask.json import JSONEncoder as _JSONEncoder
 from common.base_error import BaseError
-from flask_socketio import SocketIO, emit
-
 
 
 class JSONEncoder(_JSONEncoder):
@@ -46,7 +43,8 @@ class Flask(_Flask):
     request_class = Request
 
 # 引用项目类
-from apis.AUser import AUser
+from apis.front.AUser import AUser
+from apis.front.AMyCenter import AMyCenter
 
 
 
@@ -55,10 +53,11 @@ from apis.AUser import AUser
 def register_route(app):
     """添加路由"""
     app.add_url_rule('/user/<string:user>', view_func=AUser.as_view('user'))
+    app.add_url_rule('/mycenter/<string:mycenter>', view_func=AMyCenter.as_view('mycenter'))
 
 def create_app():
     app = Flask(__name__)
-    # app.config.from_object('WeiDian.config.setting')
+    app.config.from_object('config.setting')
     # from raven.contrib.flask import Sentry
     #sentry = Sentry(app, dsn='http://5ffc9de0629a4a58a7e76958dd4c6a2a:edc93accdb934ad1b7e16cf7fbb407e2@s.wkt.ooo:7443/3')
     # ws = GeventWebSocket(app)
