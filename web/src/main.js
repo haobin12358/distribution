@@ -14,6 +14,9 @@ Vue.prototype.$toast = Mint.Toast;
 
 import headerTop from "components/header/header"
 Vue.component('header-top',headerTop)
+import loadMore from "components/common/loadMore"
+Vue.component('load-more',loadMore)
+
 
 import 'mint-ui/lib/style.css'
 import VueClipboard from 'vue-clipboard2'

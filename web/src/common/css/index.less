@@ -120,9 +120,23 @@ body {
   line-height: @line-height;
 }
 
+.bs(@margin,@thick,@dim){
+    margin-bottom: @margin;
+    box-shadow: 0 @thick @dim rgba(0,0,0,.16);
+}
 
+.bs-none{
+    margin-bottom: 0;
+    box-shadow: none;
+}
 
+.bd(@color, @radius: 0px){
+    border: 1px solid @color;
+    border-radius: @radius;
+}
 
-
+.bgw{
+    background: white;
+}
 
 

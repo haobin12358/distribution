@@ -4,6 +4,7 @@
     .container {
         min-height: 100vh;
         padding-top: 20px;
+        padding-bottom: 100px;
 
         .container-hd {
             margin: 0 auto 20px;
@@ -31,7 +32,7 @@
             .message-item {
                 padding: 30px 20px 40px;
                 margin-bottom: 10px;
-                box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.16);
+                box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
                 background: white;
 
                 .item-hd {
@@ -86,10 +87,6 @@
             </li>
         </ul>
         <footer-guide></footer-guide>
-
-        <transition name="router-slid" mode="out-in">
-            <router-view></router-view>
-        </transition>
     </div>
 </template>
 
@@ -123,6 +120,18 @@
                         title: '公告',
                         date: '2017-08-07 10:00:00',
                         content: '订单编号：01245846512313245645641',
+                    },{
+                        title: '公告',
+                        date: '2017-08-07 10:00:00',
+                        content: '订单编号：01245846512313245645641',
+                    },{
+                        title: '公告',
+                        date: '2017-08-07 10:00:00',
+                        content: '订单编号：01245846512313245645641',
+                    },{
+                        title: '公告',
+                        date: '2017-08-07 10:00:00',
+                        content: '订单编号：01245846512313245645641',
                     },
                 ]
             }
@@ -139,7 +148,7 @@
             },
             gotoMessageDetail(msg){
                 this.$store.commit('SAVE_READING_MESSAGE',msg);
-                this.$router.push('/message/messageDetail')
+                this.$router.push('/messageDetail')
             }
         },
     }

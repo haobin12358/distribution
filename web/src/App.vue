@@ -1,11 +1,11 @@
 <template>
     <div id="app">
-        <transition name="router-fade" mode="out-in">
+        <transition :name="$route.meta.transitionName || 'router-fade'">
             <keep-alive>
                 <router-view v-if="$route.meta.keepAlive"></router-view>
             </keep-alive>
         </transition>
-        <transition name="router-fade" mode="out-in">
+        <transition :name="$route.meta.transitionName || 'router-fade'" mode="out-in">
             <router-view v-if="!$route.meta.keepAlive"></router-view>
         </transition>
     </div>
@@ -36,7 +36,7 @@
         opacity: 0;
     }
 
-    .router-slid-enter-active, .router-slid-leave-active {
+    .router-slid-enter-active {
         transition: all .3s;
     }
 
@@ -45,7 +45,7 @@
         opacity: 0;
     }
 
-    .router-slid-reverse-enter-active, .router-slid-reverse-leave-active {
+    .router-slid-reverse-enter-active{
         transition: all .3s;
     }
 

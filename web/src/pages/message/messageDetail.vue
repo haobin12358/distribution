@@ -2,14 +2,6 @@
     @import "~common/css/index";
 
     .messageDetail {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: white;
-        z-index: 10;
-
         .title {
             text-align: center;
             font-weight: bold;
@@ -24,12 +16,12 @@
             padding: 0 20px;
             .fz(26px);
 
-            .sub-title{
+            .sub-title {
                 font-weight: bold;
             }
         }
 
-        .msg-content{
+        .msg-content {
             .fz(26px);
 
         }
@@ -37,8 +29,8 @@
 </style>
 
 <template>
-    <div class="messageDetail">
-        <header-top :title="'公司消息详情'"></header-top>
+    <section class="messageDetail">
+        <header-top :title="'公司消息详情'" :show-back="true"></header-top>
 
         <header class="title">
             {{readingMessage.title}}
@@ -49,14 +41,16 @@
             <span> {{readingMessage.date}}</span>
         </section>
 
-        <article class="msg-content">
-            {{readingMessage.content}}
+        <article class="msg-content" v-for="item in 100">
+            <!--{{readingMessage.content}}-->
+            {{item}}
         </article>
-    </div>
+    </section>
 </template>
 
 <script>
     import {mapState, mapMutations} from 'vuex'
+    import BScroll from 'better-scroll'
 
     export default {
         name: "messageDetail",
@@ -73,6 +67,10 @@
         components: {},
 
         methods: {},
+
+        mounted() {
+
+        }
     }
 </script>
 

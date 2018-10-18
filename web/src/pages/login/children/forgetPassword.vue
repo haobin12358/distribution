@@ -68,13 +68,14 @@
             font-weight: bold;
             border-radius: 50px;
             margin-top: 285px;
+            border: none;
         }
     }
 </style>
 
 <template>
     <div class="forget-password">
-        <header-top :title="'修改密码'" showBack="true"></header-top>
+        <header-top :title="'修改密码'" :showBack="true"></header-top>
         <form class="forget-password-form" v-on:submit.prevent>
             <div class="form-item">
                 <section class="form-item-label">

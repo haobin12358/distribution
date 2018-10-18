@@ -75,6 +75,8 @@
                 .fontc(90px);
                 font-weight:bold;
                 border-radius:50px;
+                border: none;
+
             }
         }
     }
@@ -121,6 +123,10 @@
                 this.$router.push('/message');
             },
         },
+
+        created(){
+
+        }
     }
 </script>
 

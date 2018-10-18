@@ -2,6 +2,12 @@
     @import "../../common/css/index";
 
     .container {
+        padding-bottom: 100px;
+
+        #go-order-img {
+            .wl(33px, 27px);
+        }
+
         .pay-order {
             width: 129px;
             height: 36px;
@@ -42,35 +48,47 @@
             .nav-list-children {
                 height: 80px;
                 overflow-x: scroll;
-                white-space: nowrap;
+                .fj(flex-start);
+                align-items: center;
+                flex-wrap: nowrap;
 
                 .pillow-item {
                     /*line-height: 80px;*/
-                    display: inline-block;
-                    margin-top: 18px;
+                    /*display: inline-block;*/
                     margin-right: 50px;
                     border: 1px solid rgba(110, 171, 184, 1);
                     padding: 4px 23px;
                     border-radius: 30px;
                     white-space: nowrap;
 
-                    &:first-child {
+                    &:first-of-type {
                         margin-left: 42px;
                     }
-                    &:last-child {
+                    &:last-of-type {
                         margin-right: 42px;
                     }
+                }
+
+                .pillow-item-tail {
+                    flex: 42px;
+                    .wl(42px, 10px);
                 }
 
             }
         }
 
         .goods-list {
+            padding: 0 10px;
+            background: white;
+
             .goods-item {
-                padding: 35px 12px 32px 26px;
+                padding: 35px 2px 32px 16px;
                 border-bottom: 1px solid #DBDBDB;
                 .fj();
-                background: white;
+
+                &:last-child {
+                    border-bottom: 0;
+                }
 
                 .goods-img {
                     margin-right: 40px;
@@ -92,20 +110,19 @@
                     .goods-description-content {
                         .fj();
 
-                        .goods-description-price{
+                        .goods-description-price {
 
-                            .current-price{
+                            .current-price {
                                 margin-right: 20px;
                                 color: #FC0000;
 
                             }
-                            .original-price{
+                            .original-price {
                                 color: black;
                                 text-decoration: line-through;
 
                             }
                         }
-
 
                     }
                 }
@@ -117,6 +134,9 @@
 <template>
     <div class="container">
         <header-top :title="'云仓'">
+            <section slot="left" @click="goOrder">
+                <img id="go-order-img" src="/static/images/myOrder.png" alt="">
+            </section>
             <section slot="right">
                 <button class="pay-order" @click="goPayOrder">结算</button>
             </section>
@@ -147,17 +167,18 @@
                 <li class="pillow-item">2级</li>
                 <li class="pillow-item">2级</li>
 
+                <li class="pillow-item-tail"></li>
             </ul>
         </section>
 
         <ul class="goods-list">
-            <li class="goods-item">
+            <li class="goods-item" v-for="item in 6">
                 <section class="goods-img">
                     <img src="/static/images/testbg.jpg" alt="">
                 </section>
                 <section class="goods-description">
                     <header class="goods-description-header">
-                        蓓莉纸尿裤（M码）  （36片*4包）
+                        蓓莉纸尿裤（M码） （36片*4包）
                     </header>
                     <section class="goods-description-content">
                         <p class="goods-description-price">
@@ -173,10 +194,6 @@
         </ul>
 
         <footer-guide></footer-guide>
-
-        <transition name="router-slid" mode="out-in">
-            <router-view></router-view>
-        </transition>
     </div>
 </template>
 
@@ -198,12 +215,16 @@
         },
 
         methods: {
-            goPayOrder(){
-                this.$router.push('/mall/payOrder');
+            goOrder() {
+                this.$router.push('/mallOrder');
+            },
+            goPayOrder() {
+                this.$router.push('/payOrder');
             }
         },
 
         mounted() {
+
             // this.$toast({
             //   message: 'success',
             //   iconClass: 'm-toast-success',
