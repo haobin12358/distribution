@@ -141,8 +141,8 @@ export const constantRouterMap = [
             title: '提现记录'
         },
     },{
-        path: '/withdrawCashRecord',
-        component: withdrawCashRecord,
+        path: '/withdrawCashRecordDetail',
+        component: withdrawCashRecordDetail,
         meta: {
             transitionName: 'router-slid',
             title: '提现详情'

@@ -1,11 +1,11 @@
 <template>
     <div id="app">
-        <transition :name="$route.meta.transitionName || 'router-fade'">
+        <transition :name=" 'router-fade'">
             <keep-alive>
                 <router-view v-if="$route.meta.keepAlive"></router-view>
             </keep-alive>
         </transition>
-        <transition :name="$route.meta.transitionName || 'router-fade'" mode="out-in">
+        <transition :name="'router-fade'" mode="out-in">
             <router-view v-if="!$route.meta.keepAlive"></router-view>
         </transition>
     </div>
@@ -29,7 +29,7 @@
     }
 
     .router-fade-enter-active {
-        transition: opacity .3s;
+        transition: opacity .2s;
     }
 
     .router-fade-enter {

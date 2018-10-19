@@ -16,7 +16,7 @@ import headerTop from "components/header/header"
 Vue.component('header-top',headerTop)
 import loadMore from "components/common/loadMore"
 Vue.component('load-more',loadMore)
-
+Vue.prototype.$log = console.log;
 
 import 'mint-ui/lib/style.css'
 import VueClipboard from 'vue-clipboard2'

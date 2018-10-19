@@ -13,11 +13,21 @@
   color: @greyColor;
 }
 .mint-tabbar > .mint-tab-item.is-selected{
-  color: @mainColor;
-  background-color: transparent;
+    background-color: transparent;
+}
+.mint-tab-item > .mint-tab-item-label{
+    font-size: 24px;
 }
 .mint-swipe-indicators{
   position: absolute;
   right: 60px;
   left: auto;
+}
+
+.mint-cell-text,.mint-field-core{
+    font-size: 28px;
+}
+.mint-tab-item.is-selected {
+    color: @mainColor;
+    border-bottom: 4px solid @mainColor;
 }
