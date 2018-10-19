@@ -23,7 +23,7 @@ class User(Base):
     USname = Column(String(64), nullable=False)  # 用户名
     USpassword = Column(String(255))             # 密码
     USphonenum = Column(String(16), nullable=False)  # 手机号
-    USheader = Column(String(255))               # 头像
+    USheadimg = Column(String(255))               # 头像
     USage = Column(Integer)                      # 年龄
     USbail = Column(Boolean)                     # 是否缴纳保证金
     USmount = Column(Float)                      # 账户余额
@@ -35,20 +35,21 @@ class User(Base):
     accesstoken = Column(String(255))            # 微信token
     subscribe = Column(Integer)                  # 是否关注公众号
 
+class Admin(Base):
+    """
+    管理员
+    """
+    __tablename__ = 'admin'
+    ADid = Column(String(64), primary_key=True)
+    ADnum = Column(String(64), nullable=False)  # 管理员账号
+    ADname = Column(String(64), nullable=False)  # 管理员用户名
+    ADpassword = Column(String(255), nullable=False)  # 密码
+    ADheaderimg = Column(String(255))  # 用户头像, 可以设置一个默认值
+    ADlevel = Column(Integer, default=0)  # 用户级别{0: 一般管理员, 1: 超级管理员}　
+    ADcreatetime = Column(String(14))  # 创建时间
+    ADisfreeze = Column(Boolean, default=False)  # 是否被冻结
+    ADisdelete = Column(Boolean, default=False)  # 是否被删除
 
-class SuperUser(Base):
-    """
-    超级用户
-    """
-    __tablename__ = 'superuser'
-    SUid = Column(String(64), primary_key=True)
-    SUname = Column(String(64), nullable=False)  # 超级用户名
-    SUpassword = Column(String(255), nullable=False)  # 密码
-    SUheader = Column(String(255))  # 用户头像, 可以设置一个默认值
-    SUlevel = Column(Integer, default=0)  # 用户类型{0: 客服, 1: 管理员, 2:超管}　
-    SUcreatetime = Column(String(14))  # 创建时间
-    SUidfreeze = Column(Boolean, default=False)  # 是否被冻结
-    SUisdelete = Column(Boolean, default=False)  # 是否被删除
 
 class ProductCategory(Base):
     """
@@ -371,4 +372,4 @@ class IdentifyingCode(Base):
     ICtime = Column(String(14), nullable=False)    # 获取的时间，格式为20180503100322
 
 
-Base.metadata.create_all(mysql_engine)
+# Base.metadata.create_all(mysql_engine)

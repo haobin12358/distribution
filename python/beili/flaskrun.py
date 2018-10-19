@@ -44,6 +44,7 @@ class Flask(_Flask):
 
 # 引用项目类
 from apis.front.AUser import AUser
+from apis.back.AAdmin import AAdmin
 from apis.front.AMyCenter import AMyCenter
 
 
@@ -53,6 +54,8 @@ from apis.front.AMyCenter import AMyCenter
 def register_route(app):
     """添加路由"""
     app.add_url_rule('/user/<string:user>', view_func=AUser.as_view('user'))
+    app.add_url_rule('/admin/<string:user>', view_func=AAdmin.as_view('admin'))
+    app.add_url_rule('/mycenter/<string:mycenter>', view_func=AMyCenter.as_view('mycenter'))
     app.add_url_rule('/mycenter/<string:mycenter>', view_func=AMyCenter.as_view('mycenter'))
 
 def create_app():

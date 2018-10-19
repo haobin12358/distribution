@@ -103,9 +103,9 @@ def is_admin():
     """是否是管理员"""
     return (hasattr(request, 'user') and request.user.scope == 'SuperUser' and request.user.SUlevel == 0)
 
-def is_admin():
+def is_superadmin():
     """是否是超级管理员"""
-    return (hasattr(request, 'user') and request.user.scope == 'SuperUser' and request.user.SUlevel ==1)
+    return (hasattr(request, 'user') and request.user.scope == 'SuperUser' and request.user.SUlevel == 1)
 
 def is_tourist():
     """游客，未登录"""
