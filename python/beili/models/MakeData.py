@@ -95,6 +95,15 @@ class MakeData():
             self.session.add(comment)
             self.session.commit()
 
+    def add_alreadyRead(self):
+        from model import AlreadyRead
+        for i in range(10):
+            message = AlreadyRead()
+            message.ARid = str(i) + "dfdef"
+            message.USid = str(i+1) + "gfvfvd"
+            self.session.add(message)
+            self.session.commit()
+
 
 
 
@@ -262,6 +271,7 @@ if __name__ == "__main__":
     data = MakeData()
     print('start add data')
     data.add_user()
+    data.add_alreadyRead()
         # # tshop_ids = data.make_id()
         # # print("over")
         # data.add_activity()

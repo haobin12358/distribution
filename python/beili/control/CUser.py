@@ -1,5 +1,4 @@
 # *- coding:utf8 *-
-import re
 import sys
 import os
 from flask import request
@@ -9,7 +8,7 @@ from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser
 from common.import_status import import_status
 from common.timeformat import get_db_time_str
-from service.front.SUser import SUser
+from service.SUser import SUser
 import platform
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -23,7 +22,7 @@ class CUser():
         print "hello"
         json_data = request.json
         if not json_data:
-            return PARAMS_MISS
+            return PARAMS_ERROR
         usphonenum = json_data.get('usphonenum')
         uspassword = json_data.get('uspassword')
         if not usphonenum or not uspassword:

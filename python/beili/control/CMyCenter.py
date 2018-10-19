@@ -9,7 +9,7 @@ from flask import request
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, NOT_FOUND
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist
 from common.import_status import import_status
-from service.front import SMyCenter
+from service import SMyCenter
 sys.path.append(os.path.dirname(os.getcwd()))
 
 

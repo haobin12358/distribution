@@ -9,102 +9,85 @@ from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser
 from common.import_status import import_status
 from common.timeformat import get_db_time_str
-from service.front.SUser import SUser
+from service.SUser import SUser
+from service.SMessage import SMessage
 import platform
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
-class CUser():
+class CMessage():
 
     def __init__(self):
         self.suser = SUser()
-
-    def login(self):
-        print "hello"
-        json_data = request.json
-        if not json_data:
-            return PARAMS_MISS
-        usphonenum = json_data.get('usphonenum')
-        uspassword = json_data.get('uspassword')
-        if not usphonenum or not uspassword:
-            return PARAMS_MISS(u'请输入手机号或密码')
-        print type(usphonenum)
-        user = self.suser.getuser_by_phonenum(usphonenum)
-        # print "aaaa" + user.USphone + ":" + user.USpassword
-        # print(dir(user))
-        print user.USphonenum
-        print type(user.USphonenum)
-        if not user or uspassword != user.USpassword:
-            return SYSTEM_ERROR(u'手机号或密码错误')
-        token = usid_to_token(user.USid)
-        data = import_status('generic_token_success', "OK")
-        data['data'] = {
-            'token': token,
-        }
-        return data
+        self.smessage = SMessage()
 
     @verify_token_decorator
-    def update_pwd(self):
+    def get_agentMessage(self):
+        print "hello"
         if is_tourist():
             return TOKEN_ERROR(u"未登录")
-        json_data = request.json
-        if not json_data:
-            return PARAMS_MISS
-        oldpassword = json_data.get('oldpassword')
-        newpassword = json_data.get('newpassword')
-        user = self.suser.getuser_by_uid(request.user.id)
-        if not user or user.USpassword != oldpassword:
-            return PARAMS_ERROR(u"密码错误")
-        user_update = {}
-        user_update["USpassword"] = newpassword
-        self.suser.update_user_by_uid(user.USid, user_update)
-        data = import_status("update_password_success", "OK")
-        return data
-
-    def findback_pwd(self):
         try:
-            json_data = request.json
-            usphonenum = json_data.get('usphonenum')
-            newpassword = json_data.get('newpassword')
+            args = request.args.to_dict()
+            page = int(args.get('page', 1))  # 页码
+            count = int(args.get('count', 15))  # 取出条数
         except Exception as e:
             return PARAMS_ERROR
-        if not usphonenum or not newpassword:
-            return PARAMS_MISS
-        user = self.suser.getuser_by_phonenum(usphonenum)
-        if not user:
-            return NOT_FOUND(u'该号码未注册')
-        user_update = {}
-        user_update["USpassword"] = newpassword
-        self.suser.update_user_by_uid(user.USid, user_update)
-        data = import_status("update_password_success", "OK")
+        user = self.suser.getuser_by_uid(request.user.id)
+        message_list = self.smessage.get_agentMessage_by_usid(user.USid, page, count)
+        data = import_status('get_agentmessage_list_success', 'OK')
+        data['data'] = message_list
         return data
 
     @verify_token_decorator
-    def update_headimg(self):  # 更新头像
-        if not is_ordirnaryuser():
-            return AUTHORITY_ERROR(u"权限不足")
-        files = request.files.get("file")
-        if not files:
-            return NOT_FOUND(u"图片不存在")
-        if platform.system() == "Windows":
-            rootdir = "D:/task"
-        else:
-            rootdir = "/opt/WeiDian/imgs/mycenter/"
-        if not os.path.isdir(rootdir):
-            os.mkdir(rootdir)
-        lastpoint = str(files.filename).rindex(".")
-        filessuffix = str(files.filename)[lastpoint+1:]
-        # index = formdata.get("index", 1)
-        filename = request.user.id + get_db_time_str() + "." + filessuffix
-        filepath = os.path.join(rootdir, filename)
-        print(filepath)
-        files.save(filepath)
-        response = import_status("updata_headimg_success", "OK")
-        # url = Inforcode.ip + Inforcode.LinuxImgs + "/" + filename
-        url = QRCODEHOSTNAME + "/imgs/mycenter/" + filename
-        user_update = {}
-        user_update['USheadimg'] = url
-        self.suser.update_user_by_uid(request.user.id)
-        # print(url)
-        response["data"] = url
-        return response
+    def get_comMessage(self):
+        if is_tourist():
+            return TOKEN_ERROR(u"未登录")
+        try:
+            args = request.args.to_dict()
+            page = int(args.get('page', 1))  # 页码
+            count = int(args.get('count', 10))  # 取出条数
+        except Exception as e:
+            return PARAMS_ERROR
+        comMessage_num = self.smessage.get_commessage_num()  # 公司消息总条数
+        comMessage_list = self.smessage.get_comMessage_list(page, count)  # 分页查询出的公司消息列表
+        already_list = self.smessage.get_alreadyMessage_by_usid(request.user.id)  # 已经阅读的消息的id集合
+        notread_count = comMessage_num - len(already_list)  # 该用户未读的消息条数
+        return_message_list = []
+        for message in comMessage_list:
+            message_dic = {}
+            if message.CMid not in already_list:  # 如果没有读，加个标记isread
+                message_dic['isread'] = 0
+                message_dic['CMid'] = message.CMid
+                message_dic['CMdate'] = message.CMdate
+                message_dic['CMtype'] = message.CMtype
+                message_dic['CMtext'] = message.CMtext
+                message_dic['CMpic'] = message.CMpic
+                return_message_list.append(message_dic)
+            else:
+                message_dic['isread'] = 1
+                message_dic['CMid'] = message.CMid
+                message_dic['CMdate'] = message.CMdate
+                message_dic['CMtype'] = message.CMtype
+                message_dic['CMtext'] = message.CMtext
+                message_dic['CMpic'] = message.CMpic
+                return_message_list.append(message_dic)
+        data = import_status('get_commessage_list_success', 'OK')
+        data['notread'] = notread_count
+        data['data'] = return_message_list
+
+    @verify_token_decorator
+    def get_commessage_details(self):
+        if is_tourist():
+            return TOKEN_ERROR(u"未登录")
+        try:
+            json_data = request.json
+            messageid = json_data.get('messageid')
+        except Exception as e:
+            return PARAMS_ERROR
+        if not messageid:
+            return PARAMS_MISS
+        message = self.smessage.get_commessage_details(messageid)
+        self.smessage.update_commessage_status(messageid, request.user.id)
+        data = import_status('get_commessage_details_success', 'OK')
+        data['data'] = message
+        return data

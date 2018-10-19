@@ -8,7 +8,7 @@ from models import model
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
-db_session = sessionmaker(bind=model.mysql_engine, class_=Session, keep_session=True)
+db_session = sessionmaker(bind=model.mysql_engine, class_=Session)
 
 
 def get_session():

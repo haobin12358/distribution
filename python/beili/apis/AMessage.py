@@ -3,25 +3,27 @@ import sys
 import os
 from flask import jsonify
 from flask_restful import Resource
-from control.front import CMessage
+from control import CMessage
 sys.path.append(os.path.dirname(os.getcwd()))
 
 class AMessage(Resource):
     def __init__(self):
         self.cmessage = CMessage()
 
-    def post(self, mycenter):
-        print mycenter
+    def post(self, message):
+        print message
         apis = {
             'check_inforcode': 'self.cmycenter.check_inforcode()'
         }
-        res = eval(apis[mycenter])
+        res = eval(apis[message])
         return jsonify(res)
 
-    def get(self, mycenter):
-        print mycenter
+    def get(self, message):
+        print message
         apis = {
-            'get_inforcode': 'self.cmycenter.get_inforcode()',
+            'get_agent_message': 'self.cmessage.get_agentMessage()',
+            'get_com_message': 'self.cmessage.get_comMessage()',
+            'get_commessage_details': 'self.cmessage.get_commessage_details()',
         }
-        res = eval(apis[mycenter])
+        res = eval(apis[message])
         return jsonify(res)

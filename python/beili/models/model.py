@@ -371,5 +371,13 @@ class IdentifyingCode(Base):
     ICcode = Column(String(8), nullable=False)    # 获取到的验证码
     ICtime = Column(String(14), nullable=False)    # 获取的时间，格式为20180503100322
 
+class AlreadyRead(Base):
+    """
+    已读消息记录表
+    """
+    __tablename__ = 'alreadyread'
+    ARid = Column(String(64), primary_key=True)  # 已读消息id
+    USid = Column(String(64))  # 已读消息用户id
+
 
 # Base.metadata.create_all(mysql_engine)

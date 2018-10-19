@@ -3,7 +3,7 @@ import sys
 import os
 from flask import jsonify
 from flask_restful import Resource
-from control.front.CUser import CUser
+from control.CUser import CUser
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
