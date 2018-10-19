@@ -43,9 +43,10 @@ class Flask(_Flask):
     request_class = Request
 
 # 引用项目类
-from apis.front.AUser import AUser
-from apis.back.AAdmin import AAdmin
-from apis.front.AMyCenter import AMyCenter
+from apis.AUser import AUser
+from apis.AAdmin import AAdmin
+from apis.AMyCenter import AMyCenter
+from apis.AMessage import AMessage
 
 
 
@@ -56,7 +57,7 @@ def register_route(app):
     app.add_url_rule('/user/<string:user>', view_func=AUser.as_view('user'))
     app.add_url_rule('/admin/<string:user>', view_func=AAdmin.as_view('admin'))
     app.add_url_rule('/mycenter/<string:mycenter>', view_func=AMyCenter.as_view('mycenter'))
-    app.add_url_rule('/mycenter/<string:mycenter>', view_func=AMyCenter.as_view('mycenter'))
+    app.add_url_rule('/message/<string:message>', view_func=AMessage.as_view('message'))
 
 def create_app():
     app = Flask(__name__)

@@ -291,7 +291,7 @@ class AgentMessage(Base):
     AMid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户
     AMdate = Column(String(64))  # 消息发布时间
-    AMtype = Column(Boolean)  # 种类: {0: 订单信息, 1: 款项消息, 2: 代理信息}
+    AMtype = Column(Integer)  # 种类: {0: 订单信息, 1: 款项消息, 2: 代理信息}
     AMtext = Column(String(128), nullable=False)  # 消息详情
 
 class ComMessage(Base):
