@@ -1,8 +1,11 @@
 # -*- coding:utf8 -*-
+import sys
+import os
+sys.path.append(os.path.dirname(os.getcwd()))
 from sqlalchemy import Column, create_engine, Integer, String, Text, Float, Boolean, orm
 from config import dbconfig as cfg
+from sqlalchemy.ext.declarative import declarative_base
 # from models.base_model import Base, auto_createtime
-from base_model import Base
 
 DB_PARAMS = "{0}://{1}:{2}@{3}/{4}?charset={5}".format(
     cfg.sqlenginename,
@@ -13,6 +16,7 @@ DB_PARAMS = "{0}://{1}:{2}@{3}/{4}?charset={5}".format(
     cfg.charset)
 print(DB_PARAMS)
 mysql_engine = create_engine(DB_PARAMS, echo=True)
+Base = declarative_base()
 
 class User(Base):
     """
@@ -271,6 +275,8 @@ class Product(Base):
     SUmodifyid = Column(String(64))  # 修改人id
     PRmodifytime = Column(String(14))  # 修改时间
     PRlogisticsfee = Column(Float)  # 物流费
+    PRstatus = Column(Integer)     # 商品状态，0出售中，1已售罄，2已下架
+    PAid = Column(String(64))      # 分类id，用于绑定商品类目，空值表示未绑定分类
 
 class Reward(Base):
     """

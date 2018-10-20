@@ -1,7 +1,7 @@
 # *- coding:utf8 *-
-from common.base_error import BaseError
+# from common.base_error import BaseError
 
-
+"""
 class PARAMS_MISS(BaseError):
     status = 405
     status_code = 405001
@@ -62,4 +62,10 @@ class NETWORK_ERROR(BaseError):
     status = 405
     status_code = 405004
     message = '网络异常'
+"""
+PARAMS_MISS = {
+    "status": 405,
+    "status_code": 405001,
+    "message": "参数缺失"
+}
 

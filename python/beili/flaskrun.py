@@ -39,17 +39,24 @@ class Request(_Request):
 
 from werkzeug.exceptions import HTTPException
 
-class Flask(_Flask):
-    json_encoder = JSONEncoder
-    request_class = Request
+#class Flask(_Flask):
+#    json_encoder = JSONEncoder
+#    request_class = Request
 
 # 引用项目类
+<<<<<<< HEAD
 from apis.AUser import AUser
 from apis.AAdmin import AAdmin
 from apis.AMyCenter import AMyCenter
 from apis.AMessage import AMessage
 
 
+=======
+from apis.front.AUser import AUser
+from apis.back.AAdmin import AAdmin
+from apis.front.AMyCenter import AMyCenter
+from apis.front.AGoods import AGoods
+>>>>>>> dev_hb
 
 
 # 定义实际接口
@@ -57,11 +64,16 @@ def register_route(app):
     """添加路由"""
     app.add_url_rule('/user/<string:user>', view_func=AUser.as_view('user'))
     app.add_url_rule('/admin/<string:user>', view_func=AAdmin.as_view('admin'))
+    #app.add_url_rule('/mycenter/<string:mycenter>', view_func=AMyCenter.as_view('mycenter'))
     app.add_url_rule('/mycenter/<string:mycenter>', view_func=AMyCenter.as_view('mycenter'))
+<<<<<<< HEAD
     app.add_url_rule('/message/<string:message>', view_func=AMessage.as_view('message'))
+=======
+    app.add_url_rule('/product/<string:product>', view_func=AGoods.as_view('product'))
+>>>>>>> dev_hb
 
 def create_app():
-    app = Flask(__name__)
+    app = _Flask(__name__)
     app.config.from_object('config.setting')
     # from raven.contrib.flask import Sentry
     #sentry = Sentry(app, dsn='http://5ffc9de0629a4a58a7e76958dd4c6a2a:edc93accdb934ad1b7e16cf7fbb407e2@s.wkt.ooo:7443/3')
@@ -86,6 +98,7 @@ app = create_app()
 #     time.sleep(5)
 #     emit('response',{'code':'200','msg':'processed'})
 
+<<<<<<< HEAD
 # @app.errorhandler(Exception)
 # def framework_error(e):
 #     if isinstance(e, BaseError):
@@ -93,6 +106,15 @@ app = create_app()
 #     if not app.config['DEBUG']:
 #          raise BaseError()
 #     return e
+=======
+#@app.errorhandler(Exception)
+#def framework_error(e):
+#    if isinstance(e, BaseError):
+#         return e
+#    if not app.config['DEBUG']:
+#         raise BaseError()
+#    return e
+>>>>>>> dev_hb
 
 # 启动方法
 if __name__ == '__main__':
