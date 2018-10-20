@@ -13,7 +13,8 @@ class AMessage(Resource):
     def post(self, message):
         print message
         apis = {
-            'check_inforcode': 'self.cmycenter.check_inforcode()'
+            'publish_commessage': 'self.message.publish_commessage()',
+            'delete_commessage': 'self.message.delete_commessage()'
         }
         res = eval(apis[message])
         return jsonify(res)

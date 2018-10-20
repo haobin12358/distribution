@@ -302,8 +302,9 @@ class ComMessage(Base):
     CMid = Column(String(64), primary_key=True)
     CMdate = Column(String(64))  # 消息发布时间
     CMtype = Column(Boolean)  # 种类: {0: 公告}
-    CMtext = Column(String(128), nullable=False)  # 消息详情
-    CMpic = Column(String(255), nullable=False)  # 附加图片
+    CMtitle = Column(String(128), nullable=False)  # 消息详情
+    CMfile = Column(String(255), nullable=False)  # 附加图片
+    CMstatus = Column(Boolean, default=0)  # 状态: {0:显示, 1:删除 }
 
 class Question(Base):
     """

@@ -22,7 +22,8 @@ class SMessage(SBase):
 
     @close_session
     def get_comMessage_list(self, page, count):
-        return self.session.query(ComMessage).order_by(ComMessage.CMdate.desc()).offset((page - 1) * count).limit(count)
+        return self.session.query(ComMessage).filter_by(ComMessage.CMstatus == 0).order_by(ComMessage.CMdate.desc()) \
+            .offset((page - 1) * count).limit(count)
 
     @close_session
     def get_commessage_num(self):
@@ -33,9 +34,31 @@ class SMessage(SBase):
         return self.session.query(ComMessage).filter_by(CMid=cmid)
 
     @close_session
-    def update_commessage_status(self, messageid, usid):
+    def update_alreadyread_status(self, messageid, usid):
         record = AlreadyRead()
         record.ARid = messageid
         record.USid = usid
         self.session.add(record)
+
+    @close_session
+    def publish_commessage(self, id, date, type, title, url):
+        commessage = ComMessage()
+        commessage.CMid = id
+        commessage.CMdate = date
+        commessage.CMtype = type
+        commessage.CMtitle = title
+        commessage.CMfile = url
+        self.session.add(commessage)
+
+    @close_session
+    def delete_commessage(self, messageid, upate_message):
+        self.session.query(ComMessage).filter_by(CMid=messageid).update(upate_message)
+
+    @close_session
+    def delete_alreadyread(self, messageid):
+        all = self.session.query(AlreadyRead).filter_by(ARid=messageid).all()
+        self.session.delete(all)
+
+
+
 

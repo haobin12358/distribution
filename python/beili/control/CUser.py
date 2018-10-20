@@ -88,12 +88,11 @@ class CUser():
         if platform.system() == "Windows":
             rootdir = "D:/task"
         else:
-            rootdir = "/opt/WeiDian/imgs/mycenter/"
+            rootdir = "/opt/beili/imgs/mycenter/"
         if not os.path.isdir(rootdir):
             os.mkdir(rootdir)
         lastpoint = str(files.filename).rindex(".")
         filessuffix = str(files.filename)[lastpoint+1:]
-        # index = formdata.get("index", 1)
         filename = request.user.id + get_db_time_str() + "." + filessuffix
         filepath = os.path.join(rootdir, filename)
         print(filepath)
@@ -103,7 +102,7 @@ class CUser():
         url = QRCODEHOSTNAME + "/imgs/mycenter/" + filename
         user_update = {}
         user_update['USheadimg'] = url
-        self.suser.update_user_by_uid(request.user.id)
+        self.suser.update_user_by_uid(request.user.id, user_update)
         # print(url)
         response["data"] = url
         return response

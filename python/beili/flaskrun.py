@@ -4,6 +4,7 @@ from flask import Flask as _Flask
 from flask.wrappers import Request as _Request
 from flask.json import JSONEncoder as _JSONEncoder
 from common.base_error import BaseError
+from datetime import date
 
 
 class JSONEncoder(_JSONEncoder):
@@ -85,13 +86,13 @@ app = create_app()
 #     time.sleep(5)
 #     emit('response',{'code':'200','msg':'processed'})
 
-@app.errorhandler(Exception)
-def framework_error(e):
-    if isinstance(e, BaseError):
-         return e
-    if not app.config['DEBUG']:
-         raise BaseError()
-    return e
+# @app.errorhandler(Exception)
+# def framework_error(e):
+#     if isinstance(e, BaseError):
+#          return e
+#     if not app.config['DEBUG']:
+#          raise BaseError()
+#     return e
 
 # 启动方法
 if __name__ == '__main__':
