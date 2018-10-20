@@ -12,11 +12,14 @@ class SGoods(SBase):
 
     @close_session
     def get_product_list(self, page_size, page_num, PAid=None, PRstatus=None):
-        print 1
-        print(str(self.session.query(Product.PRpic, Product.PRname, Product.PRoldprice, Product.PRprice, Product.PRstock, Product.PRid)))
-        return self.session.query(Product.PRpic, Product.PRname, Product.PRoldprice, Product.PRprice, Product.PRstock
-                                  , Product.PRid)\
-            .limit(page_size).offset((page_num - 1) * page_size).all()
+        product_list = self.session.query(Product.PRpic, Product.PRname, Product.PRoldprice, Product.PRprice,
+                                          Product.PRstock, Product.PRid)
+        if PAid:
+            product_list = product_list.filter_by(PAid=PAid)
+        if PRstatus:
+            product_list = product_list.filter_by(PRstatus=PRstatus)
+        product_list = product_list.limit(page_size).offset((page_num - 1) * page_size).all()
+        return product_list
 
     @close_session
     def get_product(self, PRid):

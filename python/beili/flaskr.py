@@ -1,7 +1,7 @@
 # *- coding:utf8 *-
 from flask import Flask
 import flask_restful
-from apis.front.AGoods import AGoods
+from apis.AGoods import AGoods
 
 sg = Flask(__name__)
 api = flask_restful.Api(sg)

@@ -15,7 +15,7 @@ DB_PARAMS = "{0}://{1}:{2}@{3}/{4}?charset={5}".format(
     cfg.database,
     cfg.charset)
 print(DB_PARAMS)
-mysql_engine = create_engine(DB_PARAMS, echo=True)
+mysql_engine = create_engine(DB_PARAMS, echo=False)
 Base = declarative_base()
 
 class User(Base):
@@ -275,7 +275,7 @@ class Product(Base):
     SUmodifyid = Column(String(64))  # 修改人id
     PRmodifytime = Column(String(14))  # 修改时间
     PRlogisticsfee = Column(Float)  # 物流费
-    PRstatus = Column(Integer)     # 商品状态，0出售中，1已售罄，2已下架
+    PRstatus = Column(Integer)     # 商品状态，1出售中，2已售罄，3已下架
     PAid = Column(String(64))      # 分类id，用于绑定商品类目，空值表示未绑定分类
 
 class Reward(Base):
