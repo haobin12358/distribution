@@ -1,12 +1,7 @@
 <style lang="less" scoped>
     @import "../../common/css/index";
 
-    .container{
-        img{
-            width: 100%;
-            height: 600px;
-
-        }
+    .container {
     }
 </style>
 
@@ -14,13 +9,12 @@
     <div class="container">
         <header-top :show-back="true"></header-top>
 
-        <img src="/static/images/testbg.jpg" alt="">
     </div>
 </template>
 
 <script>
     export default {
-        name: "authorization",
+        name: "changePassword",
 
         data() {
             return {}
@@ -28,7 +22,12 @@
 
         components: {},
 
+        computed: {},
+
         methods: {},
+
+        created() {
+        },
     }
 </script>
 

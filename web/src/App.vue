@@ -62,10 +62,24 @@
         /*height: 255px;*/
         /*background: url("/static/images/success.svg") no-repeat;*/
 
-        background: url("/static/images/toast_success.png");
+        background: url("/static/images/success.svg");
         background-size: cover;
         width: 100px;
         height: 100px;
         overflow: hidden;
     }
+
+    /*.m-toast-audit{*/
+        /*background: url("/static/images/toast_audit.png");*/
+        /*background-size: cover;*/
+        /*width: 169px;*/
+        /*height: 169px;*/
+        /*overflow: hidden;*/
+    /*}*/
+
+    /*.m-toast-audit-bg{*/
+        /*background: white;*/
+        /*color: #6EABB8;*/
+        /*font-weight: bold;*/
+    /*}*/
 </style>

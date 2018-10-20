@@ -95,7 +95,7 @@
         </header-top>
 
         <section class="form-container">
-            <mt-field class="form-item" label="余额充值" placeholder="请选择打款方式" v-model="transferWay" :readonly="true"
+            <mt-field class="form-item" label="打款方式" placeholder="请选择打款方式" v-model="transferWay" :readonly="true"
                       :disableClear="true" @click.native="sheetVisible =true"></mt-field>
             <mt-field class="form-item" label="支付宝" placeholder="请输入支付宝账号"></mt-field>
             <mt-field class="form-item" label="金额" placeholder="请输入打款金额" type="number"></mt-field>
@@ -153,7 +153,7 @@
 
 <script>
     export default {
-        name: "balanceCharge",
+        name: "marginMoney",
 
         data() {
             return {
@@ -165,6 +165,7 @@
                 actions: [
                     {name: '支付宝', method: this.selectTransferWay},
                     {name: '微信', method: this.selectTransferWay},
+                    {name: '银行卡', method: this.selectTransferWay},
                 ],
                 sheetVisible: false,
                 datetime: ''

@@ -9,6 +9,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 const portfinder = require('portfinder')
+const vConsolePlugin = require('vconsole-webpack-plugin');
 
 const HOST = process.env.HOST
 const PORT = process.env.PORT && Number(process.env.PORT)
@@ -45,6 +46,10 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     }
   },
   plugins: [
+      new vConsolePlugin({
+          filter: [],  // 需要过滤的入口文件
+          enable: false // 发布代码前记得改回 false
+      }),
     new webpack.DefinePlugin({
       'process.env': require('../config/dev.env')
     }),
