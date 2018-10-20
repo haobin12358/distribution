@@ -1,7 +1,6 @@
 # *- coding:utf8 *-
 from datetime import datetime
 
-from config.response import NOT_FOUND
 from sqlalchemy import orm
 from sqlalchemy.ext.declarative import declarative_base, AbstractConcreteBase
 from common.timeformat import format_for_db

@@ -1,6 +1,6 @@
 import os
 database = os.environ.get('DB_NAME', "beili")
-host = os.environ.get('DB_HOST', "localhost")
+host = os.environ.get('DB_HOST', "47.104.228.112")
 port = "3306"
 username = os.environ.get('DB_USER', 'root')
 password = os.environ.get('DB_PWD', 'root')
