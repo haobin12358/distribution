@@ -95,6 +95,15 @@ class MakeData():
             self.session.add(comment)
             self.session.commit()
 
+    def add_alreadyRead(self):
+        from model import AlreadyRead
+        for i in range(10):
+            message = AlreadyRead()
+            message.ARid = str(i) + "dfdef"
+            message.USid = str(i+1) + "gfvfvd"
+            self.session.add(message)
+            self.session.commit()
+
 
 
 
@@ -246,15 +255,23 @@ if __name__ == "__main__":
        如果需要清除数据库，输入drop
        如果需要创建数据库 输入任意不包含drop的字符
        '''
-    action = raw_input("create database?")
-    if "drop" in action:
-        drop()
-
-    else:
-        create()
-        data = MakeData()
-        data.add_user()
-        print "OK!"
+    # action = raw_input("create database?")
+    # if "drop" in action:
+    #     drop()
+    #
+    # else:
+    #     create()
+    #     data = MakeData()
+    #     data.add_user()
+    #     print "OK!"
+    print('start create database')
+    databse_deal().create_database()
+    print('start create table')
+    create()
+    data = MakeData()
+    print('start add data')
+    data.add_user()
+    data.add_alreadyRead()
         # # tshop_ids = data.make_id()
         # # print("over")
         # data.add_activity()

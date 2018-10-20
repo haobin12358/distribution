@@ -106,7 +106,7 @@ venv.bak/
 # idea 
 .idea/
 # config
-config/dbconfig.py
-config/Inforcode.py
+# config/dbconfig.py
+# config/Inforcode.py
 # mac
 .DS_Store

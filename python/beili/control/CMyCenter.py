@@ -9,7 +9,7 @@ from flask import request
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, NOT_FOUND
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist
 from common.import_status import import_status
-from service.front import SMyCenter
+from service import SMyCenter
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -20,16 +20,16 @@ class CMyCenter():
 
     def get_inforcode(self):
         print "get_inforcode"
-        args = request.args.to_dict()
         try:
+            args = request.args.to_dict()
             phonenum = args.get('usphonenum')
         except Exception as e:
-            return PARAMS_ERROR("参数错误")
+            return PARAMS_ERROR(u"参数错误")
         if not phonenum:
-            return PARAMS_ERROR("参数错误")
+            return PARAMS_ERROR(u"参数错误")
         user = self.suser.getuser_by_phonenum(phonenum)
         if not user:
-            return NOT_FOUND("该号码未注册")
+            return NOT_FOUND(u"该号码未注册")
         code = ""
         while len(code) < 6:
             import random

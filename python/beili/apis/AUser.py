@@ -3,7 +3,7 @@ import sys
 import os
 from flask import jsonify
 from flask_restful import Resource
-from control.front.CUser import CUser
+from control.CUser import CUser
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -18,7 +18,7 @@ class AUser(Resource):
             'register': 'self.cuser.register()',
             'findback_pwd': 'self.cuser.findback_pwd()',
             'update_pwd': 'self.cuser.update_pwd()',
-            'update_pic': 'self.cuser.update_pic()'
+            'update_headimg': 'self.cuser.update_headimg()'
         }
         res = eval(apis[user])
         return jsonify(res)

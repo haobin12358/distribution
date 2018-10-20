@@ -1,8 +1,11 @@
 # -*- coding:utf8 -*-
+import sys
+import os
+sys.path.append(os.path.dirname(os.getcwd()))
 from sqlalchemy import Column, create_engine, Integer, String, Text, Float, Boolean, orm
 from config import dbconfig as cfg
+from sqlalchemy.ext.declarative import declarative_base
 # from models.base_model import Base, auto_createtime
-from base_model import Base
 
 DB_PARAMS = "{0}://{1}:{2}@{3}/{4}?charset={5}".format(
     cfg.sqlenginename,
@@ -12,7 +15,8 @@ DB_PARAMS = "{0}://{1}:{2}@{3}/{4}?charset={5}".format(
     cfg.database,
     cfg.charset)
 print(DB_PARAMS)
-mysql_engine = create_engine(DB_PARAMS, echo=True)
+mysql_engine = create_engine(DB_PARAMS, echo=False)
+Base = declarative_base()
 
 class User(Base):
     """
@@ -23,7 +27,7 @@ class User(Base):
     USname = Column(String(64), nullable=False)  # 用户名
     USpassword = Column(String(255))             # 密码
     USphonenum = Column(String(16), nullable=False)  # 手机号
-    USheader = Column(String(255))               # 头像
+    USheadimg = Column(String(255))               # 头像
     USage = Column(Integer)                      # 年龄
     USbail = Column(Boolean)                     # 是否缴纳保证金
     USmount = Column(Float)                      # 账户余额
@@ -35,20 +39,21 @@ class User(Base):
     accesstoken = Column(String(255))            # 微信token
     subscribe = Column(Integer)                  # 是否关注公众号
 
+class Admin(Base):
+    """
+    管理员
+    """
+    __tablename__ = 'admin'
+    ADid = Column(String(64), primary_key=True)
+    ADnum = Column(String(64), nullable=False)  # 管理员账号
+    ADname = Column(String(64), nullable=False)  # 管理员用户名
+    ADpassword = Column(String(255), nullable=False)  # 密码
+    ADheaderimg = Column(String(255))  # 用户头像, 可以设置一个默认值
+    ADlevel = Column(Integer, default=0)  # 用户级别{0: 一般管理员, 1: 超级管理员}　
+    ADcreatetime = Column(String(14))  # 创建时间
+    ADisfreeze = Column(Boolean, default=False)  # 是否被冻结
+    ADisdelete = Column(Boolean, default=False)  # 是否被删除
 
-class SuperUser(Base):
-    """
-    超级用户
-    """
-    __tablename__ = 'superuser'
-    SUid = Column(String(64), primary_key=True)
-    SUname = Column(String(64), nullable=False)  # 超级用户名
-    SUpassword = Column(String(255), nullable=False)  # 密码
-    SUheader = Column(String(255))  # 用户头像, 可以设置一个默认值
-    SUlevel = Column(Integer, default=0)  # 用户类型{0: 客服, 1: 管理员, 2:超管}　
-    SUcreatetime = Column(String(14))  # 创建时间
-    SUidfreeze = Column(Boolean, default=False)  # 是否被冻结
-    SUisdelete = Column(Boolean, default=False)  # 是否被删除
 
 class ProductCategory(Base):
     """
@@ -270,6 +275,8 @@ class Product(Base):
     SUmodifyid = Column(String(64))  # 修改人id
     PRmodifytime = Column(String(14))  # 修改时间
     PRlogisticsfee = Column(Float)  # 物流费
+    PRstatus = Column(Integer)     # 商品状态，1出售中，2已售罄，3已下架
+    PAid = Column(String(64))      # 分类id，用于绑定商品类目，空值表示未绑定分类
 
 class Reward(Base):
     """
@@ -290,7 +297,7 @@ class AgentMessage(Base):
     AMid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户
     AMdate = Column(String(64))  # 消息发布时间
-    AMtype = Column(Boolean)  # 种类: {0: 订单信息, 1: 款项消息, 2: 代理信息}
+    AMtype = Column(Integer)  # 种类: {0: 订单信息, 1: 款项消息, 2: 代理信息}
     AMtext = Column(String(128), nullable=False)  # 消息详情
 
 class ComMessage(Base):
@@ -301,8 +308,9 @@ class ComMessage(Base):
     CMid = Column(String(64), primary_key=True)
     CMdate = Column(String(64))  # 消息发布时间
     CMtype = Column(Boolean)  # 种类: {0: 公告}
-    CMtext = Column(String(128), nullable=False)  # 消息详情
-    CMpic = Column(String(255), nullable=False)  # 附加图片
+    CMtitle = Column(String(128), nullable=False)  # 消息详情
+    CMfile = Column(String(255), nullable=False)  # 附加图片
+    CMstatus = Column(Boolean, default=0)  # 状态: {0:显示, 1:删除 }
 
 class Question(Base):
     """
@@ -370,5 +378,13 @@ class IdentifyingCode(Base):
     ICcode = Column(String(8), nullable=False)    # 获取到的验证码
     ICtime = Column(String(14), nullable=False)    # 获取的时间，格式为20180503100322
 
+class AlreadyRead(Base):
+    """
+    已读消息记录表
+    """
+    __tablename__ = 'alreadyread'
+    ARid = Column(String(64), primary_key=True)  # 已读消息id
+    USid = Column(String(64))  # 已读消息用户id
 
-Base.metadata.create_all(mysql_engine)
+
+# Base.metadata.create_all(mysql_engine)

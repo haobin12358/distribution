@@ -14,6 +14,10 @@ class SUser(SBase):
         return self.session.query(User).filter_by(USphonenum=usphonenum).first()
 
     @close_session
+    def getuser_by_uid(self, usid):
+        return self.session.query(User).filter_by(USid=usid).first()
+
+    @close_session
     def update_user_by_uid(self, uid, users):
         self.session.query(User).filter_by(USid=uid).update(users)
 
