@@ -3,7 +3,7 @@ import sys
 import os
 from flask import request
 # import logging
-from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, NOT_FOUND, AUTHORITY_ERROR
+from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser
 from common.import_status import import_status
@@ -31,8 +31,8 @@ class CUser():
         user = self.suser.getuser_by_phonenum(usphonenum)
         # print "aaaa" + user.USphone + ":" + user.USpassword
         # print(dir(user))
-        print user.USphonenum
-        print type(user.USphonenum)
+        # print user.USphonenum
+        # print type(user.USphonenum)
         if not user or uspassword != user.USpassword:
             return SYSTEM_ERROR(u'手机号或密码错误')
         token = usid_to_token(user.USid)

@@ -68,4 +68,24 @@ PARAMS_MISS = {
     "status_code": 405001,
     "message": "参数缺失"
 }
+PARAMS_ERROR = {
+    "status": 405,
+    "status_code": 405002,
+    "message": "参数错误"
+}
+TOKEN_ERROR = {
+    "status": 405,
+    "status_code": 405003,
+    "message": "token错误"
+}
+SYSTEM_ERROR = {
+    "status": 404,
+    "status_code": 404001,
+    "message": "系统错误"
+}
+AUTHORITY_ERROR = {
+    "status": 405,
+    "status_code": 405004,
+    "message": "没有权限"
 
+}
