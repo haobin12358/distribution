@@ -28,21 +28,21 @@ class CGoods():
             page_num = int(args.get("page_num"))
             page_size = int(args.get("page_size"))
             if "PRstatus" in args:
-                PRstatus = args.get("PRstatus")
+                PRstatus = int(args.get("PRstatus"))
             else:
                 PRstatus = None
             if "PAid" in args and "PAtype" in args:
-                if args.get("PAtype") == 1:
-                    paid_list = get_model_return_list(self.sgoods.get_childid(args.get("PAid")))
+                if int(args.get("PAtype")) == 1:
+                    paid_list = get_model_return_list(self.sgoods.get_childid(int(args.get("PAid"))))
                     product_list = []
                     for row in paid_list:
                         product_list.extend(get_model_return_list(
                             self.sgoods.get_product_list(page_size, page_num, row, PRstatus)))
-                elif args.get("PAtype") == 2:
+                elif int(args.get("PAtype")) == 2:
                     product_list = get_model_return_list(
-                        self.sgoods.get_product_list(page_size, page_num, args.get("PAid"), PRstatus))
+                        self.sgoods.get_product_list(page_size, page_num, int(args.get("PAid")), PRstatus))
                 else:
-                    return import_status("BEILI_ERROR", "patype_error", "patype_error")
+                    return import_status("patype_error", "BEILI_ERROR", "patype_error")
             else:
                 PAid = None
                 product_list = get_model_return_list(
@@ -65,7 +65,7 @@ class CGoods():
         except Exception as e:
             print(e.message)
             return PARAMS_MISS
-        response = import_status("OK", "get_product_success")
+        response = import_status("get_product_success", "OK")
         response["data"] = product
         return response
 
@@ -74,13 +74,13 @@ class CGoods():
         #self.json_param_miss("get")
         args = request.args.to_dict()
         normal_json = {
-            "PAid": None,
+            "PAid": "0",
             "PAname": "全部"
         }
         product_category = []
-        product_category.extend(normal_json)
+        product_category.append(normal_json)
         try:
-            PAtype = args.get("PAtype")
+            PAtype = int(args.get("PAtype"))
             if PAtype == 0:
                 product_category.extend(get_model_return_list(self.sgoods.get_first_product_category(0)))
             elif PAtype == 1:
@@ -93,7 +93,7 @@ class CGoods():
         except Exception as e:
             print(e.message)
             return PARAMS_MISS
-        response = import_status("OK", "get_product_category_success")
+        response = import_status("get_product_category_success", "OK")
         response["data"] = product_category
         return response
 
@@ -124,7 +124,11 @@ class CGoods():
 
     def json_param_miss(self, type):
         if is_tourist():
-            return TOKEN_ERROR(u"未登录")
+            return {
+                "status": 405,
+                "status_code": 405003,
+                "message": "未登陆"
+            }
         if type == "get":
             pass
         elif type == "post":
