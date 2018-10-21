@@ -121,10 +121,10 @@
                     <span>
                         账户余额（元）
                     </span>
-                    <section class="margin-money">
+                    <router-link to="/marginMoney" tag="section"  class="margin-money">
                         <span class="">保证金</span>
                         <span class="margin-money-num">￥0.00</span>
-                    </section>
+                    </router-link>
                 </p>
                 <p class="num">￥200.00</p>
             </header>

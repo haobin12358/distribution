@@ -14,7 +14,11 @@ const payOrder = r => require.ensure([], () => r(require('../pages/mall/payOrder
 const mallOrder = r => require.ensure([], () => r(require('../pages/mall/order')), 'mallOrder')
 
 const personal = r => require.ensure([], () => r(require('../pages/personal/personal')), 'personal')
-const setting = r => require.ensure([], () => r(require('../pages/personal/setting')), 'personal')
+const setting = r => require.ensure([], () => r(require('../pages/personal/setting')), 'setting')
+const changeHeadImg = r => require.ensure([], () => r(require('../pages/personal/changeHeadImg')), 'changeHeadImg')
+const changePassword = r => require.ensure([], () => r(require('../pages/personal/changePassword')), 'changePassword')
+const addressList = r => require.ensure([], () => r(require('../pages/personal/addressList')), 'addressList')
+const addressEdit = r => require.ensure([], () => r(require('../pages/personal/addressEdit')), 'addressEdit')
 
 const wallet = r => require.ensure([], () => r(require('../pages/wallet/wallet')), 'wallet')
 const balanceCharge = r => require.ensure([], () => r(require('../pages/wallet/balanceCharge')), 'balanceCharge')
@@ -23,8 +27,10 @@ const balanceRecord = r => require.ensure([], () => r(require('../pages/wallet/b
 const balanceRecordDetail = r => require.ensure([], () => r(require('../pages/wallet/balanceRecordDetail')), 'balanceRecordDetail')
 const withdrawCashRecord = r => require.ensure([], () => r(require('../pages/wallet/withdrawCashRecord')), 'withdrawCashRecord')
 const withdrawCashRecordDetail = r => require.ensure([], () => r(require('../pages/wallet/withdrawCashRecordDetail')), 'withdrawCashRecordDetail')
+const marginMoney = r => require.ensure([], () => r(require('../pages/wallet/marginMoney')), 'marginMoney')
 
 const sale = r => require.ensure([], () => r(require('../pages/sale/sale')), 'sale')
+
 
 const channel = r => require.ensure([], () => r(require('../pages/channel/channel')), 'channel')
 
@@ -32,7 +38,16 @@ const purchase = r => require.ensure([], () => r(require('../pages/purchase/purc
 
 const authorization = r => require.ensure([], () => r(require('../pages/authorization/authorization')), 'authorization')
 
+const promotion = r => require.ensure([], () => r(require('../pages/promotion/promotion')), 'promotion')
+const wantInvite = r => require.ensure([], () => r(require('../pages/promotion/wantInvite')), 'wantInvite')
+const newInvite = r => require.ensure([], () => r(require('../pages/promotion/newInvite')), 'newInvite')
+const inviteLink = r => require.ensure([], () => r(require('../pages/promotion/inviteLink')), 'inviteLink')
+const applyAgent = r => require.ensure([], () => r(require('../pages/promotion/applyAgent')), 'applyAgent')
+
 const integratedService = r => require.ensure([], () => r(require('../pages/integratedService/integratedService')), 'integratedService')
+const feedback = r => require.ensure([], () => r(require('../pages/integratedService/feedback')), 'feedback')
+const linkWechat = r => require.ensure([], () => r(require('../pages/integratedService/linkWechat')), 'linkWechat')
+const protocol = r => require.ensure([], () => r(require('../pages/integratedService/protocol')), 'protocol')
 
 
 export const constantRouterMap = [
@@ -96,6 +111,36 @@ export const constantRouterMap = [
         meta: {
             title: '蓓莉云仓',
         },
+    },{
+        path: '/setting',
+        component: setting,
+        meta: {
+            title: '我的信息',
+        },
+    },{
+        path: '/changePassword',
+        component: changePassword,
+        meta: {
+            title: '修改密码',
+        },
+    },{
+        path: '/changeHeadImg',
+        component: changeHeadImg,
+        meta: {
+            title: '更换头像',
+        },
+    },{
+        path: '/addressList',
+        component: addressList,
+        meta: {
+            title: '我的地址',
+        },
+    },{
+        path: '/addressEdit',
+        component: addressEdit,
+        meta: {
+            title: '地址编辑',
+        },
     },
 
     {
@@ -147,6 +192,13 @@ export const constantRouterMap = [
             transitionName: 'router-slid',
             title: '提现详情'
         },
+    },{
+        path: '/marginMoney',
+        component: marginMoney,
+        meta: {
+            transitionName: 'router-slid',
+            title: '保证金'
+        },
     },
 
 
@@ -155,7 +207,7 @@ export const constantRouterMap = [
         component: sale,
         meta: {
             transitionName: 'router-slid',
-            title: '云仓',
+            title: '我的销售',
 
         },
     },
@@ -174,9 +226,33 @@ export const constantRouterMap = [
         path: '/purchase',
         component: purchase,
         meta: {
-            transitionName: 'router-slid',
             title: '我的销售',
 
+        },
+    },{
+        path: '/wantInvite',
+        component: wantInvite,
+        meta: {
+            title: '我要邀请',
+        },
+    },{
+        path: '/newInvite',
+        component: newInvite,
+        meta: {
+            title: '新增邀请链接',
+
+        },
+    },{
+        path: '/inviteLink',
+        component: inviteLink,
+        meta: {
+            title: '邀请链接',
+        },
+    },{
+        path: '/applyAgent',
+        component: applyAgent,
+        meta: {
+            title: '申请代理',
         },
     },
 
@@ -186,9 +262,19 @@ export const constantRouterMap = [
         meta: {
             transitionName: 'router-slid',
             title: '我的授权',
+        },
+    },
+
+    {
+        path: '/promotion',
+        component: promotion,
+        meta: {
+            title: '我要推广',
 
         },
     },
+
+
 
     {
         path: '/integratedService',
@@ -196,6 +282,30 @@ export const constantRouterMap = [
         meta: {
             transitionName: 'router-slid',
             title: '综合业务',
+
+        },
+    },{
+        path: '/feedback',
+        component: feedback,
+        meta: {
+            transitionName: 'router-slid',
+            title: '问题反馈',
+
+        },
+    },{
+        path: '/linkWechat',
+        component: linkWechat,
+        meta: {
+            transitionName: 'router-slid',
+            title: '微信绑定',
+
+        },
+    },{
+        path: '/protocol',
+        component: protocol,
+        meta: {
+            transitionName: 'router-slid',
+            title: '代理协议',
 
         },
     },

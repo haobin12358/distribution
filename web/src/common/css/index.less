@@ -6,139 +6,169 @@
 
 //页面的公共样式
 html, body {
-  background-color: @bgMainColor;
-  height: 100%;
-  -webkit-text-size-adjust: none;
+    background-color: @bgMainColor;
+    height: 100%;
+    -webkit-text-size-adjust: none;
 }
 
 /*上下拉动滚动条时卡顿、慢*/
 body {
-  -webkit-overflow-scrolling: touch;
-  overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
 }
 
 body {
-  -webkit-touch-callout: none;
-  -webkit-appearance: none;
-  -webkit-tap-highlight-color: rgba(255, 255, 255, 0)
+    -webkit-touch-callout: none;
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0)
 }
 
 .m-flex-between {
-  display: flex;
-  flex-flow: row;
-  align-items: center;
-  justify-content: space-between;
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .m-flex-start {
-  display: flex;
-  flex-flow: row;
-  align-items: center;
-  justify-content: flex-start;
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    justify-content: flex-start;
 }
 
 .m-flex-around {
-  display: flex;
-  flex-flow: row;
-  align-items: center;
-  justify-content: space-around;
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    justify-content: space-around;
 }
 
 .m-flex-center {
-  display: flex;
-  flex-flow: row;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    justify-content: center;
 }
 
 .flex-col(@x) {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: @x;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: @x;
 }
 
 .flex-row(@x) {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: @x;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: @x;
 }
 
 .fz(@x) {
-  font-size: @x
+    font-size: @x
 }
 
 .m-toast {
-  background-size: 100% 100%;
-  width: 220px;
-  height: 255px;
+    background-size: 100% 100%;
+    width: 220px;
+    height: 255px;
 }
 
 //toast的提示样式
 .m-toast-success {
-  background-size: 100% 100%;
-  width: 220px;
-  height: 255px;
-  background: url("/static/images/toast_success.png") no-repeat;
+    background-size: 100% 100%;
+    width: 220px;
+    height: 255px;
+    background: url("/static/images/toast_success.png") no-repeat;
 }
 
 .m-toast-fail {
-  background: url("/static/images/toast_fail.png") no-repeat;
+    background: url("/static/images/toast_fail.png") no-repeat;
 }
 
 .m-toast-warning {
-  background: url("/static/images/toast_warning.png") no-repeat;
+    background: url("/static/images/toast_warning.png") no-repeat;
 }
 
 .wl(@width,@height) {
-  width: @width;
-  height: @height;
+    width: @width;
+    height: @height;
 }
 
 .sc(@size, @color) {
-  font-size: @size;
-  color: @color;
+    font-size: @size;
+    color: @color;
 }
 
 .fj(@type: space-between;) {
-  display: flex;
-  justify-content: @type;
+    display: flex;
+    justify-content: @type;
 }
 
-.fcolum(@align-items: center;){
+.fjc(@type: space-between;) {
+    display: flex;
+    justify-content: @type;
+    flex-direction: column;
+}
+
+.fcolum(@align-items: center;) {
     flex-direction: column;
     align-items: @align-items;
 }
 
-.fontc(@line-height){
-  text-align: center;
-  line-height: @line-height;
+.fontc(@line-height) {
+    text-align: center;
+    line-height: @line-height;
 }
 
-.bs(@margin,@thick,@dim){
+.bs(@margin,@thick,@dim) {
     margin-bottom: @margin;
-    box-shadow: 0 @thick @dim rgba(0,0,0,.16);
+    box-shadow: 0 @thick @dim rgba(0, 0, 0, .16);
 }
 
-.bs-none{
+.bs-none {
     margin-bottom: 0;
     box-shadow: none;
 }
 
-.bd(@color, @radius: 0px){
+.bd(@color, @radius: 0px) {
     border: 1px solid @color;
     border-radius: @radius;
 }
 
-.bgw{
+.bgw {
     background: white;
 }
 
-.my-order-img{
+.my-order-img {
     .wl(33px, 27px);
 }
 
-.least-full-screen(){
+.my-add-img {
+    .wl(44px, 44px);
+}
+
+.least-full-screen() {
     height: 100vh;
+}
+
+.my-confirm-btn-wrap {
+    margin-top: 200px;
+
+    .my-confirm-btn {
+        .wl(600px, 90px);
+        background: linear-gradient(180deg, @mainLightColor 0%, @mainColor 100%);
+        .sc(38px, white);
+        .fontc(90px);
+        font-weight: bold;
+        border-radius: 50px;
+        display: block;
+        margin: 0 auto;
+
+        &.disabled {
+            background: linear-gradient(180deg, #FFFFFF 0%, #AEAEAE 100%);
+
+        }
+    }
 }

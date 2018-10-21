@@ -109,21 +109,13 @@
 <template>
     <div class="container">
         <header-top :show-back="true"></header-top>
-        <ul class="nav-bar">
-            <li class="nav-bar-item active">
-                全部(3)
-            </li>
-            <li class="nav-bar-item">
-                代发货(1)
-            </li>
-            <li class="nav-bar-item">
-                已发货(1)
-            </li>
-            <li class="nav-bar-item">
-                已完成(1)
-            </li>
 
-        </ul>
+        <mt-navbar v-model="selected" style="margin-bottom: 10px">
+            <mt-tab-item id="1">全部 (17)</mt-tab-item>
+            <mt-tab-item id="2">代发货 (1)</mt-tab-item>
+            <mt-tab-item id="3">已发货 (1)</mt-tab-item>
+            <mt-tab-item id="4">已完成 (1)</mt-tab-item>
+        </mt-navbar>
 
         <ul class="order-list">
             <li class="order-item">
@@ -167,7 +159,9 @@
         name: "order",
 
         data() {
-            return {}
+            return {
+                selected: 1
+            }
         },
 
         components: {},

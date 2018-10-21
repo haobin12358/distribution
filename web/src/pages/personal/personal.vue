@@ -125,7 +125,7 @@
                 <img src="/static/images/channel.png" alt="">
                 <span>我的渠道</span>
             </router-link>
-            <router-link tag="li" class="function-item" to="/purchase">
+            <router-link tag="li" class="function-item" to="/mall">
                 <img src="/static/images/purchase.png" alt="">
                 <span>我要进货</span>
             </router-link>
