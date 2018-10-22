@@ -113,4 +113,10 @@ NOT_FOUND_USER = {
     "status_code": 405009,
     "message": "未找到该用户"
 }
+NO_ADDRESS = {
+    "status": 405,
+    "status_code": 405010,
+    "message": "未找到地址"
+
+}
 

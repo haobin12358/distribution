@@ -14,8 +14,9 @@ class AOrder(Resource):
         print order
         apis = {
             'create_order': 'self.corder.create_order()',
+            'get_order_list': 'self.corder.get_order_list()'
         }
-        res = eval(apis[message])
+        res = eval(apis[order])
         return jsonify(res)
 
     def get(self, order):
@@ -23,5 +24,5 @@ class AOrder(Resource):
         apis = {
 
         }
-        res = eval(apis[message])
+        res = eval(apis[order])
         return jsonify(res)

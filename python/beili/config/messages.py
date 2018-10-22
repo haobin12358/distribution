@@ -19,4 +19,6 @@ get_city_list_success = "获取城市列表成功"
 get_area_list_success = "获取区县列表成功"
 add_address_success = "添加地址信息成功"
 get_address_success = "获取收获地址信息成功"
+create_order_success = "创建订单成功"
+get_orderlist_success = "获取订单列表成功"
 

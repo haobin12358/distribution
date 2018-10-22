@@ -4,7 +4,7 @@ import os
 import uuid
 from werkzeug.security import check_password_hash
 from service.SBase import SBase, close_session
-from models.model import User, IdentifyingCode, AgentMessage, AlreadyRead, ComMessage
+from models.model import User, IdentifyingCode, OrderInfo, AlreadyRead, ComMessage, OrderProductInfo
 from sqlalchemy import func
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -12,56 +12,42 @@ sys.path.append(os.path.dirname(os.getcwd()))
 class SOrder(SBase):
 
     @close_session
-    def get_agentMessage_by_usid(self, usid, page, count):
-        return self.session.query(AgentMessage.USid, AgentMessage.AMdate, AgentMessage.AMid, \
-                                  AgentMessage.AMcontent, AgentMessage.AMtype).filter_by(USid=usid) \
-            .order_by(AgentMessage.AMdate.desc()).offset((page - 1) * count).limit(count)
+    def add_orderproductinfo(self, OPIid, OIid, PRid, PRname, PRprice, PRnum, PRimage):
+        product = OrderProductInfo()
+        product.OPIid = OPIid
+        product.OIid = OIid
+        product.PRid = PRid
+        product.PRname = PRname
+        product.PRprice = PRprice
+        product.PRnum = PRnum
+        product.PRimage = PRimage
+        self.session.add(product)
+        return True
 
     @close_session
-    def get_alreadyMessage_by_usid(self, usid):
-        return self.session.query(AlreadyRead.ARid).filter(AlreadyRead.USid == usid).all()
+    def add_order(self, OIid, OIsn, USid, OInote, OImount, UAid, OIcreatetime):
+        order = OrderInfo()
+        order.OIid = OIid
+        order.OIsn = OIsn
+        order.USid = USid
+        order.OInote = OInote
+        order.OImount = OImount
+        order.UAid = UAid
+        order.OIcreatetime = OIcreatetime
+        self.session.add(order)
+        return True
 
     @close_session
-    def get_comMessage_list(self, page, count):
-        return self.session.query(ComMessage.CMid, ComMessage.CMdate, ComMessage.CMtype, ComMessage.CMtitle, \
-                                 ComMessage.CMfile).filter(ComMessage.CMstatus == 0).order_by(ComMessage.CMdate.desc()) \
-            .offset((page - 1) * count).limit(count)
+    def get_order_list(self, usid, type):
+        return self.session.query(OrderInfo.OIsn, OrderInfo.OIcreatetime, OrderInfo.OIstatus, OrderInfo.OImount, \
+            OrderInfo.OIid).filter(OrderInfo.USid == usid).filter(OrderInfo.OIstatus == type).all()
 
     @close_session
-    def get_commessage_num(self):
-        return self.session.query(func.count(ComMessage.CMid)).filter(ComMessage.CMstatus == 0).scalar()
+    def get_allorder_list(self, usid):
+        return self.session.query(OrderInfo.OIsn, OrderInfo.OIcreatetime, OrderInfo.OIstatus, OrderInfo.OImount, \
+            OrderInfo.OIid).filter(OrderInfo.USid == usid).all()
 
     @close_session
-    def get_commessage_details(self, cmid):
-        return self.session.query(ComMessage.CMid, ComMessage.CMdate, ComMessage.CMtype, ComMessage.CMtitle, \
-                                 ComMessage.CMfile).filter_by(CMid=cmid)
-
-    @close_session
-    def insert_alreadyread(self, messageid, usid):
-        record = AlreadyRead()
-        record.ARid = messageid
-        record.USid = usid
-        self.session.add(record)
-
-    @close_session
-    def publish_commessage(self, id, date, type, title, url):
-        commessage = ComMessage()
-        commessage.CMid = id
-        commessage.CMdate = date
-        commessage.CMtype = type
-        commessage.CMtitle = title
-        commessage.CMfile = url
-        self.session.add(commessage)
-
-    @close_session
-    def delete_commessage(self, messageid, upate_message):
-        self.session.query(ComMessage).filter_by(CMid=messageid).update(upate_message)
-
-    @close_session
-    def delete_alreadyread(self, messageid):
-        all = self.session.query(AlreadyRead).filter_by(ARid=messageid).all()
-        self.session.delete(all)
-
-
-
-
+    def get_product_list(self, oiid):
+        return self.session.query(OrderProductInfo.PRname, OrderProductInfo.PRimage, OrderProductInfo.PRnum\
+                                  , OrderProductInfo.PRprice).filter(OrderProductInfo.OIid == oiid).all()

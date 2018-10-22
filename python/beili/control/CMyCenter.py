@@ -7,7 +7,8 @@ import json
 import platform
 from flask import request
 # import logging
-from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, NOT_FOUND_PHONENUM, NOT_FOUND_IMAGE
+from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, NOT_FOUND_PHONENUM, NOT_FOUND_IMAGE, \
+    NO_ADDRESS
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
@@ -198,13 +199,15 @@ class CMyCenter():
             UAid = data.get('UAid')
         except:
             return PARAMS_ERROR
-        if isdefault == 0:
+        if isdefault == 1:
             address = get_model_return_list(self.smycenter.get_default_address(request.user.id))
             area = get_model_return_list(self.smycenter.get_area_by_areaid(address[0]['areaid']))
             city = get_model_return_list(self.smycenter.get_city_by_cityid(area[0]['cityid']))
             province = get_model_return_list(self.smycenter.get_province_by_provinceid(city[0]['provinceid']))
-        elif isdefault == 1:
+        elif isdefault == 0:
             address = get_model_return_list(self.smycenter.get_other_address(request.user.id, UAid))
+            if not address:
+                return NO_ADDRESS
             area = get_model_return_list(self.smycenter.get_area_by_areaid(address[0]['areaid']))
             city = get_model_return_list(self.smycenter.get_city_by_cityid(area[0]['cityid']))
             province = get_model_return_list(self.smycenter.get_province_by_provinceid(city[0]['provinceid']))
@@ -215,6 +218,7 @@ class CMyCenter():
         data['details'] = address[0]['UAdetails']
         data['username'] = address[0]['UAname']
         data['userphonenum'] = address[0]['UAphonenum']
+        data['uaid'] = address[0]['UAid']
         response = import_status("get_address_success", "OK")
         response['data'] = data
         return response

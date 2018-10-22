@@ -154,19 +154,14 @@ class OrderInfo(Base):
     OIid = Column(String(64), primary_key=True)
     OIsn = Column(String(64))  # 订单号
     USid = Column(String(64))  # 用户
-    OItradenum = Column(String(125))  # 交易号, (如果有)
     """
-    订单状态: {0:所有订单, 1:待发货, 2:已发货, 3:已签收, 4:交易完成 } 根据需求无待支付状态
+    订单状态: {0:所有订单, 1:待发货, 2:已发货, 3:交易完成 } 根据需求无待支付状态
     """
-    OIpaystatus = Column(Integer, default=0)
+    OIstatus = Column(Integer, default=1)
     OInote = Column(String(255))  # 订单留言
     OImount = Column(Float)  # 金额
-    OIpaytime = Column(String(14))  # 支付时间
-    OIaddress = Column(String(255), nullable=False)  # 地址
-    OIrecvname = Column(String(64), nullable=False)  # 收货人
-    OIrecvphone = Column(String(16), nullable=False)  # 收货人电话
+    UAid = Column(String(255), nullable=False)  # 地址id
     OIcreatetime = Column(String(14))  # 订单创建时间
-    OIisdelete = Column(Boolean, default=False)  # 是否删除
 
 class OrderProductInfo(Base):
     """订单商品详情, 多个订单商品详情对应一个订单"""
@@ -174,10 +169,10 @@ class OrderProductInfo(Base):
     OPIid = Column(String(64), primary_key=True)
     OIid = Column(String(64), nullable=False)  # 订单
     PRid = Column(String(64), nullable=False)  # 商品id
-    OIproductprice = Column(Float, nullable=False)   # 商品价格(购买时候的价格)
-    OPIproductname = Column(String(64))  # 商品的名字(购买之时的)
-    OPIproductimage = Column(String(255))  # 商品主图
-    OPIproductnum = Column(Integer, default=1)  # 购买数量
+    PRprice = Column(Float, nullable=False)   # 商品价格(购买时候的价格)
+    PRname = Column(String(64))  # 商品的名字(购买之时的)
+    PRimage = Column(String(255))  # 商品主图
+    PRnum = Column(Integer)  # 购买数量
 
 class LoanRecharge(Base):
     """
