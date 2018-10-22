@@ -89,3 +89,20 @@ AUTHORITY_ERROR = {
     "message": "没有权限"
 
 }
+NOT_FOUND_PHONENUM = {
+    "status": 405,
+    "status_code": 405005,
+    "message": "没有找到该号码信息"
+}
+PHONE_OR_PASSWORD_WRONG = {
+    "status": 405,
+    "status_code": 405006,
+    "message": "手机或密码错误"
+
+}
+NOT_FOUND_IMAGE = {
+    "status": 405,
+    "status_code": 405007,
+    "message": "图片未找到"
+
+}

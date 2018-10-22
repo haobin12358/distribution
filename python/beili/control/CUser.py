@@ -1,12 +1,15 @@
 # *- coding:utf8 *-
 import sys
 import os
+import json
 from flask import request
 # import logging
-from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR
+from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
+    NOT_FOUND_IMAGE
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser
 from common.import_status import import_status
+from common.get_model_return_list import get_model_return_list
 from common.timeformat import get_db_time_str
 from service.SUser import SUser
 import platform
@@ -28,14 +31,14 @@ class CUser():
         if not usphonenum or not uspassword:
             return PARAMS_MISS(u'请输入手机号或密码')
         print type(usphonenum)
-        user = self.suser.getuser_by_phonenum(usphonenum)
+        user = get_model_return_list(self.suser.getuser_by_phonenum(usphonenum))
         # print "aaaa" + user.USphone + ":" + user.USpassword
         # print(dir(user))
         # print user.USphonenum
         # print type(user.USphonenum)
-        if not user or uspassword != user.USpassword:
-            return SYSTEM_ERROR(u'手机号或密码错误')
-        token = usid_to_token(user.USid)
+        if not user or uspassword != user[0]['USpassword']:
+            return PHONE_OR_PASSWORD_WRONG
+        token = usid_to_token(user[0]['USid'])
         data = import_status('generic_token_success', "OK")
         data['data'] = {
             'token': token,
@@ -52,8 +55,9 @@ class CUser():
         oldpassword = json_data.get('oldpassword')
         newpassword = json_data.get('newpassword')
         user = self.suser.getuser_by_uid(request.user.id)
+        print user
         if not user or user.USpassword != oldpassword:
-            return PARAMS_ERROR(u"密码错误")
+            return PARAMS_ERROR
         user_update = {}
         user_update["USpassword"] = newpassword
         self.suser.update_user_by_uid(user.USid, user_update)
@@ -84,7 +88,7 @@ class CUser():
             return AUTHORITY_ERROR(u"权限不足")
         files = request.files.get("file")
         if not files:
-            return NOT_FOUND(u"图片不存在")
+            return NOT_FOUND_IMAGE(u"图片不存在")
         if platform.system() == "Windows":
             rootdir = "D:/task"
         else:

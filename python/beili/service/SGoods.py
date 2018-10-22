@@ -25,7 +25,7 @@ class SGoods(SBase):
     def get_product(self, PRid):
         return self.session.query(Product.PRstock, Product.PRstatus, Product.PRprice, Product.PRoldprice,
                                   Product.PRname, Product.PRpic, Product.PAid, Product.PRcreatetime,
-                                  Product.PRlogisticsfee, Product.PRmodifytime, Product.SUmodifyid)\
+                                  Product.PRlogisticsfee)\
             .filter_by(PRid=PRid).first()
 
     @close_session

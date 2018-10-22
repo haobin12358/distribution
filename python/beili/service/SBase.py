@@ -11,6 +11,7 @@ def close_session(fn):
     def inner(self, *args, **kwargs):
         try:
             result = fn(self, *args, **kwargs)
+            # self.session.expunge_all()
             self.session.commit()
             return result
         except Exception as e:

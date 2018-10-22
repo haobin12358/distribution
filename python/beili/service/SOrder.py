@@ -9,7 +9,7 @@ from sqlalchemy import func
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
-class SMessage(SBase):
+class SOrder(SBase):
 
     @close_session
     def get_agentMessage_by_usid(self, usid, page, count):

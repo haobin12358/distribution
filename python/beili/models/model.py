@@ -156,11 +156,10 @@ class OrderInfo(Base):
     USid = Column(String(64))  # 用户
     OItradenum = Column(String(125))  # 交易号, (如果有)
     """
-    订单状态: {0:所有订单, 1: 支付成功, 2: 支付超时关闭（交易关闭）, 3:待发货, 4:已发货, 
-    5:已取消, 6:已签收, 7:交易失败（退货）, 8:交易完成, 9:待评价, 10:退换货 } 根据需求无待支付状态
+    订单状态: {0:所有订单, 1:待发货, 2:已发货, 3:已签收, 4:交易完成 } 根据需求无待支付状态
     """
     OIpaystatus = Column(Integer, default=0)
-    OIleavetext = Column(String(255))  # 订单留言
+    OInote = Column(String(255))  # 订单留言
     OImount = Column(Float)  # 金额
     OIpaytime = Column(String(14))  # 支付时间
     OIaddress = Column(String(255), nullable=False)  # 地址
@@ -168,6 +167,17 @@ class OrderInfo(Base):
     OIrecvphone = Column(String(16), nullable=False)  # 收货人电话
     OIcreatetime = Column(String(14))  # 订单创建时间
     OIisdelete = Column(Boolean, default=False)  # 是否删除
+
+class OrderProductInfo(Base):
+    """订单商品详情, 多个订单商品详情对应一个订单"""
+    __tablename__ = 'orderproductinfo'
+    OPIid = Column(String(64), primary_key=True)
+    OIid = Column(String(64), nullable=False)  # 订单
+    PRid = Column(String(64), nullable=False)  # 商品id
+    OIproductprice = Column(Float, nullable=False)   # 商品价格(购买时候的价格)
+    OPIproductname = Column(String(64))  # 商品的名字(购买之时的)
+    OPIproductimage = Column(String(255))  # 商品主图
+    OPIproductnum = Column(Integer, default=1)  # 购买数量
 
 class LoanRecharge(Base):
     """
@@ -272,8 +282,6 @@ class Product(Base):
     PRstock = Column(Integer)  # 库存
     SUid = Column(String(64))  # 发布者, 创建人
     PRcreatetime = Column(String(14))  # 创建时间
-    SUmodifyid = Column(String(64))  # 修改人id
-    PRmodifytime = Column(String(14))  # 修改时间
     PRlogisticsfee = Column(Float)  # 物流费
     PRstatus = Column(Integer)     # 商品状态，1出售中，2已售罄，3已下架
     PAid = Column(String(64))      # 分类id，用于绑定商品类目，空值表示未绑定分类
@@ -298,7 +306,7 @@ class AgentMessage(Base):
     USid = Column(String(64))  # 用户
     AMdate = Column(String(64))  # 消息发布时间
     AMtype = Column(Integer)  # 种类: {0: 订单信息, 1: 款项消息, 2: 代理信息}
-    AMtext = Column(String(128), nullable=False)  # 消息详情
+    AMcontent = Column(String(128), nullable=False)  # 消息详情
 
 class ComMessage(Base):
     """
@@ -310,7 +318,7 @@ class ComMessage(Base):
     CMtype = Column(Boolean)  # 种类: {0: 公告}
     CMtitle = Column(String(128), nullable=False)  # 消息详情
     CMfile = Column(String(255), nullable=False)  # 附加图片
-    CMstatus = Column(Boolean, default=0)  # 状态: {0:显示, 1:删除 }
+    CMstatus = Column(Integer, default=0)  # 状态: {0:显示, 1:删除 }
 
 class Question(Base):
     """
@@ -363,10 +371,10 @@ class UserAddress(Base):
     UAid = Column(String(64), primary_key=True)
     USid = Column(String(64), nullable=False)           # 用户
     UAname = Column(String(16), nullable=False)         # 收货人姓名
-    UAphone = Column(String(16), nullable=False)        # 收货人电话
-    UAtext = Column(String(255), nullable=False)        # 具体地址
-    UAdefault = Column(Boolean, default=False)          # 默认收获地址
-    UAstatus = Column(Boolean, default=False)           # 状态
+    UAphonenum = Column(String(16), nullable=False)     # 收货人电话
+    UAdetails = Column(String(255), nullable=False)     # 具体地址
+    UAdefault = Column(Boolean)          # 默认收获地址
+    UAstatus = Column(Boolean, default=False)           # 状态:{True: 在使用, False: 已删除}
     UAcreatetime = Column(String(14))                   # 创建时间
     areaid = Column(String(8), nullable=False)          # 关联的区域id
 

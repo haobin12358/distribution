@@ -11,7 +11,7 @@ class SUser(SBase):
 
     @close_session
     def getuser_by_phonenum(self, usphonenum):
-        return self.session.query(User).filter_by(USphonenum=usphonenum).first()
+        return self.session.query(User.USid, User.USpassword).filter_by(USphonenum=usphonenum)
 
     @close_session
     def getuser_by_uid(self, usid):

@@ -4,12 +4,18 @@ import sys
 import os
 import uuid
 import json
+import platform
 from flask import request
 # import logging
-from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, NOT_FOUND
+from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, NOT_FOUND_PHONENUM, NOT_FOUND_IMAGE
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist
 from common.import_status import import_status
-from service import SMyCenter
+from common.get_model_return_list import get_model_return_list, get_model_return_dict
+from service.SMyCenter import SMyCenter
+from config.setting import QRCODEHOSTNAME
+from common.timeformat import get_db_time_str
+from service.SUser import SUser
+from models.model import UserAddress
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -17,11 +23,13 @@ class CMyCenter():
 
     def __init__(self):
         self.smycenter = SMyCenter()
+        self.suser = SUser()
 
     def get_inforcode(self):
         print "get_inforcode"
         try:
             args = request.args.to_dict()
+            print args
             phonenum = args.get('usphonenum')
         except Exception as e:
             return PARAMS_ERROR(u"参数错误")
@@ -29,7 +37,7 @@ class CMyCenter():
             return PARAMS_ERROR(u"参数错误")
         user = self.suser.getuser_by_phonenum(phonenum)
         if not user:
-            return NOT_FOUND(u"该号码未注册")
+            return NOT_FOUND_PHONENUM
         code = ""
         while len(code) < 6:
             import random
@@ -90,3 +98,110 @@ class CMyCenter():
                             "checkmessage": checkmessage
                             }
         return response
+
+    @verify_token_decorator
+    def update_headimg(self):  # 更新头像
+        # if not is_tourist():
+        #     return TOKEN_ERROR
+        files = request.files.get("file")
+        if not files:
+            return NOT_FOUND_IMAGE
+        if platform.system() == "Windows":
+            rootdir = "D:/task"
+        else:
+            rootdir = "/opt/beili/imgs/mycenter/"
+        if not os.path.isdir(rootdir):
+            os.makedirs(rootdir)
+        lastpoint = str(files.filename).rindex(".")
+        filessuffix = str(files.filename)[lastpoint + 1:]
+        filename = request.user.id + get_db_time_str() + "." + filessuffix
+        filepath = os.path.join(rootdir, filename)
+        print(filepath)
+        files.save(filepath)
+        response = import_status("updata_headimg_success", "OK")
+        # url = Inforcode.ip + Inforcode.LinuxImgs + "/" + filename
+        url = QRCODEHOSTNAME + "/imgs/mycenter/" + filename
+        user_update = {}
+        user_update['USheadimg'] = url
+        self.suser.update_user_by_uid(request.user.id, user_update)
+        # print(url)
+        response["data"] = url
+        return response
+
+    """省市区地址"""
+    def get_province(self):
+        try:
+            province_list = get_model_return_list(self.smycenter.get_province())
+            res = import_status("get_province_list_success", "OK")
+            res["data"] = province_list
+            return res
+        except:
+            return SYSTEM_ERROR
+
+    def get_city_by_province(self):
+        try:
+            args = request.args.to_dict()
+            province_id = args["provinceid"]
+        except:
+            return PARAMS_ERROR
+        city_list = get_model_return_list(self.smycenter.get_city_by_provincenum(province_id))
+        # map(lambda x: x.hide('_id'), city_list)
+        res = import_status("get_city_list_success", "OK")
+        res["data"] = city_list
+        return res
+
+    def get_area_by_city(self):
+        try:
+            args = request.args.to_dict()
+            city_id = args['cityid']
+        except:
+            return PARAMS_ERROR
+        area_list = get_model_return_list(self.smycenter.get_area_by_citynum(city_id))
+        res = import_status("get_area_list_success", "OK")
+        res["data"] = area_list
+        return res
+
+    @verify_token_decorator
+    def add_useraddress(self):
+        if is_tourist():
+            return TOKEN_ERROR
+
+        try:
+            data = request.json
+            USname = data.get('USname')
+            USphonenum = data.get("USphonenum")
+            USdatails = data.get("details")
+            areaid = data.get("areaid")
+        except:
+            return PARAMS_ERROR
+        try:
+            uaid = str(uuid.uuid1())
+            exist_default = self.smycenter.get_default_address_by_usid(request.user.id)
+            uadefault = True if not exist_default else False
+            self.smycenter.add_address(uaid, request.user.id, USname, USphonenum, USdatails, areaid, uadefault)
+            response = import_status("add_address_success", "OK")
+            response['data'] = {
+                "UAid": uaid
+            }
+            return response
+        except:
+            return SYSTEM_ERROR
+
+    def get_useraddress(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            isdefault = data.get('isdefault')
+            # UAid = data.get('UAid')
+        except:
+            return PARAMS_ERROR
+        if isdefault == 0:
+            address = get_model_return_list(self.smycenter.get_address(request.user.id))
+            addressinfoes = get_model_return_list(self.smycenter.get_addressinfo_by_areaid(address[0]['areaid']))
+        response = import_status("get_address_success", "OK")
+        response['data'] = addressinfoes
+        return response
+
+
+

@@ -6,6 +6,7 @@ import os
 import uuid
 import model
 import pymysql
+from service.DBSession import db_session
 from sqlalchemy.orm import scoped_session, sessionmaker
 sys.path.append(os.path.dirname(os.getcwd()))  # 增加系统路径
 
@@ -15,10 +16,10 @@ info_count = 22  # 需要插入的数据库条数
 
 class MakeData():
     def __init__(self):
-#        self.act = SActivity()
+        # self.act = SActivity()
         self.session = scoped_session(sessionmaker(autocommit=False,
-                                         autoflush=False,
-                                         bind=model.mysql_engine))
+                                                   autoflush=False,
+                                                   bind=model.mysql_engine))
         self.user_id = self.generic_uuid()
         self.activity_id = self.generic_uuid() 
         self.media_id = self.generic_uuid()
@@ -107,6 +108,8 @@ class MakeData():
 
 
 
+
+
     def add_product(self):
         from model import Product
         for i in self.product_id:
@@ -160,11 +163,76 @@ class MakeData():
         from werkzeug.security import generate_password_hash
         user = User()
         user.USid = '4304cf38-c3cf-401f-8ba7-f8ce040f064f'
-        user.USname = 'name'
-        user.USphonenum = '13511112222'
+        user.USname = 'fengxin'
+        user.USphonenum = '13588046059'
         user.USpassword = "123"
         self.session.add(user)
         self.session.commit()
+
+    def add_agent_message(self):
+        from model import AgentMessage
+        from werkzeug.security import generate_password_hash
+        for i in range(30):
+            message = AgentMessage()
+            message.USid = '4304cf38-c3cf-401f-8ba7-f8ce040f064f'
+            message.AMtype = 0
+            message.AMcontent = "hh" + str(i)
+            message.AMid = "ewrw" + str(i)
+            import datetime
+            from common.timeformat import format_for_db
+            time_time = datetime.datetime.now()
+            time_str = datetime.datetime.strftime(time_time, format_for_db)
+            message.AMdate = time_str
+            self.session.add(message)
+            self.session.commit()
+
+    def add_province(self):
+        from model import Province
+        province = Province()
+        province.id = 1
+        province.name = '浙江'
+        print type(province.name)
+        province.provinceid = "1"
+        self.session.add(province)
+        self.session.commit()
+
+    def add_city(self):
+        from model import City
+        city = City()
+        city.id = 2
+        city.name = "杭州"
+        city.cityid = "2"
+        city.provinceid = "1"
+        self.session.add(city)
+        self.session.commit()
+
+    def add_area(self):
+        from model import Area
+        area = Area()
+        area.id = 3
+        area.name = "滨江区"
+        area.areaid = "3"
+        area.cityid = "2"
+        self.session.add(area)
+        self.session.commit()
+
+    def add_company_message(self):
+        from model import ComMessage
+        from werkzeug.security import generate_password_hash
+        for i in range(30):
+            message = ComMessage()
+            message.CMid = '4304cf38-c3cf-401f-8ba7-f8ce040f064f' + str(i)
+            message.CMstatus = 0
+            message.CMtitle = "hh" + str(i)
+            message.CMtype = 0
+            message.CMfile = "http:www.baidu.com" + str(i)
+            import datetime
+            from common.timeformat import format_for_db
+            time_time = datetime.datetime.now()
+            time_str = datetime.datetime.strftime(time_time, format_for_db)
+            message.CMdate = time_str
+            self.session.add(message)
+            self.session.commit()
 
     
     def add_user_partner(self):
@@ -240,7 +308,7 @@ class databse_deal():
 
 def create():
     # databse_deal().create_database()
-    from base_model import Base
+    from model import Base
     Base.metadata.create_all(model.mysql_engine)
 
 
@@ -264,13 +332,18 @@ if __name__ == "__main__":
     #     data = MakeData()
     #     data.add_user()
     #     print "OK!"
-    print('start create database')
+    # print('start create database')
     databse_deal().create_database()
     print('start create table')
     create()
     data = MakeData()
     print('start add data')
+    data.add_province()
+    data.add_city()
+    data.add_area()
     data.add_user()
+    data.add_agent_message()
+    data.add_company_message()
     data.add_alreadyRead()
         # # tshop_ids = data.make_id()
         # # print("over")
