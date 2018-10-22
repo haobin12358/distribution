@@ -78,6 +78,7 @@ class CMyCenter():
         response_ok = {"usphone": phonenum}
         response_ok["status"] = status
         response_ok["messages"] = response_send_message["Message"]
+        return response_ok
 
     def check_inforcode(self):
         data = request.json
