@@ -51,9 +51,9 @@ class CMyCenter():
         time_str = datetime.datetime.strftime(time_time, format_for_db)
 
         # 根据电话号码获取时间
-        time_up = self.smycenter.get_uptime_by_usphonenum(phonenum)
+        time_up = get_model_return_dict(self.smycenter.get_uptime_by_usphonenum(phonenum))
         if time_up:
-            time_up_time = datetime.datetime.strptime(time_up.ICtime, format_for_db)
+            time_up_time = datetime.datetime.strptime(time_up['ICtime'], format_for_db)
             delta = time_time - time_up_time
             if delta.seconds < 60:
                 return import_status("ERROR_MESSAGE_GET_CODE_FAST", "BEILI_ERROR", "ERROR_CODE_GET_CODE_FAST")
@@ -88,10 +88,10 @@ class CMyCenter():
             return PARAMS_ERROR("参数错误")
         if not phonenum or not iccode:
             return PARAMS_ERROR("参数错误")
-        codeinfo = self.smycenter.get_inforcode_by_usphonenum(phonenum)
+        codeinfo = get_model_return_dict(self.smycenter.get_inforcode_by_usphonenum(phonenum))
         if not codeinfo:
             return SYSTEM_ERROR(u"用户验证信息错误")
-        checkstatus = True if iccode == codeinfo.ICcode else False
+        checkstatus = True if iccode == codeinfo['ICcode'] else False
         checkmessage = u"验证码正确" if checkstatus is True else u"验证码错误"
         response = import_status("check_inforcode_access", "OK")
         response["data"] = {"checkstatus": checkstatus,
@@ -109,7 +109,7 @@ class CMyCenter():
         if platform.system() == "Windows":
             rootdir = "D:/task"
         else:
-            rootdir = "/opt/beili/imgs/mycenter/"
+            rootdir = "Users/fx/opt/beili/imgs/mycenter/"
         if not os.path.isdir(rootdir):
             os.makedirs(rootdir)
         lastpoint = str(files.filename).rindex(".")
@@ -187,20 +187,35 @@ class CMyCenter():
         except:
             return SYSTEM_ERROR
 
+    @verify_token_decorator
     def get_useraddress(self):
         if is_tourist():
             return TOKEN_ERROR
         try:
             data = request.json
-            isdefault = data.get('isdefault')
-            # UAid = data.get('UAid')
+            isdefault = int(data.get('isdefault'))
+            UAid = data.get('UAid')
         except:
             return PARAMS_ERROR
         if isdefault == 0:
-            address = get_model_return_list(self.smycenter.get_address(request.user.id))
-            addressinfoes = get_model_return_list(self.smycenter.get_addressinfo_by_areaid(address[0]['areaid']))
+            address = get_model_return_list(self.smycenter.get_default_address(request.user.id))
+            area = get_model_return_list(self.smycenter.get_area_by_areaid(address[0]['areaid']))
+            city = get_model_return_list(self.smycenter.get_city_by_cityid(area[0]['cityid']))
+            province = get_model_return_list(self.smycenter.get_province_by_provinceid(city[0]['provinceid']))
+        elif isdefault == 1:
+            address = get_model_return_list(self.smycenter.get_other_address(request.user.id, UAid))
+            area = get_model_return_list(self.smycenter.get_area_by_areaid(address[0]['areaid']))
+            city = get_model_return_list(self.smycenter.get_city_by_cityid(area[0]['cityid']))
+            province = get_model_return_list(self.smycenter.get_province_by_provinceid(city[0]['provinceid']))
+        data = {}
+        data['provincename'] = province[0]['provincename']
+        data['cityname'] = city[0]['cityname']
+        data['areaname'] = area[0]['areaname']
+        data['details'] = address[0]['UAdetails']
+        data['username'] = address[0]['UAname']
+        data['userphonenum'] = address[0]['UAphonenum']
         response = import_status("get_address_success", "OK")
-        response['data'] = addressinfoes
+        response['data'] = data
         return response
 
 

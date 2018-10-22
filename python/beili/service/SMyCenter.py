@@ -21,7 +21,7 @@ class SMyCenter(SBase):
 
     @close_session
     def get_inforcode_by_usphonenum(self, phonenum):
-        return self.session.query(IdentifyingCode).filter_by(ICphonenum=phonenum).order_by( \
+        return self.session.query(IdentifyingCode.ICcode).filter_by(ICphonenum=phonenum).order_by( \
             IdentifyingCode.ICtime.desc()).first()
 
     @close_session
@@ -38,15 +38,15 @@ class SMyCenter(SBase):
 
     @close_session
     def get_province(self):
-        return self.session.query(Province.id, Province.name, Province.provinceid).all()
+        return self.session.query(Province.id, Province.provincename, Province.provinceid).all()
 
     @close_session
     def get_city_by_provincenum(self, provinceid):
-        return self.session.query(City.name, City.provinceid, City.id, City.cityid).filter_by(provinceid=provinceid).all()
+        return self.session.query(City.cityname, City.provinceid, City.id, City.cityid).filter_by(provinceid=provinceid).all()
 
     @close_session
     def get_area_by_citynum(self, cityid):
-        return self.session.query(Area.id, Area.cityid, Area.name, Area.areaid).filter_by(cityid=cityid).all()
+        return self.session.query(Area.id, Area.cityid, Area.areaname, Area.areaid).filter_by(cityid=cityid).all()
 
     @close_session
     def get_default_address_by_usid(self, usid):
@@ -68,13 +68,28 @@ class SMyCenter(SBase):
         self.session.add(address)
 
     @close_session
-    def get_address(self, usid):
+    def get_default_address(self, usid):
         return self.session.query(UserAddress.UAdefault, UserAddress.UAid\
                                   , UserAddress.UAname, UserAddress.UAcreatetime, UserAddress.UAphonenum\
-                                  , UserAddress.UAdetails).filter(UserAddress.USid == usid).first()
+                                  , UserAddress.UAdetails, UserAddress.areaid).filter(UserAddress.USid == usid)\
+                                  .filter(UserAddress.UAdefault == 1).all()
+
+    @close_session
+    def get_other_address(self, usid, uaid):
+        return self.session.query(UserAddress.UAdefault, UserAddress.UAid \
+                                  , UserAddress.UAname, UserAddress.UAcreatetime, UserAddress.UAphonenum \
+                                  , UserAddress.UAdetails, UserAddress.areaid).filter(UserAddress.USid == usid) \
+            .filter(UserAddress.UAid == uaid).all()
 
 
     @close_session
-    def get_addressinfo_by_areaid(self, areaid):
-        return self.session.query(Area.name, City.name, Province.name).filter(Area.cityid == City.cityid\
-                                  , City.provinceid == Province.provinceid).filter(Area.areaid == areaid).all()
+    def get_area_by_areaid(self, areaid):
+        return self.session.query(Area.areaname, Area.cityid).filter(Area.areaid == areaid).all()
+
+    @close_session
+    def get_city_by_cityid(self, cityid):
+        return self.session.query(City.cityname, City.provinceid).filter(City.cityid == cityid).all()
+
+    @close_session
+    def get_province_by_provinceid(self, provinceid):
+        return self.session.query(Province.provincename, Province.provinceid).filter(Province.provinceid == provinceid).all()

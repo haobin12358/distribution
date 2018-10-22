@@ -190,8 +190,7 @@ class MakeData():
         from model import Province
         province = Province()
         province.id = 1
-        province.name = '浙江'
-        print type(province.name)
+        province.provincename = '浙江'
         province.provinceid = "1"
         self.session.add(province)
         self.session.commit()
@@ -200,7 +199,7 @@ class MakeData():
         from model import City
         city = City()
         city.id = 2
-        city.name = "杭州"
+        city.cityname = "杭州"
         city.cityid = "2"
         city.provinceid = "1"
         self.session.add(city)
@@ -210,7 +209,7 @@ class MakeData():
         from model import Area
         area = Area()
         area.id = 3
-        area.name = "滨江区"
+        area.areaname = "滨江区"
         area.areaid = "3"
         area.cityid = "2"
         self.session.add(area)
@@ -323,28 +322,23 @@ if __name__ == "__main__":
        如果需要清除数据库，输入drop
        如果需要创建数据库 输入任意不包含drop的字符
        '''
-    # action = raw_input("create database?")
-    # if "drop" in action:
-    #     drop()
-    #
-    # else:
-    #     create()
-    #     data = MakeData()
-    #     data.add_user()
-    #     print "OK!"
-    # print('start create database')
-    databse_deal().create_database()
-    print('start create table')
-    create()
-    data = MakeData()
-    print('start add data')
-    data.add_province()
-    data.add_city()
-    data.add_area()
-    data.add_user()
-    data.add_agent_message()
-    data.add_company_message()
-    data.add_alreadyRead()
+    action = raw_input("create database?")
+    if "drop" in action:
+        drop()
+
+    else:
+        databse_deal().create_database()
+        create()
+        data = MakeData()
+        print "OK!"
+        print('start add data')
+        data.add_province()
+        data.add_city()
+        data.add_area()
+        data.add_user()
+        data.add_agent_message()
+        data.add_company_message()
+        data.add_alreadyRead()
         # # tshop_ids = data.make_id()
         # # print("over")
         # data.add_activity()

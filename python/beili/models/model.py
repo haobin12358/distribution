@@ -343,7 +343,7 @@ class Province(Base):
     """省"""
     __tablename__ = 'province'
     id = Column(Integer, primary_key=True)
-    name = Column(String(20), nullable=False)
+    provincename = Column(String(20), nullable=False)
     provinceid = Column(String(8), nullable=False)
 
 
@@ -352,7 +352,7 @@ class City(Base):
     __tablename__ = 'city'
     id = Column(Integer, primary_key=True)
     cityid = Column(String(8), nullable=False)
-    name = Column(String(20), nullable=False)
+    cityname = Column(String(20), nullable=False)
     provinceid = Column(String(8), nullable=False)
 
 
@@ -360,7 +360,7 @@ class Area(Base):
     """区县"""
     __tablename__ = 'area'
     id = Column(Integer, primary_key=True)
-    name = Column(String(20), nullable=False)
+    areaname = Column(String(20), nullable=False)
     areaid = Column(String(8), nullable=False)
     cityid = Column(String(8), nullable=False)
 
@@ -373,7 +373,7 @@ class UserAddress(Base):
     UAname = Column(String(16), nullable=False)         # 收货人姓名
     UAphonenum = Column(String(16), nullable=False)     # 收货人电话
     UAdetails = Column(String(255), nullable=False)     # 具体地址
-    UAdefault = Column(Boolean)          # 默认收获地址
+    UAdefault = Column(Boolean)          # 默认收获地址 1为默认
     UAstatus = Column(Boolean, default=False)           # 状态:{True: 在使用, False: 已删除}
     UAcreatetime = Column(String(14))                   # 创建时间
     areaid = Column(String(8), nullable=False)          # 关联的区域id

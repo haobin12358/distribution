@@ -13,6 +13,7 @@ def close_session(fn):
             result = fn(self, *args, **kwargs)
             # self.session.expunge_all()
             self.session.commit()
+            print type(result)
             return result
         except Exception as e:
             print("DBERROR" + e.message)
