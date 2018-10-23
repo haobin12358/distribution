@@ -38,15 +38,15 @@ class SMyCenter(SBase):
 
     @close_session
     def get_province(self):
-        return self.session.query(Province.id, Province.provincename, Province.provinceid).all()
+        return self.session.query(Province.provincename, Province.provinceid).all()
 
     @close_session
     def get_city_by_provincenum(self, provinceid):
-        return self.session.query(City.cityname, City.provinceid, City.id, City.cityid).filter_by(provinceid=provinceid).all()
+        return self.session.query(City.cityname, City.provinceid, City.cityid).filter_by(provinceid=provinceid).all()
 
     @close_session
     def get_area_by_citynum(self, cityid):
-        return self.session.query(Area.id, Area.cityid, Area.areaname, Area.areaid).filter_by(cityid=cityid).all()
+        return self.session.query(Area.cityid, Area.areaname, Area.areaid).filter_by(cityid=cityid).all()
 
     @close_session
     def get_default_address_by_usid(self, usid):
@@ -55,7 +55,7 @@ class SMyCenter(SBase):
             .filter_by(USid=usid, UAdefault=True, UAstatus=False).first()
 
     @close_session
-    def add_address(self, uaid, usid, usname, usphonenum, usdetails, areaid, uadefault):
+    def add_address(self, uaid, usid, usname, usphonenum, usdetails, areaid, uadefault, createtime):
         """添加地址地址"""
         address = UserAddress()
         address.UAid = uaid
@@ -65,6 +65,7 @@ class SMyCenter(SBase):
         address.UAdetails = usdetails
         address.areaid = areaid
         address.UAdefault = uadefault
+        address.UAcreatetime = createtime
         self.session.add(address)
 
     @close_session
@@ -72,19 +73,26 @@ class SMyCenter(SBase):
         return self.session.query(UserAddress.UAdefault, UserAddress.UAid\
                                   , UserAddress.UAname, UserAddress.UAcreatetime, UserAddress.UAphonenum\
                                   , UserAddress.UAdetails, UserAddress.areaid).filter(UserAddress.USid == usid)\
-                                  .filter(UserAddress.UAdefault == 1).all()
+                                  .filter(UserAddress.UAdefault == 1).filter(UserAddress.UAstatus == 1).all()
 
     @close_session
     def get_other_address(self, usid, uaid):
         return self.session.query(UserAddress.UAdefault, UserAddress.UAid \
                                   , UserAddress.UAname, UserAddress.UAcreatetime, UserAddress.UAphonenum \
                                   , UserAddress.UAdetails, UserAddress.areaid).filter(UserAddress.USid == usid) \
-            .filter(UserAddress.UAid == uaid).all()
+            .filter(UserAddress.UAid == uaid).filter(UserAddress.UAstatus == 1).all()
 
+    @close_session
+    def delete_useraddress(self, id, uaid, address):
+        return self.session.query(UserAddress).filter_by(USid=id).filter_by(UAid=uaid).update(address)
 
     @close_session
     def get_area_by_areaid(self, areaid):
         return self.session.query(Area.areaname, Area.cityid).filter(Area.areaid == areaid).all()
+
+    @close_session
+    def get_all_areaid(self):
+        return self.session.query(Area.areaid).all()
 
     @close_session
     def get_city_by_cityid(self, cityid):

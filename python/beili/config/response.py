@@ -117,6 +117,26 @@ NO_ADDRESS = {
     "status": 405,
     "status_code": 405010,
     "message": "未找到地址"
-
 }
+INFORCODE_WRONG = {
+    "status": 405,
+    "status_code": 405011,
+    "message": "验证码错误"
+}
+NOT_FOUND_ADDRESS = {
+    "status": 405,
+    "status_code": 405012,
+    "message": "未找到收货地址"
+}
+BAD_ADDRESS = {
+    "status": 405,
+    "status_code": 405013,
+    "message": "无效的地址代号"
+}
+NO_THIS_CATEGORY = {
+    "status": 405,
+    "status_code": 405014,
+    "message": "没有此分类"
+}
+
 

@@ -21,4 +21,6 @@ add_address_success = "添加地址信息成功"
 get_address_success = "获取收获地址信息成功"
 create_order_success = "创建订单成功"
 get_orderlist_success = "获取订单列表成功"
+get_all_area_success = "获取所有的地区成功"
+update_address_success = "地址删除成功"
 

@@ -105,32 +105,29 @@ class MakeData():
             self.session.add(message)
             self.session.commit()
 
-
-
-
-
-
     def add_product(self):
         from model import Product
-        for i in self.product_id:
-            pr = Product()
-            pr.PRid = str(i)
-            pr.USid = self.user_id[0]
-            pr.PAid = str(random.randint(1, 10))
-            pr.PRalias = '这是别名' + str(i)
-            pr.PRscore = random.randint(1, 10)
-            pr.PRsalesvolume = random.randint(0, info_count)
-            pr.PRstock = random.randint(0, info_count)
-            pr.PRmainpic = '这是主图' + str(i)
-            pr.PRname = '这是商品名字' + str(i)
-            pr.PRdetail = '这是一个超级大的文本'
-            pr.PRtitle = '{hello 这是一个标题'
-            pr.PRoldprice = 100.25
-            pr.PRsalesvolume = 100
-            pr.SUid = 'suid'
-            pr.PRprice = random.randint(1, 999)
-            self.session.add(pr)
+        for i in range(20):
+            product = Product()
+            product.PRid = 'test' + str(i)
+            product.PRname = '商品名' + str(i)
+            product.PRpic = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
+            product.PRoldprice = i + 100
+            product.PRstock = 1000 + i
+            product.PRprice = i + 1
+            import datetime
+            from common.timeformat import format_for_db
+            time_time = datetime.datetime.now()
+            time_str = datetime.datetime.strftime(time_time, format_for_db)
+            product.PRcreatetime = time_str
+            product.PRlogisticsfee = i
+            product.PRstatus = (i%3) + 1
+            product.PAid = (i%7) + 4
+            self.session.add(product)
             self.session.commit()
+
+
+
 
     def add_banner(self):
         from model import Banner
@@ -339,15 +336,4 @@ if __name__ == "__main__":
         data.add_agent_message()
         data.add_company_message()
         data.add_alreadyRead()
-        # # tshop_ids = data.make_id()
-        # # print("over")
-        # data.add_activity()
-        # data.add_media()
-        # data.add_comment()
-        # data.add_tags()
-        # data.add_hotmessage()
-        # data.add_banner()
-        # data.add_product()
-        # data.add_super()
-        # data.add_recommendbanner()
-        # data.add_user_partner()
+        data.add_product()

@@ -13,6 +13,9 @@ LinuxRoot = '/opt/WeiDian/'
 LinuxImgs = 'imgs'
 WindowsRoot = 'D:/'
 
+# 保证金
+BAIL = 0
+
 # weidian
 APP_ID = 'wx8206635590c9cc0e'
 APP_SECRET_KEY = 'ba8c532bfd8e7390e3cfc91ac17c0472'

@@ -5,13 +5,14 @@ import json
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
-    NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER
+    NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
 from common.timeformat import get_db_time_str
 from service.SUser import SUser
+from service.SMyCenter import SMyCenter
 import platform
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -20,6 +21,7 @@ class CUser():
 
     def __init__(self):
         self.suser = SUser()
+        self.smycenter = SMyCenter()
 
     def login(self):
         print "hello"
@@ -64,15 +66,21 @@ class CUser():
         return data
 
     def findback_pwd(self):
+        data = request.json
         try:
-            json_data = request.json
-            usphonenum = json_data.get('usphonenum')
-            newpassword = json_data.get('newpassword')
+            phonenum = data.get('usphonenum')
+            iccode = data.get('iccode')
+            newpassword = data.get('newpassword')
         except Exception as e:
             return PARAMS_ERROR
-        if not usphonenum or not newpassword:
-            return PARAMS_MISS
-        user = get_model_return_dict(self.suser.getuser_by_phonenum(usphonenum))
+        if not phonenum or not iccode or not newpassword:
+            return PARAMS_ERROR
+        codeinfo = get_model_return_dict(self.smycenter.get_inforcode_by_usphonenum(phonenum))
+        if not codeinfo:
+            return SYSTEM_ERROR
+        if iccode == codeinfo['ICcode']:
+            return INFORCODE_WRONG
+        user = get_model_return_dict(self.suser.getuser_by_phonenum(phonenum))
         if not user:
             return NOT_FOUND_USER
         user_update = {}

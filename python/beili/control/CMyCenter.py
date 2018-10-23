@@ -8,7 +8,7 @@ import platform
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, NOT_FOUND_PHONENUM, NOT_FOUND_IMAGE, \
-    NO_ADDRESS
+    NO_ADDRESS, NOT_FOUND_ADDRESS, BAD_ADDRESS
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
@@ -163,6 +163,37 @@ class CMyCenter():
         res["data"] = area_list
         return res
 
+    def get_all_area(self):
+        try:
+            province_return = []
+            province_list = get_model_return_list(self.smycenter.get_province())
+            for province in province_list:
+                province_dic = {}
+                province_dic['name'] = province['provincename']
+                province_dic['id'] = province['provinceid']
+                city_list = get_model_return_list(self.smycenter.get_city_by_provincenum(province['provinceid']))
+                city_return = []
+                for city in city_list:
+                        city_dic = {}
+                        city_dic['name'] = city['cityname']
+                        city_dic['id'] = city['cityid']
+                        area_list = get_model_return_list(self.smycenter.get_area_by_citynum(city['cityid']))
+                        area_return = []
+                        for area in area_list:
+                            area_dict = {}
+                            area_dict['name'] = area['areaname']
+                            area_dict['id'] = area['areaid']
+                            area_return.append(area_dict)
+                        city_dic['area'] = area_return
+                        city_return.append(city_dic)
+                province_dic['city'] = city_return
+                province_return.append(province_dic)
+            res = import_status("get_all_area_success", "OK")
+            res['data'] = province_return
+        except:
+            return SYSTEM_ERROR
+        return res
+
     @verify_token_decorator
     def add_useraddress(self):
         if is_tourist():
@@ -177,10 +208,20 @@ class CMyCenter():
         except:
             return PARAMS_ERROR
         try:
+            all_areaid = get_model_return_list(self.smycenter.get_all_areaid())
+            area_list = []
+            for area in all_areaid:
+                area_list.append(area['areaid'])
+            if areaid not in area_list:
+                return BAD_ADDRESS
+            import datetime
+            from common.timeformat import format_for_db
+            time_time = datetime.datetime.now()
+            time_str = datetime.datetime.strftime(time_time, format_for_db)
             uaid = str(uuid.uuid1())
             exist_default = self.smycenter.get_default_address_by_usid(request.user.id)
             uadefault = True if not exist_default else False
-            self.smycenter.add_address(uaid, request.user.id, USname, USphonenum, USdatails, areaid, uadefault)
+            self.smycenter.add_address(uaid, request.user.id, USname, USphonenum, USdatails, areaid, uadefault, time_str)
             response = import_status("add_address_success", "OK")
             response['data'] = {
                 "UAid": uaid
@@ -201,6 +242,8 @@ class CMyCenter():
             return PARAMS_ERROR
         if isdefault == 1:
             address = get_model_return_list(self.smycenter.get_default_address(request.user.id))
+            if not address:
+                return NOT_FOUND_ADDRESS
             area = get_model_return_list(self.smycenter.get_area_by_areaid(address[0]['areaid']))
             city = get_model_return_list(self.smycenter.get_city_by_cityid(area[0]['cityid']))
             province = get_model_return_list(self.smycenter.get_province_by_provinceid(city[0]['provinceid']))
@@ -219,9 +262,25 @@ class CMyCenter():
         data['username'] = address[0]['UAname']
         data['userphonenum'] = address[0]['UAphonenum']
         data['uaid'] = address[0]['UAid']
+        data['createtime'] = address[0]['UAcreatetime']
         response = import_status("get_address_success", "OK")
         response['data'] = data
         return response
 
-
-
+    @verify_token_decorator
+    def delete_useraddress(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            UAid = data.get('UAid')
+        except:
+            return PARAMS_ERROR
+        updatde_address = {}
+        updatde_address['UAstatus'] = False
+        result = self.smycenter.delete_useraddress(request.user.id, UAid, updatde_address)
+        if result:
+            response = import_status("update_address_success", "OK")
+            return response
+        else:
+            return SYSTEM_ERROR
