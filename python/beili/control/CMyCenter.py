@@ -33,9 +33,9 @@ class CMyCenter():
             print args
             phonenum = args.get('usphonenum')
         except Exception as e:
-            return PARAMS_ERROR(u"参数错误")
+            return PARAMS_ERROR
         if not phonenum:
-            return PARAMS_ERROR(u"参数错误")
+            return PARAMS_ERROR
         user = self.suser.getuser_by_phonenum(phonenum)
         if not user:
             return NOT_FOUND_PHONENUM
@@ -87,12 +87,12 @@ class CMyCenter():
             phonenum = data.get('usphonenum')
             iccode = data.get('iccode')
         except Exception as e:
-            return PARAMS_ERROR("参数错误")
+            return PARAMS_ERROR
         if not phonenum or not iccode:
-            return PARAMS_ERROR("参数错误")
+            return PARAMS_ERROR
         codeinfo = get_model_return_dict(self.smycenter.get_inforcode_by_usphonenum(phonenum))
         if not codeinfo:
-            return SYSTEM_ERROR(u"用户验证信息错误")
+            return SYSTEM_ERROR
         checkstatus = True if iccode == codeinfo['ICcode'] else False
         checkmessage = u"验证码正确" if checkstatus is True else u"验证码错误"
         response = import_status("check_inforcode_access", "OK")
