@@ -138,5 +138,29 @@ NO_THIS_CATEGORY = {
     "status_code": 405014,
     "message": "没有此分类"
 }
-
+UPDATE_ADDRESS_FAIL = {
+    "status": 405,
+    "status_code": 405015,
+    "message": "更新地址失败"
+}
+CHANGE_ADDRESS_FAIL = {
+    "status": 405,
+    "status_code": 405016,
+    "message": "切换地址失败"
+}
+STOCK_NOT_ENOUGH = {
+    "status": 405,
+    "status_code": 405017,
+    "message": "商品库存不足"
+}
+NO_ENOUGH_MOUNT = {
+    "status": 405,
+    "status_code": 405018,
+    "message": "账户余额不足"
+}
+NO_BAIL = {
+    "status": 405,
+    "status_code": 405019,
+    "message": "未缴纳保证金"
+}
 

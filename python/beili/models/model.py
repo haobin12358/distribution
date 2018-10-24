@@ -28,12 +28,9 @@ class User(Base):
     USpassword = Column(String(255))             # 密码
     USphonenum = Column(String(16), nullable=False)  # 手机号
     USheadimg = Column(String(255))               # 头像
-    USage = Column(Integer)                      # 年龄
-    USbail = Column(Boolean)                     # 是否缴纳保证金
+    USbail = Column(Float)                       # 保证金余额
     USmount = Column(Float)                      # 账户余额
-    USqrcode = Column(String(255))               # 邀请二维码
-    USlastlogin = Column(String(64))             # 用户上次登录时间
-    UPPerd = Column(String(64), default=0)       # 上级
+    USpre = Column(String(64))                   # 上级代理id
     openid = Column(String(64))                  # 微信唯一值
     unionid = Column(String(255))                # 绑定公众号会出现
     accesstoken = Column(String(255))            # 微信token

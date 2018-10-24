@@ -37,6 +37,17 @@ class SMyCenter(SBase):
         return True
 
     @close_session
+    def get_user_basicinfo(self, usid):
+        return self.session.query(User.USphonenum, User.USmount, User.USbail, User.USheadimg, User.USname,\
+                                  User.subscribe, User.USpre).filter_by(USid=usid).first()
+
+    @close_session
+    def get_user_totalinfo(self, usid):
+        return self.session.query(User.USphonenum, User.USmount, User.USbail, User.USheadimg, User.USname, \
+                                  User.subscribe, User.USpre, User.unionid, User.openid,\
+                                  User.accesstoken).filter_by(USid=usid).first()
+
+    @close_session
     def get_province(self):
         return self.session.query(Province.provincename, Province.provinceid).all()
 
@@ -49,10 +60,17 @@ class SMyCenter(SBase):
         return self.session.query(Area.cityid, Area.areaname, Area.areaid).filter_by(cityid=cityid).all()
 
     @close_session
+    def get_all_address(self, usid):
+        return self.session.query(UserAddress.UAdefault, UserAddress.UAid\
+                                  , UserAddress.UAname, UserAddress.UAcreatetime, UserAddress.UAphonenum\
+                                  , UserAddress.UAdetails, UserAddress.areaid).filter(UserAddress.USid == usid)\
+                                  .filter(UserAddress.UAstatus == 1).all()
+
+    @close_session
     def get_default_address_by_usid(self, usid):
         """获取默认地址"""
         return self.session.query(UserAddress.UAid, UserAddress.USid) \
-            .filter_by(USid=usid, UAdefault=True, UAstatus=False).first()
+            .filter_by(USid=usid, UAdefault=True, UAstatus=True).first()
 
     @close_session
     def add_address(self, uaid, usid, usname, usphonenum, usdetails, areaid, uadefault, createtime):
@@ -83,8 +101,32 @@ class SMyCenter(SBase):
             .filter(UserAddress.UAid == uaid).filter(UserAddress.UAstatus == 1).all()
 
     @close_session
+    def update_address(self, id, UAid, update):
+        return self.session.query(UserAddress).filter_by(USid=id).filter_by(UAid=UAid).update(update)
+
+    @close_session
+    def change_default(self, usid, oldid, newid):
+        old = {}
+        old['UAdefault'] = False
+        result1 = self.session.query(UserAddress).filter_by(USid=usid).filter_by(UAid=oldid).update(old)
+        if result1:
+            new = {}
+            new['UAdefault'] = True
+            result2 = self.session.query(UserAddress).filter_by(USid=usid).filter_by(UAid=newid).update(new)
+        if result1 == result2 == 1:
+            return True
+
+    @close_session
     def delete_useraddress(self, id, uaid, address):
         return self.session.query(UserAddress).filter_by(USid=id).filter_by(UAid=uaid).update(address)
+
+    @close_session
+    def get_one_address(self):
+        return self.session.query(UserAddress.UAid).filter(UserAddress.UAstatus == 1).first()
+
+    @close_session
+    def set_default(self, uaid, update_address):
+        self.session.query(UserAddress).filter_by(UAid=uaid).update(update_address)
 
     @close_session
     def get_area_by_areaid(self, areaid):

@@ -8,7 +8,7 @@ import platform
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, NOT_FOUND_PHONENUM, NOT_FOUND_IMAGE, \
-    NO_ADDRESS, NOT_FOUND_ADDRESS, BAD_ADDRESS
+    NO_ADDRESS, NOT_FOUND_ADDRESS, BAD_ADDRESS, UPDATE_ADDRESS_FAIL, CHANGE_ADDRESS_FAIL
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
@@ -103,8 +103,8 @@ class CMyCenter():
 
     @verify_token_decorator
     def update_headimg(self):  # 更新头像
-        # if not is_tourist():
-        #     return TOKEN_ERROR
+        if is_tourist():
+           return TOKEN_ERROR
         files = request.files.get("file")
         if not files:
             return NOT_FOUND_IMAGE
@@ -129,6 +129,31 @@ class CMyCenter():
         # print(url)
         response["data"] = url
         return response
+
+    @verify_token_decorator
+    def get_user_basicinfo(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        result = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
+        if result:
+            res = import_status("get_user_basicinfo_success", "OK")
+            res['data'] = result
+            return res
+        else:
+            return SYSTEM_ERROR
+
+    @verify_token_decorator
+    def get_user_totalinfo(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        result = get_model_return_dict(self.smycenter.get_user_totalinfo(request.user.id))
+        if result:
+            res = import_status("get_user_basicinfo_success", "OK")
+            res['data'] = result
+            return res
+        else:
+            return SYSTEM_ERROR
+
 
     """省市区地址"""
     def get_province(self):
@@ -237,9 +262,36 @@ class CMyCenter():
         try:
             data = request.json
             isdefault = int(data.get('isdefault'))
+            all = int(data.get('all'))
             UAid = data.get('UAid')
         except:
             return PARAMS_ERROR
+        if all == 1:
+            all_address = get_model_return_list(self.smycenter.get_all_address(request.user.id))
+            if not all_address:
+                return NO_ADDRESS
+            address_list = []
+            for address in all_address:
+                address = get_model_return_list(self.smycenter.get_other_address(request.user.id, address['UAid']))
+                if not address:
+                    return NO_ADDRESS
+                area = get_model_return_list(self.smycenter.get_area_by_areaid(address[0]['areaid']))
+                city = get_model_return_list(self.smycenter.get_city_by_cityid(area[0]['cityid']))
+                province = get_model_return_list(self.smycenter.get_province_by_provinceid(city[0]['provinceid']))
+                data = {}
+                data['provincename'] = province[0]['provincename']
+                data['cityname'] = city[0]['cityname']
+                data['areaname'] = area[0]['areaname']
+                data['details'] = address[0]['UAdetails']
+                data['username'] = address[0]['UAname']
+                data['userphonenum'] = address[0]['UAphonenum']
+                data['uaid'] = address[0]['UAid']
+                data['isdefault'] = address[0]['UAdefault']
+                data['createtime'] = address[0]['UAcreatetime']
+                address_list.append(data)
+            response = import_status("get_address_success", "OK")
+            response['data'] = address_list
+            return response
         if isdefault == 1:
             address = get_model_return_list(self.smycenter.get_default_address(request.user.id))
             if not address:
@@ -268,6 +320,49 @@ class CMyCenter():
         return response
 
     @verify_token_decorator
+    def update_useraddress(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            UAid = data.get('UAid')
+            USname = data.get('USname')
+            USphonenum = data.get('USphonenum')
+            details = data.get('details')
+            areaid = data.get('areaid')
+        except:
+            return PARAMS_ERROR
+        update_address = {}
+        update_address['UAname'] = USname
+        update_address['UAphonenum'] = USphonenum
+        update_address['UAdetails'] = details
+        update_address['areaid'] = areaid
+        update_result = self.smycenter.update_address(request.user.id, UAid, update_address)
+        if update_result:
+            response = import_status("update_address_success", "OK")
+            return response
+        else:
+            return UPDATE_ADDRESS_FAIL
+
+    @verify_token_decorator
+    def change_default(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            old_defaultid = data.get('old_defaultid')
+            new_defaultid = data.get('new_defaultid')
+        except:
+            return PARAMS_ERROR
+        change_result = self.smycenter.change_default(request.user.id, old_defaultid, new_defaultid)
+        if change_result:
+            response = import_status("change_address_success", "OK")
+            return response
+        else:
+            return CHANGE_ADDRESS_FAIL
+
+
+    @verify_token_decorator
     def delete_useraddress(self):
         if is_tourist():
             return TOKEN_ERROR
@@ -276,11 +371,21 @@ class CMyCenter():
             UAid = data.get('UAid')
         except:
             return PARAMS_ERROR
+        this_address = get_model_return_list(self.smycenter.get_other_address(request.user.id, UAid))
         updatde_address = {}
         updatde_address['UAstatus'] = False
         result = self.smycenter.delete_useraddress(request.user.id, UAid, updatde_address)
         if result:
-            response = import_status("update_address_success", "OK")
+            if this_address[0]['UAdefault']:
+                try:
+                    one_address = get_model_return_dict(self.smycenter.get_one_address())
+                    if one_address:
+                        updatde_address = {}
+                        updatde_address['UAdefault'] = True
+                        self.smycenter.set_default(one_address['UAid'], updatde_address)
+                except:
+                    return SYSTEM_ERROR
+            response = import_status("delete_address_success", "OK")
             return response
         else:
             return SYSTEM_ERROR

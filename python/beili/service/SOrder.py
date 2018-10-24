@@ -4,12 +4,30 @@ import os
 import uuid
 from werkzeug.security import check_password_hash
 from service.SBase import SBase, close_session
-from models.model import User, IdentifyingCode, OrderInfo, AlreadyRead, ComMessage, OrderProductInfo
+from models.model import User, IdentifyingCode, OrderInfo, AlreadyRead, ComMessage, OrderProductInfo, Product
 from sqlalchemy import func
+from common.beili_error import dberror, stockerror
+from common.get_model_return_list import get_model_return_list, get_model_return_dict
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
 class SOrder(SBase):
+
+    @close_session
+    def check_stock(self, product_list):
+        for product in product_list:
+            PRid = product['PRid']
+            PRstock = product['PRnum']
+            real_num = get_model_return_dict(self.session.query(Product.PRstock).filter_by(PRid=PRid).first())
+            if real_num['PRstock'] < PRstock:
+                raise stockerror('库存不足')
+            update_stock = {}
+            update_stock['PRstock'] = real_num['PRstock'] - PRstock
+            result = self.session.query(Product).filter_by(PRid=PRid).update(update_stock)
+            if not result:
+                raise dberror
+        return True
+
 
     @close_session
     def add_orderproductinfo(self, OPIid, OIid, PRid, PRname, PRprice, PRnum, PRimage):
