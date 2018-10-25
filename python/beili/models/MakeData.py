@@ -178,10 +178,10 @@ class MakeData():
         for i in range(30):
             message = ComMessage()
             message.CMid = '4304cf38-c3cf-401f-8ba7-f8ce040f064f' + str(i)
-            message.CMstatus = 0
+            message.CMstatus = 1
             message.CMtitle = "hh" + str(i)
             message.CMtype = 0
-            message.CMfile = "http:www.baidu.com" + str(i)
+            message.CMfile = "https://www.hzmyo.cn/ued/php/upload/20181011/1539237187747826.pdf"
             import datetime
             from common.timeformat import format_for_db
             time_time = datetime.datetime.now()
