@@ -77,7 +77,9 @@
             <mt-field class="form-item" label="金额" placeholder="请输入打款金额" type="number"></mt-field>
             <mt-field class="form-item" label="打款日期" placeholder="请输入打款日期" :readonly="true" :disableClear="true"
                       v-model="date" @click.native="$refs.picker.open()"></mt-field>
-            <mt-field class="form-item" label="备注" placeholder="如有说明可填写备注" type="password"></mt-field>
+            <head-img-field label="头像"></head-img-field>
+            <upload-field label="头像"></upload-field>
+            <evidence-field label="打款凭证(1-2张)"></evidence-field>
         </section>
 
         <section class="form-title">
@@ -124,6 +126,7 @@
 
 <script>
     import myCell from "src/components/common/myCell"
+    import uploadField from "src/components/common/uploadField"
 
     export default {
         name: "applyAgent",
@@ -176,7 +179,9 @@
         },
 
         components: {
-            myCell
+            myCell,
+            headImgField: uploadField,
+            evidenceField: uploadField,
         },
 
         computed: {},

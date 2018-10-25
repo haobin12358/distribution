@@ -1,5 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import {getStore} from "src/common/js/mUtils"
+import {TOKEN} from "src/common/js/const"
+
 
 Vue.use(Router)
 
@@ -53,12 +56,14 @@ const protocol = r => require.ensure([], () => r(require('../pages/integratedSer
 export const constantRouterMap = [
     {
         path: '/',
-        redirect: '/login'
+        redirect: '/login',
+        meta: {}
     }, {
         path: '/login',
         component: login,
         meta: {
             title: '登录',
+
         },
         children: [{
             path: 'forgetPassword',
@@ -72,6 +77,7 @@ export const constantRouterMap = [
         component: message,
         meta: {
             title: '消息',
+            requiresAuth: true
         },
     }, {
         path: '/messageDetail',
@@ -79,14 +85,16 @@ export const constantRouterMap = [
         meta: {
             transitionName: 'router-slid',
             title: '公司消息详情',
+            requiresAuth: true
 
         },
-    },  {
+    }, {
         path: '/mallOrder',
         component: mallOrder,
         meta: {
             transitionName: 'router-slid',
             title: '云仓订单',
+            requiresAuth: true
 
         },
     }, {
@@ -101,6 +109,7 @@ export const constantRouterMap = [
         meta: {
             transitionName: 'router-slid',
             title: '结算',
+            requiresAuth: true
 
         },
     },
@@ -110,36 +119,48 @@ export const constantRouterMap = [
         component: personal,
         meta: {
             title: '蓓莉云仓',
+            requiresAuth: true
+
         },
-    },{
+    }, {
         path: '/setting',
         component: setting,
         meta: {
             title: '我的信息',
+            requiresAuth: true
+
         },
-    },{
+    }, {
         path: '/changePassword',
         component: changePassword,
         meta: {
             title: '修改密码',
+            requiresAuth: true
+
         },
-    },{
+    }, {
         path: '/changeHeadImg',
         component: changeHeadImg,
         meta: {
             title: '更换头像',
+            requiresAuth: true
+
         },
-    },{
+    }, {
         path: '/addressList',
         component: addressList,
         meta: {
             title: '我的地址',
+            requiresAuth: true
+
         },
-    },{
+    }, {
         path: '/addressEdit',
         component: addressEdit,
         meta: {
             title: '地址编辑',
+            requiresAuth: true
+
         },
     },
 
@@ -148,56 +169,72 @@ export const constantRouterMap = [
         component: wallet,
         meta: {
             transitionName: 'router-slid',
-            title: '我的钱包'
+            title: '我的钱包',
+            requiresAuth: true
+
         },
     }, {
         path: '/withdrawCash',
         component: withdrawCash,
         meta: {
             transitionName: 'router-slid',
-            title: '余额提现'
+            title: '余额提现',
+            requiresAuth: true
+
         },
     }, {
         path: '/balanceCharge',
         component: balanceCharge,
         meta: {
             transitionName: 'router-slid',
-            title: '余额充值'
+            title: '余额充值',
+            requiresAuth: true
+
         },
-    },{
+    }, {
         path: '/balanceRecord',
         component: balanceRecord,
         meta: {
             transitionName: 'router-slid',
-            title: '收支记录'
+            title: '收支记录',
+            requiresAuth: true
+
         },
-    },{
+    }, {
         path: '/balanceRecordDetail',
         component: balanceRecordDetail,
         meta: {
             transitionName: 'router-slid',
-            title: '收支详情'
+            title: '收支详情',
+            requiresAuth: true
+
         },
-    },{
+    }, {
         path: '/withdrawCashRecord',
         component: withdrawCashRecord,
         meta: {
             transitionName: 'router-slid',
-            title: '提现记录'
+            title: '提现记录',
+            requiresAuth: true
+
         },
-    },{
+    }, {
         path: '/withdrawCashRecordDetail',
         component: withdrawCashRecordDetail,
         meta: {
             transitionName: 'router-slid',
-            title: '提现详情'
+            title: '提现详情',
+            requiresAuth: true
+
         },
-    },{
+    }, {
         path: '/marginMoney',
         component: marginMoney,
         meta: {
             transitionName: 'router-slid',
-            title: '保证金'
+            title: '保证金',
+            requiresAuth: true
+
         },
     },
 
@@ -208,6 +245,7 @@ export const constantRouterMap = [
         meta: {
             transitionName: 'router-slid',
             title: '我的销售',
+            requiresAuth: true
 
         },
     },
@@ -218,6 +256,7 @@ export const constantRouterMap = [
         meta: {
             transitionName: 'router-slid',
             title: '我的渠道',
+            requiresAuth: true
 
         },
     },
@@ -227,32 +266,40 @@ export const constantRouterMap = [
         component: purchase,
         meta: {
             title: '我的销售',
+            requiresAuth: true
 
         },
-    },{
+    }, {
         path: '/wantInvite',
         component: wantInvite,
         meta: {
             title: '我要邀请',
+            requiresAuth: true
+
         },
-    },{
+    }, {
         path: '/newInvite',
         component: newInvite,
         meta: {
             title: '新增邀请链接',
+            requiresAuth: true
 
         },
-    },{
+    }, {
         path: '/inviteLink',
         component: inviteLink,
         meta: {
             title: '邀请链接',
+            requiresAuth: true
+
         },
-    },{
+    }, {
         path: '/applyAgent',
         component: applyAgent,
         meta: {
             title: '申请代理',
+            requiresAuth: true
+
         },
     },
 
@@ -262,6 +309,8 @@ export const constantRouterMap = [
         meta: {
             transitionName: 'router-slid',
             title: '我的授权',
+            requiresAuth: true
+
         },
     },
 
@@ -270,10 +319,10 @@ export const constantRouterMap = [
         component: promotion,
         meta: {
             title: '我要推广',
+            requiresAuth: true
 
         },
     },
-
 
 
     {
@@ -282,30 +331,34 @@ export const constantRouterMap = [
         meta: {
             transitionName: 'router-slid',
             title: '综合业务',
+            requiresAuth: true
 
         },
-    },{
+    }, {
         path: '/feedback',
         component: feedback,
         meta: {
             transitionName: 'router-slid',
             title: '问题反馈',
+            requiresAuth: true
 
         },
-    },{
+    }, {
         path: '/linkWechat',
         component: linkWechat,
         meta: {
             transitionName: 'router-slid',
             title: '微信绑定',
+            requiresAuth: true
 
         },
-    },{
+    }, {
         path: '/protocol',
         component: protocol,
         meta: {
             transitionName: 'router-slid',
             title: '代理协议',
+            requiresAuth: true
 
         },
     },
@@ -324,7 +377,19 @@ let router = new Router({
 router.beforeEach((to, from, next) => {
     /* 路由发生变化修改页面title */
     document.title = to.meta.title || '蓓莉云仓';
-    next();
+
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+        if (!getStore(TOKEN)) {
+            next({
+                path: '/login',
+                query: {redirect: to.fullPath}  // 将跳转的路由path作为参数，登录成功后跳转到该路由
+            })
+        } else {
+            next();
+        }
+    } else {
+        next();
+    }
 });
 
 export default router;

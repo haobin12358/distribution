@@ -94,15 +94,18 @@
                 <span class="cell-title">问题反馈</span>
                 <img src="/static/images/arrow.png" alt="" class="cell-ft">
             </router-link>
-
-
         </ul>
 
-
+        <section class="my-confirm-btn-wrap">
+            <button class="my-confirm-btn disabled" @click="doLogout">退 出 登 录</button>
+        </section>
     </div>
 </template>
 
 <script>
+    import {setStore, getStore} from "src/common/js/mUtils"
+    import {TOKEN} from "src/common/js/const"
+
     export default {
         name: "integratedService",
 
@@ -112,7 +115,18 @@
 
         components: {},
 
-        methods: {},
+        methods: {
+            doLogout(){
+                this.$messagebox.confirm('确定退出系统?').then(
+                    action => {
+                        localStorage.clear();
+                        this.$router.push('/login');
+                    }
+                ).catch(evt=>{})
+            }
+        },
+
+
     }
 </script>
 

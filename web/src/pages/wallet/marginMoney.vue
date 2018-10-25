@@ -38,43 +38,23 @@
 
         }
 
-        .confirm-btn-wrap {
-            margin-top: 200px;
+        .popup-content {
+            width: 340px;
+            height: 420px;
+            .bgw();
+            border-radius: 50px;
+            .fj();
+            flex-direction: column;
+            align-items: center;
+            padding: 80px;
+            box-sizing: border-box;
+            .sc(38px, @mainColor);
+            font-weight: bold;
 
-            .confirm-btn {
-                .wl(600px, 90px);
-                background: linear-gradient(180deg, @mainLightColor 0%, @mainColor 100%);
-                .sc(38px, white);
-                .fontc(90px);
-                font-weight: bold;
-                border-radius: 50px;
-                display: block;
-                margin: 0 auto;
-
-                &.disabled {
-                    background: linear-gradient(180deg, #FFFFFF 0%, #AEAEAE 100%);
-
-                }
+            img {
+                .wl(169px, 169px);
             }
         }
-
-            .popup-content {
-                width: 340px;
-                height: 420px;
-                .bgw();
-                border-radius: 50px;
-                .fj();
-                flex-direction: column;
-                align-items: center;
-                padding: 80px;
-                box-sizing: border-box;
-                .sc(38px, @mainColor);
-                font-weight: bold;
-
-                img{
-                    .wl(169px, 169px);
-                }
-            }
 
     }
 </style>
@@ -124,10 +104,10 @@
         </section>
 
         <mt-popup v-model="isAudit">
-                <section class="popup-content">
-                    <img src="/static/images/toast_audit.png" alt="">
-                    <span>审核中...</span>
-                </section>
+            <section class="popup-content">
+                <img src="/static/images/toast_audit.png" alt="">
+                <span>审核中...</span>
+            </section>
         </mt-popup>
     </div>
 </template>

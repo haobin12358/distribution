@@ -106,8 +106,8 @@
             </section>
 
             <section class="user-info-detail">
-                <p class="user-level">某某（米粉销售商）</p>
-                <p class="user-sale">销售量：<span class="user-sale-num">0</span> 件</p>
+                <p class="user-level">{{userInfo.USname}}</p>
+                <p class="user-sale">销售量：<span class="user-sale-num">{{userInfo.USmount}}</span> 件</p>
             </section>
         </section>
 
@@ -155,6 +155,9 @@
 
 <script>
     import footerGuide from "src/components/footer/footerGuide"
+    import {mapState,mapActions,mapMutations} from "vuex"
+    import {setStore, getStore} from "src/common/js/mUtils"
+    import {TOKEN,USER_INFO} from "src/common/js/const"
 
     export default {
         name: "personal",
@@ -163,11 +166,37 @@
             return {}
         },
 
+        computed:{
+            userInfo(){
+                let userInfoState = this.$store.state.userInfo;
+
+                if(!Object.keys(userInfoState).length){
+                    let userInfoSto = getStore(USER_INFO);
+
+                    if(userInfoSto){
+                        userInfoSto = JSON.parse(userInfoSto);
+                        this.setUserInfo(userInfoSto);
+                        return userInfoSto;
+                    }
+                }else{
+                    return userInfoState;
+                }
+            }
+        },
+
         components: {
             footerGuide
         },
 
-        methods: {},
+        methods: {
+            ...mapMutations({
+                setUserInfo: 'SET_USER_INFO'
+            })
+
+        },
+
+        created(){
+        }
     }
 </script>
 
