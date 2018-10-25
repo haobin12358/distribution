@@ -126,6 +126,18 @@ class MakeData():
         self.session.add(user)
         self.session.commit()
 
+    def add_superuser(self):
+        from model import Admin
+        admin = Admin()
+        admin.ADid = '3404cf38-c3cf-401f-8ba7-f8ce040f064f'
+        admin.ADnum = '123'
+        admin.ADpassword = '123'
+        admin.ADname = 'feng'
+        admin.ADlevel = 1
+        admin.ADheaderimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
+        self.session.add(admin)
+        self.session.commit()
+
     def add_agent_message(self):
         from model import AgentMessage
         from werkzeug.security import generate_password_hash
@@ -284,11 +296,12 @@ if __name__ == "__main__":
         drop()
 
     else:
-        databse_deal().create_database()
-        create()
+        # databse_deal().create_database()
+        # create()
         data = MakeData()
         print "OK!"
         print('start add data')
+        data.add_superuser()
         data.add_province()
         data.add_city()
         data.add_area()

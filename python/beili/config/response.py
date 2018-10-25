@@ -68,6 +68,11 @@ PARAMS_MISS = {
     "status_code": 405001,
     "message": "参数缺失"
 }
+NO_PHONENUM_OR_PASSWORD = {
+    "status": 405,
+    "status_code": 405001,
+    "message": "请输入账户名或密码"
+}
 PARAMS_ERROR = {
     "status": 405,
     "status_code": 405002,

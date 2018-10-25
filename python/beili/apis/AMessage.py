@@ -13,8 +13,8 @@ class AMessage(Resource):
     def post(self, message):
         print message
         apis = {
-            'publish_commessage': 'self.message.publish_commessage()',
-            'delete_commessage': 'self.message.delete_commessage()'
+            'publish_commessage': 'self.cmessage.publish_commessage()',
+            'delete_commessage': 'self.cmessage.delete_commessage()'
         }
         res = eval(apis[message])
         return jsonify(res)

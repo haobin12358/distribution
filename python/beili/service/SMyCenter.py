@@ -91,14 +91,14 @@ class SMyCenter(SBase):
         return self.session.query(UserAddress.UAdefault, UserAddress.UAid\
                                   , UserAddress.UAname, UserAddress.UAcreatetime, UserAddress.UAphonenum\
                                   , UserAddress.UAdetails, UserAddress.areaid).filter(UserAddress.USid == usid)\
-                                  .filter(UserAddress.UAdefault == 1).filter(UserAddress.UAstatus == 1).all()
+                                  .filter(UserAddress.UAdefault == 1).filter(UserAddress.UAstatus == 1).first()
 
     @close_session
     def get_other_address(self, usid, uaid):
         return self.session.query(UserAddress.UAdefault, UserAddress.UAid \
                                   , UserAddress.UAname, UserAddress.UAcreatetime, UserAddress.UAphonenum \
                                   , UserAddress.UAdetails, UserAddress.areaid).filter(UserAddress.USid == usid) \
-            .filter(UserAddress.UAid == uaid).filter(UserAddress.UAstatus == 1).all()
+            .filter(UserAddress.UAid == uaid).filter(UserAddress.UAstatus == 1).first()
 
     @close_session
     def update_address(self, id, UAid, update):
@@ -130,7 +130,7 @@ class SMyCenter(SBase):
 
     @close_session
     def get_area_by_areaid(self, areaid):
-        return self.session.query(Area.areaname, Area.cityid).filter(Area.areaid == areaid).all()
+        return self.session.query(Area.areaname, Area.cityid).filter(Area.areaid == areaid).first()
 
     @close_session
     def get_all_areaid(self):
@@ -138,8 +138,8 @@ class SMyCenter(SBase):
 
     @close_session
     def get_city_by_cityid(self, cityid):
-        return self.session.query(City.cityname, City.provinceid).filter(City.cityid == cityid).all()
+        return self.session.query(City.cityname, City.provinceid).filter(City.cityid == cityid).first()
 
     @close_session
     def get_province_by_provinceid(self, provinceid):
-        return self.session.query(Province.provincename, Province.provinceid).filter(Province.provinceid == provinceid).all()
+        return self.session.query(Province.provincename, Province.provinceid).filter(Province.provinceid == provinceid).first()

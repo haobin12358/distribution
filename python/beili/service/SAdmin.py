@@ -11,7 +11,7 @@ class SAdmin(SBase):
 
     @close_session
     def getadmin_by_adnum(self, num):
-        return self.session.query(Admin).filter_by(ADnum=num).first()
+        return self.session.query(Admin.ADid, Admin.ADlevel, Admin.ADpassword).filter_by(ADnum=num).first()
 
     @close_session
     def getadmin_by_adminid(self, adminid):

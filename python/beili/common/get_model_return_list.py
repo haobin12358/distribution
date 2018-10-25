@@ -2,7 +2,7 @@
 
 def get_model_return_list(model_list):
     """
-    从数据库中获取到的list(列表)中每一个是一个数据库查询结果对象，
+    从数据库中获取到的list(列表)中每一个是一个数据库查询结果对get_model_return_list象，
     在这里将每一个结果对象转置为dict(字典)
     :param model_list: 从数据库中直接获取到的list
     :return: 转置后的list 如果只有一個返回單個

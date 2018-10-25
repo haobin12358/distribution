@@ -266,46 +266,47 @@ class CMyCenter():
             UAid = data.get('UAid')
         except:
             return PARAMS_ERROR
+        from common.timeformat import get_web_time_str
         if all == 1:
             all_address = get_model_return_list(self.smycenter.get_all_address(request.user.id))
             if not all_address:
                 return NO_ADDRESS
             address_list = []
             for address in all_address:
-                address = get_model_return_list(self.smycenter.get_other_address(request.user.id, address['UAid']))
+                address = get_model_return_dict(self.smycenter.get_other_address(request.user.id, address['UAid']))
                 if not address:
                     return NO_ADDRESS
-                area = get_model_return_list(self.smycenter.get_area_by_areaid(address[0]['areaid']))
-                city = get_model_return_list(self.smycenter.get_city_by_cityid(area[0]['cityid']))
-                province = get_model_return_list(self.smycenter.get_province_by_provinceid(city[0]['provinceid']))
+                area = get_model_return_dict(self.smycenter.get_area_by_areaid(address['areaid']))
+                city = get_model_return_dict(self.smycenter.get_city_by_cityid(area['cityid']))
+                province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city['provinceid']))
                 data = {}
-                data['provincename'] = province[0]['provincename']
-                data['cityname'] = city[0]['cityname']
-                data['areaname'] = area[0]['areaname']
-                data['details'] = address[0]['UAdetails']
-                data['username'] = address[0]['UAname']
-                data['userphonenum'] = address[0]['UAphonenum']
-                data['uaid'] = address[0]['UAid']
-                data['isdefault'] = address[0]['UAdefault']
-                data['createtime'] = address[0]['UAcreatetime']
+                data['provincename'] = province['provincename']
+                data['cityname'] = city['cityname']
+                data['areaname'] = area['areaname']
+                data['details'] = address['UAdetails']
+                data['username'] = address['UAname']
+                data['userphonenum'] = address['UAphonenum']
+                data['uaid'] = address['UAid']
+                data['isdefault'] = address['UAdefault']
+                data['createtime'] = get_web_time_str(address['UAcreatetime'])
                 address_list.append(data)
             response = import_status("get_address_success", "OK")
             response['data'] = address_list
             return response
         if isdefault == 1:
-            address = get_model_return_list(self.smycenter.get_default_address(request.user.id))
+            address = get_model_return_dict(self.smycenter.get_default_address(request.user.id))
             if not address:
                 return NOT_FOUND_ADDRESS
-            area = get_model_return_list(self.smycenter.get_area_by_areaid(address[0]['areaid']))
-            city = get_model_return_list(self.smycenter.get_city_by_cityid(area[0]['cityid']))
-            province = get_model_return_list(self.smycenter.get_province_by_provinceid(city[0]['provinceid']))
+            area = get_model_return_dict(self.smycenter.get_area_by_areaid(address['areaid']))
+            city = get_model_return_dict(self.smycenter.get_city_by_cityid(area['cityid']))
+            province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city['provinceid']))
         elif isdefault == 0:
-            address = get_model_return_list(self.smycenter.get_other_address(request.user.id, UAid))
+            address = get_model_return_dict(self.smycenter.get_other_address(request.user.id, UAid))
             if not address:
                 return NO_ADDRESS
-            area = get_model_return_list(self.smycenter.get_area_by_areaid(address[0]['areaid']))
-            city = get_model_return_list(self.smycenter.get_city_by_cityid(area[0]['cityid']))
-            province = get_model_return_list(self.smycenter.get_province_by_provinceid(city[0]['provinceid']))
+            area = get_model_return_dict(self.smycenter.get_area_by_areaid(address[0]['areaid']))
+            city = get_model_return_dict(self.smycenter.get_city_by_cityid(area[0]['cityid']))
+            province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city[0]['provinceid']))
         data = {}
         data['provincename'] = province[0]['provincename']
         data['cityname'] = city[0]['cityname']
@@ -314,7 +315,7 @@ class CMyCenter():
         data['username'] = address[0]['UAname']
         data['userphonenum'] = address[0]['UAphonenum']
         data['uaid'] = address[0]['UAid']
-        data['createtime'] = address[0]['UAcreatetime']
+        data['createtime'] = get_web_time_str(address['UAcreatetime'])
         response = import_status("get_address_success", "OK")
         response['data'] = data
         return response

@@ -34,7 +34,7 @@ class SMessage(SBase):
     @close_session
     def get_commessage_details(self, cmid):
         return self.session.query(ComMessage.CMid, ComMessage.CMdate, ComMessage.CMtype, ComMessage.CMtitle, \
-                                 ComMessage.CMfile).filter_by(CMid=cmid)
+                                 ComMessage.CMfile).filter_by(CMid=cmid).first()
 
     @close_session
     def insert_alreadyread(self, messageid, usid):

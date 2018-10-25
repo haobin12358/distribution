@@ -4,6 +4,7 @@ import datetime
 
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired
 from flask import current_app, request
+from common.get_model_return_list import get_model_return_dict, get_model_return_list
 
 from service.DBSession import db_session
 
@@ -77,14 +78,14 @@ def verify_token_decorator(func):
                 user.id = user.USid
                 user.type = 'User'
             if type == 'SuperUser':
-                from models.model import SuperUser
-                user = sessions.query(SuperUser).filter_by(SUid=id).first()
+                from models.model import Admin
+                user = sessions.query(Admin).filter_by(ADid=id).first()
                 if not user:
                     # 不存在的管理
                     return func(self, *args, **kwargs)
-                user.id = user.SUid
+                user.id = user.ADid
                 user.type = 'SuperUser'
-                user.level = user.SUlevel
+                user.level = user.ADlevel
             sessions.expunge_all()
             sessions.commit()
             if user:
@@ -101,11 +102,11 @@ def is_ordirnaryuser():
 
 def is_admin():
     """是否是管理员"""
-    return (hasattr(request, 'user') and request.user.type == 'SuperUser' and request.user.SUlevel >= 0)
+    return (hasattr(request, 'user') and request.user.type == 'SuperUser' and request.user.level >= 0)
 
 def is_superadmin():
     """是否是超级管理员"""
-    return (hasattr(request, 'user') and request.user.type == 'SuperUser' and request.user.SUlevel == 1)
+    return (hasattr(request, 'user') and request.user.type == 'SuperUser' and request.user.level == 1)
 
 def is_tourist():
     """游客，未登录"""
