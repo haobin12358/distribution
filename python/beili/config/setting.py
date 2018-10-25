@@ -6,12 +6,15 @@ TOKEN_EXPIRATION = 3600 * 222220  # token过期时间(秒)
 # APP_SECRET_KEY = 'b89e22f046d33b39c7a4afa485e661dc'
 
 # 服务器域名
-QRCODEHOSTNAME = 'https://weidian.daaiti.cn'
+QRCODEHOSTNAME = 'https://beili.daaiti.cn'
 
 # 图片存储位置
 LinuxRoot = '/opt/WeiDian/'
 LinuxImgs = 'imgs'
 WindowsRoot = 'D:/'
+
+# 保证金
+BAIL = 0
 
 # weidian
 APP_ID = 'wx8206635590c9cc0e'

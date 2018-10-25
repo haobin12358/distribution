@@ -2,7 +2,7 @@
 import sys
 import os
 import DBSession
-from common.weidian_error import dberror
+from common.beili_error import dberror, stockerror
 import models.model as models
 # from models.base_model import BaseModel
 sys.path.append(os.path.dirname(os.getcwd()))
@@ -11,12 +11,18 @@ def close_session(fn):
     def inner(self, *args, **kwargs):
         try:
             result = fn(self, *args, **kwargs)
+            # self.session.expunge_all()
             self.session.commit()
+            print type(result)
             return result
-        except Exception as e:
-            print("DBERROR" + e.message)
+        except stockerror as e:
+            print("stockerror" + e.message)
             self.session.rollback()
-            raise dberror(e.message)
+            raise stockerror('库存不足')
+        except Exception as e2:
+            print("dberror" + e2.message)
+            self.session.rollback()
+            raise dberror
         finally:
             self.session.close()
     return inner

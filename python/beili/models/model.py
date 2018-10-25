@@ -28,12 +28,9 @@ class User(Base):
     USpassword = Column(String(255))             # 密码
     USphonenum = Column(String(16), nullable=False)  # 手机号
     USheadimg = Column(String(255))               # 头像
-    USage = Column(Integer)                      # 年龄
-    USbail = Column(Boolean)                     # 是否缴纳保证金
+    USbail = Column(Float)                       # 保证金余额
     USmount = Column(Float)                      # 账户余额
-    USqrcode = Column(String(255))               # 邀请二维码
-    USlastlogin = Column(String(64))             # 用户上次登录时间
-    UPPerd = Column(String(64), default=0)       # 上级
+    USpre = Column(String(64))                   # 上级代理id
     openid = Column(String(64))                  # 微信唯一值
     unionid = Column(String(255))                # 绑定公众号会出现
     accesstoken = Column(String(255))            # 微信token
@@ -64,6 +61,23 @@ class ProductCategory(Base):
     PAname = Column(String(16))  # 类别名
     PAtype = Column(Integer)  # 类目级别{1 一级分类, 2 二级分类, 3 三级分类}
     Parentid = Column(String(64), default=0)  # 父类别id, 默认0
+
+class Product(Base):
+    """
+    商品表
+    """
+    __tablename__ = 'product'
+    PRid = Column(String(64), primary_key=True)
+    PRname = Column(String(64), nullable=False)  # 名称
+    PRpic = Column(String(255))  # 商品图片
+    PRoldprice = Column(Float)  # 原价
+    PRprice = Column(Float, nullable=False)  # 显示价格
+    PRstock = Column(Integer)  # 库存
+    PRprofit = Column(Integer)  # 每件的收益，即销售折扣
+    PRcreatetime = Column(String(14))  # 创建时间
+    PRlogisticsfee = Column(Float)  # 物流费
+    PRstatus = Column(Integer)     # 商品状态，1出售中，2已售罄，3已下架
+    PAid = Column(String(64))      # 分类id，用于绑定商品类目，空值表示未绑定分类
 
 class InvitaLink(Base):
     """
@@ -154,20 +168,25 @@ class OrderInfo(Base):
     OIid = Column(String(64), primary_key=True)
     OIsn = Column(String(64))  # 订单号
     USid = Column(String(64))  # 用户
-    OItradenum = Column(String(125))  # 交易号, (如果有)
     """
-    订单状态: {0:所有订单, 1: 支付成功, 2: 支付超时关闭（交易关闭）, 3:待发货, 4:已发货, 
-    5:已取消, 6:已签收, 7:交易失败（退货）, 8:交易完成, 9:待评价, 10:退换货 } 根据需求无待支付状态
+    订单状态: {0:所有订单, 1:待发货, 2:已发货, 3:交易完成 } 根据需求无待支付状态
     """
-    OIpaystatus = Column(Integer, default=0)
-    OIleavetext = Column(String(255))  # 订单留言
+    OIstatus = Column(Integer, default=1)
+    OInote = Column(String(255))  # 订单留言
     OImount = Column(Float)  # 金额
-    OIpaytime = Column(String(14))  # 支付时间
-    OIaddress = Column(String(255), nullable=False)  # 地址
-    OIrecvname = Column(String(64), nullable=False)  # 收货人
-    OIrecvphone = Column(String(16), nullable=False)  # 收货人电话
+    UAid = Column(String(255), nullable=False)  # 地址id
     OIcreatetime = Column(String(14))  # 订单创建时间
-    OIisdelete = Column(Boolean, default=False)  # 是否删除
+
+class OrderProductInfo(Base):
+    """订单商品详情, 多个订单商品详情对应一个订单"""
+    __tablename__ = 'orderproductinfo'
+    OPIid = Column(String(64), primary_key=True)
+    OIid = Column(String(64), nullable=False)  # 订单
+    PRid = Column(String(64), nullable=False)  # 商品id
+    PRprice = Column(Float, nullable=False)   # 商品价格(购买时候的价格)
+    PRname = Column(String(64))  # 商品的名字(购买之时的)
+    PRimage = Column(String(255))  # 商品主图
+    PRnum = Column(Integer)  # 购买数量
 
 class LoanRecharge(Base):
     """
@@ -226,11 +245,11 @@ class OnlineRecharge(Base):
     ONDcreatetime = Column(String(14))  # 创建时间
     ONDtradenum = Column(String(125))  # 交易号, (如果有)
 
-
+"""
 class OnlineDraw(Base):
-    """
+    
     微信线上提现记录表（如果需要）
-    """
+    
     __tablename__ = 'onlinedraw'
     ONDid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户
@@ -239,7 +258,7 @@ class OnlineDraw(Base):
     ONDstatus = Column(Integer)  # 记录状态: {0: 全部, 1: 提现中, 2: 提现成功, 3: 提现失败}
     ONDcreatetime = Column(String(14))  # 创建时间
     ONDtradenum = Column(String(125))  # 交易号, (如果有)
-
+"""
 
 class OfflineDraw(Base):
     """
@@ -257,26 +276,6 @@ class OfflineDraw(Base):
     SUid = Column(String(64))  # 操作员
     OFDcreatetime = Column(String(14))  # 创建时间
     OFDtradenum = Column(String(125))  # 交易号, (如果有)
-
-
-class Product(Base):
-    """
-    商品表
-    """
-    __tablename__ = 'product'
-    PRid = Column(String(64), primary_key=True)
-    PRname = Column(String(64), nullable=False)  # 名称
-    PRpic = Column(String(255), nullable=False)  # 商品图片
-    PRoldprice = Column(Float)  # 原价
-    PRprice = Column(Float, nullable=False)  # 显示价格
-    PRstock = Column(Integer)  # 库存
-    SUid = Column(String(64))  # 发布者, 创建人
-    PRcreatetime = Column(String(14))  # 创建时间
-    SUmodifyid = Column(String(64))  # 修改人id
-    PRmodifytime = Column(String(14))  # 修改时间
-    PRlogisticsfee = Column(Float)  # 物流费
-    PRstatus = Column(Integer)     # 商品状态，1出售中，2已售罄，3已下架
-    PAid = Column(String(64))      # 分类id，用于绑定商品类目，空值表示未绑定分类
 
 class Reward(Base):
     """
@@ -298,7 +297,7 @@ class AgentMessage(Base):
     USid = Column(String(64))  # 用户
     AMdate = Column(String(64))  # 消息发布时间
     AMtype = Column(Integer)  # 种类: {0: 订单信息, 1: 款项消息, 2: 代理信息}
-    AMtext = Column(String(128), nullable=False)  # 消息详情
+    AMcontent = Column(String(128), nullable=False)  # 消息详情
 
 class ComMessage(Base):
     """
@@ -310,7 +309,7 @@ class ComMessage(Base):
     CMtype = Column(Boolean)  # 种类: {0: 公告}
     CMtitle = Column(String(128), nullable=False)  # 消息详情
     CMfile = Column(String(255), nullable=False)  # 附加图片
-    CMstatus = Column(Boolean, default=0)  # 状态: {0:显示, 1:删除 }
+    CMstatus = Column(Integer, default=0)  # 状态: {0:显示, 1:删除 }
 
 class Question(Base):
     """
@@ -334,8 +333,8 @@ class UserLoginTime(Base):
 class Province(Base):
     """省"""
     __tablename__ = 'province'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(20), nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    provincename = Column(String(20), nullable=False)
     provinceid = Column(String(8), nullable=False)
 
 
@@ -344,7 +343,7 @@ class City(Base):
     __tablename__ = 'city'
     id = Column(Integer, primary_key=True)
     cityid = Column(String(8), nullable=False)
-    name = Column(String(20), nullable=False)
+    cityname = Column(String(20), nullable=False)
     provinceid = Column(String(8), nullable=False)
 
 
@@ -352,7 +351,7 @@ class Area(Base):
     """区县"""
     __tablename__ = 'area'
     id = Column(Integer, primary_key=True)
-    name = Column(String(20), nullable=False)
+    areaname = Column(String(20), nullable=False)
     areaid = Column(String(8), nullable=False)
     cityid = Column(String(8), nullable=False)
 
@@ -363,10 +362,10 @@ class UserAddress(Base):
     UAid = Column(String(64), primary_key=True)
     USid = Column(String(64), nullable=False)           # 用户
     UAname = Column(String(16), nullable=False)         # 收货人姓名
-    UAphone = Column(String(16), nullable=False)        # 收货人电话
-    UAtext = Column(String(255), nullable=False)        # 具体地址
-    UAdefault = Column(Boolean, default=False)          # 默认收获地址
-    UAstatus = Column(Boolean, default=False)           # 状态
+    UAphonenum = Column(String(16), nullable=False)     # 收货人电话
+    UAdetails = Column(String(255), nullable=False)     # 具体地址
+    UAdefault = Column(Boolean)          # 默认收获地址 1为默认
+    UAstatus = Column(Boolean, default=True)           # 状态:{True: 在使用, False: 已删除}
     UAcreatetime = Column(String(14))                   # 创建时间
     areaid = Column(String(8), nullable=False)          # 关联的区域id
 

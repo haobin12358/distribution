@@ -13,28 +13,31 @@ class SMessage(SBase):
 
     @close_session
     def get_agentMessage_by_usid(self, usid, page, count):
-        return self.session.query(AgentMessage).filter_by(USid=usid) \
+        return self.session.query(AgentMessage.USid, AgentMessage.AMdate, AgentMessage.AMid, \
+                                  AgentMessage.AMcontent, AgentMessage.AMtype).filter_by(USid=usid) \
             .order_by(AgentMessage.AMdate.desc()).offset((page - 1) * count).limit(count)
 
     @close_session
     def get_alreadyMessage_by_usid(self, usid):
-        return self.session.query(AlreadyRead.ARid).filter_by(USid=usid).all()
+        return self.session.query(AlreadyRead.ARid).filter(AlreadyRead.USid == usid).all()
 
     @close_session
     def get_comMessage_list(self, page, count):
-        return self.session.query(ComMessage).filter_by(ComMessage.CMstatus == 0).order_by(ComMessage.CMdate.desc()) \
+        return self.session.query(ComMessage.CMid, ComMessage.CMdate, ComMessage.CMtype, ComMessage.CMtitle, \
+                                 ComMessage.CMfile).filter(ComMessage.CMstatus == 0).order_by(ComMessage.CMdate.desc()) \
             .offset((page - 1) * count).limit(count)
 
     @close_session
     def get_commessage_num(self):
-        return self.session.query(func.count(ComMessage.CMid))
+        return self.session.query(func.count(ComMessage.CMid)).filter(ComMessage.CMstatus == 0).scalar()
 
     @close_session
     def get_commessage_details(self, cmid):
-        return self.session.query(ComMessage).filter_by(CMid=cmid)
+        return self.session.query(ComMessage.CMid, ComMessage.CMdate, ComMessage.CMtype, ComMessage.CMtitle, \
+                                 ComMessage.CMfile).filter_by(CMid=cmid)
 
     @close_session
-    def update_alreadyread_status(self, messageid, usid):
+    def insert_alreadyread(self, messageid, usid):
         record = AlreadyRead()
         record.ARid = messageid
         record.USid = usid

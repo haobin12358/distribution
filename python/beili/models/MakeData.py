@@ -6,6 +6,7 @@ import os
 import uuid
 import model
 import pymysql
+from service.DBSession import db_session
 from sqlalchemy.orm import scoped_session, sessionmaker
 sys.path.append(os.path.dirname(os.getcwd()))  # 增加系统路径
 
@@ -15,10 +16,10 @@ info_count = 22  # 需要插入的数据库条数
 
 class MakeData():
     def __init__(self):
-#        self.act = SActivity()
+        # self.act = SActivity()
         self.session = scoped_session(sessionmaker(autocommit=False,
-                                         autoflush=False,
-                                         bind=model.mysql_engine))
+                                                   autoflush=False,
+                                                   bind=model.mysql_engine))
         self.user_id = self.generic_uuid()
         self.activity_id = self.generic_uuid() 
         self.media_id = self.generic_uuid()
@@ -46,21 +47,7 @@ class MakeData():
         self.session.add(super)
         self.session.commit()
 
-    def add_activity(self):
-        for i in self.activity_id:
-            activity_model = model.Activity()
-            activity_model.ACid = str(i)
-            activity_model.ACtype = "2"
-            activity_model.ACtext = "活动活动活动" + str(i)
-            activity_model.ACbrowsenum = random.randint(10, 200)
-            activity_model.AClikeFakeNum = random.randint(10, 200)
-            activity_model.ACstarttime = str(random.randint(2017, 2019))+'0510000000'
-            activity_model.ACendtime = str(random.randint(2017, 2019))+'0510000000'
-            activity_model.PRid = random.choice(self.product_id)
-            activity_model.SUid = self.user_id[0]
-            activity_model.TopnavId = random.choice(self.topnav_id)
-            self.session.add(activity_model)
-            self.session.commit()
+
 
     def add_media(self):
         for i in self.media_id:
@@ -80,20 +67,6 @@ class MakeData():
             self.session.add(media)
             self.session.commit()
 
-    def add_comment(self):
-        from model import ActivityComment
-        for i in self.comment_id:
-            comment = ActivityComment()
-            comment.ACOid = str(i)
-            tem = random.randint(1, 2)
-            comment.ACid = random.choice(self.activity_id)
-            comment.ACtext = '这是评论' + str(i)
-            if tem == 1:
-                comment.ACOparentid = str(random.randint(0, info_count))
-                comment.ACtext = '这是回复' + str(i)
-            comment.USid = 'this is usid'
-            self.session.add(comment)
-            self.session.commit()
 
     def add_alreadyRead(self):
         from model import AlreadyRead
@@ -104,67 +77,118 @@ class MakeData():
             self.session.add(message)
             self.session.commit()
 
-
-
-
     def add_product(self):
         from model import Product
-        for i in self.product_id:
-            pr = Product()
-            pr.PRid = str(i)
-            pr.USid = self.user_id[0]
-            pr.PAid = str(random.randint(1, 10))
-            pr.PRalias = '这是别名' + str(i)
-            pr.PRscore = random.randint(1, 10)
-            pr.PRsalesvolume = random.randint(0, info_count)
-            pr.PRstock = random.randint(0, info_count)
-            pr.PRmainpic = '这是主图' + str(i)
-            pr.PRname = '这是商品名字' + str(i)
-            pr.PRdetail = '这是一个超级大的文本'
-            pr.PRtitle = '{hello 这是一个标题'
-            pr.PRoldprice = 100.25
-            pr.PRsalesvolume = 100
-            pr.SUid = 'suid'
-            pr.PRprice = random.randint(1, 999)
-            self.session.add(pr)
+        for i in range(20):
+            product = Product()
+            product.PRid = 'test' + str(i)
+            product.PRname = '商品名' + str(i)
+            product.PRpic = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
+            product.PRoldprice = i + 100
+            product.PRstock = 1000 + i
+            product.PRprice = i + 1
+            import datetime
+            from common.timeformat import format_for_db
+            time_time = datetime.datetime.now()
+            time_str = datetime.datetime.strftime(time_time, format_for_db)
+            product.PRcreatetime = time_str
+            product.PRlogisticsfee = i
+            product.PRstatus = (i%3) + 1
+            product.PAid = (i%7) + 4
+            self.session.add(product)
             self.session.commit()
 
-    def add_banner(self):
-        from model import Banner
-        for i in self.banner_id:
-            ba = Banner()
-            ba.BAid = str(i)
-            ba.ACid = random.choice(self.activity_id)
-            ba.BAsort = random.randint(1, 300)
-            ba.BAstarttime = str(random.randint(2017, 2019))+'0510000000'
-            ba.BAendtime = str(random.randint(2017, 2019))+'0510000000'
-            ba.BAimage = '这是轮播图片' + str(i)
-            self.session.add(ba)
-            self.session.commit()
 
-    def add_recommendbanner(self):
-        from model import RecommendBanner
-        for i in self.recommendbanner_id:
-            rb = RecommendBanner()
-            rb.RBid = str(i)
-            rb.prid = random.choice(self.product_id)
-            rb.RBsort = random.randint(1, 50)
-            rb.RBstarttime = str(random.randint(2017, 2019))+'0510000000'
-            rb.RBendtime = str(random.randint(2017, 2019))+'0510000000'
-            rb.RBimage = '商品轮播图片' + str(i)
-            self.session.add(rb)
-            self.session.commit()
 
     def add_user(self):
         from model import User
-        from werkzeug.security import generate_password_hash
         user = User()
-        user.USid = '4304cf38-c3cf-401f-8ba7-f8ce040f064f'
-        user.USname = 'name'
-        user.USphonenum = '13511112222'
+        user.USid = '1204cf38-c3cf-401f-8ba7-f8ce040f064f'
+        user.USname = 'fengxin'
+        user.USphonenum = '13588046059'
         user.USpassword = "123"
+        user.USbail = 0
+        user.USmount = 10000
+        user.USheadimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
         self.session.add(user)
         self.session.commit()
+
+    def add_user2(self):
+        from model import User
+        user = User()
+        user.USid = '3404cf38-c3cf-401f-8ba7-f8ce040f064f'
+        user.USname = 'guodong'
+        user.USphonenum = '15058968546'
+        user.USpassword = "123"
+        user.USbail = 0
+        user.USmount = 10000
+        user.USheadimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
+        self.session.add(user)
+        self.session.commit()
+
+    def add_agent_message(self):
+        from model import AgentMessage
+        from werkzeug.security import generate_password_hash
+        for i in range(30):
+            message = AgentMessage()
+            message.USid = '4304cf38-c3cf-401f-8ba7-f8ce040f064f'
+            message.AMtype = 0
+            message.AMcontent = "hh" + str(i)
+            message.AMid = "ewrw" + str(i)
+            import datetime
+            from common.timeformat import format_for_db
+            time_time = datetime.datetime.now()
+            time_str = datetime.datetime.strftime(time_time, format_for_db)
+            message.AMdate = time_str
+            self.session.add(message)
+            self.session.commit()
+
+    def add_province(self):
+        from model import Province
+        province = Province()
+        province.id = 1
+        province.provincename = '浙江'
+        province.provinceid = "1"
+        self.session.add(province)
+        self.session.commit()
+
+    def add_city(self):
+        from model import City
+        city = City()
+        city.id = 2
+        city.cityname = "杭州"
+        city.cityid = "2"
+        city.provinceid = "1"
+        self.session.add(city)
+        self.session.commit()
+
+    def add_area(self):
+        from model import Area
+        area = Area()
+        area.id = 3
+        area.areaname = "滨江区"
+        area.areaid = "3"
+        area.cityid = "2"
+        self.session.add(area)
+        self.session.commit()
+
+    def add_company_message(self):
+        from model import ComMessage
+        from werkzeug.security import generate_password_hash
+        for i in range(30):
+            message = ComMessage()
+            message.CMid = '4304cf38-c3cf-401f-8ba7-f8ce040f064f' + str(i)
+            message.CMstatus = 0
+            message.CMtitle = "hh" + str(i)
+            message.CMtype = 0
+            message.CMfile = "http:www.baidu.com" + str(i)
+            import datetime
+            from common.timeformat import format_for_db
+            time_time = datetime.datetime.now()
+            time_str = datetime.datetime.strftime(time_time, format_for_db)
+            message.CMdate = time_str
+            self.session.add(message)
+            self.session.commit()
 
     
     def add_user_partner(self):
@@ -240,7 +264,7 @@ class databse_deal():
 
 def create():
     # databse_deal().create_database()
-    from base_model import Base
+    from model import Base
     Base.metadata.create_all(model.mysql_engine)
 
 
@@ -255,32 +279,22 @@ if __name__ == "__main__":
        如果需要清除数据库，输入drop
        如果需要创建数据库 输入任意不包含drop的字符
        '''
-    # action = raw_input("create database?")
-    # if "drop" in action:
-    #     drop()
-    #
-    # else:
-    #     create()
-    #     data = MakeData()
-    #     data.add_user()
-    #     print "OK!"
-    print('start create database')
-    databse_deal().create_database()
-    print('start create table')
-    create()
-    data = MakeData()
-    print('start add data')
-    data.add_user()
-    data.add_alreadyRead()
-        # # tshop_ids = data.make_id()
-        # # print("over")
-        # data.add_activity()
-        # data.add_media()
-        # data.add_comment()
-        # data.add_tags()
-        # data.add_hotmessage()
-        # data.add_banner()
-        # data.add_product()
-        # data.add_super()
-        # data.add_recommendbanner()
-        # data.add_user_partner()
+    action = raw_input("create database?")
+    if "drop" in action:
+        drop()
+
+    else:
+        databse_deal().create_database()
+        create()
+        data = MakeData()
+        print "OK!"
+        print('start add data')
+        data.add_province()
+        data.add_city()
+        data.add_area()
+        data.add_user()
+        data.add_user2()
+        data.add_agent_message()
+        data.add_company_message()
+        data.add_alreadyRead()
+        data.add_product()

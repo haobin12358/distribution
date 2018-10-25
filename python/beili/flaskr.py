@@ -2,11 +2,20 @@
 from flask import Flask
 import flask_restful
 from apis.AGoods import AGoods
+from apis.AUser import AUser
+from apis.AMyCenter import AMyCenter
+from apis.AMessage import AMessage
+from apis.AOrder import AOrder
 
 sg = Flask(__name__)
+sg.config.from_object('config.setting')
 api = flask_restful.Api(sg)
 
 api.add_resource(AGoods, "/product/<string:product>")
+api.add_resource(AUser, "/user/<string:user>")
+api.add_resource(AMyCenter, "/mycenter/<string:mycenter>")
+api.add_resource(AMessage, "/message/<string:message>")
+api.add_resource(AOrder, "/order/<string:order>")
 
 '''
 if __name__ == '__main__':

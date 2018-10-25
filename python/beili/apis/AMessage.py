@@ -3,7 +3,7 @@ import sys
 import os
 from flask import jsonify
 from flask_restful import Resource
-from control import CMessage
+from control.CMessage import CMessage
 sys.path.append(os.path.dirname(os.getcwd()))
 
 class AMessage(Resource):

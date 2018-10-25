@@ -11,11 +11,11 @@ class SUser(SBase):
 
     @close_session
     def getuser_by_phonenum(self, usphonenum):
-        return self.session.query(User).filter_by(USphonenum=usphonenum).first()
+        return self.session.query(User.USid, User.USpassword).filter_by(USphonenum=usphonenum).first()
 
     @close_session
     def getuser_by_uid(self, usid):
-        return self.session.query(User).filter_by(USid=usid).first()
+        return self.session.query(User.USid, User.USpassword).filter_by(USid=usid).all()
 
     @close_session
     def update_user_by_uid(self, uid, users):
