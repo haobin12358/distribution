@@ -24,12 +24,12 @@ class SMessage(SBase):
     @close_session
     def get_comMessage_list(self, page, count):
         return self.session.query(ComMessage.CMid, ComMessage.CMdate, ComMessage.CMtype, ComMessage.CMtitle, \
-                                 ComMessage.CMfile).filter(ComMessage.CMstatus == 0).order_by(ComMessage.CMdate.desc()) \
+                                 ComMessage.CMfile).filter(ComMessage.CMstatus == 1).order_by(ComMessage.CMdate.desc()) \
             .offset((page - 1) * count).limit(count)
 
     @close_session
     def get_commessage_num(self):
-        return self.session.query(func.count(ComMessage.CMid)).filter(ComMessage.CMstatus == 0).scalar()
+        return self.session.query(func.count(ComMessage.CMid)).filter(ComMessage.CMstatus == 1).scalar()
 
     @close_session
     def get_commessage_details(self, cmid):

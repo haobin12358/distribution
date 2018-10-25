@@ -24,7 +24,7 @@ class AMessage(Resource):
         apis = {
             'get_agent_message': 'self.cmessage.get_agentMessage()',
             'get_com_message': 'self.cmessage.get_comMessage()',
-            'get_commessage_details': 'self.cmessage.get_commessage_details()',
+            'get_commessage_details': 'self.cmessage.get_commessage_details()'
         }
         res = eval(apis[message])
         return jsonify(res)

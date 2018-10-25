@@ -60,11 +60,14 @@ class CMessage():
             comMessage_list = get_model_return_list(self.smessage.get_comMessage_list(page, count))  # 分页查询出的公司消息列表
             print len(comMessage_list)
             already_list = get_model_return_list(self.smessage.get_alreadyMessage_by_usid(request.user.id)) # 已经阅读的消息的id集合
+            already_id_list = []
+            for already in already_list:
+                already_id_list.append(already['ARid'])
             notread_count = int(comMessage_num) - len(already_list)  # 该用户未读的消息条数
             return_message_list = []
             for message in comMessage_list:
                 message_dic = {}
-                if message['CMid'] not in already_list:  # 如果没有读，加个标记isread
+                if message['CMid'] not in already_id_list:  # 如果没有读，加个标记isread
                     message_dic['isread'] = 0
                     message_dic['CMid'] = message['CMid']
                     message_dic['CMdate'] = message['CMdate']
@@ -152,7 +155,7 @@ class CMessage():
         except Exception as e:
             return PARAMS_ERROR
         upate_message = {}
-        upate_message['CMstatus'] = 1
+        upate_message['CMstatus'] = 0
         self.smessage.delete_commessage(messageid, upate_message)
         self.smessage.delete_alreadyread(messageid)
         response = import_status("delete_message_success", "OK")
