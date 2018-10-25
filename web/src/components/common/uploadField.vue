@@ -1,15 +1,15 @@
 <style lang="less" scoped>
     @import "../../common/css/index";
 
-    .upload-evidence {
-        margin-left: 24px;
-        padding-top: 24px;
+    .upload-field {
+        padding: 24px;
         border-top: 1px solid @grayBorderColor;
         .fj(flex-start);
+        .bgw();
 
         .label {
             font-size: 32px;
-            margin-right: 36px;
+            min-width: 240px;
 
         }
 

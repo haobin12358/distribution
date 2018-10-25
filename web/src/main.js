@@ -16,7 +16,9 @@ import headerTop from "components/header/header"
 Vue.component('header-top',headerTop)
 import loadMore from "components/common/loadMore"
 Vue.component('load-more',loadMore)
-Vue.prototype.$log = console.log;
+Vue.prototype.$log =()=> {
+    console.log(arguments[0].toString(), arguments);
+}
 
 import 'mint-ui/lib/style.css'
 import VueClipboard from 'vue-clipboard2'
@@ -33,45 +35,45 @@ promise.polyfill();
 
 Vue.prototype.$http = axios;
 //拦截器、
-import { Indicator } from 'mint-ui';
+import { Indicator ,Toast} from 'mint-ui';
 
 // 超时时间
 axios.defaults.timeout = 60000
 
 //http请求拦截器
 var loadinginstace
-axios.interceptors.request.use(config => {
-  // element ui Loading方法
-  // loadinginstace = Loading.service({ fullscreen: true });
-  // console.log(loadinginstace)
-  Indicator.open({ text: '加载中...', spinnerType: 'fading-circle' });
-  return config
-}, error => {
-  // Message({
-  //   message:'加载超时',
-  //   type:'warning'
-  // });
-  // loadinginstace.close()
-  Indicator.close();
-  return Promise.reject(error)
-})
-// http响应拦截器
-axios.interceptors.response.use(data => {// 响应成功关闭loading
-  if(data.data.status != 200 && data.data.status != 302){
-    Toast({message:data.data.message});
-  }
-
-  Indicator.close();
-  return data
-}, error => {
-  // Message({
-  //   message:'请求失败',
-  //   type:'warning'
-  // });
-  // loadinginstace.close()
-  Indicator.close();
-  return Promise.reject(error)
-})
+// axios.interceptors.request.use(config => {
+//   // element ui Loading方法
+//   // loadinginstace = Loading.service({ fullscreen: true });
+//   // console.log(loadinginstace)
+//   Indicator.open({ text: '加载中...', spinnerType: 'fading-circle' });
+//   return config
+// }, error => {
+//   // Message({
+//   //   message:'加载超时',
+//   //   type:'warning'
+//   // });
+//   // loadinginstace.close()
+//   Indicator.close();
+//   return Promise.reject(error)
+// })
+// // http响应拦截器
+// axios.interceptors.response.use(data => {// 响应成功关闭loading
+//   if(data.data.status != 200 && data.data.status != 302){
+//     Toast({message:data.data.message});
+//   }
+//
+//   Indicator.close();
+//   return data
+// }, error => {
+//   // Message({
+//   //   message:'请求失败',
+//   //   type:'warning'
+//   // });
+//   // loadinginstace.close()
+//   Indicator.close();
+//   return Promise.reject(error)
+// })
 
 //引入微信
 import 'weixin-js-sdk';

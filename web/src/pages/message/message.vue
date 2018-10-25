@@ -40,7 +40,7 @@
                     padding-bottom: 11px;
                     border-bottom: 1px solid #DBDBDB;
 
-                    .message-new{
+                    .message-new {
                         .wl(38px, 38px);
                         margin-right: 10px;
                     }
@@ -67,90 +67,125 @@
 <template>
     <div class="container">
         <header class="container-hd">
-            <section :class="{'tab-item': true,active: showDaiLi}" @click="switchTab(true)">代理消息</section>
-            <section :class="{'tab-item': true,active: !showDaiLi}" @click="switchTab(false)">公司消息</section>
+            <section :class="{'tab-item': true,active: showAgent}" @click="switchTab(true)">代理消息</section>
+            <section :class="{'tab-item': true,active: !showAgent}" @click="switchTab(false)">公司消息</section>
         </header>
-        <ul class="message-list" >
-            <li class="message-item" v-for="item in messages" @click="gotoMessageDetail(item)">
-                <section class="item-hd">
-                    <img v-if="item.unread" class="message-new" src="/static/images/message_new.png" alt=""/>
-                    <span class="title">
+
+        <scroll
+            :data="agentMessages"
+            :pulldown="true"
+            @pulldown="$log('上拉刷新')">
+            <ul v-if="showAgent" class="message-list">
+                <li class="message-item" v-for="item in agentMessages" @click="gotoMessageDetail(item)">
+                    <section class="item-hd">
+                        <!--<img v-if="item.unread" class="message-new" src="/static/images/message_new.png" alt=""/>-->
+                        <span class="title">
                       {{item.title}}
+                    </span>
+                        <span class="date">
+                        {{item.AMdate}}
                   </span>
-                    <span class="date">
-                        {{item.date}}
-                  </span>
-                </section>
-                <section class="item-bd">
-                    {{item.content}}
-                </section>
-            </li>
-        </ul>
+                    </section>
+                    <section class="item-bd">
+                        {{item.AMcontent}}
+                    </section>
+                </li>
+            </ul>
+        </scroll>
+
+        <!--<ul v-else="!showAgent" class="message-list">-->
+        <!--<li class="message-item" v-for="item in agentMessages" @click="gotoMessageDetail(item)">-->
+        <!--<section class="item-hd">-->
+        <!--&lt;!&ndash;<img v-if="item.unread" class="message-new" src="/static/images/message_new.png" alt=""/>&ndash;&gt;-->
+        <!--<span class="title">-->
+        <!--{{item.title}}-->
+        <!--</span>-->
+        <!--<span class="date">-->
+        <!--{{item.AMdate}}-->
+        <!--</span>-->
+        <!--</section>-->
+        <!--<section class="item-bd">-->
+        <!--{{item.AMcontent}}-->
+        <!--</section>-->
+        <!--</li>-->
+        <!--</ul>-->
+
         <footer-guide></footer-guide>
     </div>
 </template>
 
 <script>
+    import scroll from "src/components/common/scroll"
     import footerGuide from "src/components/footer/footerGuide"
     import {mapState, mapMutations} from 'vuex'
+    import {getAgentMessage, getCompanyMessage} from "src/api/api"
+    import BSscroll from "better-scroll"
+    import {setStore, getStore} from "src/common/js/mUtils"
+    import {TOKEN, USER_INFO} from "src/common/js/const"
 
     export default {
         name: "message",
 
         data() {
             return {
-                showDaiLi: true,
+                showAgent: true,
+                page: 1,
+                count: 10,
 
-                messages: [
-                    {
-                        title: '公告',
-                        date: '2017-08-07 10:00:00',
-                        content: '订单编号：01245846512313245645641',
-                        unread: true,
-                    }, {
-                        title: '公告',
-                        date: '2017-08-07 10:00:00',
-                        content: '订单编号：01245846512313245645641',
-                    }, {
-                        title: '公告',
-                        date: '2017-08-07 10:00:00',
-                        content: '订单编号：01245846512313245645641',
-                        unread: true,
-                    }, {
-                        title: '公告',
-                        date: '2017-08-07 10:00:00',
-                        content: '订单编号：01245846512313245645641',
-                    },{
-                        title: '公告',
-                        date: '2017-08-07 10:00:00',
-                        content: '订单编号：01245846512313245645641',
-                    },{
-                        title: '公告',
-                        date: '2017-08-07 10:00:00',
-                        content: '订单编号：01245846512313245645641',
-                    },{
-                        title: '公告',
-                        date: '2017-08-07 10:00:00',
-                        content: '订单编号：01245846512313245645641',
-                    },
-                ]
+                agentMessages: [],
+                companyMessages: [],
+
+                scroll: {}
             }
         },
 
         components: {
-            footerGuide
+            footerGuide,
+            scroll
         },
 
         methods: {
-            ...mapMutations(['SAVE_READING_MESSAGE']),
             switchTab(bool) {
-                this.showDaiLi = bool;
+                this.showAgent = bool;
             },
-            gotoMessageDetail(msg){
-                this.$store.commit('SAVE_READING_MESSAGE',msg);
+            gotoMessageDetail(msg) {
                 this.$router.push('/messageDetail')
+            },
+            getAgentMessage() {
+                getAgentMessage(this.page).then(
+                    data => {
+                        if (data) {
+                            if (data.length < this.count) {
+                                console.log('没了');
+                            } else {
+                                console.log('可以加载第二页');
+                            }
+
+                            this.agentMessages = data;
+                            if (this.page == 1) {
+                                this.$nextTick(() => {
+                                    // this.scroll = new BSscroll(this.$refs.wrapper, {});
+                                });
+                            }
+                        }
+                    }
+                )
             }
         },
+
+        mounted() {
+            // this.$nextTick(() => {
+            //     this.scroll = new BSscroll(this.$refs.wrapper, {});
+            // });
+        },
+
+        created() {
+            if (this.showAgent) {
+                this.getAgentMessage();
+            }
+
+        }
+
     }
 </script>
 

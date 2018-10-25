@@ -1,5 +1,5 @@
 <style lang="less" scoped>
-    @import "~src/common/css/index";
+    @import "../../../common/css/index";
 
     .forget-password {
         position: absolute;
@@ -10,13 +10,11 @@
         background-color: @bgMainColor;
         z-index: 10;
 
-
         .forget-password-form {
             padding: 66px 74px 81px 51px;
             box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.16);
             background-color: white;
             margin-top: 20px;
-
 
             .form-item {
                 padding-bottom: 37px;
@@ -84,7 +82,7 @@
 
                 </section>
 
-                <input type="text" class="form-item-input" placeholder="请输入联系电话">
+                <input type="tel" v-model.trim="tel" class="form-item-input" placeholder="请输入联系电话">
             </div>
 
             <div class="form-item">
@@ -93,8 +91,14 @@
                     <span class="label__text">验证码</span>
                 </section>
                 <!--<div class="form-item-input">请输入验证码</div>-->
-                <input type="text" class="form-item-input" style="width: 100px;" placeholder="请输入验证码">
-                <button class="form-item-code">获取</button>
+                <input type="text" v-model.trim="code" class="form-item-input" style="width: 100px;"
+                       placeholder="请输入验证码">
+                <!--<button class="form-item-code" :disabled="codeDisabledTime" @click="getCode">{{codeDisabledTime ?-->
+                    <!--`剩余${codeDisabledTime}s` :'获取'}}-->
+                <!--</button>-->
+                <button class="form-item-code"  @click="getCode">
+                    获取
+                </button>
             </div>
 
             <div class="form-item">
@@ -104,38 +108,102 @@
 
                 </section>
 
-                <input type="text" class="form-item-input" placeholder="请输入登录密码">
-
+                <input type="password" v-model="newPassword" class="form-item-input" placeholder="请输入登录密码">
             </div>
 
             <div class="form-item">
                 <section class="form-item-label">
                     <span class="label__start"></span>
                     <span class="label__text">密码确认</span>
-
                 </section>
 
-                <input type="text" class="form-item-input" placeholder="请再次输入登录密码">
+                <input type="password" v-model="newPasswordConfirm" class="form-item-input" placeholder="请再次输入登录密码">
             </div>
         </form>
 
-        <button class="confirm-btn">确 定</button>
+        <button class="confirm-btn" @click="confirmUpdate">确 定</button>
     </div>
 </template>
 
 <script>
+    import {getInforcode,findBackPwd} from "src/api/api"
+    import {setStore, getStore} from "src/common/js/mUtils"
+    import {TOKEN} from "src/common/js/const"
 
     export default {
         name: "forgetPassword",
 
         data() {
-            return {}
+            return {
+                tel: '',
+                code: '',
+                newPassword: '',
+                newPasswordConfirm: '',
+
+                gotCodeTime: 0
+            }
         },
 
-        components: {
+        components: {},
+
+        methods: {
+            getCode() {
+                if (this.tel) {
+                    getInforcode(this.tel).then(
+                        data => {
+                            if (data) {
+                                this.$toast('验证码已发送');
+                            }
+                        }
+                    )
+                } else {
+                    this.$toast('请输入手机号!');
+                }
+            },
+
+            formDataCheck() {
+                let checkRes = '';
+
+                if (!this.tel) {
+                    return '请填写手机号!';
+                }
+                if (!this.code) {
+                    return '请填写验证码!';
+                }
+                if (!this.newPassword) {
+                    return '请填写新密码!';
+                }
+                if (!this.newPasswordConfirm) {
+                    return '请填写新密码确认!';
+                }
+
+                if (this.newPassword != this.newPasswordConfirm) {
+                    return '两次密码输入不一致!';
+                }
+            },
+
+            confirmUpdate() {
+                let checkMessage = this.formDataCheck();
+
+                if (!checkMessage) {
+                    findBackPwd(this.tel, this.code, this.newPassword).then(
+                        data => {
+                                this.$toast('密码修改成功');
+                                this.$router.push('/message')
+                        }
+                    )
+
+                } else {
+                    this.$toast(checkMessage);
+                }
+            }
         },
 
-        methods: {},
+        created(){
+            if(getStore(TOKEN)){
+                this.$router.push('/message');
+            }
+        }
     }
 </script>
 

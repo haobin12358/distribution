@@ -13,13 +13,13 @@
         .fcolum();
         text-align: center;
 
-        .container-hd{
+        .container-hd {
             .sc(38px, @mainColor);
             font-weight: bold;
             margin: 69px 0 18px;
         }
 
-        .container-bd{
+        .container-bd {
             .wl(615px, 816px);
             border-radius: 30px;
             padding: 75px 69px 16px;
@@ -28,53 +28,53 @@
             .fj(flex-start);
             .fcolum();
 
-            .platform-logo{
-                .wl(234px,234px);
+            .platform-logo {
+                .wl(234px, 234px);
                 border: 10px solid #707070;
                 box-sizing: border-box;
                 border-radius: 50%;
                 margin-bottom: 131px;
-                box-shadow:0px 10px 3px rgba(0,0,0,0.16);
+                box-shadow: 0px 10px 3px rgba(0, 0, 0, 0.16);
             }
 
-            .login-input{
-                width:490px;
-                height:70px;
-                border:1px solid @mainColor;
-                box-shadow:-5px 5px 0px rgba(0,0,0,0.16);
-                opacity:0.5;
-                border-radius:50px;
+            .login-input {
+                width: 490px;
+                height: 70px;
+                border: 1px solid @mainColor;
+                box-shadow: -5px 5px 0px rgba(0, 0, 0, 0.16);
+                opacity: 0.5;
+                border-radius: 50px;
                 margin-bottom: 70px;
                 padding-left: 38px;
                 .fz(24px);
 
-                &:last-child{
+                &:last-child {
                     margin-bottom: 118px;
                 }
             }
 
-            .forget-pwd{
+            .forget-pwd {
                 color: @mainFontColor;
-                font-size:24px;
+                font-size: 24px;
                 text-align: right;
                 align-self: flex-end;
             }
 
         }
 
-        .container-ft{
+        .container-ft {
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
 
-            .confirm-btn{
+            .confirm-btn {
                 .wl(364px, 90px);
-                background:linear-gradient(180deg,@mainLightColor 0%,@mainColor 100%);
+                background: linear-gradient(180deg, @mainLightColor 0%, @mainColor 100%);
                 .sc(38px, white);
                 .fontc(90px);
-                font-weight:bold;
-                border-radius:50px;
+                font-weight: bold;
+                border-radius: 50px;
                 border: none;
 
             }
@@ -90,8 +90,8 @@
         <section class="container-bd">
             <img class="platform-logo" src="/static/images/testbg.jpg" alt="">
 
-            <input type="tel" class="login-input" placeholder="请输入手机号码">
-            <input type="tel" class="login-input" placeholder="请输入密码">
+            <input type="tel" v-model.trim="username" class="login-input" placeholder="请输入手机号码">
+            <input type="password" v-model="password" class="login-input" placeholder="请输入密码">
 
             <span class="forget-pwd" @click="gotoForgetPassword">忘了密码？</span>
         </section>
@@ -106,26 +106,53 @@
 </template>
 
 <script>
+    import {login} from "src/api/api"
+    import {setStore, getStore} from "src/common/js/mUtils"
+    import {TOKEN} from "src/common/js/const"
+    import {mapActions} from "vuex"
+
+
     export default {
         name: "login",
 
         data() {
-            return {}
+            return {
+                username: '',
+                password: '',
+            }
         },
 
         components: {},
 
         methods: {
-            gotoForgetPassword(){
+            ...mapActions(['getUserInfo']),
+            gotoForgetPassword() {
                 this.$router.push('/login/forgetPassword');
             },
-            doLogin(){
-                this.$router.push('/message');
+            doLogin() {
+                if (this.username && this.password) {
+                    login(this.username, this.password).then(
+                        data => {
+                            if (data) {
+                                setStore(TOKEN, data.token);
+                                this.$toast('登录成功');
+                                this.$router.push('/message');
+                                this.getUserInfo();
+                            }
+                        }
+                    )
+                } else {
+                    this.$toast('请填写完整!');
+                }
             },
+
         },
 
-        created(){
-
+        created() {
+            if (getStore(TOKEN)) {
+                this.$router.push('/message');
+                this.$toast('已登录');
+            }
         }
     }
 </script>
