@@ -309,7 +309,7 @@ class ComMessage(Base):
     CMtype = Column(Boolean)  # 种类: {0: 公告}
     CMtitle = Column(String(128), nullable=False)  # 消息详情
     CMfile = Column(String(255), nullable=False)  # 附加图片
-    CMstatus = Column(Integer, default=0)  # 状态: {0:显示, 1:删除 }
+    CMstatus = Column(Integer, default=1)  # 状态: {0:显示, 1:删除 }
 
 class Question(Base):
     """
