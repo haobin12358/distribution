@@ -126,12 +126,24 @@ class MakeData():
         self.session.add(user)
         self.session.commit()
 
+    def add_superuser(self):
+        from model import Admin
+        admin = Admin()
+        admin.ADid = '3404cf38-c3cf-401f-8ba7-f8ce040f064f'
+        admin.ADnum = '123'
+        admin.ADpassword = '123'
+        admin.ADname = 'feng'
+        admin.ADlevel = 1
+        admin.ADheaderimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
+        self.session.add(admin)
+        self.session.commit()
+
     def add_agent_message(self):
         from model import AgentMessage
         from werkzeug.security import generate_password_hash
         for i in range(30):
             message = AgentMessage()
-            message.USid = '4304cf38-c3cf-401f-8ba7-f8ce040f064f'
+            message.USid = '3404cf38-c3cf-401f-8ba7-f8ce040f064f'
             message.AMtype = 0
             message.AMcontent = "hh" + str(i)
             message.AMid = "ewrw" + str(i)
@@ -178,10 +190,10 @@ class MakeData():
         for i in range(30):
             message = ComMessage()
             message.CMid = '4304cf38-c3cf-401f-8ba7-f8ce040f064f' + str(i)
-            message.CMstatus = 0
+            message.CMstatus = 1
             message.CMtitle = "hh" + str(i)
             message.CMtype = 0
-            message.CMfile = "http:www.baidu.com" + str(i)
+            message.CMfile = "https://www.hzmyo.cn/ued/php/upload/20181011/1539237187747826.pdf"
             import datetime
             from common.timeformat import format_for_db
             time_time = datetime.datetime.now()
@@ -284,11 +296,12 @@ if __name__ == "__main__":
         drop()
 
     else:
-        databse_deal().create_database()
-        create()
+        # databse_deal().create_database()
+        # create()
         data = MakeData()
         print "OK!"
         print('start add data')
+        data.add_superuser()
         data.add_province()
         data.add_city()
         data.add_area()

@@ -44,6 +44,8 @@ class CGoods():
         elif PAtype == 2:
             product_list = get_model_return_list(
                 self.sgoods.get_product_list(page_size, page_num, PAid, PRstatus))
+        else:
+            return PARAMS_MISS
         response = import_status("get_product_list_success", "OK")
         response["data"] = product_list
         return response
@@ -55,6 +57,8 @@ class CGoods():
         try:
             PRid = args.get("PRid")
             product = get_model_return_dict(self.sgoods.get_product(PRid))
+            from common.timeformat import get_web_time_str
+            product['PRcreatetime'] = get_web_time_str(product['PRcreatetime'])
         except Exception as e:
             print(e.message)
             return PARAMS_MISS
@@ -66,14 +70,13 @@ class CGoods():
     def get_product_category(self):
         #self.json_param_miss("get")
         args = request.args.to_dict()
-        product_category = []
         try:
             PAtype = int(args.get("PAtype"))
             if PAtype == 1:
-                product_category.append(get_model_return_list(self.sgoods.get_first_product_category(0)))
+                product_category = (get_model_return_list(self.sgoods.get_first_product_category(0)))
             elif PAtype == 2:
                 PAid = args.get("PAid")
-                product_category.append(get_model_return_list(self.sgoods.get_first_product_category(PAid)))
+                product_category = (get_model_return_list(self.sgoods.get_first_product_category(PAid)))
             else:
                 return NO_THIS_CATEGORY
         except Exception as e:

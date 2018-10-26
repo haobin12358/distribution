@@ -21,13 +21,13 @@ class AAdmin(Resource):
             'update_pwd': 'self.cuser.update_pwd()',
             'update_headimg': 'self.cuser.update_headimg()'
         }
-        res = eval(apis[user])
+        res = eval(apis[admin])
         return jsonify(res)
 
-    def get(self, user):
-        print user
+    def get(self, admin):
+        print admin
         apis = {
             'get_single_message': 'self.cuser.get_single_message()',
         }
-        res = eval(apis[user])
+        res = eval(apis[admin])
         return jsonify(res)
