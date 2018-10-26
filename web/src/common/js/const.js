@@ -6,4 +6,5 @@ export const AM_TYPE = {
     2: '代理消息',
 };
 export const NOT_READ_COM_MSGS = 'NOT_READ_COM_MSGS'
+export const CART_LIST = 'CART_LIST'
 

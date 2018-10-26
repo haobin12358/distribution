@@ -164,13 +164,14 @@
 
             <ul class="nav-list-children">
                 <li v-for="item in secondCategory" :class="{'pillow-item': true, 'active': item.PAid == secondSelected}"
-                    @click="chooseSECategory(item)">{{item.PAname}}</li>
+                    @click="chooseSECategory(item)">{{item.PAname}}
+                </li>
                 <!--<li class="pillow-item-tail"></li>-->
             </ul>
         </section>
 
         <ul class="goods-list">
-            <li class="goods-item" v-for="item in productList">
+            <li class="goods-item" v-for="item in productListWithCart">
                 <section class="goods-img">
                     <img :src="item.PRpic" alt="">
                 </section>
@@ -184,9 +185,9 @@
                             <span class="original-price">￥{{item.PRprice}}</span>
                         </p>
 
-                        <buy-cart></buy-cart>
+                        <buy-cart :shopNum.sync="item.PRnum" @add.passive="addCart(item)"
+                                  @minus.passive="reduceCart(item)"></buy-cart>
                     </section>
-
                 </section>
             </li>
         </ul>
@@ -205,6 +206,8 @@
     import buyCart from "src/components/common/buyCart"
     import {getProductCategory, getProductList} from "src/api/api"
     import LoadMore from "src/components/common/loadMore"
+    import common from "src/common/js/common"
+    import {mapMutations, mapState} from "vuex"
 
 
     export default {
@@ -231,11 +234,44 @@
             LoadMore,
         },
 
+        computed: {
+            ...mapState({
+                productListWithCart: function (state) {
+                    let rst = this.productList.concat();
+
+                    for (let i = 0; i < state.cartList.length; i++) {
+                        for (let j = 0; j < this.productList.length; j++) {
+                            if (state.cartList[i].PRid == this.productList[j].PRid) {
+                                rst[j].PRnum = state.cartList[i].PRnum;
+                            }
+                        }
+                    }
+
+                    return rst;
+                }
+            })
+        },
+
         methods: {
+            ...mapMutations({
+                addCart: 'ADD_CART',
+                reduceCart: 'REDUCE_CART'
+            }),
+            // 滚动条监听事件
+            touchMove() {
+                let scrollTop = common.getScrollTop();
+                let scrollHeight = common.getScrollHeight();
+                let ClientHeight = common.getClientHeight();
+
+                if (scrollTop + ClientHeight >= scrollHeight - 10 && this.loadingType == 'normal') {
+                    this.setProductList();
+                }
+            },
             gotoPayOrder() {
                 console.log('购物车判断');
                 this.$router.push('/payOrder');
             },
+
             switchPACategory(categroy) {
                 // 选中还是当前父级tab就结束
                 if (categroy.PAid == this.paSelected) {
@@ -243,53 +279,67 @@
                 }
 
                 this.paSelected = categroy.PAid;
-
-
+                this.initSECategory();
             },
 
             chooseSECategory(categroy) {
-                // 选中还是当前二级级tab就置为0
                 if (categroy.PAid == this.secondSelected) {
-                    this.secondSelected = '0';
-                }else{
+
+                } else {
                     this.secondSelected = categroy.PAid;
-                    this.getProductList(true);
+                    this.setProductList(true);
                 }
             },
 
             // 初始分类及第一个父级分类的所有商品
-            initCategoryAndPrds(){
-                getProductCategory(1, 0).then(
-                    ({data: paData}) => {
-                        this.parentCategory = paData;
-                        this.paSelected = this.parentCategory[0].PAid;
+            async initCategoryAndPrds() {
+                let {data: paData} = await getProductCategory(1, 0);
 
-                        getProductCategory(2, this.paSelected).then(
-                            ({data: seData}) => {
-                                this.secondCategory = seData;
-                                this.secondSelected = '0';
-                                this.getProductList(true);
-                            }
-                        )
-                    }
-                )
+                this.parentCategory = paData;
+                this.paSelected = this.parentCategory[0].PAid;
+
+                await this.initSECategory();
+            },
+
+            async initSECategory() {
+                let {data: seData} = await  getProductCategory(2, this.paSelected);
+
+                this.secondCategory = seData;
+                this.secondSelected = this.secondCategory[0].PAid;
+
+                await this.setProductList(true);
             },
 
             /**
              * 获取商品列表
              * @param replace
              */
-            getProductList(replace){
-                getProductList(2, this.secondSelected, 1, this.page, this.count).then(
-                    ({data: prdList})=>{
-                        this.productList = prdList;
-                    }
-                )
-            }
+            async setProductList(replace) {
+                if (replace) {
+                    this.page = 1;
+                }
+                this.loadingType = 'loading';
+                let {data: prdList} = await getProductList(2, this.secondSelected, 1, this.page, this.count);
+
+                if (prdList.length < this.count) {
+                    this.loadingType = 'nomore';
+                } else {
+                    this.loadingType = 'normal';
+                }
+
+                if (replace) {
+                    this.productList = prdList;
+                } else {
+                    this.productList = [...this.productList, ...prdList];
+                }
+
+                this.page++;
+            },
         },
 
-        mounted() {
-            this.initCategoryAndPrds();
+        async mounted() {
+            await this.initCategoryAndPrds();
+            window.addEventListener('scroll', this.touchMove);
         }
     }
 </script>

@@ -102,6 +102,7 @@ export const constantRouterMap = [
         component: mall,
         meta: {
             title: '云仓',
+            requiresAuth: true
         },
     }, {
         path: '/payOrder',
@@ -120,7 +121,6 @@ export const constantRouterMap = [
         meta: {
             title: '蓓莉云仓',
             requiresAuth: true
-
         },
     }, {
         path: '/setting',

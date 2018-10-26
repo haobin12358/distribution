@@ -50,9 +50,10 @@
     export default {
         name: "buy-cart",
 
+        props: ['shopNum'],
+
         data() {
             return {
-                shopNum: 0
             }
         },
 
@@ -60,12 +61,10 @@
 
         methods: {
             minus(){
-                if(this.shopNum>0){
-                    this.shopNum--;
-                }
+                this.$emit('minus');
             },
             add(){
-                this.shopNum++;
+                this.$emit('add');
             }
         },
     }

@@ -11,6 +11,8 @@ const state = {
     userInfo: {}, // 用户信息
     showAgent: true,
     notReadComMsg: 0, // 未读消息数
+    cartList: [],   // 购物车数据
+
     agentMessages: [],  // 代理消息
     companyMessages: [],    // 公司消息
     readingMessage: {}, // 正在阅读的公司消息
