@@ -188,8 +188,10 @@
                 if (!checkMessage) {
                     findBackPwd(this.tel, this.code, this.newPassword).then(
                         data => {
+                            if(data){
                                 this.$toast('密码修改成功');
                                 this.$router.push('/message')
+                            }
                         }
                     )
 

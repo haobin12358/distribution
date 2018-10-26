@@ -31,7 +31,7 @@
 
   /*type == nomore*/
   .loadmore_line{
-    border-top:1px solid #E5E5E5;
+    border-top:1px solid #999999;
     margin-top:2.4em;
 
     .loadmore__tips_in-line{
@@ -62,7 +62,7 @@
         width: 4px;
         height: 4px;
         border-radius: 50%;
-        background-color: #E5E5E5;
+        background-color: #999999;
       }
     }
   }
