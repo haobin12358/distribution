@@ -31,9 +31,9 @@ const myAxios = async (url, {params, data, method = 'get', showIndicator = true}
         Indicator.close();
     }
 
-    if (res.status == 200) {
+    if (res && res.status == 200) {
         if (res.data.status == 200) {
-            return res.data.data;
+            return res.data;
         } else {
             Toast(res.data.message);
             return
@@ -150,11 +150,55 @@ export const getCompanyMessage = (page, count = 10) => myAxios('/message/get_com
  * @returns {Promise<*|undefined>}
  */
 export const getCommessageDetails = (messageid) => myAxios('/message/get_commessage_details', {
+    showIndicator: false,
     params: {
         token: getStore(TOKEN),
         messageid
     }
 });
+
+/**
+ * 获取类别列表
+ * @param PAtype    类目级别，1获取第一级类别，2获取第二级类别，项目中最高两级类别
+ * @param PAid  父类别id，第一类别的父分类id为0
+ * @returns {Promise<*|undefined>}
+ */
+export const getProductCategory = (PAtype, PAid) => myAxios('/product/get_product_category', {
+    params: {
+        PAtype,
+        PAid
+    }
+});
+/**
+ * 获取商品列表
+ * @param PAtype    类别等级,获取所有商品填非空任意值
+ * @param PAid  类别id，0时获取所有商品
+ * @param PRstatus  商品状态，1出售中2已售罄3已下架，0代表全部状态
+ * @param page_num
+ * @param page_size
+ * @returns {Promise<*|undefined>}
+ */
+export const getProductList = (PAtype, PAid,PRstatus,page_num,page_size = 10) => myAxios('/product/get_product_list', {
+    params: {
+        PAtype,
+        PAid,
+        page_size,
+        page_num,
+        PRstatus
+    }
+});
+/**
+ * 获取商品详情
+ * @param PRid
+ * @returns {Promise<*|undefined>}
+ */
+export const getProduct = (PRid) => myAxios('/product/get_product', {
+    params: {
+        PRid
+    }
+});
+
+
 
 
 

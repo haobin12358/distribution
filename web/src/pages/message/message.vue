@@ -71,119 +71,177 @@
             <section :class="{'tab-item': true,active: !showAgent}" @click="switchTab(false)">公司消息</section>
         </header>
 
-        <scroll
-            :data="agentMessages"
-            :pulldown="true"
-            @pulldown="$log('上拉刷新')">
-            <ul v-if="showAgent" class="message-list">
-                <li class="message-item" v-for="item in agentMessages" @click="gotoMessageDetail(item)">
-                    <section class="item-hd">
-                        <!--<img v-if="item.unread" class="message-new" src="/static/images/message_new.png" alt=""/>-->
-                        <span class="title">
-                      {{item.title}}
+        <ul v-show="showAgent" class="message-list">
+            <li class="message-item" v-for="item in agentMessages">
+                <section class="item-hd">
+                    <span class="title">
+                         {{item.AMtypeCH}}
                     </span>
-                        <span class="date">
+                    <span class="date">
                         {{item.AMdate}}
                   </span>
-                    </section>
-                    <section class="item-bd">
-                        {{item.AMcontent}}
-                    </section>
-                </li>
-            </ul>
-        </scroll>
-
-        <!--<ul v-else="!showAgent" class="message-list">-->
-        <!--<li class="message-item" v-for="item in agentMessages" @click="gotoMessageDetail(item)">-->
-        <!--<section class="item-hd">-->
-        <!--&lt;!&ndash;<img v-if="item.unread" class="message-new" src="/static/images/message_new.png" alt=""/>&ndash;&gt;-->
-        <!--<span class="title">-->
-        <!--{{item.title}}-->
-        <!--</span>-->
-        <!--<span class="date">-->
-        <!--{{item.AMdate}}-->
-        <!--</span>-->
-        <!--</section>-->
-        <!--<section class="item-bd">-->
-        <!--{{item.AMcontent}}-->
-        <!--</section>-->
-        <!--</li>-->
-        <!--</ul>-->
-
+                </section>
+                <section class="item-bd">
+                    {{item.AMcontent}}
+                </section>
+            </li>
+        </ul>
+        <ul v-show="!showAgent" class="message-list">
+            <li class="message-item" v-for="item in companyMessages" @click="gotoMessageDetail(item)">
+                <section class="item-hd">
+                    <img v-if="item.isread == 0" class="message-new" src="/static/images/message_new.png" alt=""/>
+                    <span class="title">公告</span>
+                    <span class="date">{{item.CMdate}}</span>
+                </section>
+                <section class="item-bd">
+                    {{item.CMtitle}}
+                </section>
+            </li>
+        </ul>
+        <load-more :type="loadingType"></load-more>
         <footer-guide></footer-guide>
     </div>
 </template>
 
 <script>
-    import scroll from "src/components/common/scroll"
     import footerGuide from "src/components/footer/footerGuide"
+    import LoadMore from "src/components/common/loadMore"
     import {mapState, mapMutations} from 'vuex'
     import {getAgentMessage, getCompanyMessage} from "src/api/api"
-    import BSscroll from "better-scroll"
     import {setStore, getStore} from "src/common/js/mUtils"
-    import {TOKEN, USER_INFO} from "src/common/js/const"
+    import {TOKEN, USER_INFO, AM_TYPE} from "src/common/js/const"
+    import common from "src/common/js/common"
 
     export default {
         name: "message",
 
         data() {
             return {
-                showAgent: true,
-                page: 1,
-                count: 10,
+                page: 1,    // 页数
+                count: 10,  // 条数
+                loadingType: 'normal',  // 加载组件加载状态
 
                 agentMessages: [],
                 companyMessages: [],
-
-                scroll: {}
             }
+        },
+
+        computed: {
+            ...mapState(['showAgent'])
         },
 
         components: {
             footerGuide,
-            scroll
+            LoadMore
         },
 
         methods: {
-            switchTab(bool) {
-                this.showAgent = bool;
-            },
-            gotoMessageDetail(msg) {
-                this.$router.push('/messageDetail')
-            },
-            getAgentMessage() {
-                getAgentMessage(this.page).then(
-                    data => {
-                        if (data) {
-                            if (data.length < this.count) {
-                                console.log('没了');
-                            } else {
-                                console.log('可以加载第二页');
-                            }
+            ...mapMutations({
+                setShowAgent: 'SET_SHOW_AGENT'
+            }),
+            getDataInit() {
+                this.page = 1;
 
-                            this.agentMessages = data;
-                            if (this.page == 1) {
-                                this.$nextTick(() => {
-                                    // this.scroll = new BSscroll(this.$refs.wrapper, {});
-                                });
+                if (this.showAgent) {
+                    this.getAgentMessage(true);
+                } else {
+                    this.getCompanyMessage(true);
+                }
+            },
+            // 滚动条监听事件
+            touchMove() {
+                let scrollTop = common.getScrollTop();
+                let scrollHeight = common.getScrollHeight();
+                let ClientHeight = common.getClientHeight();
+
+                if (scrollTop + ClientHeight >= scrollHeight - 10 && this.loadingType == 'normal') {
+                    if (this.showAgent) {
+                        this.getAgentMessage();
+                    } else {
+                        this.getCompanyMessage();
+                    }
+                }
+            },
+            // 切换消息类型
+            switchTab(bool) {
+                this.setShowAgent(bool);
+                this.getDataInit();
+            },
+            // 点击消息详情
+            gotoMessageDetail(msg) {
+                this.$router.push({path: '/messageDetail', query: msg});
+            },
+
+            /**
+             * 获得代理消息
+             * @param replace   替换 是否从第一页开始
+             */
+            getAgentMessage(replace) {
+                this.loadingType = 'loading';
+
+                getAgentMessage(this.page).then(
+                    ({data: list}) => {
+                        if (list.length < this.count) {
+                            this.loadingType = 'nomore';
+                        } else {
+                            this.loadingType = 'normal';
+                        }
+
+                        if (list.length) {
+                            for (let i = 0; i < list.length; i++) {
+                                list[i].AMtypeCH =AM_TYPE[ list[i].AMtype];
                             }
+                            if (!replace) {
+                                this.agentMessages = [...this.agentMessages, ...list];
+                            } else {
+                                this.agentMessages = list;
+                            }
+                            this.page++;
                         }
                     }
                 )
-            }
+            },
+            /**
+             * 获得公司消息
+             * @param replace   替换 是否从第一页开始
+             */
+            getCompanyMessage(replace) {
+                this.loadingType = 'loading';
+
+                getCompanyMessage(this.page).then(
+                    ({data: list, notread}) => {
+                        if (list.length < this.count) {
+                            this.loadingType = 'nomore';
+                        } else {
+                            this.loadingType = 'normal';
+                        }
+
+                        this.$store.commit('SET_NOT_READ_COM_MSG', notread);
+
+                        if (list.length) {
+                            if (!replace) {
+                                this.companyMessages = [...this.companyMessages, ...list];
+                            } else {
+                                this.companyMessages = list;
+                            }
+
+                            this.page++;
+                        }
+                    }
+                )
+            },
+        },
+
+        destroyed() {
+            window.removeEventListener('scroll', this.touchMove);
         },
 
         mounted() {
-            // this.$nextTick(() => {
-            //     this.scroll = new BSscroll(this.$refs.wrapper, {});
-            // });
+            window.addEventListener('scroll', this.touchMove);
         },
 
         created() {
-            if (this.showAgent) {
-                this.getAgentMessage();
-            }
-
+            this.getDataInit();
         }
 
     }

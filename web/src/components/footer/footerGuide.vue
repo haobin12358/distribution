@@ -44,7 +44,7 @@
                 border-radius: 31px;
                 .fontc(36px);
                 color: #ffffff;
-                .fz(24px);
+                .fz(22px);
 
             }
 
@@ -70,7 +70,7 @@
                  alt="">
             <span :class="{'tab-title': true,active: $route.path.indexOf('message')!=-1}">信息</span>
 
-            <span class="tab-red-dot">8</span>
+            <span class="tab-red-dot">{{notReadComMsgNum}}</span>
         </section>
         <section class="footer-item" @click="gotoAddress('/mall')">
             <img class="tab-icon"
@@ -89,11 +89,25 @@
 </template>
 
 <script>
+    import {getStore} from "src/common/js/mUtils"
+    import {NOT_READ_COM_MSGS} from "src/common/js/const"
+    import {mapState} from "vuex"
+
+
     export default {
         name: "footerGuide",
 
         data() {
-            return {}
+            return {
+            }
+        },
+
+        computed:{
+            ...mapState({
+                notReadComMsgNum(state){
+                    return state.notReadComMsg > getStore(NOT_READ_COM_MSGS) ?this.$store.state.notReadComMsg : getStore(NOT_READ_COM_MSGS);
+                }
+            })
         },
 
         components: {},

@@ -106,9 +106,9 @@
 </template>
 
 <script>
-    import {login} from "src/api/api"
+    import {login,getCompanyMessage} from "src/api/api"
     import {setStore, getStore} from "src/common/js/mUtils"
-    import {TOKEN} from "src/common/js/const"
+    import {TOKEN,NOT_READ_COM_MSGS} from "src/common/js/const"
     import {mapActions} from "vuex"
 
 
@@ -125,7 +125,7 @@
         components: {},
 
         methods: {
-            ...mapActions(['getUserInfo']),
+            ...mapActions(['getUserInfo','setNotReadMsgNum']),
             gotoForgetPassword() {
                 this.$router.push('/login/forgetPassword');
             },
@@ -134,9 +134,10 @@
                     login(this.username, this.password).then(
                         data => {
                             if (data) {
-                                setStore(TOKEN, data.token);
+                                setStore(TOKEN, data.data.token);
                                 this.$toast('登录成功');
                                 this.$router.push('/message');
+                                this.setNotReadMsgNum();
                                 this.getUserInfo();
                             }
                         }
@@ -150,6 +151,7 @@
 
         created() {
             if (getStore(TOKEN)) {
+                this.setNotReadMsgNum();
                 this.$router.push('/message');
                 this.$toast('已登录');
             }

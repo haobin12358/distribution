@@ -3,6 +3,7 @@
 
     .container {
         padding-bottom: 100px;
+        .least-full-screen();
 
         #go-order-img {
             .wl(33px, 27px);
@@ -37,10 +38,11 @@
                 .nav-item {
                     height: 80px;
                     display: inline-block;
-                    padding: 0 25px;
+                    padding: 0 50px;
                     .fontc(80px);
 
                     &.active {
+                        color: @mainColor;
                         border-bottom: 3px solid @mainColor;
                     }
                 }
@@ -60,6 +62,11 @@
                     padding: 4px 23px;
                     border-radius: 30px;
                     white-space: nowrap;
+
+                    &.active {
+                        color: white;
+                        background: @mainColor;
+                    }
 
                     &:first-of-type {
                         margin-left: 42px;
@@ -134,11 +141,12 @@
 <template>
     <div class="container">
         <header-top :title="'云仓'">
-            <section slot="left" @click="goOrder">
-                <img id="go-order-img" src="/static/images/myOrder.png" alt="">
+            <section slot="left">
+                <router-link tag="img" to="/mallOrder" id="go-order-img" src="/static/images/myOrder.png"
+                             alt=""></router-link>
             </section>
             <section slot="right">
-                <button class="pay-order" @click="goPayOrder">结算</button>
+                <button class="pay-order" @click="gotoPayOrder">结算</button>
             </section>
         </header-top>
 
@@ -148,42 +156,32 @@
 
         <section class="nav-wrap">
             <ul class="nav-list-parent">
-                <li class="nav-item active">一级asas</li>
-                <li class="nav-item">一级ssss</li>
-                <li class="nav-item">一级sddsds</li>
-                <li class="nav-item">一级sd</li>
-                <li class="nav-item">一级dsd</li>
-                <li class="nav-item">一级</li>
-                <li class="nav-item">一级</li>
-                <li class="nav-item">一级</li>
-
+                <li v-for="item in parentCategory" :class="{'nav-item': true, 'active': item.PAid == paSelected}"
+                    @click="switchPACategory(item)">
+                    {{item.PAname}}
+                </li>
             </ul>
-            <ul class="nav-list-children">
-                <li class="pillow-item">2级xx</li>
-                <li class="pillow-item">2级</li>
-                <li class="pillow-item">2级asdasdxx</li>
-                <li class="pillow-item">2级asdasdxx</li>
-                <li class="pillow-item">2级asdasdxx</li>
-                <li class="pillow-item">2级</li>
-                <li class="pillow-item">2级</li>
 
-                <li class="pillow-item-tail"></li>
+            <ul class="nav-list-children">
+                <li v-for="item in secondCategory" :class="{'pillow-item': true, 'active': item.PAid == secondSelected}"
+                    @click="chooseSECategory(item)">{{item.PAname}}</li>
+                <!--<li class="pillow-item-tail"></li>-->
             </ul>
         </section>
 
         <ul class="goods-list">
-            <li class="goods-item" v-for="item in 6">
+            <li class="goods-item" v-for="item in productList">
                 <section class="goods-img">
-                    <img src="/static/images/testbg.jpg" alt="">
+                    <img :src="item.PRpic" alt="">
                 </section>
                 <section class="goods-description">
                     <header class="goods-description-header">
-                        蓓莉纸尿裤（M码） （36片*4包）
+                        {{item.PRname}}
                     </header>
                     <section class="goods-description-content">
                         <p class="goods-description-price">
-                            <span class="current-price">￥216.00</span>
-                            <span class="original-price">￥236.00</span>
+                            <span class="current-price">￥{{item.PRoldprice}}</span>
+                            <span class="original-price">￥{{item.PRprice}}</span>
                         </p>
 
                         <buy-cart></buy-cart>
@@ -193,6 +191,10 @@
             </li>
         </ul>
 
+        <section class="load-more-wrap">
+            <load-more :type="loadingType"></load-more>
+        </section>
+
         <footer-guide></footer-guide>
     </div>
 </template>
@@ -201,35 +203,93 @@
     import {Toast} from "mint-ui"
     import footerGuide from "src/components/footer/footerGuide"
     import buyCart from "src/components/common/buyCart"
+    import {getProductCategory, getProductList} from "src/api/api"
+    import LoadMore from "src/components/common/loadMore"
+
 
     export default {
         name: "mall",
 
         data() {
-            return {}
+            return {
+                parentCategory: [], //  父级类别
+                paSelected: '',    // 父级类别选中的PAid
+
+                secondCategory: [], //  二级类别
+                secondSelected: '',    // 二级类别选中的PAid
+
+                productList: [],    //  商品列表
+                page: 1,
+                count: 10,
+                loadingType: 'normal',  // 加载组件加载状态
+            }
         },
 
         components: {
             buyCart,
             footerGuide,
+            LoadMore,
         },
 
         methods: {
-            goOrder() {
-                this.$router.push('/mallOrder');
-            },
-            goPayOrder() {
+            gotoPayOrder() {
+                console.log('购物车判断');
                 this.$router.push('/payOrder');
+            },
+            switchPACategory(categroy) {
+                // 选中还是当前父级tab就结束
+                if (categroy.PAid == this.paSelected) {
+                    return;
+                }
+
+                this.paSelected = categroy.PAid;
+
+
+            },
+
+            chooseSECategory(categroy) {
+                // 选中还是当前二级级tab就置为0
+                if (categroy.PAid == this.secondSelected) {
+                    this.secondSelected = '0';
+                }else{
+                    this.secondSelected = categroy.PAid;
+                    this.getProductList(true);
+                }
+            },
+
+            // 初始分类及第一个父级分类的所有商品
+            initCategoryAndPrds(){
+                getProductCategory(1, 0).then(
+                    ({data: paData}) => {
+                        this.parentCategory = paData;
+                        this.paSelected = this.parentCategory[0].PAid;
+
+                        getProductCategory(2, this.paSelected).then(
+                            ({data: seData}) => {
+                                this.secondCategory = seData;
+                                this.secondSelected = '0';
+                                this.getProductList(true);
+                            }
+                        )
+                    }
+                )
+            },
+
+            /**
+             * 获取商品列表
+             * @param replace
+             */
+            getProductList(replace){
+                getProductList(2, this.secondSelected, 1, this.page, this.count).then(
+                    ({data: prdList})=>{
+                        this.productList = prdList;
+                    }
+                )
             }
         },
 
         mounted() {
-
-            // this.$toast({
-            //   message: 'success',
-            //   iconClass: 'm-toast-success',
-            //   duration: 30000
-            // })
+            this.initCategoryAndPrds();
         }
     }
 </script>
