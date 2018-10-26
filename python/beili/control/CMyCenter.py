@@ -270,7 +270,9 @@ class CMyCenter():
         if all == 1:
             all_address = get_model_return_list(self.smycenter.get_all_address(request.user.id))
             if not all_address:
-                return NO_ADDRESS
+                response = import_status("get_address_success", "OK")
+                response['data'] = []
+                return response
             address_list = []
             for address in all_address:
                 address = get_model_return_dict(self.smycenter.get_other_address(request.user.id, address['UAid']))
@@ -296,14 +298,18 @@ class CMyCenter():
         if isdefault == 1:
             address = get_model_return_dict(self.smycenter.get_default_address(request.user.id))
             if not address:
-                return NOT_FOUND_ADDRESS
+                response = import_status("get_address_success", "OK")
+                response['data'] = []
+                return response
             area = get_model_return_dict(self.smycenter.get_area_by_areaid(address['areaid']))
             city = get_model_return_dict(self.smycenter.get_city_by_cityid(area['cityid']))
             province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city['provinceid']))
         elif isdefault == 0:
             address = get_model_return_dict(self.smycenter.get_other_address(request.user.id, UAid))
             if not address:
-                return NO_ADDRESS
+                response = import_status("get_address_success", "OK")
+                response['data'] = []
+                return response
             area = get_model_return_dict(self.smycenter.get_area_by_areaid(address[0]['areaid']))
             city = get_model_return_dict(self.smycenter.get_city_by_cityid(area[0]['cityid']))
             province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city[0]['provinceid']))
