@@ -378,12 +378,12 @@ class CMyCenter():
             UAid = data.get('UAid')
         except:
             return PARAMS_ERROR
-        this_address = get_model_return_list(self.smycenter.get_other_address(request.user.id, UAid))
+        this_address = get_model_return_dict(self.smycenter.get_other_address(request.user.id, UAid))
         updatde_address = {}
         updatde_address['UAstatus'] = False
         result = self.smycenter.delete_useraddress(request.user.id, UAid, updatde_address)
         if result:
-            if this_address[0]['UAdefault']:
+            if this_address['UAdefault']:
                 try:
                     one_address = get_model_return_dict(self.smycenter.get_one_address())
                     if one_address:
