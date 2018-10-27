@@ -108,7 +108,5 @@ venv.bak/
 # config
 config/dbconfig.py
 config/Inforcode.py
-# common
-common/Inforsend.py
 # mac
 .DS_Store
