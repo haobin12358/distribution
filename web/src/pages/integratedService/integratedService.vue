@@ -119,7 +119,7 @@
             doLogout(){
                 this.$messagebox.confirm('确定退出系统?').then(
                     action => {
-                        localStorage.clear();
+                        localStorage.clear();   // todo 不应该请调所有缓存
                         this.$router.push('/login');
                     }
                 ).catch(evt=>{})
