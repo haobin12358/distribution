@@ -94,10 +94,10 @@
                 <input type="text" v-model.trim="code" class="form-item-input" style="width: 100px;"
                        placeholder="请输入验证码">
                 <!--<button class="form-item-code" :disabled="codeDisabledTime" @click="getCode">{{codeDisabledTime ?-->
-                    <!--`剩余${codeDisabledTime}s` :'获取'}}-->
+                <!--`剩余${codeDisabledTime}s` :'获取'}}-->
                 <!--</button>-->
-                <button class="form-item-code"  @click="getCode">
-                    获取
+                <button class="form-item-code" :disabled="lastEnableCodeSecond>0" @click="getCode">
+                    {{lastEnableCodeSecond>0 ?`剩余${lastEnableCodeSecond}s`: '获取'}}
                 </button>
             </div>
 
@@ -126,7 +126,7 @@
 </template>
 
 <script>
-    import {getInforcode,findBackPwd} from "src/api/api"
+    import {getInforcode, findBackPwd} from "src/api/api"
     import {setStore, getStore} from "src/common/js/mUtils"
     import {TOKEN} from "src/common/js/const"
 
@@ -140,18 +140,30 @@
                 newPassword: '',
                 newPasswordConfirm: '',
 
-                gotCodeTime: 0
+                timer: null,
+                lastEnableCodeSecond: 0,    //  下一次可用验证码倒计时
             }
         },
+
+        computed: {},
 
         components: {},
 
         methods: {
+            useCode() {
+                this.lastEnableCodeSecond = 60;
+                this.timer = setInterval(() => {
+                    if (this.lastEnableCodeSecond > 0)
+                        this.lastEnableCodeSecond--;
+                }, 1000);
+            },
             getCode() {
                 if (this.tel) {
+
                     getInforcode(this.tel).then(
                         data => {
                             if (data) {
+                                this.useCode();
                                 this.$toast('验证码已发送');
                             }
                         }
@@ -188,7 +200,7 @@
                 if (!checkMessage) {
                     findBackPwd(this.tel, this.code, this.newPassword).then(
                         data => {
-                            if(data){
+                            if (data) {
                                 this.$toast('密码修改成功');
                                 this.$router.push('/message')
                             }
@@ -201,8 +213,15 @@
             }
         },
 
-        created(){
-            if(getStore(TOKEN)){
+        destroyed(){
+            //  定时器解除
+            if(this.timer){
+                clearTimeout(this.timer)
+            }
+        },
+
+        created() {
+            if (getStore(TOKEN)) {
                 this.$router.push('/message');
             }
         }

@@ -97,7 +97,7 @@
             <mt-swipe-item v-for="item in 5" :key="item">
                 <img class="banner-img" src="/static/images/testbg.jpg" alt="">
             </mt-swipe-item>
-            <img class="go-setting" src="/static/images/setting.png" alt="">
+            <router-link to="/setting" tag="img" class="go-setting" src="/static/images/setting.png" ></router-link>
         </mt-swipe>
 
         <section class="user-info">

@@ -24,7 +24,6 @@
             if(!getStore(ALL_AREA)){
                 getAllArea().then(
                     ({data})=>{
-                        alert('获取所有区域')
                         setStore(ALL_AREA, data);
                     }
                 )

@@ -6,6 +6,7 @@
         .nav-bar {
             .fj();
             background: white;
+            margin-bottom: 10px;
 
             .nav-bar-item {
                 flex: 1;
@@ -22,11 +23,11 @@
         }
 
         .order-list {
-            background: white;
 
             .order-item {
                 padding: 16px 26px;
-                margin-top: 10px;
+                margin-bottom: 10px;
+                background: white;
 
                 .order-item-header {
                     padding-bottom: 16px;
@@ -52,6 +53,8 @@
 
                 .goods-list{
                     border-bottom: 1px solid @grayBorderColor;
+                    margin-bottom: 10px;
+
                     .goods-item{
                         padding: 36px 0;
                         .fj();
@@ -111,31 +114,32 @@
     <div class="container">
         <header-top :show-back="true"></header-top>
 
-        <ul class="nav-bar" v-model="selected" style="margin-bottom: 10px">
-            <li class="nav-bar-item" id="1">全部 (17)</li>
+        <ul class="nav-bar" >
+            <li v-for="item in orderType" :class="{'nav-bar-item': true, 'active': item.value == selectOrderType}"
+            @click="switchOrderType(item)">{{item.label}}</li>
         </ul>
 
         <ul class="order-list">
-            <li class="order-item">
+            <li v-for="item in orderListCmp" class="order-item">
                 <header class="order-item-header">
                     <p class="row-one">
-                        <span class="no">编号：15574654156431231321</span>
-                        <span class="status">已完成</span>
+                        <span class="no">编号：{{item.OIsn}}</span>
+                        <span class="status">{{item.OIstatusZh}}</span>
                     </p>
                     <p class="row-two">
-                        时间：2017-08-19 15：15：23
+                        时间：{{item.OIcreatetime}}
                     </p>
                 </header>
 
                 <ul class="goods-list">
-                    <li class="goods-item" v-for="item in 2">
+                    <li class="goods-item" v-for="product in item.product_list">
                         <section class="goods-img">
                             <img src="/static/images/testbg.jpg" alt="">
                         </section>
                         <section class="goods-description">
                             <p class="row-one">
-                                <span class="goods-name">蓓莉纸尿裤拉拉裤游泳裤</span>
-                                <span class="goods-price">￥216.00</span>
+                                <span class="goods-name">{{product.PRname}}</span>
+                                <span class="goods-price">￥{{product.PRprice}}</span>
                             </p>
                             <p class="row-two">
                                 ×3
@@ -144,8 +148,8 @@
                     </li>
                 </ul>
                 <footer class="order-item-total">
-                    <span class="total-num">共3商品</span>
-                    <span class="total-price">价值:￥644</span>
+                    <span class="total-num">共{{item.product_list.length}}件商品</span>
+                    <span class="total-price">价值:￥{{item.OImount}}</span>
                 </footer>
             </li>
         </ul>
@@ -154,7 +158,7 @@
 
 <script>
     import {getOrderList} from "src/api/api"
-    // import {ORDER_TYPE} from "src/common/js/const"
+    import LoadMore from "src/components/common/loadMore"
 
 
     export default {
@@ -162,29 +166,68 @@
 
         data() {
             return {
-                selected: 1,
+                selectOrderType: 0,
                 orderType: [
                     {
                         label: '全部',
                         value: 0,
                     },{
-                        label: '全部',
+                        label: '待发货',
                         value: 1,
                     },{
-                        label: '全部',
+                        label: '已发货',
                         value: 2,
                     },{
-                        label: '全部',
+                        label: '已完成',
                         value: 3,
                     },
-                ]
+                ],
+
+                orderList: [],
             }
         },
 
-        components: {},
+        computed:{
+            //  翻译状态
+            orderListCmp(){
+                let rst = this.orderList.map(item => {
+                    item.OIstatusZh = this.orderType.find(type => type.value == item.OIstatus).label;
+                    return item;
+                })
 
-        methods: {},
+                return rst;
+            },
+        },
 
+        components: {
+            LoadMore
+        },
+
+        methods: {
+            //  切换订单类型
+            switchOrderType(item){
+                if(this.selectOrderType != item.value){
+                    this.selectOrderType = item.value;
+                    getOrderList(this.selectOrderType).then(
+                        ({data}) => {
+                            this.orderList = data;
+                        }
+                    )
+
+                }
+            },
+            getOrderList(replace){
+
+            },
+        },
+
+        created(){
+            getOrderList(this.selectOrderType).then(
+                ({data}) => {
+                    this.orderList = data;
+                }
+            )
+        },
 
     }
 </script>
