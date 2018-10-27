@@ -12,11 +12,23 @@
 </template>
 
 <script>
+    import {setStore, getStore} from "src/common/js/mUtils"
+    import {TOKEN,ALL_AREA} from "src/common/js/const"
+    import {getAllArea} from "src/api/api"
 
     export default {
         name: 'App',
         created(){
             this.$store.commit('INIT_CART');
+            this.$store.commit('INIT_USER_INFO');
+            if(!getStore(ALL_AREA)){
+                getAllArea().then(
+                    ({data})=>{
+                        alert('获取所有区域')
+                        setStore(ALL_AREA, data);
+                    }
+                )
+            }
         }
     }
 </script>

@@ -69,16 +69,19 @@
             <mt-field label="国家地区" placeholder="请选择国家地区" v-model="city" :readonly="true"
                       :disableClear="true" @click.native="showCityPopup"></mt-field>
             <mt-field class="form-item" label="省市县" placeholder="请选择省市县" v-model="city" :readonly="true"
-                      :disableClear="true" @click.native="showCityPopup"></mt-field>
+                      :disableClear="true" @click.native="showCityPopup">
+                <img src="/static/images/arrow_down.png" style="width: 16px;height: 14px;" alt="">
+            </mt-field>
 
             <mt-field class="form-item" label="打款方式" placeholder="请选择打款方式" v-model="transferWay" :readonly="true"
-                      :disableClear="true" @click.native="showTransferWay"></mt-field>
+                      :disableClear="true" @click.native="showTransferWay">
+                <img src="/static/images/arrow_down.png" style="width: 16px;height: 14px;" alt="">
+            </mt-field>
             <mt-field class="form-item" label="支付宝" placeholder="请输入支付宝账号"></mt-field>
             <mt-field class="form-item" label="金额" placeholder="请输入打款金额" type="number"></mt-field>
             <mt-field class="form-item" label="打款日期" placeholder="请输入打款日期" :readonly="true" :disableClear="true"
                       v-model="date" @click.native="$refs.picker.open()"></mt-field>
             <head-img-field label="头像"></head-img-field>
-            <upload-field label="头像"></upload-field>
             <evidence-field label="打款凭证(1-2张)"></evidence-field>
         </section>
 

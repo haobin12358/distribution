@@ -19,5 +19,5 @@ export default {
         let {notread} =await getCompanyMessage(1);
 
         commit(SET_NOT_READ_COM_MSG, notread);
-    }
+    },
 }

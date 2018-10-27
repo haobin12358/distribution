@@ -107,7 +107,7 @@
 
             <section class="user-info-detail">
                 <p class="user-level">{{userInfo.USname}}</p>
-                <p class="user-sale">销售量：<span class="user-sale-num">{{userInfo.USmount}}</span> 件</p>
+                <p class="user-sale">销售量：<span class="user-sale-num">todo</span> 件</p>
             </section>
         </section>
 
@@ -167,21 +167,22 @@
         },
 
         computed:{
-            userInfo(){
-                let userInfoState = this.$store.state.userInfo;
-
-                if(!Object.keys(userInfoState).length){
-                    let userInfoSto = getStore(USER_INFO);
-
-                    if(userInfoSto){
-                        userInfoSto = JSON.parse(userInfoSto);
-                        this.setUserInfo(userInfoSto);
-                        return userInfoSto;
-                    }
-                }else{
-                    return userInfoState;
-                }
-            }
+            ...mapState(['userInfo']),
+            // userInfo(){
+            //     let userInfoState = this.$store.state.userInfo;
+            //
+            //     if(!Object.keys(userInfoState).length){
+            //         let userInfoSto = getStore(USER_INFO);
+            //
+            //         if(userInfoSto){
+            //             userInfoSto = JSON.parse(userInfoSto);
+            //             this.setUserInfo(userInfoSto);
+            //             return userInfoSto;
+            //         }
+            //     }else{
+            //         return userInfoState;
+            //     }
+            // }
         },
 
         components: {

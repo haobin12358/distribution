@@ -14,6 +14,7 @@
                 text-align: center;
 
                 &.active {
+                    color: @mainColor;
                     border-bottom: 3px solid @mainColor;
                 }
             }
@@ -110,12 +111,9 @@
     <div class="container">
         <header-top :show-back="true"></header-top>
 
-        <mt-navbar v-model="selected" style="margin-bottom: 10px">
-            <mt-tab-item id="1">全部 (17)</mt-tab-item>
-            <mt-tab-item id="2">代发货 (1)</mt-tab-item>
-            <mt-tab-item id="3">已发货 (1)</mt-tab-item>
-            <mt-tab-item id="4">已完成 (1)</mt-tab-item>
-        </mt-navbar>
+        <ul class="nav-bar" v-model="selected" style="margin-bottom: 10px">
+            <li class="nav-bar-item" id="1">全部 (17)</li>
+        </ul>
 
         <ul class="order-list">
             <li class="order-item">
@@ -155,18 +153,39 @@
 </template>
 
 <script>
+    import {getOrderList} from "src/api/api"
+    // import {ORDER_TYPE} from "src/common/js/const"
+
+
     export default {
         name: "order",
 
         data() {
             return {
-                selected: 1
+                selected: 1,
+                orderType: [
+                    {
+                        label: '全部',
+                        value: 0,
+                    },{
+                        label: '全部',
+                        value: 1,
+                    },{
+                        label: '全部',
+                        value: 2,
+                    },{
+                        label: '全部',
+                        value: 3,
+                    },
+                ]
             }
         },
 
         components: {},
 
         methods: {},
+
+
     }
 </script>
 
