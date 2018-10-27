@@ -310,17 +310,17 @@ class CMyCenter():
                 response = import_status("get_address_success", "OK")
                 response['data'] = []
                 return response
-            area = get_model_return_dict(self.smycenter.get_area_by_areaid(address[0]['areaid']))
-            city = get_model_return_dict(self.smycenter.get_city_by_cityid(area[0]['cityid']))
-            province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city[0]['provinceid']))
+            area = get_model_return_dict(self.smycenter.get_area_by_areaid(address['areaid']))
+            city = get_model_return_dict(self.smycenter.get_city_by_cityid(area['cityid']))
+            province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city['provinceid']))
         data = {}
-        data['provincename'] = province[0]['provincename']
-        data['cityname'] = city[0]['cityname']
-        data['areaname'] = area[0]['areaname']
-        data['details'] = address[0]['UAdetails']
-        data['username'] = address[0]['UAname']
-        data['userphonenum'] = address[0]['UAphonenum']
-        data['uaid'] = address[0]['UAid']
+        data['provincename'] = province['provincename']
+        data['cityname'] = city['cityname']
+        data['areaname'] = area['areaname']
+        data['details'] = address['UAdetails']
+        data['username'] = address['UAname']
+        data['userphonenum'] = address['UAphonenum']
+        data['uaid'] = address['UAid']
         data['createtime'] = get_web_time_str(address['UAcreatetime'])
         response = import_status("get_address_success", "OK")
         response['data'] = data
