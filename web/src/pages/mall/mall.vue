@@ -11,10 +11,10 @@
 
         .pay-order {
             width: 129px;
-            height: 36px;
+            height: 46px;
             border: 1px solid rgba(255, 255, 255, 1);
             border-radius: 20px;
-            .fontc(36px);
+            .fontc(46px);
             .sc(24px, white);
             background: @mainColor;
         }
@@ -207,7 +207,7 @@
     import {getProductCategory, getProductList} from "src/api/api"
     import LoadMore from "src/components/common/loadMore"
     import common from "src/common/js/common"
-    import {mapMutations, mapState} from "vuex"
+    import {mapMutations, mapState,mapGetters} from "vuex"
 
 
     export default {
@@ -249,7 +249,9 @@
 
                     return rst;
                 }
-            })
+            }),
+            ...mapGetters(['usefulCartList']),
+
         },
 
         methods: {
@@ -268,8 +270,11 @@
                 }
             },
             gotoPayOrder() {
-                console.log('购物车判断');
-                this.$router.push('/payOrder');
+                if(this.usefulCartList.length){
+                    this.$router.push('/payOrder');
+                }else{
+                    this.$toast('请选几样商品加入购物车!');
+                }
             },
 
             switchPACategory(categroy) {
@@ -335,6 +340,10 @@
 
                 this.page++;
             },
+        },
+
+        destroyed() {
+            window.removeEventListener('scroll', this.touchMove);
         },
 
         async mounted() {

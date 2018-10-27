@@ -3,11 +3,13 @@ import {
     SET_AGENT_MESSAGE,
     SET_COMPANY_MESSAGE,
     SET_USER_INFO,
+    INIT_USER_INFO,
     SET_SHOW_AGENT,
     SET_NOT_READ_COM_MSG,
     ADD_CART,
     REDUCE_CART,
     INIT_CART,
+    SET_CHOOSE_ADDRESS,
 } from './mutation-types'
 import {TOKEN, USER_INFO, NOT_READ_COM_MSGS, CART_LIST} from "src/common/js/const"
 import {setStore, getStore} from "src/common/js/mUtils"
@@ -25,6 +27,9 @@ export default {
     [SET_USER_INFO](state, payload) {
         setStore(USER_INFO, payload);
         state.userInfo = payload;
+    },
+    [INIT_USER_INFO](state, payload) {
+        state.userInfo =JSON.parse(getStore(USER_INFO)) ;
     },
     [SET_SHOW_AGENT](state, payload) {
         state.showAgent = payload;
@@ -62,10 +67,13 @@ export default {
     [INIT_CART](state, payload) {
         let cartListSto = getStore(CART_LIST);
 
-        if(cartListSto){
-            state.cartList =JSON.parse(cartListSto);
+        if (cartListSto) {
+            state.cartList = JSON.parse(cartListSto);
 
         }
+    },
+    [SET_CHOOSE_ADDRESS](state, payload) {
+            state.chooseAddress = payload || null;
     },
 
 

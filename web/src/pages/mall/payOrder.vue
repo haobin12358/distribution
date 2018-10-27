@@ -2,16 +2,32 @@
     @import "../../common/css/index";
 
     .pay-order-container {
+        .least-full-screen();
 
         .choose-address {
             padding: 18px 36px 28px 30px;
             .fj();
             align-items: center;
             background: white;
+            margin-bottom: 10px;
 
             .choose-address-hd {
                 .wl(24px, 35px);
+                margin-right: 18px;
             }
+
+            .address-detail {
+                flex: 1;
+
+                .row-one {
+                    margin-bottom: 10px;
+                }
+            }
+
+            .no-address-tip {
+                color: @mainColor;
+            }
+
             .choose-address-ft {
                 .wl(15px, 26px);
 
@@ -98,18 +114,18 @@
                 padding: 10px 0;
                 border-bottom: 1px solid @grayBorderColor;
 
-                &:last-of-type{
+                &:last-of-type {
                     border-bottom: none;
                 }
             }
         }
 
-        .confirm-pay-wrap{
+        .confirm-pay-wrap {
             margin-top: 60px;
             margin-bottom: 186px;
             .fj(center);
 
-            .confirm-pay-btn{
+            .confirm-pay-btn {
                 .wl(600px, 90px);
                 background: linear-gradient(180deg, @mainLightColor 0%, @mainColor 100%);
                 .sc(38px, white);
@@ -127,39 +143,44 @@
         <header-top title="结算" :showBack="true">
         </header-top>
 
-        <section class="choose-address">
+        <router-link to="/addressList?isChoose=true" tag="section" class="choose-address">
             <img class="choose-address-hd" src="/static/images/position.png" alt="">
 
-            <section class="address-detail">
+            <section v-if="defaultAddress" class="address-detail">
                 <p class="row-one">
-                    <span>xx</span>
-                    <span>15500000000</span>
+                    <span>{{defaultAddress.username}}</span>
+                    <span>{{defaultAddress.userphonenum}}</span>
                 </p>
                 <p class="row-two">
-                    浙江省 杭州市 江干区 九堡九润公寓1幢1单元1101
+                    {{defaultAddress.provincename}}-{{defaultAddress.cityname}}-{{defaultAddress.areaname}}
+                    {{defaultAddress.details}}
                 </p>
             </section>
 
+            <section v-else class="no-address-tip">
+                前往选择或新增地址
+            </section>
+
             <img class="choose-address-ft" src="/static/images/arrow.png" alt="">
-        </section>
+        </router-link>
 
 
         <section class="goods-list-container">
             <ul class="goods-list">
-                <li class="goods-item" v-for="item in 6">
+                <li class="goods-item" v-for="item in usefulCartList">
                     <section class="goods-img-wrap">
-                        <img src="/static/images/testbg.jpg" alt="">
+                        <img :src="item.PRpic" alt="">
                     </section>
 
                     <section class="goods-item-description">
                         <p class="goods-name">
-                            纸尿裤
+                            {{item.PRname}}
                         </p>
                         <p class="goods-price">
-                            ￥216.00
+                            ￥{{item.PRprice}}
                         </p>
                         <p class="goods-shop-num">
-                            ×3
+                            ×{{item.PRnum}}
                         </p>
                     </section>
                 </li>
@@ -167,7 +188,7 @@
 
             <section class="remark">
                 <span class="remark-label">买家备注:</span>
-                <input type="text" class="remark-input" placeholder="文化衫请备注尺码">
+                <input type="text" v-model="remark" class="remark-input" placeholder="文化衫请备注尺码">
             </section>
 
             <p class="total-num">共几件商品</p>
@@ -176,53 +197,81 @@
         <ul class="cell-list">
             <li class="cell-item">
                 <div class="cell-left">商品金额</div>
-                <div class="cell-right">￥100元</div>
+                <div class="cell-right">￥{{cartTotalPrice}}元</div>
             </li>
             <li class="cell-item">
                 <div class="cell-left">快递费用</div>
-                <div class="cell-right">￥100元</div>
+                <div class="cell-right">￥{{payDeliverFee}}元</div>
             </li>
             <li class="cell-item">
                 <div class="cell-left">合计需付</div>
-                <div class="cell-right">￥100元</div>
+                <div class="cell-right">￥{{cartTotalPrice}}元</div>
             </li>
         </ul>
 
         <ul class="cell-list">
             <li class="cell-item">
-                <div class="cell-left">可用贷款</div>
-                <div class="cell-right">￥100元</div>
-            </li>
-            <li class="cell-item">
                 <div class="cell-left">可用余额</div>
-                <div class="cell-right">￥100元</div>
+                <div class="cell-right">￥{{userInfo.USmount}}元</div>
             </li>
         </ul>
 
         <section class="confirm-pay-wrap">
-            <button class="confirm-pay-btn">
-                确定下单
+            <button class="confirm-pay-btn" @click="confirmPayOrder">
+                确 定 下 单
             </button>
         </section>
     </section>
 </template>
 
 <script>
-    import BScroll from 'better-scroll'
+    import {mapState, mapGetters} from "vuex"
+    import {createOrder, getUserAddress} from "src/api/api"
+
 
     export default {
         name: "payOrder",
 
         data() {
-            return {}
+            return {
+                defaultAddress: null,
+                remark: '', // 备注
+            }
+        },
+
+        computed: {
+            ...mapState(['userInfo']),
+            ...mapGetters(['usefulCartList', 'cartTotalPrice', 'payDeliverFee']),
         },
 
         components: {},
 
-        methods: {},
+        methods: {
 
-        mounted() {
+            confirmPayOrder() {
+                if (this.defaultAddress) {
+                    this.$messagebox.confirm(`需支付${this.cartTotalPrice}元,确认下单?`).then(
+                        () => {
+                            createOrder(this.defaultAddress.uaid, this.usefulCartList,
+                                this.remark, this.payDeliverFee, this.cartTotalPrice).then(
+                                (data) => {
+                                    console.log(data);
+                                }
+                            )
+                        }
+                    )
 
+                } else {
+                    this.$toast('请选择或新增地址!');
+                }
+
+            }
+        },
+
+        async mounted() {
+            let {data} = await getUserAddress(1, 0, '');
+
+            this.defaultAddress = data;  //  todo 测试没有地址
         }
     }
 </script>

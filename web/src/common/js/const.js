@@ -7,4 +7,11 @@ export const AM_TYPE = {
 };
 export const NOT_READ_COM_MSGS = 'NOT_READ_COM_MSGS'
 export const CART_LIST = 'CART_LIST'
+export const ORDER_TYPE= {
+    all: 0,
+    waitDelivery: 1,
+    delivered: 2,
+    complete: 3,
+}
+export const ALL_AREA = 'ALL_AREA'
 

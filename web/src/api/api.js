@@ -64,6 +64,15 @@ export const getUserBasicInfo = () => myAxios('/mycenter/get_user_basicinfo', {
     }
 });
 /**
+ * 获取用户全部信息
+ * @returns {Promise<*|undefined>}
+ */
+export const getUserTotalInfo = () => myAxios('/mycenter/get_user_totalinfo', {
+    params: {
+        token: getStore(TOKEN),
+    }
+});
+/**
  * 获取验证码
  * @param phone
  * @returns {Promise<*|undefined>}
@@ -105,12 +114,102 @@ export const updatePwd = (oldpassword, newpassword) => myAxios('/user/update_pwd
  * @param newpassword
  * @returns {Promise<*|undefined>}
  */
-export const findBackPwd = (usphonenum,iccode,newpassword) => myAxios('/user/findback_pwd', {
+export const findBackPwd = (usphonenum, iccode, newpassword) => myAxios('/user/findback_pwd', {
     method: 'post',
     data: {
         usphonenum,
         iccode,
         newpassword
+    }
+});
+
+/**
+ * 获取收货地址
+ * @param isdefault
+ * @param all
+ * @param UAid
+ * @returns {Promise<*|undefined>}
+ */
+export const getUserAddress = (isdefault, all, UAid) => myAxios('/mycenter/get_useraddress', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN),
+    },
+    data: {
+        isdefault,
+        all,
+        UAid
+    }
+});
+//  获取所有地区
+export const getAllArea = (isdefault, all, UAid) => myAxios('/mycenter/get_all_area', {
+    showIndicator: false,
+});
+/**
+ * 新增收货地址
+ * @param USname
+ * @param USphonenum
+ * @param details
+ * @param areaid
+ * @returns {Promise<*|undefined>}
+ */
+export const addUserAddress = (USname, USphonenum, details, areaid) => myAxios('/mycenter/add_useraddress', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN),
+    },
+    data: {
+        USname,
+        USphonenum,
+        details,
+        areaid,
+    }
+});
+/**
+ * 修改收货地址
+ * @param UAid
+ * @param USname
+ * @param USphonenum
+ * @param details
+ * @param areaid
+ * @returns {Promise<*|undefined>}
+ */
+export const updateUserAddress = (UAid, USname, USphonenum, details, areaid) => myAxios('/mycenter/update_useraddress', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN),
+    },
+    data: {
+        UAid,
+        USname,
+        USphonenum,
+        details,
+        areaid,
+    }
+});
+
+export const deleteUserAddress = (UAid, USname, USphonenum, details, areaid) => myAxios('/mycenter/delete_useraddress', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN),
+    },
+    data: {
+        UAid,
+        USname,
+        USphonenum,
+        details,
+        areaid,
+    }
+});
+
+export const changeDefaultAddress = (old_defaultid, new_defaultid) => myAxios('/mycenter/change_default', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN),
+    },
+    data: {
+        old_defaultid,
+        new_defaultid,
     }
 });
 
@@ -178,7 +277,7 @@ export const getProductCategory = (PAtype, PAid) => myAxios('/product/get_produc
  * @param page_size
  * @returns {Promise<*|undefined>}
  */
-export const getProductList = (PAtype, PAid,PRstatus,page_num,page_size = 10) => myAxios('/product/get_product_list', {
+export const getProductList = (PAtype, PAid, PRstatus, page_num, page_size = 10) => myAxios('/product/get_product_list', {
     params: {
         PAtype,
         PAid,
@@ -197,6 +296,46 @@ export const getProduct = (PRid) => myAxios('/product/get_product', {
         PRid
     }
 });
+
+/**
+ * 创建订单
+ * @param UAid  地址id
+ * @param product_list  商品列表
+ * @param OInote    备注
+ * @param PRlogisticsfee    快递费
+ * @param totalprice    总价
+ * @returns {Promise<*|undefined>}
+ */
+export const createOrder = (UAid,product_list,OInote,PRlogisticsfee,totalprice) => myAxios('/order/create_order', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN),
+    },
+    data:{
+        UAid,
+        product_list,
+        OInote,
+        PRlogisticsfee,
+        totalprice,
+    }
+});
+/**
+ * 获取订单列表
+ * @param type  0为全部订单，1已待发货，2为已发货，3为已完成
+ * @returns {Promise<*|undefined>}
+ */
+export const getOrderList = (type) => myAxios('/order/get_order_list', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN),
+    },
+    data: {
+        type,
+    }
+});
+
+
+
 
 
 
