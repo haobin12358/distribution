@@ -13,9 +13,11 @@ class SMessage(SBase):
 
     @close_session
     def get_agentMessage_by_usid(self, usid, page, count):
-        return self.session.query(AgentMessage.USid, AgentMessage.AMdate, AgentMessage.AMid, \
+        list =  self.session.query(AgentMessage.USid, AgentMessage.AMdate, AgentMessage.AMid, \
                                   AgentMessage.AMcontent, AgentMessage.AMtype).filter_by(USid=usid) \
             .order_by(AgentMessage.AMdate.desc()).offset((page - 1) * count).limit(count)
+        mount = self.session.query(func.count(AgentMessage.USid)).filter_by(USid=usid).scalar()
+        return list, mount
 
     @close_session
     def get_alreadyMessage_by_usid(self, usid):

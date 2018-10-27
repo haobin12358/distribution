@@ -11,6 +11,7 @@ from common.import_status import import_status
 from common.timeformat import get_db_time_str
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
 from service.SGoods import SGoods
+from common.timeformat import get_web_time_str
 import platform
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -33,21 +34,34 @@ class CGoods():
         except:
             return PARAMS_MISS
         if int(PAid) == 0:
-            product_list = get_model_return_list(
-                self.sgoods.get_product_list(page_size, page_num, None, PRstatus))
+            return_list, mount = self.sgoods.get_product_list(page_size, page_num, None, PRstatus)
+            return_list = get_model_return_list(return_list)
         elif PAtype == 1:
             paid_list = get_model_return_list(self.sgoods.get_childid(int(args.get("PAid"))))
             product_list = []
             for row in paid_list:
-                product_list.append(get_model_return_list(
-                    self.sgoods.get_product_list(page_size, page_num, row['PAid'], PRstatus)))
+                product_list = product_list + (get_model_return_list(self.sgoods.get_type1_product(row['PAid'], PRstatus)))
+            mount = len(product_list)
+            page = mount/page_size
+            if page == 0 or page == 1 and mount%page_num == 0:
+                return_list = product_list[0:]
+            else:
+                if ((mount - (page_num - 1) * page_size)/page_size) >= 1 and \
+                        ((mount - (page_num - 1) * page_size)%page_size) > 0:
+                    return_list = product_list[((page_num - 1) * page_size):(page_num * page_size)]
+                else:
+                    return_list = product_list[((page_num - 1) * page_size):]
+
         elif PAtype == 2:
-            product_list = get_model_return_list(
-                self.sgoods.get_product_list(page_size, page_num, PAid, PRstatus))
+            return_list, mount = self.sgoods.get_product_list(page_size, page_num, PAid, PRstatus)
+            return_list = get_model_return_list(return_list)
         else:
             return PARAMS_MISS
+        for product in return_list:
+            product['PRcreatetime'] = get_web_time_str(product['PRcreatetime'])
         response = import_status("get_product_list_success", "OK")
-        response["data"] = product_list
+        response["data"] = return_list
+        response['mount'] = mount
         return response
 
     @verify_token_decorator
