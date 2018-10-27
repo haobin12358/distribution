@@ -66,8 +66,8 @@ class CUser():
         return data
 
     def findback_pwd(self):
-        data = request.json
         try:
+            data = request.json
             phonenum = data.get('usphonenum')
             iccode = data.get('iccode')
             newpassword = data.get('newpassword')
@@ -78,7 +78,7 @@ class CUser():
         codeinfo = get_model_return_dict(self.smycenter.get_inforcode_by_usphonenum(phonenum))
         if not codeinfo:
             return SYSTEM_ERROR
-        if iccode == codeinfo['ICcode']:
+        if iccode != codeinfo['ICcode']:
             return INFORCODE_WRONG
         user = get_model_return_dict(self.suser.getuser_by_phonenum(phonenum))
         if not user:

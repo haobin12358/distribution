@@ -35,7 +35,8 @@ class CMessage():
         except Exception as e:
             return PARAMS_ERROR
         from common.timeformat import get_web_time_str
-        message_list = get_model_return_list(self.smessage.get_agentMessage_by_usid(request.user.id, page, count))
+        message_list, mount = self.smessage.get_agentMessage_by_usid(request.user.id, page, count)
+        message_list = get_model_return_list(message_list)
         message_return = []
         for message in message_list:
             data = {}
@@ -47,6 +48,7 @@ class CMessage():
             message_return.append(data)
         data = import_status('get_agentmessage_list_success', 'OK')
         data['data'] = message_return
+        data['mount'] = mount
         return data
 
     @verify_token_decorator
@@ -97,6 +99,7 @@ class CMessage():
             data = import_status('get_commessage_list_success', 'OK')
             data['notread'] = notread_count
             data['data'] = return_message_list
+            data['mount'] = int(comMessage_num)
             return data
 
     @verify_token_decorator

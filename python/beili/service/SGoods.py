@@ -3,6 +3,7 @@ import sys
 import os
 from service.SBase import SBase, close_session
 from models.model import Product, ProductCategory
+from sqlalchemy import func
 sys.path.append(os.path.dirname(os.getcwd()))
 
 class SGoods(SBase):
@@ -13,20 +14,27 @@ class SGoods(SBase):
     @close_session
     def get_product_list(self, page_size, page_num, PAid=None, PRstatus=None):
         product_list = self.session.query(Product.PRpic, Product.PRname, Product.PRoldprice, Product.PRprice,
-                                          Product.PRstock, Product.PRid)
+                Product.PRstock, Product.PRid, Product.PRlogisticsfee,
+                Product.PRcreatetime).filter_by(PRstatus=PRstatus).order_by(Product.PRcreatetime.desc())
+        mount = self.session.query(func.count(Product.PAid)).filter_by(PRstatus=PRstatus).scalar()
         if PAid:
             product_list = product_list.filter_by(PAid=PAid)
-        if PRstatus:
-            product_list = product_list.filter_by(PRstatus=PRstatus)
+            mount = self.session.query(func.count(Product.PAid)).filter_by(PAid=PAid).filter_by(PRstatus=PRstatus).scalar()
         product_list = product_list.limit(page_size).offset((page_num - 1) * page_size).all()
-        return product_list
+        return product_list, mount
+
+    @close_session
+    def get_type1_product(self, PAid=None, PRstatus=None):
+
+        return self.session.query(Product.PRpic, Product.PRname, Product.PRoldprice, Product.PRprice, Product.PRcreatetime,
+                Product.PRlogisticsfee,Product.PRstock, Product.PRid).filter_by(PRstatus=PRstatus).filter_by(PAid=PAid)
+
 
     @close_session
     def get_product(self, PRid):
         return self.session.query(Product.PRstock, Product.PRstatus, Product.PRprice, Product.PRoldprice,
-                                  Product.PRname, Product.PRpic, Product.PRoldprice, Product.PAid, Product.PRcreatetime,
-                                  Product.PRlogisticsfee)\
-            .filter_by(PRid=PRid).first()
+                Product.PRname, Product.PRpic, Product.PRoldprice, Product.PAid, Product.PRcreatetime,
+                Product.PRlogisticsfee).filter_by(PRid=PRid).first()
 
     @close_session
     def update_product(self, PRid, product):

@@ -296,8 +296,8 @@ if __name__ == "__main__":
         drop()
 
     else:
-        # databse_deal().create_database()
-        # create()
+        databse_deal().create_database()
+        create()
         data = MakeData()
         print "OK!"
         print('start add data')
