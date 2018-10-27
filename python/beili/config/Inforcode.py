@@ -3,9 +3,9 @@
 ACCESS_KEY_ID = "LTAIRU515X6EotSQ"
 ACCESS_KEY_SECRET = "RkYdmk6QYVw4Oq8a14nCpU9o6olHh2"
 # 数字签名
-SignName = "etech研发团队"
+SignName = "蓓莉云仓"
 # 短信模板
-TemplateCode = "SMS_126866081"
+TemplateCode = "SMS_149097994"
 
 # 小程序id和secret
 APP_ID = "wx35ed4f2e78e42ecf"
