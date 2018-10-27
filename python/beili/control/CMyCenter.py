@@ -379,6 +379,8 @@ class CMyCenter():
         except:
             return PARAMS_ERROR
         this_address = get_model_return_dict(self.smycenter.get_other_address(request.user.id, UAid))
+        if not this_address:
+            return  NOT_FOUND_ADDRESS
         updatde_address = {}
         updatde_address['UAstatus'] = False
         result = self.smycenter.delete_useraddress(request.user.id, UAid, updatde_address)
@@ -395,4 +397,4 @@ class CMyCenter():
             response = import_status("delete_address_success", "OK")
             return response
         else:
-            return SYSTEM_ERROR
+            return NOT_FOUND_ADDRESS

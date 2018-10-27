@@ -7,7 +7,7 @@ import random
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR, STOCK_NOT_ENOUGH,\
-        NO_ENOUGH_MOUNT, NO_BAIL
+        NO_ENOUGH_MOUNT, NO_BAIL, PRlogisticsfee_WRONG, TOTAL_PRICE_WRONG
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
@@ -19,6 +19,7 @@ from service.SMessage import SMessage
 from service.SOrder import SOrder
 from service.SGoods import SGoods
 from service.SMyCenter import SMyCenter
+from service.DBSession import db_session
 import platform
 from common.beili_error import stockerror, dberror
 from datetime import datetime
@@ -36,12 +37,13 @@ class COrder():
 
     @verify_token_decorator
     def create_order(self):
+        sessions = db_session
         if is_tourist():
             return TOKEN_ERROR
         data = request.json
         if not data:
             return PARAMS_MISS
-        params_list = ["UAid", "product_list", "OInote"]
+        params_list = ["UAid", "product_list", "OInote", "PRlogisticsfee", "totalprice"]
         for params in params_list:
             if params not in data:
                 return PARAMS_MISS
@@ -49,8 +51,16 @@ class COrder():
             UAid = data['UAid']
             OInote = data['OInote']
             product_list = data['product_list']
+            PRlogisticsfee = data['PRlogisticsfee']
+            totalprice = data['totalprice']
         except:
             return PARAMS_ERROR
+        if len(product_list) > 1:
+            real_PRlogisticsfee = 0
+        else:
+            real_PRlogisticsfee = get_model_return_dict(self.sgoods.get_product(product_list[0]['PRid']))['PRlogisticsfee']
+        if real_PRlogisticsfee != PRlogisticsfee:
+            return PRlogisticsfee_WRONG
         user_info = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
         if not user_info:
             return SYSTEM_ERROR
@@ -65,7 +75,9 @@ class COrder():
                 mount = mount + num * price['PRprice']
                 product['PRprice'] = price['PRprice']
                 new_list.append(product)
-            if user_info['USmount'] < mount:
+            if totalprice != totalprice:
+                return TOTAL_PRICE_WRONG
+            if user_info['USmount'] < mount + PRlogisticsfee:
                 return NO_ENOUGH_MOUNT
         except:
             return SYSTEM_ERROR
@@ -81,7 +93,7 @@ class COrder():
         except Exception as e2:
             print e2.message
             return SYSTEM_ERROR
-        result = self.sorder.add_order(OIid, OIsn, request.user.id, OInote, mount, UAid, OIcreatetime)
+        result = self.sorder.add_order(OIid, OIsn, request.user.id, OInote, mount, UAid, OIcreatetime, PRlogisticsfee)
         if not result:
             raise dberror
         for product in new_list:
@@ -89,7 +101,7 @@ class COrder():
             PRid = product['PRid']
             PRnum = product['PRnum']
             PRname = product['PRname']
-            PRimage = product['PRimage']
+            PRimage = get_model_return_dict(self.sgoods.get_product(PRid))['PRimage']
             PRprice = product['PRprice']
             result = self.sorder.add_orderproductinfo(OPIid, OIid, PRid, PRname, PRprice, PRnum, PRimage)
             if not result:
