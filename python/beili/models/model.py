@@ -384,7 +384,7 @@ class AlreadyRead(Base):
     已读消息记录表
     """
     __tablename__ = 'alreadyread'
-    ARid = Column(String(64), primary_key=True)  # 已读消息id
+    ARid = Column(String(64))  # 已读消息id
     USid = Column(String(64))  # 已读消息用户id
 
 
