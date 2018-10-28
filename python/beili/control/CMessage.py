@@ -121,7 +121,7 @@ class CMessage():
         else:
             id = request.user.id
             try:
-                self.smessage.insert_alreadyread(messageid, request.user.id)
+                self.smessage.insert_alreadyread(str(uuid.uuid4()), messageid, request.user.id)
             except Exception as e:
                 print 'repeat'
             return data

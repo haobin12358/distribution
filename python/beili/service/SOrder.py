@@ -81,7 +81,7 @@ class SOrder(SBase):
                                   , OrderProductInfo.PRprice).filter(OrderProductInfo.OIid == oiid).all()
 
     @close_session
-    def get_order_details(self):
+    def get_order_details(self, oisn):
         return self.session.query(OrderInfo.OIid, OrderInfo.OIsn, OrderInfo.OIcreatetime, OrderInfo.OIstatus,\
                                   OrderInfo.OIlogisticsfee, OrderInfo.USid, OrderInfo.UAid, OrderInfo.OInote\
-                                  ,OrderInfo.OImount, OrderInfo.OIcreatetime)
+                                  , OrderInfo.OImount, OrderInfo.OIcreatetime).filter(OrderInfo.OIsn == oisn).first()

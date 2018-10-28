@@ -184,9 +184,11 @@ class COrder():
         if not data:
             return PARAMS_MISS
         try:
-            OIid = int(data.get('OIid'))
+            OIsn = int(data.get('OIsn'))
         except:
             return PARAMS_ERROR
+        detail = get_model_return_dict(self.sorder.get_order_details(OIsn))
+
 
 
 

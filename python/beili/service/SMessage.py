@@ -39,9 +39,10 @@ class SMessage(SBase):
                                  ComMessage.CMfile).filter_by(CMid=cmid).first()
 
     @close_session
-    def insert_alreadyread(self, messageid, usid):
+    def insert_alreadyread(self, id, messageid, usid):
         record = AlreadyRead()
-        record.ARid = messageid
+        record.ARid = id
+        record.ARmessageid = messageid
         record.USid = usid
         self.session.add(record)
 
