@@ -89,7 +89,7 @@ class SMyCenter(SBase):
 
     @close_session
     def get_default_address(self, usid):
-        return self.session.query(UserAddress.UAdefault, UserAddress.UAid\
+        return self.session.query(UserAddress.UAdefault, UserAddress.UAid, UserAddress.cityid\
                                   , UserAddress.UAname, UserAddress.UAcreatetime, UserAddress.UAphonenum\
                                   , UserAddress.UAdetails, UserAddress.areaid).filter(UserAddress.USid == usid)\
                                   .filter(UserAddress.UAdefault == 1).filter(UserAddress.UAstatus == 1).first()

@@ -176,3 +176,17 @@ class COrder():
             response['data'] = order_return_list
             return response
 
+    @verify_token_decorator
+    def get_order_details(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        data = request.json
+        if not data:
+            return PARAMS_MISS
+        try:
+            OIid = int(data.get('OIid'))
+        except:
+            return PARAMS_ERROR
+
+
+

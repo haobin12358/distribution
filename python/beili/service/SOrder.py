@@ -79,3 +79,8 @@ class SOrder(SBase):
     def get_product_list(self, oiid):
         return self.session.query(OrderProductInfo.PRname, OrderProductInfo.PRimage, OrderProductInfo.PRnum\
                                   , OrderProductInfo.PRprice).filter(OrderProductInfo.OIid == oiid).all()
+
+    @close_session
+    def get_order_details(self):
+        return self.session.query(OrderInfo.OIid, OrderInfo.OIsn, OrderInfo.OIcreatetime, OrderInfo.OIstatus,\
+                                  OrderInfo.OIlogisticsfee, OrderInfo)
