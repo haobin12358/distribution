@@ -111,7 +111,7 @@ class CMyCenter():
         if platform.system() == "Windows":
             rootdir = "D:/task"
         else:
-            rootdir = "Users/fx/opt/beili/imgs/mycenter/"
+            rootdir = "/opt/beili/file/mycenter/"
         if not os.path.isdir(rootdir):
             os.makedirs(rootdir)
         lastpoint = str(files.filename).rindex(".")
@@ -122,11 +122,10 @@ class CMyCenter():
         files.save(filepath)
         response = import_status("updata_headimg_success", "OK")
         # url = Inforcode.ip + Inforcode.LinuxImgs + "/" + filename
-        url = QRCODEHOSTNAME + "/imgs/mycenter/" + filename
+        url = QRCODEHOSTNAME + "/file/mycenter/" + filename
         user_update = {}
         user_update['USheadimg'] = url
         self.suser.update_user_by_uid(request.user.id, user_update)
-        # print(url)
         response["data"] = url
         return response
 
