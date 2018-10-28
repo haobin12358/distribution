@@ -345,7 +345,7 @@ class CMyCenter():
                 return response
             area = get_model_return_dict(self.smycenter.get_area_by_areaid(address['areaid']))
             if area:
-                city = get_model_return_dict(self.smycenter.get_city_by_cityid(area['cityid']))
+                city = get_model_return_dict(self.smycenter.get_city_by_cityid(address['cityid']))
                 province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city['provinceid']))
                 data = {}
                 data['provincename'] = province['provincename']
