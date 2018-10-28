@@ -178,3 +178,8 @@ TOTAL_PRICE_WRONG = {
     "status_code": 405021,
     "message": "商品总价核对出错"
 }
+NOT_FOUND_FILE = {
+    "status": 405,
+    "status_code": 405022,
+    "message": "图片未找到"
+}
