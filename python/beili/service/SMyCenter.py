@@ -61,7 +61,7 @@ class SMyCenter(SBase):
 
     @close_session
     def get_all_address(self, usid):
-        return self.session.query(UserAddress.UAdefault, UserAddress.UAid\
+        return self.session.query(UserAddress.UAdefault, UserAddress.UAid, UserAddress.cityid\
                                   , UserAddress.UAname, UserAddress.UAcreatetime, UserAddress.UAphonenum\
                                   , UserAddress.UAdetails, UserAddress.areaid).filter(UserAddress.USid == usid)\
                                   .filter(UserAddress.UAstatus == 1).all()
@@ -73,7 +73,7 @@ class SMyCenter(SBase):
             .filter_by(USid=usid, UAdefault=True, UAstatus=True).first()
 
     @close_session
-    def add_address(self, uaid, usid, usname, usphonenum, usdetails, areaid, uadefault, createtime):
+    def add_address(self, uaid, usid, usname, usphonenum, usdetails, areaid, uadefault, createtime, cityid):
         """添加地址地址"""
         address = UserAddress()
         address.UAid = uaid
@@ -84,6 +84,7 @@ class SMyCenter(SBase):
         address.areaid = areaid
         address.UAdefault = uadefault
         address.UAcreatetime = createtime
+        address.cityid = cityid
         self.session.add(address)
 
     @close_session
@@ -95,7 +96,7 @@ class SMyCenter(SBase):
 
     @close_session
     def get_other_address(self, usid, uaid):
-        return self.session.query(UserAddress.UAdefault, UserAddress.UAid \
+        return self.session.query(UserAddress.UAdefault, UserAddress.UAid, UserAddress.cityid\
                                   , UserAddress.UAname, UserAddress.UAcreatetime, UserAddress.UAphonenum \
                                   , UserAddress.UAdetails, UserAddress.areaid).filter(UserAddress.USid == usid) \
             .filter(UserAddress.UAid == uaid).filter(UserAddress.UAstatus == 1).first()
@@ -130,15 +131,19 @@ class SMyCenter(SBase):
 
     @close_session
     def get_area_by_areaid(self, areaid):
-        return self.session.query(Area.areaname, Area.cityid).filter(Area.areaid == areaid).first()
+        return self.session.query(Area.areaname, Area.areaid, Area.cityid).filter(Area.areaid == areaid).first()
 
     @close_session
     def get_all_areaid(self):
         return self.session.query(Area.areaid).all()
 
     @close_session
+    def get_all_cityid(self):
+        return self.session.query(City.cityid).all()
+
+    @close_session
     def get_city_by_cityid(self, cityid):
-        return self.session.query(City.cityname, City.provinceid).filter(City.cityid == cityid).first()
+        return self.session.query(City.cityname, City.cityid, City.cityname, City.provinceid).filter(City.cityid == cityid).first()
 
     @close_session
     def get_province_by_provinceid(self, provinceid):

@@ -176,6 +176,7 @@ class OrderInfo(Base):
     OImount = Column(Float)  # 金额
     UAid = Column(String(255), nullable=False)  # 地址id
     OIcreatetime = Column(String(14))  # 订单创建时间
+    OIlogisticsfee = Column(Float)  # 订单运费
 
 class OrderProductInfo(Base):
     """订单商品详情, 多个订单商品详情对应一个订单"""
@@ -367,7 +368,8 @@ class UserAddress(Base):
     UAdefault = Column(Boolean)          # 默认收获地址 1为默认
     UAstatus = Column(Boolean, default=True)           # 状态:{True: 在使用, False: 已删除}
     UAcreatetime = Column(String(14))                   # 创建时间
-    areaid = Column(String(8), nullable=False)          # 关联的区域id
+    areaid = Column(String(8))          # 关联的区域id
+    cityid = Column(String(8))                          # 关联的城市id，没有区域id时有用
 
 class IdentifyingCode(Base):
     """验证码"""
