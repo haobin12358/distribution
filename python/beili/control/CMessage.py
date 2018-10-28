@@ -71,10 +71,11 @@ class CMessage():
             print comMessage_num
             comMessage_list = get_model_return_list(self.smessage.get_comMessage_list(page, count))  # 分页查询出的公司消息列表
             print len(comMessage_list)
+            a = request.user.id
             already_list = get_model_return_list(self.smessage.get_alreadyMessage_by_usid(request.user.id)) # 已经阅读的消息的id集合
             already_id_list = []
             for already in already_list:
-                already_id_list.append(already['ARid'])
+                already_id_list.append(already['ARmessageid'])
             notread_count = int(comMessage_num) - len(already_list)  # 该用户未读的消息条数
             return_message_list = []
             from common.timeformat import get_web_time_str
@@ -119,12 +120,16 @@ class CMessage():
         if is_admin():
             return data
         else:
-            id = request.user.id
             try:
-                self.smessage.insert_alreadyread(str(uuid.uuid4()), messageid, request.user.id)
+                note = self.smessage.get_isread(messageid, request.user.id)
+                if note:
+                    return data
+                else:
+                    self.smessage.insert_alreadyread(str(uuid.uuid4()), messageid, request.user.id)
+                    return data
             except Exception as e:
                 print 'repeat'
-            return data
+
 
     @verify_token_decorator
     def publish_commessage(self):
