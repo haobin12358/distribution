@@ -26,4 +26,5 @@ delete_address_success = "地址删除成功"
 update_address_success = "更新地址成功"
 change_address_success = "切换地址成功"
 get_user_basicinfo_success = "获取用户基本信息成功"
+get_orderdetails_success = "获取订单详情成功"
 

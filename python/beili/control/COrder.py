@@ -7,7 +7,7 @@ import random
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR, STOCK_NOT_ENOUGH,\
-        NO_ENOUGH_MOUNT, NO_BAIL, PRlogisticsfee_WRONG, TOTAL_PRICE_WRONG
+        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
@@ -188,7 +188,38 @@ class COrder():
         except:
             return PARAMS_ERROR
         detail = get_model_return_dict(self.sorder.get_order_details(OIsn))
-
-
+        if not detail:
+            response = import_status("get_orderdetails_success", "OK")
+            response['data'] = []
+            return response
+        address = get_model_return_dict(self.smycenter.get_other_address(request.user.id, detail['UAid']))
+        if not address:
+            return NO_ADDRESS
+        area = get_model_return_dict(self.smycenter.get_area_by_areaid(address['areaid']))
+        from common.timeformat import get_web_time_str
+        if area:
+            city = get_model_return_dict(self.smycenter.get_city_by_cityid(area['cityid']))
+            province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city['provinceid']))
+            detail['provincename'] = province['provincename']
+            detail['cityname'] = city['cityname']
+            detail['areaname'] = area['areaname']
+            detail['details'] = address['UAdetails']
+            detail['username'] = address['UAname']
+            detail['userphonenum'] = address['UAphonenum']
+            detail['createtime'] = get_web_time_str(address['UAcreatetime'])
+        else:
+            city = get_model_return_dict(self.smycenter.get_city_by_cityid(address['cityid']))
+            province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city['provinceid']))
+            detail['provincename'] = province['provincename']
+            detail['cityname'] = city['cityname']
+            detail['details'] = address['UAdetails']
+            detail['username'] = address['UAname']
+            detail['userphonenum'] = address['UAphonenum']
+            detail['createtime'] = get_web_time_str(address['UAcreatetime'])
+        product_list = get_model_return_list(self.sorder.get_product_list(detail['OIid']))
+        detail['product_list'] = product_list
+        response = import_status("get_orderdetails_success", "OK")
+        response['data'] = detail
+        return response
 
 

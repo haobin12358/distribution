@@ -15,7 +15,7 @@ class AOrder(Resource):
         apis = {
             'create_order': 'self.corder.create_order()',
             'get_order_list': 'self.corder.get_order_list()',
-            'get_order_details': 'selef.corder.get_order_details()'
+            'get_order_details': 'self.corder.get_order_details()'
         }
         res = eval(apis[order])
         return jsonify(res)
