@@ -29,8 +29,7 @@ class SOrder(SBase):
         return True
 
 
-    @close_session
-    def add_orderproductinfo(self, OPIid, OIid, PRid, PRname, PRprice, PRnum, PRimage):
+    def add_orderproductinfo(self, session, OPIid, OIid, PRid, PRname, PRprice, PRnum, PRimage):
         product = OrderProductInfo()
         product.OPIid = OPIid
         product.OIid = OIid
@@ -39,11 +38,10 @@ class SOrder(SBase):
         product.PRprice = PRprice
         product.PRnum = PRnum
         product.PRimage = PRimage
-        self.session.add(product)
+        session.add(product)
         return True
 
-    @close_session
-    def add_order(self, OIid, OIsn, USid, OInote, OImount, UAid, OIcreatetime):
+    def add_order(self, session, OIid, OIsn, USid, OInote, OImount, UAid, OIcreatetime, logisticsfee):
         order = OrderInfo()
         order.OIid = OIid
         order.OIsn = OIsn
@@ -52,7 +50,8 @@ class SOrder(SBase):
         order.OImount = OImount
         order.UAid = UAid
         order.OIcreatetime = OIcreatetime
-        self.session.add(order)
+        order.OIlogisticsfee = logisticsfee
+        session.add(order)
         return True
 
     @close_session
@@ -61,9 +60,19 @@ class SOrder(SBase):
             OrderInfo.OIid).filter(OrderInfo.USid == usid).filter(OrderInfo.OIstatus == type).all()
 
     @close_session
-    def get_allorder_list(self, usid):
+    def get_allorder_list(self, usid, page, count):
         return self.session.query(OrderInfo.OIsn, OrderInfo.OIcreatetime, OrderInfo.OIstatus, OrderInfo.OImount, \
-            OrderInfo.OIid).filter(OrderInfo.USid == usid).all()
+            OrderInfo.OIid).filter(OrderInfo.USid == usid).order_by(OrderInfo.OIcreatetime.desc())\
+            .offset((page - 1) * count).limit(count)
+
+    @close_session
+    def get_total_order_num(self, usid):
+        return self.session.query(func.count(OrderInfo.OIid)).filter(OrderInfo.USid == usid).scalar()
+
+    @close_session
+    def get_order_num(self, usid, state):
+        return self.session.query(func.count(OrderInfo.OIid)).filter(OrderInfo.USid == usid)\
+            .filter(OrderInfo.OIstatus == state).scalar()
 
     @close_session
     def get_product_list(self, oiid):

@@ -24,6 +24,7 @@ import platform
 from common.beili_error import stockerror, dberror
 from datetime import datetime
 from common.timeformat import format_for_db
+from models.model import User
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -37,7 +38,6 @@ class COrder():
 
     @verify_token_decorator
     def create_order(self):
-        sessions = db_session
         if is_tourist():
             return TOKEN_ERROR
         data = request.json
@@ -51,16 +51,14 @@ class COrder():
             UAid = data['UAid']
             OInote = data['OInote']
             product_list = data['product_list']
-            PRlogisticsfee = data['PRlogisticsfee']
-            totalprice = data['totalprice']
+            PRlogisticsfee = float(data['PRlogisticsfee'])
+            totalprice = float(data['totalprice'])
         except:
             return PARAMS_ERROR
         if len(product_list) > 1:
             real_PRlogisticsfee = 0
         else:
             real_PRlogisticsfee = get_model_return_dict(self.sgoods.get_product(product_list[0]['PRid']))['PRlogisticsfee']
-        if real_PRlogisticsfee != PRlogisticsfee:
-            return PRlogisticsfee_WRONG
         user_info = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
         if not user_info:
             return SYSTEM_ERROR
@@ -71,42 +69,58 @@ class COrder():
         try:
             for product in product_list:
                 num = product['PRnum']
-                price = get_model_return_dict(self.sgoods.get_product(product['PRid']))
-                mount = mount + num * price['PRprice']
-                product['PRprice'] = price['PRprice']
+                check_product = get_model_return_dict(self.sgoods.get_product(product['PRid']))
+                mount = mount + num * check_product['PRprice']
+                product['PRprice'] = check_product['PRprice']
                 new_list.append(product)
-            if totalprice != totalprice:
-                return TOTAL_PRICE_WRONG
+            if totalprice != mount or real_PRlogisticsfee != PRlogisticsfee:
+                response = {}
+                response['status'] = 200
+                response['success'] = False
+                response['data'] = new_list
+                response['PRlogisticsfee'] = real_PRlogisticsfee
+                response['totalprice'] = mount
+                return response
             if user_info['USmount'] < mount + PRlogisticsfee:
                 return NO_ENOUGH_MOUNT
         except:
             return SYSTEM_ERROR
-        OIid = str(uuid.uuid4())
-        OIsn = datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
-        OIcreatetime = datetime.strftime(datetime.now(), format_for_db)
+        session = db_session()
         try:
+            OIid = str(uuid.uuid4())
+            OIsn = datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
+            OIcreatetime = datetime.strftime(datetime.now(), format_for_db)
             result = self.sorder.check_stock(new_list)
             if not result:
                 return SYSTEM_ERROR
-        except stockerror as e:
-            return STOCK_NOT_ENOUGH
-        except Exception as e2:
-            print e2.message
-            return SYSTEM_ERROR
-        result = self.sorder.add_order(OIid, OIsn, request.user.id, OInote, mount, UAid, OIcreatetime, PRlogisticsfee)
-        if not result:
-            raise dberror
-        for product in new_list:
-            OPIid = str(uuid.uuid4())
-            PRid = product['PRid']
-            PRnum = product['PRnum']
-            PRname = product['PRname']
-            PRimage = get_model_return_dict(self.sgoods.get_product(PRid))['PRimage']
-            PRprice = product['PRprice']
-            result = self.sorder.add_orderproductinfo(OPIid, OIid, PRid, PRname, PRprice, PRnum, PRimage)
+            result = self.sorder.add_order(session, OIid, OIsn, request.user.id, OInote, mount, UAid, OIcreatetime, PRlogisticsfee)
             if not result:
                 raise dberror
+            for product in new_list:
+                OPIid = str(uuid.uuid4())
+                PRid = product['PRid']
+                PRnum = product['PRnum']
+                PRname = product['PRname']
+                PRimage = get_model_return_dict(self.sgoods.get_product(PRid))['PRpic']
+                PRprice = product['PRprice']
+                result = self.sorder.add_orderproductinfo(session, OPIid, OIid, PRid, PRname, PRprice, PRnum, PRimage)
+                if not result:
+                    raise dberror
+            user = {}
+            user['USmount'] = user_info['USmount'] - mount
+            session.query(User).filter_by(USid=request.user.id).update(user)
+            session.commit()
+        except stockerror as e:
+            session.rollback()
+            return STOCK_NOT_ENOUGH
+        except Exception as e2:
+            session.rollback()
+            print e2.message
+            return SYSTEM_ERROR
+        finally:
+            session.close()
         response = import_status("create_order_success", "OK")
+        response['success'] = True
         return response
 
     @verify_token_decorator
@@ -118,18 +132,43 @@ class COrder():
             return PARAMS_MISS
         try:
             type = int(data.get('type'))
+            page = int(data.get('page'))
+            count = int(data.get('count'))
         except:
             return PARAMS_ERROR
+        order_return_list = []
         if type == 0:
-            order_list = get_model_return_list(self.sorder.get_allorder_list(request.user.id))
+            order_list = get_model_return_list(self.sorder.get_allorder_list(request.user.id, page, count))
+            state0 = int(self.sorder.get_total_order_num(request.user.id)) if self.sorder.get_total_order_num(
+                request.user.id) else 0
+            state1 = int(self.sorder.get_order_num(request.user.id, 1)) if self.sorder.get_order_num(
+                request.user.id, 1) else 0
+            state2 = int(self.sorder.get_order_num(request.user.id, 2)) if self.sorder.get_order_num(
+                request.user.id, 2) else 0
+            state3 = int(self.sorder.get_order_num(request.user.id, 3)) if self.sorder.get_order_num(
+                request.user.id, 3) else 0
+            for order in order_list:
+                product_list = get_model_return_list(self.sorder.get_product_list(order['OIid']))
+                order['product_list'] = product_list
+                from common.timeformat import get_web_time_str
+                order['OIcreatetime'] = get_web_time_str(order['OIcreatetime'])
+                order_return_list.append(order)
+            response = import_status("get_orderlist_success", "OK")
+            response['data'] = order_return_list
+            response['state0_num'] = state0
+            response['state1_num'] = state1
+            response['state2_num'] = state2
+            response['state3_num'] = state3
+            return response
         else:
             order_list = get_model_return_list(self.sorder.get_order_list(request.user.id, type))
-        order_return_list = []
-        for order in order_list:
-            product_list = get_model_return_list(self.sorder.get_product_list(order['OIid']))
-            order['product_list'] = product_list
-            order_return_list.append(order)
-        response = import_status("get_orderlist_success", "OK")
-        response['data'] = order_return_list
-        return response
+            for order in order_list:
+                product_list = get_model_return_list(self.sorder.get_product_list(order['OIid']))
+                order['product_list'] = product_list
+                from common.timeformat import get_web_time_str
+                order['OIcreatetime'] = get_web_time_str(order['OIcreatetime'])
+                order_return_list.append(order)
+            response = import_status("get_orderlist_success", "OK")
+            response['data'] = order_return_list
+            return response
 

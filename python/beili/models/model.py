@@ -167,7 +167,7 @@ class OrderInfo(Base):
     __tablename__ = 'orderinfo'
     OIid = Column(String(64), primary_key=True)
     OIsn = Column(String(64))  # 订单号
-    USid = Column(String(64))  # 用户
+    USid = Column(String(64))  # 用户id
     """
     订单状态: {0:所有订单, 1:待发货, 2:已发货, 3:交易完成 } 根据需求无待支付状态
     """
