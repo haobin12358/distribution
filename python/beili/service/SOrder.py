@@ -83,4 +83,5 @@ class SOrder(SBase):
     @close_session
     def get_order_details(self):
         return self.session.query(OrderInfo.OIid, OrderInfo.OIsn, OrderInfo.OIcreatetime, OrderInfo.OIstatus,\
-                                  OrderInfo.OIlogisticsfee, OrderInfo)
+                                  OrderInfo.OIlogisticsfee, OrderInfo.USid, OrderInfo.UAid, OrderInfo.OInote\
+                                  ,OrderInfo.OImount, OrderInfo.OIcreatetime, OrderInfo.)

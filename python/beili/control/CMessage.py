@@ -48,7 +48,7 @@ class CMessage():
             message_return.append(data)
         data = import_status('get_agentmessage_list_success', 'OK')
         data['data'] = message_return
-        data['mount'] = m
+        data['mount'] = mount
         return data
 
     @verify_token_decorator
