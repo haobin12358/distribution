@@ -24,7 +24,7 @@ import platform
 from common.beili_error import stockerror, dberror
 from datetime import datetime
 from common.timeformat import format_for_db
-from models.model import User
+from models.model import User, AgentMessage
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -35,6 +35,7 @@ class COrder():
         self.sorder = SOrder()
         self.sgoods = SGoods()
         self.smycenter = SMyCenter()
+        self.smessage = SMessage()
 
     @verify_token_decorator
     def create_order(self):
@@ -109,6 +110,13 @@ class COrder():
             user = {}
             user['USmount'] = user_info['USmount'] - mount
             session.query(User).filter_by(USid=request.user.id).update(user)
+            agentmessage = AgentMessage()
+            agentmessage.AMid = str(uuid.uuid4())
+            agentmessage.USid = request.user.id
+            agentmessage.AMdate = OIcreatetime
+            agentmessage.AMtype = 0
+            agentmessage.AMcontent = u'您的订单创建成功，订单号为' + ' ' + str(OIsn)
+            session.add(agentmessage)
             session.commit()
         except stockerror as e:
             session.rollback()
