@@ -55,9 +55,10 @@ class SOrder(SBase):
         return True
 
     @close_session
-    def get_order_list(self, usid, type):
+    def get_order_list(self, usid, type, page, count):
         return self.session.query(OrderInfo.OIsn, OrderInfo.OIcreatetime, OrderInfo.OIstatus, OrderInfo.OImount, \
-            OrderInfo.OIid).filter(OrderInfo.USid == usid).filter(OrderInfo.OIstatus == type).all()
+            OrderInfo.OIid).filter(OrderInfo.USid == usid).filter(OrderInfo.OIstatus == type).order_by(
+            OrderInfo.OIcreatetime.desc()).offset((page - 1) * count).limit(count)
 
     @close_session
     def get_allorder_list(self, usid, page, count):

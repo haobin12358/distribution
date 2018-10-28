@@ -161,7 +161,11 @@ class COrder():
             response['state3_num'] = state3
             return response
         else:
-            order_list = get_model_return_list(self.sorder.get_order_list(request.user.id, type))
+            order_list = get_model_return_list(self.sorder.get_order_list(request.user.id, type, page, count))
+            if not order_list:
+                response = import_status("get_orderlist_success", "OK")
+                response['data'] = order_return_list
+                return response
             for order in order_list:
                 product_list = get_model_return_list(self.sorder.get_product_list(order['OIid']))
                 order['product_list'] = product_list
