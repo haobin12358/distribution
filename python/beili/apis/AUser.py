@@ -18,7 +18,8 @@ class AUser(Resource):
             'register': 'self.cuser.register()',
             'findback_pwd': 'self.cuser.findback_pwd()',
             'update_pwd': 'self.cuser.update_pwd()',
-            'update_headimg': 'self.cuser.update_headimg()'
+            'update_headimg': 'self.cuser.update_headimg()',
+            'upload_file': 'self.cuser.upload_file()'
         }
         res = eval(apis[user])
         return jsonify(res)
