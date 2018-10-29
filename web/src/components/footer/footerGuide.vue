@@ -42,7 +42,7 @@
                 .wl(31px, 31px);
                 background: red;
                 border-radius: 31px;
-                .fontc(36px);
+                .fontc(34px);
                 color: #ffffff;
                 .fz(22px);
 

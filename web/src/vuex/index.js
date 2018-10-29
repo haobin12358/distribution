@@ -7,6 +7,7 @@ import getters from "./getters"
 Vue.use(Vuex);
 
 const state = {
+    isAndroid: false,   // todo text-align失效    区分样式 navigator.userAgent.toLowerCase().indexOf('android')
     login: false, // 是否登录
     userInfo: {}, // 用户信息
     showAgent: true,

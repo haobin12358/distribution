@@ -80,11 +80,14 @@
                 isDefault: false,
 
                 formData: {
+                    UAid: '',
                     USname: '',
                     USphonenum: '',
                     areaid: '',
+                    cityid: '',
                     details: ''
                 },
+
 
                 city: '',
                 cityPopupVisible: false,
@@ -155,10 +158,19 @@
             },
             confirmPickArea() {
                 if (this.pickAreaVal[2] && this.pickAreaVal[2].id) {
+                    this.formData.cityid = '';
+
                     this.formData.areaid = this.pickAreaVal[2].id;
                     this.city = this.pickAreaVal[0].name + ' ' + this.pickAreaVal[1].name + ' ' + this.pickAreaVal[2].name;
                     this.cityPopupVisible = false;
+                }else if(this.pickAreaVal[1] && this.pickAreaVal[1].id){
+                    this.formData.areaid = '';
+
+                    this.formData.cityid = this.pickAreaVal[1].id;
+                    this.city = this.pickAreaVal[0].name + ' ' + this.pickAreaVal[1].name;
+                    this.cityPopupVisible = false;
                 }
+
             },
             initCityPicker(){
                 this.allArea = JSON.parse(getStore(ALL_AREA));
@@ -188,7 +200,7 @@
                 if(!this.formData.USphonenum){
                     return '请输入手机号';
                 }
-                if(!this.formData.areaid){
+                if(!(this.formData.cityid|| this.formData.areaid)){
                     return '请选择省市县';
                 }
                 if(!this.formData.details){
@@ -203,17 +215,22 @@
                     this.$toast(checkMsg);
                     return;
                 }else{
-                    let {USname, USphonenum, areaid, details} = this.formData;
+                    let {UAid,USname, USphonenum, areaid,cityid, details} = this.formData;
 
                     if(this.isAdd){
-                        addUserAddress(USname,USphonenum,details,areaid).then(
+                        addUserAddress(USname,USphonenum,details,areaid,cityid).then(
                             data => {
                                 this.$toast('新增地址成功');
                                 this.$router.back();
                             }
                     )
                     }else{
-
+                        updateUserAddress(UAid, USname, USphonenum, details, areaid,cityid).then(
+                            data => {
+                                this.$toast('地址修改成功');
+                                this.$router.back();
+                            }
+                        )
                     }
                 }
             }
@@ -226,11 +243,16 @@
             if (editAddress) {
                 this.isAdd = false;
 
+                this.formData.UAid = editAddress.uaid;
                 this.formData.USname = editAddress.username;
                 this.formData.USphonenum = editAddress.userphonenum;
-                this.city = editAddress.provincename + ' ' + editAddress.cityname + ' ' + editAddress.areaname ;
-                // this.formData.areaid = editAddress.username;
+                this.formData.areaid = editAddress.areaid;
                 this.formData.details = editAddress.details;
+
+                this.city = editAddress.provincename + ' ' + editAddress.cityname  ;
+                if(editAddress.areaname){
+                    this.city += ' ' + editAddress.areaname;
+                }
             }else{
                 common.changeTitle('新增地址');
             }

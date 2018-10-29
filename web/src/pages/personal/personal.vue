@@ -102,7 +102,7 @@
 
         <section class="user-info">
             <section class="user-img">
-                <img src="/static/images/testbg.jpg" alt="">
+                <img :src="userInfo.USheadimg" alt="">
             </section>
 
             <section class="user-info-detail">

@@ -6,11 +6,12 @@
         align-items: center;
 
         .buy-cart-btn{
-            .wl(40px, 40px);
+            .wl(50px, 50px);
         }
 
         .buy-cart-num{
-            margin:  0 17px;
+            margin:  0 27px;
+            .fz(30px);
 
         }
     }
@@ -35,14 +36,14 @@
 <template>
     <section class="buy-cart">
         <transition name="showReduce">
-            <img class="buy-cart-btn" src="/static/images/minus.png" v-if="shopNum"  @click="minus" alt="">
+            <img class="buy-cart-btn" src="/static/images/minus.png" v-if="shopNum"  @click.stop="minus" alt="">
         </transition>
 
         <transition name="hide">
             <span class="buy-cart-num" v-if="shopNum">{{shopNum}}</span>
         </transition>
 
-        <img class="buy-cart-btn" src="/static/images/add.png" @click="add" alt="">
+        <img class="buy-cart-btn" src="/static/images/add.png" @click.stop="add" alt="">
     </section>
 </template>
 
