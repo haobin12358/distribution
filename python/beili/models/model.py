@@ -30,7 +30,7 @@ class User(Base):
     USheadimg = Column(String(255))               # 头像
     USbail = Column(Float)                       # 保证金余额
     USmount = Column(Float)                      # 账户余额
-    USpreid = Column(String(64))                   # 上级代理id
+    USpre = Column(String(64))                   # 上级代理id
     openid = Column(String(64))                  # 微信唯一值
     unionid = Column(String(255))                # 绑定公众号会出现
     accesstoken = Column(String(255))            # 微信token

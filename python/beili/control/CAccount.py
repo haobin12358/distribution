@@ -12,7 +12,6 @@ from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
 from common.timeformat import get_db_time_str
-from config.setting import DISCOUNT
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
 from service.SUser import SUser
 from service.SMessage import SMessage
