@@ -30,7 +30,7 @@ class User(Base):
     USheadimg = Column(String(255))               # 头像
     USbail = Column(Float)                       # 保证金余额
     USmount = Column(Float)                      # 账户余额
-    USpre = Column(String(64))                   # 上级代理id
+    USpreid = Column(String(64))                   # 上级代理id
     openid = Column(String(64))                  # 微信唯一值
     unionid = Column(String(255))                # 绑定公众号会出现
     accesstoken = Column(String(255))            # 微信token
@@ -231,7 +231,49 @@ class Bail(Base):
     USid = Column(String(64))  # 用户id
     BAamount = Column(String(64))  # 保证金金额
 
+class Reward(Base):
+    """
+    直推奖励记录表
+    """
+    __tablename__ = 'reward'
+    REid = Column(String(64), primary_key=True)
+    REnextuserid = Column(String(64))  # 被推荐用户id
+    REmount = Column(Float)  # 奖励金额
+    REmonth = Column(String(6))  # 月份
+    REcreatetime = Column(String(14))  # 记录创建时间
+    RElastuserid = Column(String(64))  # 推荐用户id
 
+class Performance(Base):
+    """
+    个人业绩记录表
+    """
+    __tablename__ = 'performance'
+    PEid = Column(String(64), primary_key=True)
+    USid = Column(String(64))
+    PEnum = Column(Integer)  # 销售件数
+    REmonth = Column(String(6))  # 月份
+    PEcreatetime = Column(String(14))  # 记录创建时间
+
+class Amount(Base):
+    """
+    直推奖励，销售折扣，业绩记录表，一个用户一个月只有一条数据
+    """
+    __tablename__ = 'mount'
+    AMid = Column(String(64), primary_key=True)
+    USid = Column(String(64))
+    reward = Column(Float)  # 直推奖励金额
+    performance = Column(Float)  # 业绩总额,就是总件数
+    AMmonth = Column(String(6))  # 月份
+    AMcreattime = Column(String(14))  # 记录创建时间
+
+class DiscountRuler(Base):
+    """
+    折扣规则表
+    """
+    __tablename__ = 'discountruler'
+    DRid = Column(String(64), primary_key=True)
+    DRnumber = Column(Float)  # 数量
+    DRratio = Column(Float)  # 折扣比例
 
 class OnlineRecharge(Base):
     """
@@ -245,21 +287,6 @@ class OnlineRecharge(Base):
     ONRstatus = Column(Integer)  # 记录状态: {0: 全部, 1: 充值中, 2: 充值成功, 3: 充值失败}
     ONDcreatetime = Column(String(14))  # 创建时间
     ONDtradenum = Column(String(125))  # 交易号, (如果有)
-
-"""
-class OnlineDraw(Base):
-    
-    微信线上提现记录表（如果需要）
-    
-    __tablename__ = 'onlinedraw'
-    ONDid = Column(String(64), primary_key=True)
-    USid = Column(String(64))  # 用户
-    ONDamount = Column(Float)  # 提现金额
-    ONDwechatnum = Column(String(125))  # 提现微信账户
-    ONDstatus = Column(Integer)  # 记录状态: {0: 全部, 1: 提现中, 2: 提现成功, 3: 提现失败}
-    ONDcreatetime = Column(String(14))  # 创建时间
-    ONDtradenum = Column(String(125))  # 交易号, (如果有)
-"""
 
 class OfflineDraw(Base):
     """
@@ -277,17 +304,6 @@ class OfflineDraw(Base):
     SUid = Column(String(64))  # 操作员
     OFDcreatetime = Column(String(14))  # 创建时间
     OFDtradenum = Column(String(125))  # 交易号, (如果有)
-
-class Reward(Base):
-    """
-    奖金表
-    """
-    __tablename__ = 'reward'
-    REid = Column(String(64), primary_key=True)
-    IRIod = Column(String(64))   # 邀请记录id
-    RErefid = Column(String(64))  # 推荐人id
-    REberefid = Column(String(64))  # 被推荐人id
-    REamount = Column(Float)  # 奖金金额
 
 class AgentMessage(Base):
     """

@@ -21,3 +21,7 @@ class SUser(SBase):
     def update_user_by_uid(self, uid, users):
         self.session.query(User).filter_by(USid=uid).update(users)
 
+    @close_session
+    def getuser_by_preid(self, preid):
+        self.session.query(User.USid).filter(User.USpreid).all()
+
