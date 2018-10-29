@@ -260,7 +260,8 @@ class Amount(Base):
     """
     __tablename__ = 'amount'
     AMid = Column(String(64), primary_key=True)
-    USid = Column(String(64))
+    USid = Column(String(64), nullable=False)
+    USname = Column(String(64))  # 用户名
     reward = Column(Float)  # 直推奖励金额
     performance = Column(Float)  # 业绩总额,就是总件数
     AMmonth = Column(String(6))  # 月份

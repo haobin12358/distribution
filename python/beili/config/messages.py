@@ -29,4 +29,8 @@ get_user_basicinfo_success = "获取用户基本信息成功"
 get_orderdetails_success = "获取订单详情成功"
 upload_file_success = "上传文件成功"
 get_saleinfo_success = "获取销售信息成功"
+get_performancelist_success = "获取业绩排行榜成功"
+get_directagent_list_success = "获取直属代理列表成功"
+get_destributionagent_list_success = "获取分销商代理列表成功"
+get_distribuagent_list_success = "获取分销商代理列表成功"
 

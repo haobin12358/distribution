@@ -131,7 +131,7 @@ class MakeData():
         for i in range(3):
             user = User()
             user.USid = 'rfesrgbrtthert4535g' + str(i)
-            user.USname = 'guodongtest'
+            user.USname = 'guodongtest' + str(i)
             user.USphonenum = '1505896854' + str(i)
             user.USpassword = "123"
             user.USbail = 0
@@ -146,7 +146,7 @@ class MakeData():
         for i in range(2):
             user = User()
             user.USid = 'rfesrgbrtthert4535g22222' + str(i)
-            user.USname = 'guodongtest222'
+            user.USname = 'guodongtest222' + str(i)
             user.USphonenum = '1505896854' + str(i)
             user.USpassword = "123"
             user.USbail = 0
@@ -176,6 +176,7 @@ class MakeData():
         amount = Amount()
         amount.AMid = 'rfesrgbrtwewthert4535geqw'
         amount.USid = '3404cf38-c3cf-401f-8ba7-f8ce040f064f'
+        amount.USname = 'guodong'
         amount.reward = 300
         amount.AMmonth = 201810
         amount.performance = 100000
@@ -188,6 +189,7 @@ class MakeData():
         amount = Amount()
         amount.AMid = 'rfesrgbrtthddert4535gfdsfs'
         amount.USid = 'rfesrgbrtthert4535g0'
+        amount.USname = 'guodongtest0'
         amount.reward = 100
         amount.AMmonth = 201810
         amount.performance = 1000
@@ -200,6 +202,7 @@ class MakeData():
         amount = Amount()
         amount.AMid = 'rfesrgbrtthddert45ewe335g'
         amount.USid = 'rfesrgbrtthert4535g1'
+        amount.USname = 'guodongtest1'
         amount.reward = 100
         amount.AMmonth = 201810
         amount.performance = 10
@@ -212,6 +215,7 @@ class MakeData():
         amount = Amount()
         amount.AMid = 'rfesrgbrtthdd11111ert4535g'
         amount.USid = 'rfesrgbrtthert4535g2'
+        amount.USname = 'guodongtest2'
         amount.reward = 100
         amount.AMmonth = 201810
         amount.performance = 100
@@ -224,6 +228,7 @@ class MakeData():
         amount = Amount()
         amount.AMid = 'rfesrgbrtthert4535g222220234233'
         amount.USid = 'rfesrgbrtthert4535g222220'
+        amount.USname = 'guodongtest2220'
         amount.reward = 100
         amount.AMmonth = 201810
         amount.performance = 1000
@@ -236,6 +241,7 @@ class MakeData():
         amount = Amount()
         amount.AMid = 'rfesrgbrtthert4535g22222023vf4233'
         amount.USid = 'rfesrgbrtthert4535g222221'
+        amount.USname = 'guodongtest2221'
         amount.reward = 100
         amount.AMmonth = 201810
         amount.performance = 10000
@@ -248,6 +254,7 @@ class MakeData():
         amount = Amount()
         amount.AMid = 'rfesrgbrtthert4535g22222023vf423355'
         amount.USid = 'rfesrgbrtthert4535g2222233333'
+        amount.USname = 'guodongtest222333'
         amount.reward = 100
         amount.AMmonth = 201810
         amount.performance = 1000

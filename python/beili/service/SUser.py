@@ -4,6 +4,7 @@ import os
 from werkzeug.security import check_password_hash
 from service.SBase import SBase, close_session
 from models.model import User
+from sqlalchemy import func
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -25,3 +26,18 @@ class SUser(SBase):
     def getuser_by_preid(self, preid):
         return self.session.query(User.USid).filter(User.USpre == preid).all()
 
+    @close_session
+    def getusername_and_id_by_preid(self, preid):
+        return self.session.query(User.USname, User.USid).filter(User.USpre == preid).all()
+
+    @close_session
+    def get_myself_name(self, id):
+        return self.session.query(User.USname).filter(User.USid == id).all()
+
+    @close_session
+    def getusername_by_preid(self, preid, page, count):
+        return self.session.query(User.USname).filter(User.USpre == preid).offset((page - 1) * count).limit(count).all()
+
+    @close_session
+    def get_totaldirect(self, id):
+        return self.session.query(func.count(User.USid)).filter_by(USpre=id).scalar()
