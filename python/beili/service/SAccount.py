@@ -20,4 +20,4 @@ class SAccount(SBase):
 
     @close_session
     def get_discount_ruler(self):
-        return self.session.query(DiscountRuler.DRnumber, DiscountRuler.DRratio).order_by(DiscountRuler.DRmoney).all()
+        return self.session.query(DiscountRuler.DRnumber, DiscountRuler.DRratio).order_by(DiscountRuler.DRnumber).all()

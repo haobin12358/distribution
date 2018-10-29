@@ -23,5 +23,5 @@ class SUser(SBase):
 
     @close_session
     def getuser_by_preid(self, preid):
-        self.session.query(User.USid).filter(User.USpreid).all()
+        return self.session.query(User.USid).filter(User.USpre == preid).all()
 

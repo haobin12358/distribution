@@ -258,7 +258,7 @@ class Amount(Base):
     """
     直推奖励，销售折扣，业绩记录表，一个用户一个月只有一条数据
     """
-    __tablename__ = 'mount'
+    __tablename__ = 'amount'
     AMid = Column(String(64), primary_key=True)
     USid = Column(String(64))
     reward = Column(Float)  # 直推奖励金额

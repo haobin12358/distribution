@@ -48,33 +48,41 @@ class CAccount():
         except:
             return PARAMS_ERROR
         id = request.user.id
-        account = self.saccount.get_account_by_month(id, month)
+        account = get_model_return_dict(self.saccount.get_account_by_month(id, month)) if self.saccount.get_account_by_month(id, month) else None
+        if not account:
+            response = import_status("get_saleinfo_success", "OK")
+            response['data'] = []
+            return response
         mydiscount = self.get_mydiscount(id, month)
         teamperformance = self.get_myteamsalenum(id, month)
         response = import_status("get_saleinfo_success", "OK")
-        response["reward"] = account['reward'],
-        response["discount"] =  mydiscount,
-        response["performance"] =  teamperformance,
-        response["myprofit"] = account['reward'] + account['discount']
+        data2 = {}
+        data2["reward"] = account['reward']
+        data2["discount"] = mydiscount
+        data2["performance"] = teamperformance
+        data2["myprofit"] = account['reward'] + mydiscount
+        response['data'] = data2
         return response
 
     def get_mydiscount(self, id, month):  # 获取个人的销售折扣数
         myteamnum = self.get_myteamsalenum(id, month)  # 团队总销售量
         myteamnummoney = self.get_discount_ratio(myteamnum) * myteamnum  # 我以及我下面的人总的折扣数
-        team_list = get_model_return_list(self.suser.getuser_by_preid(id))
-        for user in team_list:
-            num = self.get_myteamsalenum(user['USid'], month)
-            myteamnummoney = myteamnummoney - num * self.get_discount_ratio(num)  # 分别减去我的直属代理的总的折扣数
+        team_list = get_model_return_list(self.suser.getuser_by_preid(id)) if self.suser.getuser_by_preid(id) else None
+        if team_list:
+            for user in team_list:
+                num = self.get_myteamsalenum(user['USid'], month)
+                myteamnummoney = myteamnummoney - num * self.get_discount_ratio(num)  # 分别减去我的直属代理的总的折扣数
         return myteamnummoney
 
     def get_myteamsalenum(self, id, month):
-        totalpnum = get_model_return_dict(self.saccount.get_account_by_month(id, month))['performance']   # 先计算个人的销量
-        team_list = get_model_return_list(self.suser.getuser_by_preid(id))
+        totalpnum = float(get_model_return_dict(self.saccount.get_account_by_month(id, month))['performance']) if self.\
+            saccount.get_account_by_month(id, month) else 0
+        team_list = self.suser.getuser_by_preid(id)
         if team_list:
+            team_list = get_model_return_list(team_list)
             for user in team_list:
                 totalpnum = totalpnum + self.get_myteamsalenum(user['USid'], month)
-        else:
-            return totalpnum
+        return totalpnum
 
     def get_discount_ratio(self, num):  # 获取商品数量对应的奖励金额
         ruler_list = get_model_return_list(self.saccount.get_discount_ruler())
@@ -84,7 +92,8 @@ class CAccount():
             if num < ruler_list[0]['DRnumber']:
                 return 0
             for i in range(0, len(ruler_list)):
-                while i < (len(ruler_list) - 1) :
+                if i < (len(ruler_list) - 1) :
                     if num >= ruler_list[i]['DRnumber'] and num < ruler_list[i+1]['DRnumber']:
                         return ruler_list[i]['DRratio']
-                return ruler_list[len(ruler_list)-1]['DRratio']
+                else:
+                    return ruler_list[len(ruler_list)-1]['DRratio']
