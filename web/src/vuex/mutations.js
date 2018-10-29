@@ -9,6 +9,8 @@ import {
     ADD_CART,
     REDUCE_CART,
     INIT_CART,
+    CLEAR_CART,
+    SET_CART,
     SET_CHOOSE_ADDRESS,
 } from './mutation-types'
 import {TOKEN, USER_INFO, NOT_READ_COM_MSGS, CART_LIST} from "src/common/js/const"
@@ -29,7 +31,7 @@ export default {
         state.userInfo = payload;
     },
     [INIT_USER_INFO](state, payload) {
-        state.userInfo =JSON.parse(getStore(USER_INFO)) ;
+        state.userInfo = JSON.parse(getStore(USER_INFO));
     },
     [SET_SHOW_AGENT](state, payload) {
         state.showAgent = payload;
@@ -53,15 +55,24 @@ export default {
     },
     [REDUCE_CART](state, payload) {
         let cart = state.cartList.concat();
-        let changeItem = state.cartList.find(item => item.PRid == payload.PRid);
+        let reduceIndex = 0;
+        let changeItem = state.cartList.find((item, index) => {
+                if (item.PRid == payload.PRid) {
+                    reduceIndex = index;
+                    return true;
+                }
+            });
 
         if (changeItem) {
-            if (changeItem.PRnum > 0) {
+            if (changeItem.PRnum > 1) {
                 changeItem.PRnum--;
+            }
+            if (changeItem.PRnum == 1) {
+                state.cartList.splice(reduceIndex, 1);
             }
         }
 
-        state.cartList = state.cartList.concat();
+        // state.cartList = state.cartList.concat();
         setStore(CART_LIST, state.cartList);
     },
     [INIT_CART](state, payload) {
@@ -72,8 +83,17 @@ export default {
 
         }
     },
+    [CLEAR_CART](state, payload) {
+        state.cartList = [];
+        setStore(CART_LIST, state.cartList);
+    },
+    [SET_CART](state, payload) {
+        state.cartList = payload;
+        setStore(CART_LIST, state.cartList);
+    },
+
     [SET_CHOOSE_ADDRESS](state, payload) {
-            state.chooseAddress = payload || null;
+        state.chooseAddress = payload || null;
     },
 
 

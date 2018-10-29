@@ -15,6 +15,7 @@ const messageDetail = r => require.ensure([], () => r(require('../pages/message/
 const mall = r => require.ensure([], () => r(require('../pages/mall/mall')), 'mall')
 const payOrder = r => require.ensure([], () => r(require('../pages/mall/payOrder')), 'payOrder')
 const mallOrder = r => require.ensure([], () => r(require('../pages/mall/order')), 'mallOrder')
+const mallOrderDetail = r => require.ensure([], () => r(require('../pages/mall/orderDetail')), 'mallOrderDetail')
 
 const personal = r => require.ensure([], () => r(require('../pages/personal/personal')), 'personal')
 const setting = r => require.ensure([], () => r(require('../pages/personal/setting')), 'setting')
@@ -96,6 +97,14 @@ export const constantRouterMap = [
             title: '云仓订单',
             requiresAuth: true
 
+        },
+    },{
+        path: '/mallOrderDetail',
+        component: mallOrderDetail,
+        meta: {
+            transitionName: 'router-slid',
+            title: '订单详情',
+            requiresAuth: true
         },
     }, {
         path: '/mall',

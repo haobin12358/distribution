@@ -65,9 +65,9 @@
             <mt-field label="密码" placeholder="请输入登录密码"></mt-field>
             <mt-field label="密码确认" placeholder="请再次输入登录密码"></mt-field>
             <mt-field label="微信号" placeholder="请输入微信号"></mt-field>
-            <mt-field label="身份证号" placeholder="请输入身份证号"></mt-field>
             <mt-field label="国家地区" placeholder="请选择国家地区" v-model="city" :readonly="true"
                       :disableClear="true" @click.native="showCityPopup"></mt-field>
+            <mt-field label="身份证号" placeholder="请输入身份证号"></mt-field>
             <mt-field class="form-item" label="省市县" placeholder="请选择省市县" v-model="city" :readonly="true"
                       :disableClear="true" @click.native="showCityPopup">
                 <img src="/static/images/arrow_down.png" style="width: 16px;height: 14px;" alt="">
@@ -81,8 +81,8 @@
             <mt-field class="form-item" label="金额" placeholder="请输入打款金额" type="number"></mt-field>
             <mt-field class="form-item" label="打款日期" placeholder="请输入打款日期" :readonly="true" :disableClear="true"
                       v-model="date" @click.native="$refs.picker.open()"></mt-field>
-            <head-img-field label="头像"></head-img-field>
-            <evidence-field label="打款凭证(1-2张)"></evidence-field>
+            <head-img-field label="头像" :readOnly="false" :imgs.sync="headImgs" :upload-limit="1"></head-img-field>
+            <evidence-field label="打款凭证(1-2张)" :readOnly="false" :imgs.sync="evidenceImgs" :upload-limit="2"></evidence-field>
         </section>
 
         <section class="form-title">
@@ -177,7 +177,10 @@
                 twSheetVisible: false,
 
 
-                datetime: ''
+                datetime: '',
+
+                headImgs: [],   //  头像
+                evidenceImgs: [],   //  凭证
             }
         },
 

@@ -172,3 +172,22 @@ body {
         }
     }
 }
+
+//  缩放方案解决安卓小字体 line-height 没用  注意覆盖默认的边距
+//  高度  字体大小    左右边距
+.small-text-parent(@height: 20px, @size, @aroundPadding: 0px) {
+    display: table;
+    margin-top: -@height;
+    height: 2 * @height ;
+    line-height: 2 * @height;
+    font-size:2 * @size;
+    border: 1px solid #000;
+    -webkit-transform: scale(0.5);
+    transform: scale(0.5);
+    -webkit-transform-origin: 100% 100%;
+    transform-origin: 100% 100%;
+}
+.small-text {
+    display: table-cell;
+    vertical-align: middle;
+}

@@ -5,6 +5,7 @@
         padding: 24px;
         border-top: 1px solid @grayBorderColor;
         .fj(flex-start);
+        align-items: center;
         .bgw();
 
         .label {
@@ -66,13 +67,12 @@
     <section class="upload-field">
         <span class="label">{{label}}</span>
         <ul class="upload-imgs">
-            <li class="upload-imgs-item">
-                <img class="evidence-img" src="/static/images/testbg.jpg" alt="">
+            <li v-for="item,index in imgs" class="upload-imgs-item">
+                <img class="evidence-img" :src="item" alt="">
 
-
-                <img class="img-block-close" src="/static/images/close.png" alt="">
+                <img v-if="!readOnly" @click="removeImg(index)" class="img-block-close" src="/static/images/close.png" alt="">
             </li>
-            <li class="upload-imgs-item-placeholder ">
+            <li v-if="!readOnly && imgs.length < uploadLimit" class="upload-imgs-item-placeholder ">
                 <img src="/static/images/img-placeholder.png" alt="">
                 <input class="picture-file" id="up-picture-file" type="file" accept="image/*" ref="file"
                        @change="uploadFile">
@@ -85,8 +85,21 @@
         name: "uploadField",
 
         props:{
+            //  表单项标题
             label:{
                 type: String
+            },
+            imgs: {
+                type: Array
+            },
+            //  只显示,不能上传修改
+            readOnly: {
+                type: Boolean,
+                default: true
+            },
+            uploadLimit: {
+                type: Number,
+                default: 2
             }
         },
 
@@ -99,8 +112,19 @@
         computed: {},
 
         methods: {
+            removeImg(index){
+                this.imgs.splice(index, 1);
+            },
             uploadFile() {
-                console.log(this.$refs.file.files[0]);
+                console.log(this.$refs.file.files[0], window.URL.createObjectURL(this.$refs.file.files[0]));
+                this.imgs.push(window.URL.createObjectURL(this.$refs.file.files[0]));
+
+                // console.log();
+                // let file=this.$refs.file.files[0];
+                //    console.log(window.URL.createObjectURL(file));
+                //    let url = window.URL.createObjectURL(file);
+                //    console.log(url);
+                //    this.imgs.push(url);
             }
         },
 

@@ -12,7 +12,7 @@ const myAxios = async (url, {params, data, method = 'get', showIndicator = true}
     }
 
     let res = await axios({
-        baseURL: '/api',    //todo 代理
+        baseURL: title,    //todo 代理
         method: method,
         url: url,
         params: params,
@@ -153,7 +153,7 @@ export const getAllArea = (isdefault, all, UAid) => myAxios('/mycenter/get_all_a
  * @param areaid
  * @returns {Promise<*|undefined>}
  */
-export const addUserAddress = (USname, USphonenum, details, areaid) => myAxios('/mycenter/add_useraddress', {
+export const addUserAddress = (USname, USphonenum, details, areaid, cityid) => myAxios('/mycenter/add_useraddress', {
     method: 'post',
     params: {
         token: getStore(TOKEN),
@@ -163,6 +163,7 @@ export const addUserAddress = (USname, USphonenum, details, areaid) => myAxios('
         USphonenum,
         details,
         areaid,
+        cityid,
     }
 });
 /**
@@ -174,7 +175,7 @@ export const addUserAddress = (USname, USphonenum, details, areaid) => myAxios('
  * @param areaid
  * @returns {Promise<*|undefined>}
  */
-export const updateUserAddress = (UAid, USname, USphonenum, details, areaid) => myAxios('/mycenter/update_useraddress', {
+export const updateUserAddress = (UAid, USname, USphonenum, details, areaid, cityid) => myAxios('/mycenter/update_useraddress', {
     method: 'post',
     params: {
         token: getStore(TOKEN),
@@ -185,20 +186,17 @@ export const updateUserAddress = (UAid, USname, USphonenum, details, areaid) => 
         USphonenum,
         details,
         areaid,
+        cityid,
     }
 });
 
-export const deleteUserAddress = (UAid, USname, USphonenum, details, areaid) => myAxios('/mycenter/delete_useraddress', {
+export const deleteUserAddress = (UAid) => myAxios('/mycenter/delete_useraddress', {
     method: 'post',
     params: {
         token: getStore(TOKEN),
     },
     data: {
         UAid,
-        USname,
-        USphonenum,
-        details,
-        areaid,
     }
 });
 
@@ -324,13 +322,29 @@ export const createOrder = (UAid,product_list,OInote,PRlogisticsfee,totalprice) 
  * @param type  0为全部订单，1已待发货，2为已发货，3为已完成
  * @returns {Promise<*|undefined>}
  */
-export const getOrderList = (type) => myAxios('/order/get_order_list', {
+export const getOrderList = (type, page, count = 10) => myAxios('/order/get_order_list', {
     method: 'post',
     params: {
         token: getStore(TOKEN),
     },
     data: {
         type,
+        page,
+        count,
+    }
+});
+/**
+ * 获取订单详情
+ * @param OIsn  订单编号
+ * @returns {Promise<*|undefined>}
+ */
+export const getOrderDetails = (OIsn) => myAxios('/order/get_order_details', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN),
+    },
+    data: {
+        OIsn
     }
 });
 

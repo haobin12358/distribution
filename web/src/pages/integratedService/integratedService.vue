@@ -3,6 +3,7 @@
 
     .container {
         .least-full-screen();
+        padding-bottom: 50px;
 
         .banner {
             height: 290px;
