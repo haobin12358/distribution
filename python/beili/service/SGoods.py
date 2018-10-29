@@ -32,7 +32,7 @@ class SGoods(SBase):
 
     @close_session
     def get_product(self, PRid):
-        return self.session.query(Product.PRstock, Product.PRstatus, Product.PRprice, Product.PRoldprice,
+        return self.session.query(Product.PRstock, Product.PRpic, Product.PRstatus, Product.PRprice, Product.PRoldprice,
                 Product.PRname, Product.PRpic, Product.PRoldprice, Product.PAid, Product.PRcreatetime,
                 Product.PRlogisticsfee).filter_by(PRid=PRid).first()
 

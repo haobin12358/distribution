@@ -21,7 +21,7 @@ class SMessage(SBase):
 
     @close_session
     def get_alreadyMessage_by_usid(self, usid):
-        return self.session.query(AlreadyRead.ARid).filter(AlreadyRead.USid == usid).all()
+        return self.session.query(AlreadyRead.ARid, AlreadyRead.ARmessageid).filter(AlreadyRead.USid == usid).all()
 
     @close_session
     def get_comMessage_list(self, page, count):
@@ -39,9 +39,14 @@ class SMessage(SBase):
                                  ComMessage.CMfile).filter_by(CMid=cmid).first()
 
     @close_session
-    def insert_alreadyread(self, messageid, usid):
+    def get_isread(self, messageid, usid):
+        return self.session.query(AlreadyRead).filter(AlreadyRead.ARmessageid==messageid).filter(AlreadyRead.USid==usid).first()
+
+    @close_session
+    def insert_alreadyread(self, id, messageid, usid):
         record = AlreadyRead()
-        record.ARid = messageid
+        record.ARid = id
+        record.ARmessageid = messageid
         record.USid = usid
         self.session.add(record)
 

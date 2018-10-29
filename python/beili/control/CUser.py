@@ -5,7 +5,7 @@ import json
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
-    NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR
+    NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR, NOT_FOUND_FILE
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser
 from common.import_status import import_status
@@ -115,5 +115,32 @@ class CUser():
         user_update['USheadimg'] = url
         self.suser.update_user_by_uid(request.user.id, user_update)
         # print(url)
+        response["data"] = url
+        return response
+
+    @verify_token_decorator
+    def upload_file(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            files = request.files.get("file")
+        except:
+            return PARAMS_ERROR
+        if not files:
+            return NOT_FOUND_FILE
+        if platform.system() == "Windows":
+            rootdir = "D:/task"
+        else:
+            rootdir = "/opt/beili/file/"
+        if not os.path.isdir(rootdir):
+            os.makedirs(rootdir)
+        lastpoint = str(files.filename).rindex(".")
+        filessuffix = str(files.filename)[lastpoint + 1:]
+        filename = request.user.id + get_db_time_str() + "." + filessuffix
+        filepath = os.path.join(rootdir, filename)
+        print(filepath)
+        files.save(filepath)
+        response = import_status("upload_file_success", "OK")
+        url = QRCODEHOSTNAME + "/file/" + filename
         response["data"] = url
         return response

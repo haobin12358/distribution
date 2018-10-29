@@ -168,4 +168,18 @@ NO_BAIL = {
     "status_code": 405019,
     "message": "未缴纳保证金"
 }
-
+PRlogisticsfee_WRONG = {
+    "status": 405,
+    "status_code": 405020,
+    "message": "运费金额核对出错"
+}
+TOTAL_PRICE_WRONG = {
+    "status": 405,
+    "status_code": 405021,
+    "message": "商品总价核对出错"
+}
+NOT_FOUND_FILE = {
+    "status": 405,
+    "status_code": 405022,
+    "message": "图片未找到"
+}

@@ -7,6 +7,7 @@ from apis.AMyCenter import AMyCenter
 from apis.AMessage import AMessage
 from apis.AOrder import AOrder
 from apis.AAdmin import AAdmin
+from apis.AAccount import AAccount
 
 sg = Flask(__name__)
 sg.config.from_object('config.setting')
@@ -18,6 +19,7 @@ api.add_resource(AMyCenter, "/mycenter/<string:mycenter>")
 api.add_resource(AMessage, "/message/<string:message>")
 api.add_resource(AOrder, "/order/<string:order>")
 api.add_resource(AAdmin, "/admin/<string:admin>")
+api.add_resource(AAccount, "/account/<string:account>")
 
 '''
 if __name__ == '__main__':
