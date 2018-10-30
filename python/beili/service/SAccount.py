@@ -24,4 +24,5 @@ class SAccount(SBase):
 
     @close_session
     def get_user_performance(self, usid, month):
-        return self.session.query(Amount.USname, Amount.performance).filter_by(USid=usid).filter_by(AMmonth=month).all()
+        return self.session.query(Amount.USname, Amount.performance, Amount.USheadimg, Amount.USagentid
+                                  ).filter_by(USid=usid).filter_by(AMmonth=month).all()

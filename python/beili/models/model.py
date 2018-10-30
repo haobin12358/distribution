@@ -27,6 +27,7 @@ class User(Base):
     USname = Column(String(64), nullable=False)  # 用户名
     USpassword = Column(String(255))             # 密码
     USphonenum = Column(String(16), nullable=False)  # 手机号
+    USagentid = Column(Integer)  # 代理编号
     USheadimg = Column(String(255))               # 头像
     USbail = Column(Float)                       # 保证金余额
     USmount = Column(Float)                      # 账户余额
@@ -262,6 +263,8 @@ class Amount(Base):
     AMid = Column(String(64), primary_key=True)
     USid = Column(String(64), nullable=False)
     USname = Column(String(64))  # 用户名
+    USagentid = Column(Integer)
+    USheadimg = Column(String(255))  # 头像
     reward = Column(Float)  # 直推奖励金额
     performance = Column(Float)  # 业绩总额,就是总件数
     AMmonth = Column(String(6))  # 月份

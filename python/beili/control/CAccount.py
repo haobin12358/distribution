@@ -133,16 +133,10 @@ class CAccount():
     def get_directagent(self):
         if is_tourist():
             return TOKEN_ERROR
-        try:
-            data = request.json
-            page = int(data.get('page'))
-            count = int(data.get('count'))
-        except:
-            return PARAMS_ERROR
-        direct_list = self.suser.getusername_by_preid(request.user.id, page, count)
+        direct_list = self.suser.getuser_by_preid(request.user.id)
         if direct_list:
             direct_list = get_model_return_list(direct_list)
-            all_direct_num = int(self.suser.get_totaldirect(request.user.id))
+            all_direct_num = int(len(direct_list))
             distribution_list = self.get_tatal_distribu(request.user.id)
             distribution_num = len(distribution_list)
             response = import_status("get_directagent_list_success", "OK")
@@ -184,28 +178,11 @@ class CAccount():
     def get_distribute(self):
         if is_tourist():
             return TOKEN_ERROR
-        try:
-            data = request.json
-            page = int(data.get('page'))
-            count = int(data.get('count'))
-        except:
-            return PARAMS_ERROR
         distribution_list = self.get_tatal_distribu(request.user.id)
         if distribution_list == []:
             response = import_status("get_distribuagent_list_success", "OK")
             response['data'] = []
             return response
-        mount = len(distribution_list)
-        page2 = mount / page
-        if page2 == 0 or page2 == 1 and mount % count == 0:
-            return_list = distribution_list[0:]
-        else:
-            if ((mount - (page - 1) * count) / page) >= 1 and \
-                    ((mount - (page - 1) * count) % page) > 0:
-                return_list = distribution_list[((page - 1) * count):(count * page)]
-            else:
-                return_list = distribution_list[((page - 1) * count):]
-
         response = import_status("get_distribuagent_list_success", "OK")
-        response['data'] = return_list
+        response['data'] = distribution_list
         return response

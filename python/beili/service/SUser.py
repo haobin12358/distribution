@@ -24,7 +24,7 @@ class SUser(SBase):
 
     @close_session
     def getuser_by_preid(self, preid):
-        return self.session.query(User.USid).filter(User.USpre == preid).all()
+        return self.session.query(User.USname, User.USid, User.USagentid, User.USheadimg).filter(User.USpre == preid).all()
 
     @close_session
     def getusername_and_id_by_preid(self, preid):
@@ -32,7 +32,7 @@ class SUser(SBase):
 
     @close_session
     def get_myself_name(self, id):
-        return self.session.query(User.USname).filter(User.USid == id).all()
+        return self.session.query(User.USname, User.USheadimg, User.USagentid).filter(User.USid == id).all()
 
     @close_session
     def getusername_by_preid(self, preid, page, count):
