@@ -98,8 +98,6 @@ class MakeData():
             self.session.add(product)
             self.session.commit()
 
-
-
     def add_user(self):
         from model import User
         user = User()
@@ -107,6 +105,7 @@ class MakeData():
         user.USname = 'fengxin'
         user.USphonenum = '13588046059'
         user.USagentid = 1
+        user.USwechat = 'wechat'
         user.USpassword = "123"
         user.USbail = 0
         user.USmount = 10000
@@ -120,6 +119,7 @@ class MakeData():
         user.USid = '3404cf38-c3cf-401f-8ba7-f8ce040f064f'
         user.USname = 'guodong'
         user.USagentid = 2
+        user.USwechat = 'wechat'
         user.USphonenum = '15058968546'
         user.USpassword = "123"
         user.USbail = 0
@@ -135,6 +135,7 @@ class MakeData():
             user.USid = 'rfesrgbrtthert4535g' + str(i)
             user.USname = 'guodongtest' + str(i)
             user.USphonenum = '1505896854' + str(i)
+            user.USwechat = 'wechat'
             user.USpassword = "123"
             user.USagentid = 100 + int(i)
             user.USbail = 0
@@ -150,6 +151,7 @@ class MakeData():
             user = User()
             user.USid = 'rfesrgbrtthert4535g22222' + str(i)
             user.USname = 'guodongtest222' + str(i)
+            user.USwechat = 'wechat'
             user.USphonenum = '1505896854' + str(i)
             user.USpassword = "123"
             user.USagentid = 106 + int(i)
@@ -166,6 +168,7 @@ class MakeData():
         user.USid = 'rfesrgbrtthert4535g2222233333'
         user.USname = 'guodongtest222333'
         user.USphonenum = '15058968549'
+        user.USwechat = 'wechat'
         user.USagentid = 200
         user.USpassword = "123"
         user.USbail = 0

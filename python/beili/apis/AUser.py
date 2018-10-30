@@ -19,7 +19,8 @@ class AUser(Resource):
             'findback_pwd': 'self.cuser.findback_pwd()',
             'update_pwd': 'self.cuser.update_pwd()',
             'update_headimg': 'self.cuser.update_headimg()',
-            'upload_file': 'self.cuser.upload_file()'
+            'upload_file': 'self.cuser.upload_file()',
+            'remove_file':'self.cuser.remove_file()'
         }
         res = eval(apis[user])
         return jsonify(res)

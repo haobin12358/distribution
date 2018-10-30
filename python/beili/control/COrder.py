@@ -93,7 +93,7 @@ class COrder():
             OIcreatetime = datetime.strftime(datetime.now(), format_for_db)
             result = self.sorder.check_stock(new_list)
             if not result:
-                return SYSTEM_ERROR
+                raise dberror
             result = self.sorder.add_order(session, OIid, OIsn, request.user.id, OInote, mount, UAid, OIcreatetime, PRlogisticsfee)
             if not result:
                 raise dberror

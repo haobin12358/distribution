@@ -1,9 +1,13 @@
 # *- coding:utf8 *-
 import sys
 import os
+import uuid
 from werkzeug.security import check_password_hash
 from service.SBase import SBase, close_session
 from models.model import User
+from models.model import InvitaRecord
+from datetime import datetime
+from common.timeformat import format_for_db
 from sqlalchemy import func
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -41,3 +45,33 @@ class SUser(SBase):
     @close_session
     def get_totaldirect(self, id):
         return self.session.query(func.count(User.USid)).filter_by(USpre=id).scalar()
+
+    def insertInvitate(self, session, data):
+        record = InvitaRecord()
+        record.IRIid = str(uuid.uuid4())
+        record.IRIpreid = data['preid']
+        record.IRIprename = data['prephonenum']
+        record.IRIprephonenum = data['prephonenum']
+        record.IRIpredetails = data['predetails']
+        record.IRIname = data['username']
+        record.IRIphonenum = data['phonenum']
+        record.IRIpassword = data['password']
+        record.IRIidcardnum = data['idcardnum']
+        record.IRIwechat = data['wechat']
+        record.IRIcity = data['cityid']
+        record.IRIarea = data['areaid']
+        record.IRIaddress = data['details']
+        record.IRIpaytype = data['paytype']
+        record.IRIpayamount = data['payamount']
+        record.IRIpaytime = data['paytime']
+        record.IRIpic = data['headimg']
+        record.IRIalipaynum = data['alipaynum']
+        record.IRIbankname = data['bankname']
+        record.IRIproof = data['proof']
+        record.IRIaccountname = data['accountname']
+        record.IRIcardnum = data['cardnum']
+        record.IRIstatus = 1
+        record.IRIcreatetime = datetime.strftime(datetime.now(), format_for_db)
+        session.add(record)
+        return True
+

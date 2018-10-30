@@ -27,11 +27,12 @@ class User(Base):
     USname = Column(String(64), nullable=False)  # 用户名
     USpassword = Column(String(255))             # 密码
     USphonenum = Column(String(16), nullable=False)  # 手机号
-    USagentid = Column(Integer)  # 代理编号
-    USheadimg = Column(String(255))               # 头像
+    USagentid = Column(Integer)                  # 代理编号
+    USheadimg = Column(String(255))              # 头像
     USbail = Column(Float)                       # 保证金余额
     USmount = Column(Float)                      # 账户余额
     USpre = Column(String(64))                   # 上级代理id
+    USwechat = Column(String(64))                # 用户微信号
     openid = Column(String(64))                  # 微信唯一值
     unionid = Column(String(255))                # 绑定公众号会出现
     accesstoken = Column(String(255))            # 微信token
@@ -80,87 +81,48 @@ class Product(Base):
     PRstatus = Column(Integer)     # 商品状态，1出售中，2已售罄，3已下架
     PAid = Column(String(64))      # 分类id，用于绑定商品类目，空值表示未绑定分类
 
-class InvitaLink(Base):
+class InvitaRecord(Base):
     """
-    邀请链接
-    """
-    __tablename__ = 'invitalink'
-    ILid = Column(String(64), primary_key=True)
-    USid = Column(String(64))  # 用户id
-    ILpic = Column(String(255))  # 邀请链接二维码图片地址
-    ILcreatetime = Column(String(14))  # 创建时间
-    ILendtime = Column(String(14))  # 失效时间
-    ILtimes = Column(String(64))  # 有效次数
-
-    """
-class InvitaRecordInfo(Base):
-    
     邀请记录详情(人工审核)
-    
-    __tablename__ = 'invitarecordinfo'
+    """
+    __tablename__ = 'invitarecord'
     IRIid = Column(String(64), primary_key=True)
-    ILid = Column(String(64))  # 邀请链接id
-    IRIname = Column(String(64))  # 被邀请人姓名
+    IRIpreid = Column(String(64))  # 邀请人id
+    IRIprename = Column(String(64))  # 邀请人姓名
+    IRIprephonenum = Column(String(64))  # 邀请人电话号码
+    IRIname = Column(String(64))  # 邀请人姓名
+    IRIpredetails = Column(String(255))  # 邀请人详细地址
     IRIphonenum = Column(String(64))  # 被邀请人电话号码
-    IRIpassword = Column(String(64))  # 被邀请人秘密
+    IRIpassword = Column(String(64))  # 被邀请人密码
+    IRIidcardnum = Column(String(64))  # 被邀请人身份证号码
     IRIwechat = Column(String(64))   # 被邀请人微信号
-    IRIcountry = Column(String(64))  # 被邀请人国家及地区
-    IRIprovince = Column(String(64))  # 被邀请人省份
-    IRIcity = Column(String(64))  # 被邀请人城市
-    IRIarea = Column(String(64))  # 被邀请人区县
+    IRIcity = Column(String(64))  # 被邀请人城市id
+    IRIarea = Column(String(64))  # 被邀请人区县id
     IRIaddress = Column(String(64))  # 被邀请人详细地址
-    IRIpaytype = Column(String(64))  # 打款方式: {0: 微信, 1: 支付宝, 2:银行转账}
+    IRIpaytype = Column(String(64))  # 打款方式: {1: 支付宝, 2:银行转账}
     IRIpayamount = Column(String(64))  # 付款金额
     IRIpaytime = Column(String(14))  # 打款时间
     IRIpic = Column(String(255))  # 被邀请人头像
-    IRIproof = Column(String(255))  # 被邀请人凭证
-    IRIstatus = Column(String(64))  # 邀请状态:{0:待审核, 1:审核通过, 2:审核不通过}
+    IRIproof = Column(String(512))  # 被邀请人凭证
+    IRIalipaynum = Column(String(64))  # 支付宝账户
+    IRIbankname = Column(String(64))  # 开户银行
+    IRIaccountname = Column(String(64))  # 银行户名
+    IRIcardnum = Column(String(64))  # 银行卡号
+    IRIstatus = Column(String(64))  # 邀请状态:{1:待审核, 2:审核通过, 3:审核不通过}
     IRIcreatetime = Column(String(14))  # 记录创建时间
-    """
-class InvitaOfAlipay(Base):
-    """
-    支付宝打款邀请详情
-    """
-    __tablename__ = 'invitaofalipay'
-    IOAid = Column(String(64), primary_key=True)
-    IRIod = Column(String(64))  # 对应邀请记录id
-    IOAnum = Column(String(64))  # 支付宝账户
 
-class InvitaOfBank(Base):
+class Qrcode(Base):
     """
-    银行卡打款邀请详情
+    二维码记录表
     """
-    __tablename__ = 'invitaofbank'
-    IOBid = Column(String(64), primary_key=True)
-    IRIod = Column(String(64))  # 对应邀请记录id
-    IOBbankname = Column(String(64))  # 开户银行
-    IOBacconame = Column(String(64))  # 银行户名
-    IOBcardnum = Column(String(64))  # 银行卡号
-
-
-class InvitaRecordInfoo(Base):
-    """
-    邀请记录详情(线上审核，如果需要)
-    """
-    __tablename__ = 'invitarecordinfoo'
-    IRIod = Column(String(64), primary_key=True)
-    ILid = Column(String(64))  # 邀请链接id
-    IRIname = Column(String(64))  # 被邀请人姓名
-    IRIphonenum = Column(String(64))  # 被邀请人电话号码
-    IRIpassword = Column(String(64))  # 被邀请人秘密
-    IRIwechat = Column(String(64))   # 被邀请人微信号
-    IRIcountry = Column(String(64))  # 被邀请人国家及地区
-    IRIprovince = Column(String(64))  # 被邀请人省份
-    IRIcity = Column(String(64))  # 被邀请人城市
-    IRIarea = Column(String(64))  # 被邀请人区县
-    IRIaddress = Column(String(64))  # 被邀请人详细地址
-    IRIpaytype = Column(String(64))  # 打款方式: {0: 微信, 1: 支付宝, 2:银行转账}
-    IRIpayamount = Column(String(64))  # 付款金额
-    IRIpaytime = Column(String(14))  # 打款时间
-    IRIpic = Column(String(255))  # 被邀请人头像
-    IRIproof = Column(String(255))  # 被邀请人凭证
-    IRIstatus = Column(String(64))  # 邀请状态:{0:待审核, 1:审核通过, 2:审核不通过}
-    IRIcreatetime = Column(String(14))  # 记录创建时间
+    __tablename__ = 'qrcode'
+    QRid = Column(String(64), primary_key=True)
+    USid = Column(String(64))  # 用户id
+    USname = Column(String(64), nullable=False)  # 用户名
+    USphonenum = Column(String(16), nullable=False)  # 用户手机号
+    QRcreatetime = Column(String(14))  # 创建时间
+    QRovertime = Column(String(14))  # 过期时间
+    QRurl = Column(String(255))  # url链接地址
 
 
 class OrderInfo(Base):
@@ -190,47 +152,22 @@ class OrderProductInfo(Base):
     PRimage = Column(String(255))  # 商品主图
     PRnum = Column(Integer)  # 购买数量
 
-class LoanRecharge(Base):
+class OfflineCharge(Base):
     """
-    贷款充值记录表(人工充值，与线上微信充值对立)
+    线下充值记录表
     """
-    __tablename__ = 'loanrecharge'
+    __tablename__ = 'offlinecharge'
     LRid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户
-    LRpaytype = Column(Integer)  # 充值方式:{0:支付宝, 1:银行转账}
+    LRpaytype = Column(Integer)  # 充值方式:{1:支付宝, 2:银行转账}
+    LRalipaynum = Column(String(64))  # 支付宝账户
+    LRbankname = Column(String(64))  # 银行名称
+    LRaccountname = Column(String(64))  # 开户名称
+    LRcardnum = Column(String(64))  # 银行卡账户
     LRpayamount = Column(Float)  # 充值金额
     LRpaydate = Column(String(14))  # 充值日期
     LRremark = Column(String(64))  # 充值备注
     LRcreatetime = Column(String(14))  # 记录创建时间
-
-class AlipyRecharge(Base):
-    """
-    贷款充值记录表，通过支付宝打款的详情
-    """
-    __tablename__ = 'alipyrecharge'
-    ARid = Column(String(64), primary_key=True)
-    LRid = Column(String(64))  # 贷款充值记录id
-    ARacount = Column(String(64))  # 支付宝账户
-
-class BankRecharge(Base):
-    """
-    贷款充值记录表，通过银行卡转账的详情
-    """
-    __tablename__ = 'bankrecharge'
-    BRid = Column(String(64), primary_key=True)
-    LRid = Column(String(64))  # 贷款充值记录id
-    BRbankname = Column(String(64))  # 银行名称
-    BRaccountname = Column(String(64))  # 开户名称
-    BRcardnum = Column(String(64))  # 银行卡账户
-
-class Bail(Base):
-    """
-    保证金
-    """
-    __tablename__ = 'bail'
-    BAid = Column(String(64), primary_key=True)
-    USid = Column(String(64))  # 用户id
-    BAamount = Column(String(64))  # 保证金金额
 
 class Reward(Base):
     """
@@ -279,11 +216,11 @@ class DiscountRuler(Base):
     DRnumber = Column(Float)  # 数量
     DRratio = Column(Float)  # 折扣比例
 
-class OnlineRecharge(Base):
+class OnlineCharge(Base):
     """
     微信线上充值记录表(如果需要)
     """
-    __tablename__ = 'onlinerecharge'
+    __tablename__ = 'onlinecharge'
     ONRid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户
     ONRamount = Column(Float)  # 充值金额
@@ -305,7 +242,6 @@ class OfflineDraw(Base):
     OFDcardnum = Column(String(19), nullable=False)      # 银行卡号
     OFDaccountname = Column(String(64), nullable=False)     # 开户名称
     OFDstatus = Column(Integer)  # 提现状态: {0: 全部, 1: 待审核, 2: 待打款, 3: 已打款 4: 未通过}
-    SUid = Column(String(64))  # 操作员
     OFDcreatetime = Column(String(14))  # 创建时间
     OFDtradenum = Column(String(125))  # 交易号, (如果有)
 
@@ -339,17 +275,7 @@ class Question(Base):
     __tablename__ = 'question'
     QUid = Column(String(64), primary_key=True)
     QUdate = Column(String(64))  # 反馈问题时间
-    QUtext = Column(String(128), nullable=False)  # 问题详情
-
-class UserLoginTime(Base):
-    """
-    用来记录用户的登录时间
-    """
-    __tablename__ = 'userlogintime'
-    ULTid = Column(String(64), primary_key=True)
-    USid = Column(String(64), nullable=False)  # 用户id
-    USTcreatetime = Column(String(14))  # 登录时间
-    USTip = Column(String(64))  # 登录ip地址
+    QUtext = Column(String(255), nullable=False)  # 问题详情
 
 class Province(Base):
     """省"""

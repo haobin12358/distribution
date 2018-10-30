@@ -12,6 +12,8 @@ from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
 from common.timeformat import get_db_time_str
 from service.SUser import SUser
+from service.DBSession import db_session
+from common.beili_error import stockerror, dberror
 from service.SMyCenter import SMyCenter
 import platform
 sys.path.append(os.path.dirname(os.getcwd()))
@@ -144,3 +146,78 @@ class CUser():
         url = QRCODEHOSTNAME + "/file/" + filename
         response["data"] = url
         return response
+
+    @verify_token_decorator
+    def remove_file(self):
+        try:
+            data = request.json
+            url = str(data.get('url'))
+        except:
+            return PARAMS_ERROR
+        list = url.split('/file/')
+        filename = list[0] + '/opt/beili' + list[1] + list[2]
+        os.remove(filename)
+        response = import_status("remove_file_success", "OK")
+        return response
+
+
+    @verify_token_decorator
+    def make_qrcode(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        userinfo = self.smycenter.get_user_basicinfo(request.user.id)
+
+    @verify_token_decorator
+    def register(self):
+        params = ['preid', 'preusername', 'prephonenum', 'predetails', 'username', 'phonenum', 'inforcode', 'password',
+                  'idcardnum', 'wechat', 'cityid', 'areaid', 'details', 'paytype', 'payamount', 'paytime',
+                  'headimg', 'proof', 'alipaynum', 'bankname', 'accountname', 'cardnum']
+        data = request.json
+        for param in data:
+            if param not in params:
+                return PARAMS_MISS
+        try:
+            preid = data['preid']
+            preusername = data['preusername']
+            prephonenum = data['prephonenum']
+            predetails = data['predetails']
+            username = data['username']
+            phonenum = data['phonenum']
+            inforcode = data['inforcode']
+            password = data['password']
+            idcardnum = data['idcardnum']
+            wechat = data['wechat']
+            cityid = data['cityid']
+            areaid = data['areaid']
+            details = data['details']
+            paytype = data['paytype']
+            payamount = data['payamount']
+            paytime = data['paytime']
+            headimg = data['headimg']
+            alipaynum = data['alipaynum']
+            bankname = data['bankname']
+            accountname = data['accountname']
+            cardnum = data['cardnum']
+            if int(paytype) == 1:
+                if not alipaynum or bankname or accountname or cardnum:
+                    return PARAMS_ERROR
+            if int(paytype) == 2:
+                if alipaynum or not bankname or not accountname or not cardnum:
+                    return PARAMS_ERROR
+        except:
+            return PARAMS_ERROR
+        session = db_session()
+        try:
+            result = self.suser.insertInvitate(session, data)
+            if not result:
+                raise dberror
+            session.commit()
+        except Exception as e:
+            print e
+            session.rollback()
+            return SYSTEM_ERROR
+        finally:
+            session.close()
+        response = import_status("register_success", "OK")
+        return response
+

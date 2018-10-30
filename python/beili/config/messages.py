@@ -33,4 +33,6 @@ get_performancelist_success = "获取业绩排行榜成功"
 get_directagent_list_success = "获取直属代理列表成功"
 get_destributionagent_list_success = "获取分销商代理列表成功"
 get_distribuagent_list_success = "获取分销商代理列表成功"
+register_success = "提交成功，请等待审核！"
+remove_file_success = "移除文件成功"
 
