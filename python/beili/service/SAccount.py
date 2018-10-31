@@ -20,4 +20,9 @@ class SAccount(SBase):
 
     @close_session
     def get_discount_ruler(self):
-        return self.session.query(DiscountRuler.DRnumber, DiscountRuler.DRratio).order_by(DiscountRuler.DRmoney).all()
+        return self.session.query(DiscountRuler.DRnumber, DiscountRuler.DRratio).order_by(DiscountRuler.DRnumber).all()
+
+    @close_session
+    def get_user_performance(self, usid, month):
+        return self.session.query(Amount.USname, Amount.performance, Amount.USheadimg, Amount.USagentid
+                                  ).filter_by(USid=usid).filter_by(AMmonth=month).all()

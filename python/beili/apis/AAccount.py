@@ -14,7 +14,8 @@ class AAccount(Resource):
     def post(self, account):
         print account
         apis = {
-            'get_account': 'self.caccount.get_account()'
+            'get_account': 'self.caccount.get_account()',
+            'get_rank_list': 'self.caccount.get_rank_list()',
         }
         res = eval(apis[account])
         return jsonify(res)
@@ -22,7 +23,8 @@ class AAccount(Resource):
     def get(self, account):
         print account
         apis = {
-
+            'get_directagent': 'self.caccount.get_directagent()',
+            'get_distribute': 'self.caccount.get_distribute()'
         }
         res = eval(apis[account])
         return jsonify(res)

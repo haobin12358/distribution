@@ -41,7 +41,8 @@ class SOrder(SBase):
         session.add(product)
         return True
 
-    def add_order(self, session, OIid, OIsn, USid, OInote, OImount, UAid, OIcreatetime, logisticsfee):
+    def add_order(self, session, OIid, OIsn, USid, OInote, OImount, UAid, OIcreatetime, logisticsfee,
+                  provincename, cityname, areaname, details, username, userphonenum):
         order = OrderInfo()
         order.OIid = OIid
         order.OIsn = OIsn
@@ -51,6 +52,12 @@ class SOrder(SBase):
         order.UAid = UAid
         order.OIcreatetime = OIcreatetime
         order.OIlogisticsfee = logisticsfee
+        order.provincename = provincename
+        order.cityname = cityname
+        order.areaname = areaname
+        order.details = details
+        order.username = username
+        order.userphonenum = userphonenum
         session.add(order)
         return True
 
@@ -84,4 +91,6 @@ class SOrder(SBase):
     def get_order_details(self, oisn):
         return self.session.query(OrderInfo.OIid, OrderInfo.OIsn, OrderInfo.OIcreatetime, OrderInfo.OIstatus,\
                                   OrderInfo.OIlogisticsfee, OrderInfo.USid, OrderInfo.UAid, OrderInfo.OInote\
-                                  , OrderInfo.OImount, OrderInfo.OIcreatetime).filter(OrderInfo.OIsn == oisn).first()
+                                  , OrderInfo.OImount, OrderInfo.OIcreatetime, OrderInfo.username, OrderInfo.userphonenum\
+                                  , OrderInfo.provincename, OrderInfo.cityname, OrderInfo.areaname, OrderInfo.details)\
+                                  .filter(OrderInfo.OIsn == oisn).first()

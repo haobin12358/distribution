@@ -183,3 +183,8 @@ NOT_FOUND_FILE = {
     "status_code": 405022,
     "message": "图片未找到"
 }
+DELETE_CODE_FAIL = {
+    "status": 405,
+    "status_code": 405023,
+    "message": "删除二维码失败"
+}
