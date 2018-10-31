@@ -2,6 +2,7 @@
 import sys
 import os
 import json
+import uuid
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
@@ -136,7 +137,7 @@ class CUser():
             os.makedirs(rootdir)
         lastpoint = str(files.filename).rindex(".")
         filessuffix = str(files.filename)[lastpoint + 1:]
-        filename = request.user.id + get_db_time_str() + "." + filessuffix
+        filename = str(uuid.uuid4) + get_db_time_str() + "." + filessuffix
         filepath = os.path.join(rootdir, filename)
         print(filepath)
         files.save(filepath)
@@ -160,9 +161,14 @@ class CUser():
 
 
     @verify_token_decorator
-    def make_qrcode(self):
+    def add_qrcode(self):
         if is_tourist():
             return TOKEN_ERROR
+        try:
+            data = request.json
+            url = str(data.get('url'))
+        except:
+            return PARAMS_ERROR
         userinfo = self.smycenter.get_user_basicinfo(request.user.id)
 
     @verify_token_decorator
