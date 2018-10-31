@@ -137,7 +137,7 @@ class CUser():
             os.makedirs(rootdir)
         lastpoint = str(files.filename).rindex(".")
         filessuffix = str(files.filename)[lastpoint + 1:]
-        filename = str(uuid.uuid4) + get_db_time_str() + "." + filessuffix
+        filename = str(uuid.uuid4()) + get_db_time_str() + "." + filessuffix
         filepath = os.path.join(rootdir, filename)
         print(filepath)
         files.save(filepath)
