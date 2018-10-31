@@ -420,6 +420,8 @@ class CMyCenter():
             USphonenum = data.get('USphonenum')
             details = data.get('details')
             areaid = data.get('areaid')
+            if not areaid:
+                cityid = data.get('cityid')
         except:
             return PARAMS_ERROR
         update_address = {}
@@ -427,6 +429,8 @@ class CMyCenter():
         update_address['UAphonenum'] = USphonenum
         update_address['UAdetails'] = details
         update_address['areaid'] = areaid
+        if not areaid:
+            update_address['cityid'] = cityid
         update_result = self.smycenter.update_address(request.user.id, UAid, update_address)
         if update_result:
             response = import_status("update_address_success", "OK")

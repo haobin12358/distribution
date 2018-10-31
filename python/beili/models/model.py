@@ -140,6 +140,12 @@ class OrderInfo(Base):
     UAid = Column(String(255), nullable=False)  # 地址id
     OIcreatetime = Column(String(14))  # 订单创建时间
     OIlogisticsfee = Column(Float)  # 订单运费
+    username = Column(String(64))  # 联系人
+    userphonenum = Column(String(64))  # 电话号码
+    provincename = Column(String(64))  # 省
+    cityname = Column(String(64))  # 市
+    areaname = Column(String(64))  # 区
+    details = Column(String(255))  # 详细地址
 
 class OrderProductInfo(Base):
     """订单商品详情, 多个订单商品详情对应一个订单"""

@@ -122,8 +122,6 @@ class CUser():
 
     @verify_token_decorator
     def upload_file(self):
-        if is_tourist():
-            return TOKEN_ERROR
         try:
             files = request.files.get("file")
         except:
@@ -155,7 +153,7 @@ class CUser():
         except:
             return PARAMS_ERROR
         list = url.split('/file/')
-        filename = list[0] + '/opt/beili' + list[1] + list[2]
+        filename = list[0] + '/opt/beili/file/' + list[1]
         os.remove(filename)
         response = import_status("remove_file_success", "OK")
         return response

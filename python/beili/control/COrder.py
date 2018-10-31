@@ -94,7 +94,34 @@ class COrder():
             result = self.sorder.check_stock(new_list)
             if not result:
                 raise dberror
-            result = self.sorder.add_order(session, OIid, OIsn, request.user.id, OInote, mount, UAid, OIcreatetime, PRlogisticsfee)
+
+            address = get_model_return_dict(self.smycenter.get_other_address(request.user.id, UAid))
+            if not address:
+                return NO_ADDRESS
+            area = get_model_return_dict(self.smycenter.get_area_by_areaid(address['areaid']))
+            from common.timeformat import get_web_time_str
+            if area:
+                city = get_model_return_dict(self.smycenter.get_city_by_cityid(area['cityid']))
+                province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city['provinceid']))
+                provincename = province['provincename']
+                cityname = city['cityname']
+                areaname = area['areaname']
+                details = address['UAdetails']
+                username = address['UAname']
+                userphonenum = address['UAphonenum']
+            else:
+                city = get_model_return_dict(self.smycenter.get_city_by_cityid(address['cityid']))
+                province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city['provinceid']))
+                provincename = province['provincename']
+                cityname = city['cityname']
+                areaname = None
+                details = address['UAdetails']
+                username = address['UAname']
+                userphonenum = address['UAphonenum']
+
+
+            result = self.sorder.add_order(session, OIid, OIsn, request.user.id, OInote, mount, UAid, OIcreatetime,
+                                           PRlogisticsfee, provincename, cityname, areaname, details, username, userphonenum)
             if not result:
                 raise dberror
             for product in new_list:
@@ -196,34 +223,8 @@ class COrder():
         except:
             return PARAMS_ERROR
         detail = get_model_return_dict(self.sorder.get_order_details(OIsn))
-        if not detail:
-            response = import_status("get_orderdetails_success", "OK")
-            response['data'] = []
-            return response
-        address = get_model_return_dict(self.smycenter.get_other_address(request.user.id, detail['UAid']))
-        if not address:
-            return NO_ADDRESS
-        area = get_model_return_dict(self.smycenter.get_area_by_areaid(address['areaid']))
         from common.timeformat import get_web_time_str
-        if area:
-            city = get_model_return_dict(self.smycenter.get_city_by_cityid(area['cityid']))
-            province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city['provinceid']))
-            detail['provincename'] = province['provincename']
-            detail['cityname'] = city['cityname']
-            detail['areaname'] = area['areaname']
-            detail['details'] = address['UAdetails']
-            detail['username'] = address['UAname']
-            detail['userphonenum'] = address['UAphonenum']
-            detail['createtime'] = get_web_time_str(address['UAcreatetime'])
-        else:
-            city = get_model_return_dict(self.smycenter.get_city_by_cityid(address['cityid']))
-            province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city['provinceid']))
-            detail['provincename'] = province['provincename']
-            detail['cityname'] = city['cityname']
-            detail['details'] = address['UAdetails']
-            detail['username'] = address['UAname']
-            detail['userphonenum'] = address['UAphonenum']
-            detail['createtime'] = get_web_time_str(address['UAcreatetime'])
+        detail['createtime'] = get_web_time_str(detail['OIcreatetime'])
         product_list = get_model_return_list(self.sorder.get_product_list(detail['OIid']))
         detail['product_list'] = product_list
         response = import_status("get_orderdetails_success", "OK")
