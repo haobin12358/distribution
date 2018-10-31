@@ -6,7 +6,7 @@ import uuid
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
-    NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR, NOT_FOUND_FILE
+    NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR, NOT_FOUND_FILE, DELETE_CODE_FAIL
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser
 from common.import_status import import_status
@@ -16,6 +16,8 @@ from service.SUser import SUser
 from service.DBSession import db_session
 from common.beili_error import stockerror, dberror
 from service.SMyCenter import SMyCenter
+from datetime import datetime
+from common.timeformat import format_for_db
 import platform
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -166,10 +168,58 @@ class CUser():
             return TOKEN_ERROR
         try:
             data = request.json
-            url = str(data.get('url'))
+            date = str(data.get('overtime'))
+            number = int(data.get('number'))
         except:
             return PARAMS_ERROR
-        userinfo = self.smycenter.get_user_basicinfo(request.user.id)
+        result = self.suser.add_qrcode(str(uuid.uuid4()), request.user.id, date, number)
+        if result:
+            response = import_status("add_qrcode_success", "OK")
+            return response
+        else:
+            return SYSTEM_ERROR
+
+    @verify_token_decorator
+    def get_qrcode(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+        except:
+            return PARAMS_ERROR
+        time = datetime.strftime(datetime.now(), format_for_db)
+        qrcode_list = self.suser.get_qrcode_list(request.user.id)
+        if qrcode_list:
+            return_list = []
+            qrcode_list = get_model_return_list(qrcode_list)
+            for code in qrcode_list:
+                if str(code['QRovertime']) > time:
+                    return_list.append(code)
+            response = import_status("get_qrcode_success", "OK")
+            response['data'] = return_list
+            return response
+        else:
+            response = import_status("get_qrcode_success", "OK")
+            response['data'] = []
+            return response
+
+    @verify_token_decorator
+    def delete_qrcode(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            qrcodeid = str(data.get('qrcodeid'))
+        except:
+            return PARAMS_ERROR
+        if not qrcodeid:
+            return PARAMS_ERROR
+        result = self.suser.delete_qrcode(request.user.id, qrcodeid)
+        if request:
+            response = import_status("delete_qrcode_success", "OK")
+            return response
+        else:
+            return DELETE_CODE_FAIL
 
     @verify_token_decorator
     def register(self):

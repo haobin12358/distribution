@@ -118,12 +118,9 @@ class Qrcode(Base):
     __tablename__ = 'qrcode'
     QRid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户id
-    USname = Column(String(64), nullable=False)  # 用户名
-    USphonenum = Column(String(16), nullable=False)  # 用户手机号
-    QRcreatetime = Column(String(14))  # 创建时间
-    QRovertime = Column(String(14))  # 过期时间
-    QRurl = Column(String(255))  # url链接地址
-
+    QRovertime = Column(String(64))  # 过期时间
+    QRnumber = Column(String(64))  # 使用次数
+    QRstatus = Column(Integer, default=1)  #1 可用
 
 class OrderInfo(Base):
     """订单信息"""

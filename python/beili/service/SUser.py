@@ -5,6 +5,7 @@ import uuid
 from werkzeug.security import check_password_hash
 from service.SBase import SBase, close_session
 from models.model import User
+from models.model import Qrcode
 from models.model import InvitaRecord
 from datetime import datetime
 from common.timeformat import format_for_db
@@ -75,3 +76,25 @@ class SUser(SBase):
         session.add(record)
         return True
 
+    @close_session
+    def add_qrcode(self, id, usid, date, number):
+        from models.model import Qrcode
+        code = Qrcode()
+        code.QRid = id
+        code.USid = usid
+        code.QRovertime = date
+        code.QRnumber = number
+        self.session.add(code)
+        return True
+
+    @close_session
+    def get_qrcode_list(self, id):
+        return self.session.query(Qrcode.QRovertime, Qrcode.QRnumber, Qrcode.QRid).filter(Qrcode.USid == id).\
+            filter(Qrcode.QRstatus == 1).all()
+
+    @close_session
+    def delete_qrcode(self, id, codeid):
+        update = {}
+        update['QRstatus'] = 0
+        self.session.query(Qrcode).filter(Qrcode.USid == id).filter(Qrcode.QRid == codeid).update(update)
+        return True

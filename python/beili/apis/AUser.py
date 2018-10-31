@@ -20,7 +20,10 @@ class AUser(Resource):
             'update_pwd': 'self.cuser.update_pwd()',
             'update_headimg': 'self.cuser.update_headimg()',
             'upload_file': 'self.cuser.upload_file()',
-            'remove_file':'self.cuser.remove_file()'
+            'remove_file':'self.cuser.remove_file()',
+            'delete_qrcode': 'self.cuser.delete_qrcode()',
+            'add_qrcode': 'self.cuser.add_qrcode()',
+
         }
         res = eval(apis[user])
         return jsonify(res)
@@ -29,6 +32,7 @@ class AUser(Resource):
         print user
         apis = {
             'get_single_message': 'self.cuser.get_single_message()',
+            'get_qrcode': 'self.cuser.get_qrcode()'
         }
         res = eval(apis[user])
         return jsonify(res)

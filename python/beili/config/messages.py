@@ -35,4 +35,7 @@ get_destributionagent_list_success = "获取分销商代理列表成功"
 get_distribuagent_list_success = "获取分销商代理列表成功"
 register_success = "提交成功，请等待审核！"
 remove_file_success = "移除文件成功"
+add_qrcode_success = "添加二维码成功"
+get_qrcode_success = "获取二维码成功"
+delete_qrcode_success = "删除二维码成功"
 
