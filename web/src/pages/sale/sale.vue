@@ -113,57 +113,69 @@
 
         <section class="month-picker">
             <img src="/static/images/datepicker-left.png" @click="prevMonth" alt="" class="arrow">
-            <span class="date">{{monthPickerDate}}</span>
+            <span class="date">{{pickerMonth}}</span>
             <img src="/static/images/datepicker-right.png" @click="nextMonth" alt="" class="arrow">
         </section>
 
         <section class="sale-info-total">
             <p class="row-one">
-                <span class="unit">￥</span>5230.00
+                <span class="unit">￥</span>{{saleDetail.myprofit || 0}}
             </p>
             <section class="row-two">
                 <section class="row-two-section">
                     <p class="title">直推奖励</p>
-                    <p class="value">1120.50</p>
+                    <p class="value">{{saleDetail.reward || 0}}</p>
                     <p class="sale-num-title title">销售量</p>
 
                 </section>
                 <section class="row-two-section">
                     <p class="title">销售件数返点</p>
-                    <p class="value">10%</p>
-                    <p class="sale-num-value value">0 <span class="unit">件</span></p>
+                    <p class="value">{{saleDetail.discount || 0}}</p>
+                    <p class="sale-num-value value">{{saleDetail.performance || 0}}<span class="unit">件</span></p>
                 </section>
             </section>
         </section>
 
         <ul class="sale-record-list">
-            <li class="sale-record-item" v-for="item in 9">
-                <img class="customer-img" src="/static/images/testbg.jpg" alt="">
+            <li class="sale-record-item" v-for="item in rankList">
+                <img class="customer-img" :src="item.USheadimg" alt="">
 
                 <span class="customer-name">
-                    x
+                    {{item.USname}}
                 </span>
-                <span class="sale-num">业绩:100件</span>
+                <span class="sale-num">业绩:{{item.performance}}件</span>
             </li>
         </ul>
     </div>
 </template>
 
 <script>
+    import {getAccount, getRankList} from "src/api/api"
+
     export default {
         name: "sale",
 
         data() {
             return {
                 now: Date.now(),
+
+                saleDetail: {},
+                rankList: [],
             }
         },
 
         computed:{
-          monthPickerDate(){
+          pickerMonth(){
               let nowDate = new Date(this.now);
+              let month = nowDate.getFullYear() + '-' ;
 
-              return nowDate.getFullYear() + '-' + (nowDate.getMonth()+1)
+              if(nowDate.getMonth()+1 < 10){
+                  month += '0'+ (nowDate.getMonth()+1);
+              }else{
+                  month += (nowDate.getMonth()+1);
+              }
+
+              return month;
           }
         },
 
@@ -172,12 +184,36 @@
         methods: {
             prevMonth(){
                 this.now = new Date(this.now).setDate(-1);
+                this.setData();
             },
 
             nextMonth(){
                 this.now = new Date(this.now).setDate(32);
+                this.setData();
             },
+            setData(){
+                let month = this.pickerMonth.replace('-', '');
+
+                getAccount(month).then(
+                    resData => {
+                        if(resData){
+                            this.saleDetail = resData.data;
+                        }
+                    }
+                );
+                getRankList(month).then(
+                    resData => {
+                        if(resData){
+                            this.rankList = resData.data;
+                        }
+                    }
+                );
+            }
         },
+
+        created(){
+            this.setData();
+        }
     }
 </script>
 

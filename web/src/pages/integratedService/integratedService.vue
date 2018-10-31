@@ -34,6 +34,19 @@
                     margin-right: 20px;
                 }
 
+                &:nth-of-type(2){
+                    .cell-icon {
+                        .wl(47px, 44px);
+                    }
+                }
+
+                &:nth-of-type(3){
+                    .cell-icon {
+                        .wl(48px, 62px);
+                    }
+                }
+
+
                 .cell-title {
                     flex: 1;
                     .fz(32px);
@@ -121,7 +134,7 @@
                 this.$messagebox.confirm('确定退出系统?').then(
                     action => {
                         localStorage.clear();   // todo 不应该请调所有缓存
-                        this.$router.push('/login');
+                        this.$router.replace('/login');
                     }
                 ).catch(evt=>{})
             }

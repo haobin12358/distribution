@@ -47,6 +47,7 @@ const wantInvite = r => require.ensure([], () => r(require('../pages/promotion/w
 const newInvite = r => require.ensure([], () => r(require('../pages/promotion/newInvite')), 'newInvite')
 const inviteLink = r => require.ensure([], () => r(require('../pages/promotion/inviteLink')), 'inviteLink')
 const applyAgent = r => require.ensure([], () => r(require('../pages/promotion/applyAgent')), 'applyAgent')
+const agentAgreement = r => require.ensure([], () => r(require('../pages/promotion/agentAgreement')), 'agentAgreement')
 
 const integratedService = r => require.ensure([], () => r(require('../pages/integratedService/integratedService')), 'integratedService')
 const feedback = r => require.ensure([], () => r(require('../pages/integratedService/feedback')), 'feedback')
@@ -299,7 +300,7 @@ export const constantRouterMap = [
         component: inviteLink,
         meta: {
             title: '邀请链接',
-            requiresAuth: true
+            requiresAuth: false
 
         },
     }, {
@@ -307,7 +308,15 @@ export const constantRouterMap = [
         component: applyAgent,
         meta: {
             title: '申请代理',
-            requiresAuth: true
+            requiresAuth: false
+
+        },
+    },{
+        path: '/agentAgreement',
+        component: agentAgreement,
+        meta: {
+            title: '代理协议',
+            requiresAuth: false
 
         },
     },
@@ -391,7 +400,7 @@ router.beforeEach((to, from, next) => {
         if (!getStore(TOKEN)) {
             next({
                 path: '/login',
-                query: {redirect: to.fullPath}  // 将跳转的路由path作为参数，登录成功后跳转到该路由
+                // query: {redirect: to.fullPath}  // 将跳转的路由path作为参数，登录成功后跳转到该路由
             })
         } else {
             next();

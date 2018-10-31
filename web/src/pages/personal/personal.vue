@@ -4,13 +4,15 @@
     .container {
         padding-bottom: 100px;
 
-        .banner {
-            height: 290px;
+        .container-hd{
             position: relative;
-            margin-bottom: 10px;
+            .banner {
+                height: 290px;
+                margin-bottom: 10px;
 
-            .banner-img {
-                .wl(100%, 100%);
+                .banner-img {
+                    .wl(100%, 100%);
+                }
             }
 
             .go-setting {
@@ -20,6 +22,7 @@
                 right: 22px;
             }
         }
+
 
         .user-info {
             padding: 11px 26px;
@@ -93,12 +96,15 @@
 
 <template>
     <div class="container">
-        <mt-swipe class="banner">
-            <mt-swipe-item v-for="item in 5" :key="item">
-                <img class="banner-img" src="/static/images/testbg.jpg" alt="">
-            </mt-swipe-item>
+        <section class="container-hd">
+            <mt-swipe class="banner">
+                <mt-swipe-item v-for="item in 5" :key="item">
+                    <img class="banner-img" src="/static/images/testbg.jpg" alt="">
+                </mt-swipe-item>
+            </mt-swipe>
             <router-link to="/setting" tag="img" class="go-setting" src="/static/images/setting.png" ></router-link>
-        </mt-swipe>
+        </section>
+
 
         <section class="user-info">
             <section class="user-img">

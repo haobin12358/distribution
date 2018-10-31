@@ -72,26 +72,30 @@
         <header-top :show-back="true"></header-top>
 
         <upload-old-head-img label="头像" :imgs="oldHeadImgs"></upload-old-head-img>
-        <upload-new-head-img label="新头像" :readOnly="false" :imgs.sync="newHeadImgs"
+        <upload-new-head-img label="新头像" :readOnly="false" @update="updateNewHeadImg" @isUploading="listenUpload"
                              :upload-limit="1"></upload-new-head-img>
 
-        <img src="/static/../../testbg.jpg" style="width: 200px;height:  200px;" alt="">
         <section class="my-confirm-btn-wrap">
-            <button class="my-confirm-btn">确 认</button>
+            <button v-if="isImgUploading" class="my-confirm-btn disabled">头 像 上 传 中...</button>
+            <button v-else @click="doConfirm" class="my-confirm-btn">确 认</button>
         </section>
     </div>
 </template>
 
 <script>
     import UploadField from "src/components/common/uploadField"
+    import {updateHeadImg} from "src/api/api"
+
 
     export default {
         name: "changeHeadImg",
 
         data() {
             return {
-                oldHeadImgs: ['/static/images/testbg.jpg'],
+                oldHeadImgs: [],
                 newHeadImgs: [],
+
+                isImgUploading: true
             }
         },
 
@@ -102,9 +106,31 @@
 
         computed: {},
 
-        methods: {},
+        methods: {
+            updateNewHeadImg(imgs){
+                this.newHeadImgs = imgs;
+            },
+            listenUpload(bool){
+                this.isImgUploading = bool;
+            },
+            doConfirm(){
+                if(this.newHeadImgs[0]){
+                    updateHeadImg(this.newHeadImgs[0]).then(
+                        data=>{
+                            if(data){
+                                this.$toast('修改成功');
+                                this.$router.back();
+                            }
+                        }
+                    )
+                }else{
+                    this.$toast('请选择要上传的头像!');
+                }
+            }
+        },
 
         created() {
+            this.oldHeadImgs[0] = this.$store.state.userInfo.USheadimg;
         },
     }
 </script>

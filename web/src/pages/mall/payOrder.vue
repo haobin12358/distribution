@@ -225,7 +225,7 @@
 </template>
 
 <script>
-    import {mapState, mapGetters,mapActions} from "vuex"
+    import {mapState, mapGetters, mapActions} from "vuex"
     import {createOrder, getUserAddress} from "src/api/api"
 
 
@@ -248,17 +248,12 @@
 
         methods: {
             ...mapActions(['getUserInfo']),
-            async setDefaultAddress(){
-                let {data} = await getUserAddress(1, 0, '');
+            async setDefaultAddress() {
+                let resData = await getUserAddress(1, 0, '');
 
-                if(Object.keys(data).length){
-                    this.defaultAddress = data;  //  todo 测试没有地址
-                }else if(data.length){
-                    this.defaultAddress = data[0];
-                }else{
-                    this.defaultAddress = null;
+                if (resData) {
+                    this.defaultAddress = resData.data;
                 }
-                console.log(this.defaultAddress);
             },
 
             confirmPayOrder() {
@@ -267,17 +262,21 @@
                         () => {
                             createOrder(this.defaultAddress.uaid, this.usefulCartList,
                                 this.remark, this.payDeliverFee, this.cartTotalPrice).then(
-                                ({success, message, data: newCartList}) => {
-                                    if(success){
-                                        this.$toast(message);
-                                        this.$store.commit('CLEAR_CART');
-                                        //  更新账户余额
-                                        this.getUserInfo();
+                                (resData) => {
+                                    if (resData) {
+                                        let {success, message, data: newCartList} = resData;
 
-                                        this.$router.back();
-                                    }else{
-                                        this.$messagebox('提示','商品价格或运费有变动,下单失败,数据已更新,请再次确认下单!')
-                                        this.$store.commit('SET_CART', newCartList);
+                                        if (success) {
+                                            this.$toast(message);
+                                            this.$store.commit('CLEAR_CART');
+                                            //  更新账户余额
+                                            this.getUserInfo();
+
+                                            this.$router.back();
+                                        } else {
+                                            this.$messagebox('提示', '商品价格或运费有变动,下单失败,数据已更新,请再次确认下单!')
+                                            this.$store.commit('SET_CART', newCartList);
+                                        }
                                     }
                                 }
                             )
