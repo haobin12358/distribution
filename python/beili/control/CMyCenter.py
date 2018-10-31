@@ -425,6 +425,7 @@ class CMyCenter():
             return TOKEN_ERROR
         try:
             data = request.json
+            #print data
             UAid = data.get('UAid')
             USname = data.get('USname')
             USphonenum = data.get('USphonenum')
