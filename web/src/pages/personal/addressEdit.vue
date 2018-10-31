@@ -43,7 +43,7 @@
             <mt-field label="详细地址" v-model.trim="formData.details" placeholder="请输入详细地址"></mt-field>
             <!--<mt-field label="邮政编码" placeholder="请输入邮政编码"></mt-field>-->
             <!--<mt-field label="设为默认地址" placeholder="" :readonly="true">-->
-                <!--<mt-switch v-model="isDefault"></mt-switch>-->
+            <!--<mt-switch v-model="isDefault"></mt-switch>-->
             <!--</mt-field>-->
 
         </section>
@@ -65,7 +65,7 @@
 </template>
 
 <script>
-    import {getAllArea,addUserAddress,updateUserAddress} from "src/api/api"
+    import {getAllArea, addUserAddress, updateUserAddress} from "src/api/api"
     import {getStore, setStore} from "src/common/js/mUtils"
     import common from "src/common/js/common"
     import {ALL_AREA} from "src/common/js/const"
@@ -163,7 +163,7 @@
                     this.formData.areaid = this.pickAreaVal[2].id;
                     this.city = this.pickAreaVal[0].name + ' ' + this.pickAreaVal[1].name + ' ' + this.pickAreaVal[2].name;
                     this.cityPopupVisible = false;
-                }else if(this.pickAreaVal[1] && this.pickAreaVal[1].id){
+                } else if (this.pickAreaVal[1] && this.pickAreaVal[1].id) {
                     this.formData.areaid = '';
 
                     this.formData.cityid = this.pickAreaVal[1].id;
@@ -172,7 +172,7 @@
                 }
 
             },
-            initCityPicker(){
+            initCityPicker() {
                 this.allArea = JSON.parse(getStore(ALL_AREA));
                 this.slots[0].values = this.allArea.map(item => {
                     return {
@@ -193,17 +193,17 @@
                     this.cityPopupVisible = true
                 }, 300)
             },
-            formDataCheck(){
-                if(!this.formData.USname){
+            formDataCheck() {
+                if (!this.formData.USname) {
                     return '请输入收件人';
                 }
-                if(!this.formData.USphonenum){
+                if (!this.formData.USphonenum) {
                     return '请输入手机号';
                 }
-                if(!(this.formData.cityid|| this.formData.areaid)){
+                if (!(this.formData.cityid || this.formData.areaid)) {
                     return '请选择省市县';
                 }
-                if(!this.formData.details){
+                if (!this.formData.details) {
                     return '请输入详细地址';
                 }
 
@@ -211,24 +211,28 @@
             saveAddress() {
                 let checkMsg = this.formDataCheck();
 
-                if(checkMsg){
+                if (checkMsg) {
                     this.$toast(checkMsg);
                     return;
-                }else{
-                    let {UAid,USname, USphonenum, areaid,cityid, details} = this.formData;
+                } else {
+                    let {UAid, USname, USphonenum, areaid, cityid, details} = this.formData;
 
-                    if(this.isAdd){
-                        addUserAddress(USname,USphonenum,details,areaid,cityid).then(
+                    if (this.isAdd) {
+                        addUserAddress(USname, USphonenum, details, areaid, cityid).then(
                             data => {
-                                this.$toast('新增地址成功');
-                                this.$router.back();
+                                if (data) {
+                                    this.$toast('新增地址成功');
+                                    this.$router.back();
+                                }
                             }
-                    )
-                    }else{
-                        updateUserAddress(UAid, USname, USphonenum, details, areaid,cityid).then(
+                        )
+                    } else {
+                        updateUserAddress(UAid, USname, USphonenum, details, areaid, cityid).then(
                             data => {
-                                this.$toast('地址修改成功');
-                                this.$router.back();
+                                if (data) {
+                                    this.$toast('地址修改成功');
+                                    this.$router.back();
+                                }
                             }
                         )
                     }
@@ -249,11 +253,11 @@
                 this.formData.areaid = editAddress.areaid;
                 this.formData.details = editAddress.details;
 
-                this.city = editAddress.provincename + ' ' + editAddress.cityname  ;
-                if(editAddress.areaname){
+                this.city = editAddress.provincename + ' ' + editAddress.cityname;
+                if (editAddress.areaname) {
                     this.city += ' ' + editAddress.areaname;
                 }
-            }else{
+            } else {
                 common.changeTitle('新增地址');
             }
         },

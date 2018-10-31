@@ -139,9 +139,11 @@
                 this.$messagebox.confirm('确认删除该地址?').then(
                     ()=>{
                         deleteUserAddress(address.uaid).then(
-                            ({message})=>{
-                                this.$toast(message);
-                                this.refreshAddressList();
+                            (data)=>{
+                                if(data){
+                                    this.$toast(data.message);
+                                    this.refreshAddressList();
+                                }
                             }
                         )
                     }
@@ -153,13 +155,15 @@
 
                 if(defaultAddress){
                     changeDefaultAddress(defaultAddress.uaid, address.uaid).then(
-                        ({message}) => {
-                            this.$toast(message);
+                        (data)=>{
+                            if(data) {
+                                this.$toast(data.message);
 
-                            if(this.isChoose){
-                                this.$router.back();
-                            }else{
-                                this.refreshAddressList();
+                                if (this.isChoose) {
+                                    this.$router.back();
+                                } else {
+                                    this.refreshAddressList();
+                                }
                             }
                         }
                     )

@@ -22,6 +22,11 @@
             <mt-field class="form-item" label="有效期限" placeholder="请选择有效期限" v-model="expiryDate" :readonly="true"
                       :disableClear="true" @click.native="sheetVisible =true"></mt-field>
             <mt-field class="form-item" label="可用次数" placeholder="请输入可用次数"></mt-field>
+
+
+            <mt-field class="form-item" label="邀请人" placeholder="有就用默认地址的"></mt-field>
+            <mt-field class="form-item" label="电话" placeholder="有就用默认地址的"></mt-field>
+            <mt-field class="form-item" label="地址" placeholder="有就用默认地址的"></mt-field>
         </section>
 
         <section class="my-confirm-btn-wrap">

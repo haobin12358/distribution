@@ -26,14 +26,14 @@
                     .sc(24px, #999999);
                 }
 
-                .close{
+                .close {
                     .wl(48px, 48px);
 
                 }
             }
         }
         .people-info-item-wrap {
-            padding-left:33px ;
+            padding-left: 33px;
             .bgw();
 
             .people-info-item {
@@ -79,39 +79,54 @@
                 <img src="/static/images/search.png" class="icon" alt="">
                 <input type="text" placeholder="搜索联系人" v-model="addressBookSearch">
                 <transition name="router-fade">
-                    <img v-if="addressBookSearch" src="/static/images/close.png" class="icon" @click="addressBookSearch = ''" alt="">
+                    <img v-if="addressBookSearch" src="/static/images/close.png" class="icon"
+                         @click="addressBookSearch = ''" alt="">
                 </transition>
             </section>
         </section>
 
         <mt-tab-container v-model="selected" :swipeable="true">
             <mt-tab-container-item id="1">
-                <section class="address-book">
+                <mt-index-list>
+                    <mt-index-section v-for="indexItem in directAgentFilter" :key="indexItem.index"
+                                      :index="indexItem.index">
+                        <section class="people-info-item-wrap">
+                            <section class="people-info-item" v-for="info in indexItem.list">
+                                <img :src="info.USheadimg" alt="" class="people-img">
 
-                </section>
+                                <span class="people-name">{{info.USname}}</span>
+                                <span class="people-phone">{{info.USagentid}}</span>
+                            </section>
+                        </section>
+                    </mt-index-section>
+                </mt-index-list>
             </mt-tab-container-item>
             <mt-tab-container-item id="2">
+                <mt-index-list>
+                    <mt-index-section v-for="indexItem in distributeAgentFilter" :key="indexItem.index"
+                                      :index="indexItem.index">
+                        <section class="people-info-item-wrap">
+                            <section class="people-info-item" v-for="info in indexItem.list">
+                                <img :src="info.USheadimg" alt="" class="people-img">
+
+                                <span class="people-name">{{info.USname}}</span>
+                                <span class="people-phone">{{info.USagentid}}</span>
+                            </section>
+                        </section>
+                    </mt-index-section>
+                </mt-index-list>
             </mt-tab-container-item>
         </mt-tab-container>
 
-        <mt-index-list>
-            <mt-index-section v-for="indexItem in peopleListFilter" :key="indexItem.index" :index="indexItem.index">
-                <section class="people-info-item-wrap">
-                    <section class="people-info-item" v-for="info in indexItem.list">
-                        <img src="/static/images/testbg.jpg" alt="" class="people-img">
 
-                        <span class="people-name">{{info.name}}</span>
-                        <span class="people-phone">{{info.phone}}</span>
-                    </section>
-                </section>
-
-
-            </mt-index-section>
-        </mt-index-list>
     </div>
 </template>
 
 <script>
+    import {getDirectagent, getDistribute} from "src/api/api"
+    // import {convertToPinyinUpper} from ""
+    import pinyin from "pinyin"
+
     export default {
         name: "channel",
 
@@ -120,6 +135,9 @@
                 selected: '1',
 
                 addressBookSearch: '',
+
+                directAgent: [],    //  直属代理
+                distributeAgent: [],    //  分销商
 
                 customerList: [
                     {
@@ -185,8 +203,18 @@
                                 phone: '123456'
                             },
                         ]
+                    }, {
+                        index: '#',
+                        list: [
+                            {
+                                name: 'C代理1',
+                                phone: '123456'
+                            },
+                        ]
                     },
                 ],
+
+                // customerList
 
                 addressBookIndexes: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '#'],
             }
@@ -194,21 +222,21 @@
 
 
         computed: {
-            peopleListFilter() {
+            directAgentFilter() {
                 let rst = [];
 
                 if (!this.addressBookSearch) {
-                    return this.customerList;
+                    return this.directAgent;
                 }
 
-                for (let i = 0; i < this.customerList.length; i++) {
+                for (let i = 0; i < this.directAgent.length; i++) {
                     let matchPeople = [],
-                        currentPeopleIndex = this.customerList[i];
+                        currentPeopleIndex = this.directAgent[i];
 
                     for (let j = 0; j < currentPeopleIndex.list.length; j++) {
                         let currentPeople = currentPeopleIndex.list[j];
 
-                        if (currentPeople.name.toUpperCase().indexOf(this.addressBookSearch.toUpperCase()) != -1 || currentPeople.phone.indexOf(this.addressBookSearch) != -1) {
+                        if (currentPeople.USname.toUpperCase().indexOf(this.addressBookSearch.toUpperCase()) != -1 || currentPeople.USagentid.toString().indexOf(this.addressBookSearch) != -1) {
                             matchPeople.push(currentPeople);
                         }
                     }
@@ -222,13 +250,109 @@
                 }
 
                 return rst;
-            }
+            },
+            distributeAgentFilter() {
+                let rst = [];
+
+                if (!this.addressBookSearch) {
+                    return this.distributeAgent;
+                }
+
+                for (let i = 0; i < this.distributeAgent.length; i++) {
+                    let matchPeople = [],
+                        currentPeopleIndex = this.distributeAgent[i];
+
+                    for (let j = 0; j < currentPeopleIndex.list.length; j++) {
+                        let currentPeople = currentPeopleIndex.list[j];
+
+                        if (currentPeople.USname.toUpperCase().indexOf(this.addressBookSearch.toUpperCase()) != -1 || currentPeople.USagentid.toString().indexOf(this.addressBookSearch) != -1) {
+                            matchPeople.push(currentPeople);
+                        }
+                    }
+
+                    if (matchPeople.length) {
+                        rst.push({
+                            index: currentPeopleIndex.index,
+                            list: matchPeople
+                        });
+                    }
+                }
+
+                return rst;
+            },
+
 
         },
 
         components: {},
 
-        methods: {},
+        methods: {
+            getWordFirstLetter(word) {
+                let rst = pinyin(word[0], {
+                    style: pinyin.STYLE_FIRST_LETTER
+                })[0][0].toUpperCase();
+
+                if (rst.match(/\d/)) {
+                    rst = '#'
+                }
+
+                return rst;
+            },
+            //  处理成联系人列表格式
+            dataToAddressList(data) {
+                let rst = [];
+
+                for (let i = 0; i < data.length; i++) {
+                    let groupIndex = 0,
+                        exist = rst.some((group, index) => {
+                            groupIndex = index;
+                            return group.index == this.getWordFirstLetter(data[i].USname);
+                        });
+
+                    if (exist) {
+                        rst[groupIndex].list.push(
+                            data[i]
+                        )
+                    } else {
+                        rst.push(
+                            {
+                                index: this.getWordFirstLetter(data[i].USname),
+                                list: [
+                                    data[i]
+                                ]
+                            }
+                        );
+                    }
+                }
+
+                return rst;
+            },
+            //
+            setData() {
+                getDirectagent().then(
+                    resData => {
+                        if (resData) {
+                            this.directAgent = this.dataToAddressList(resData.data);
+                        }
+                    }
+                );
+                getDistribute().then(
+                    resData => {
+                        if (resData) {
+                            this.distributeAgent = this.dataToAddressList(resData.data);
+                        }
+                    }
+                );
+            }
+        },
+
+        created() {
+            // this.dataToAddressList();
+            this.setData();
+
+            // console.log(pinyin('a'));
+            // console.log(pinyin('1'));
+        }
     }
 </script>
 

@@ -138,9 +138,9 @@
                 <span class="detail-item-label">快递单号：</span>
             </li>
 
-            <section class="details-delivery">
+            <section class="details-delivery" @click="gotoKuaidi100">
                 <span class="delivery-company">
-                    百世汇通
+                    申通
                 </span>
                 <span class="delivery-no">
                    <span>3381965843958</span>
@@ -175,7 +175,10 @@
                         this.details = data;
                     }
                 )
-            }
+            },
+            gotoKuaidi100(){
+                location.href = 'https://m.kuaidi100.com/index_all.html?postid=3381965843958#result';
+            },
         },
 
         created() {

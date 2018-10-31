@@ -7,7 +7,7 @@
         width: 100%;
         min-height: 100vh;
         overflow: hidden;
-        position: fixed;
+        /*position: fixed;*/
 
         .fj(flex-start);
         .fcolum();
@@ -67,6 +67,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            margin-top: 50px;
 
             .confirm-btn {
                 .wl(364px, 90px);
@@ -92,6 +93,9 @@
 
             <input type="tel" v-model.trim="username" class="login-input" placeholder="请输入手机号码">
             <input type="password" v-model="password" class="login-input" placeholder="请输入密码">
+            <!--<mt-field  placeholder="请输入手机号码"></mt-field>-->
+            <!--<mt-field  placeholder="请输入密码"></mt-field>-->
+
 
             <span class="forget-pwd" @click="gotoForgetPassword">忘了密码？</span>
         </section>
@@ -152,7 +156,7 @@
         created() {
             if (getStore(TOKEN)) {
                 this.setNotReadMsgNum();
-                this.$router.push('/message');
+                this.$router.push('/mall');
                 this.$toast('已登录');
             }
         }

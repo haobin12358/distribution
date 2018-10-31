@@ -29,29 +29,39 @@
         <header-top :show-back="true"></header-top>
 
         <section class="invite-code-wrap">
-            <img src="/static/images/testbg.jpg" @click="$router.push('/applyAgent')" alt="" class="invite-code-img">
+            <!--<img src="/static/images/testbg.jpg" @click="$router.push('/applyAgent')" alt="" class="invite-code-img">-->
+            <vue-qr :text="code" :size="300" :margin="0" class="invite-code-img"></vue-qr>
 
-            <p class="tip">链接：http://www.zhelishiwoluanxiede.cm</p>
+            <p class="tip">链接：{{code}}</p>
             <p class="tip">说明：长按二维码图片下载</p>
         </section>
     </div>
 </template>
 
 <script>
+    import VueQr from 'vue-qr'
+
     export default {
         name: "inviteLink",
 
         data() {
-            return {}
+            return {
+                code: ''
+            }
         },
 
-        components: {},
+        components: {
+            VueQr
+        },
 
         computed: {},
 
         methods: {},
 
         created() {
+            this.code =this.$route.query.code;
+            console.log(this.code);
+
         },
     }
 </script>
