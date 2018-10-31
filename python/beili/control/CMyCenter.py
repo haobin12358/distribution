@@ -105,27 +105,17 @@ class CMyCenter():
     def update_headimg(self):  # 更新头像
         if is_tourist():
            return TOKEN_ERROR
-        files = request.files.get("file")
-        if not files:
-            return NOT_FOUND_IMAGE
-        if platform.system() == "Windows":
-            rootdir = "D:/task"
-        else:
-            rootdir = "/opt/beili/file/mycenter/"
-        if not os.path.isdir(rootdir):
-            os.makedirs(rootdir)
-        lastpoint = str(files.filename).rindex(".")
-        filessuffix = str(files.filename)[lastpoint + 1:]
-        filename = request.user.id + get_db_time_str() + "." + filessuffix
-        filepath = os.path.join(rootdir, filename)
-        print(filepath)
-        files.save(filepath)
+        try:
+            data = request.json
+            url = str(data.get("url"))
+        except:
+            return PARAMS_ERROR
+        if not len(url) > 5:
+            return PARAMS_MISS
+        update = {}
+        update['USheadimg'] = url
+        self.suser.update_user_by_uid(request.user.id, update)
         response = import_status("updata_headimg_success", "OK")
-        # url = Inforcode.ip + Inforcode.LinuxImgs + "/" + filename
-        url = QRCODEHOSTNAME + "/file/mycenter/" + filename
-        user_update = {}
-        user_update['USheadimg'] = url
-        self.suser.update_user_by_uid(request.user.id, user_update)
         response["data"] = url
         return response
 
@@ -431,6 +421,8 @@ class CMyCenter():
             USphonenum = data.get('USphonenum')
             details = data.get('details')
             areaid = data.get('areaid')
+            if not areaid:
+                cityid = data.get('cityid')
         except:
             return PARAMS_ERROR
         update_address = {}
@@ -438,6 +430,8 @@ class CMyCenter():
         update_address['UAphonenum'] = USphonenum
         update_address['UAdetails'] = details
         update_address['areaid'] = areaid
+        if not areaid:
+            update_address['cityid'] = cityid
         update_result = self.smycenter.update_address(request.user.id, UAid, update_address)
         if update_result:
             response = import_status("update_address_success", "OK")

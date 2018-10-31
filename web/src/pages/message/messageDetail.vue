@@ -88,9 +88,7 @@
         components: {},
 
         methods: {
-            gotoFilePage(){
-                location.href = 'https://www.hzmyo.cn/ued/php/upload/20181011/1539237187747826.pdf';
-            },
+
         },
 
         mounted() {

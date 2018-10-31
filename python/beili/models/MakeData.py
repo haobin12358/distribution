@@ -98,14 +98,14 @@ class MakeData():
             self.session.add(product)
             self.session.commit()
 
-
-
     def add_user(self):
         from model import User
         user = User()
         user.USid = '1204cf38-c3cf-401f-8ba7-f8ce040f064f'
         user.USname = 'fengxin'
         user.USphonenum = '13588046059'
+        user.USagentid = 1
+        user.USwechat = 'wechat'
         user.USpassword = "123"
         user.USbail = 0
         user.USmount = 10000
@@ -118,6 +118,8 @@ class MakeData():
         user = User()
         user.USid = '3404cf38-c3cf-401f-8ba7-f8ce040f064f'
         user.USname = 'guodong'
+        user.USagentid = 2
+        user.USwechat = 'wechat'
         user.USphonenum = '15058968546'
         user.USpassword = "123"
         user.USbail = 0
@@ -125,6 +127,173 @@ class MakeData():
         user.USheadimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
         self.session.add(user)
         self.session.commit()
+
+    def add_user3(self):
+        from model import User
+        for i in range(3):
+            user = User()
+            user.USid = 'rfesrgbrtthert4535g' + str(i)
+            user.USname = 'guodongtest' + str(i)
+            user.USphonenum = '1505896854' + str(i)
+            user.USwechat = 'wechat'
+            user.USpassword = "123"
+            user.USagentid = 100 + int(i)
+            user.USbail = 0
+            user.USmount = 10000
+            user.USheadimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
+            user.USpre = '3404cf38-c3cf-401f-8ba7-f8ce040f064f'
+            self.session.add(user)
+            self.session.commit()
+
+    def add_user4(self):
+        from model import User
+        for i in range(2):
+            user = User()
+            user.USid = 'rfesrgbrtthert4535g22222' + str(i)
+            user.USname = 'guodongtest222' + str(i)
+            user.USwechat = 'wechat'
+            user.USphonenum = '1505896854' + str(i)
+            user.USpassword = "123"
+            user.USagentid = 106 + int(i)
+            user.USbail = 0
+            user.USmount = 10000
+            user.USheadimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
+            user.USpre = 'rfesrgbrtthert4535g1'
+            self.session.add(user)
+            self.session.commit()
+
+    def add_user5(self):
+        from model import User
+        user = User()
+        user.USid = 'rfesrgbrtthert4535g2222233333'
+        user.USname = 'guodongtest222333'
+        user.USphonenum = '15058968549'
+        user.USwechat = 'wechat'
+        user.USagentid = 200
+        user.USpassword = "123"
+        user.USbail = 0
+        user.USmount = 10000
+        user.USheadimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
+        user.USpre = 'rfesrgbrtthert4535g222221'
+        self.session.add(user)
+        self.session.commit()
+
+
+    def add_amount(self):
+        from model import Amount
+        amount = Amount()
+        amount.AMid = 'rfesrgbrtwewthert4535geqw'
+        amount.USid = '3404cf38-c3cf-401f-8ba7-f8ce040f064f'
+        amount.USname = 'guodong'
+        amount.USagentid = 123
+        amount.USheadimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
+        amount.reward = 300
+        amount.AMmonth = 201810
+        amount.performance = 100000
+        amount.AMcreattime = 20181010000000
+        self.session.add(amount)
+        self.session.commit()
+
+    def add_amount2(self):
+        from model import Amount
+        amount = Amount()
+        amount.AMid = 'rfesrgbrtthddert4535gfdsfs'
+        amount.USid = 'rfesrgbrtthert4535g0'
+        amount.USname = 'guodongtest0'
+        amount.USagentid = 124
+        amount.USheadimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
+        amount.reward = 100
+        amount.AMmonth = 201810
+        amount.performance = 1000
+        amount.AMcreattime = 20181010000000
+        self.session.add(amount)
+        self.session.commit()
+
+    def add_amount3(self):
+        from model import Amount
+        amount = Amount()
+        amount.AMid = 'rfesrgbrtthddert45ewe335g'
+        amount.USid = 'rfesrgbrtthert4535g1'
+        amount.USname = 'guodongtest1'
+        amount.USagentid = 125
+        amount.USheadimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
+        amount.reward = 100
+        amount.AMmonth = 201810
+        amount.performance = 10
+        amount.AMcreattime = 20181010000000
+        self.session.add(amount)
+        self.session.commit()
+
+    def add_amount4(self):
+        from model import Amount
+        amount = Amount()
+        amount.AMid = 'rfesrgbrtthdd11111ert4535g'
+        amount.USid = 'rfesrgbrtthert4535g2'
+        amount.USname = 'guodongtest2'
+        amount.USagentid = 126
+        amount.USheadimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
+        amount.reward = 100
+        amount.AMmonth = 201810
+        amount.performance = 100
+        amount.AMcreattime = 20181010000000
+        self.session.add(amount)
+        self.session.commit()
+
+    def add_amount5(self):
+        from model import Amount
+        amount = Amount()
+        amount.AMid = 'rfesrgbrtthert4535g222220234233'
+        amount.USid = 'rfesrgbrtthert4535g222220'
+        amount.USname = 'guodongtest2220'
+        amount.USagentid = 127
+        amount.USheadimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
+        amount.reward = 100
+        amount.AMmonth = 201810
+        amount.performance = 1000
+        amount.AMcreattime = 20181010000000
+        self.session.add(amount)
+        self.session.commit()
+
+    def add_amount6(self):
+        from model import Amount
+        amount = Amount()
+        amount.AMid = 'rfesrgbrtthert4535g22222023vf4233'
+        amount.USid = 'rfesrgbrtthert4535g222221'
+        amount.USname = 'guodongtest2221'
+        amount.USagentid = 128
+        amount.USheadimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
+        amount.reward = 100
+        amount.AMmonth = 201810
+        amount.performance = 10000
+        amount.AMcreattime = 20181010000000
+        self.session.add(amount)
+        self.session.commit()
+
+    def add_amount7(self):
+        from model import Amount
+        amount = Amount()
+        amount.AMid = 'rfesrgbrtthert4535g22222023vf423355'
+        amount.USid = 'rfesrgbrtthert4535g2222233333'
+        amount.USname = 'guodongtest222333'
+        amount.USagentid = 129
+        amount.USheadimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
+        amount.reward = 100
+        amount.AMmonth = 201810
+        amount.performance = 1000
+        amount.AMcreattime = 20181010000000
+        self.session.add(amount)
+        self.session.commit()
+
+    def add_DiscountRuler(self):
+        from model import DiscountRuler
+        for i in range(5):
+            ruler = DiscountRuler()
+            ruler.DRid = 'afrewgtrhb' + str(i)
+            ruler.DRnumber = 100 + pow(100, int(i))
+            ruler.DRratio = 1 + int(i)
+            self.session.add(ruler)
+            self.session.commit()
+
 
     def add_superuser(self):
         from model import Admin
@@ -302,12 +471,20 @@ if __name__ == "__main__":
         print "OK!"
         print('start add data')
         data.add_superuser()
-        data.add_province()
-        data.add_city()
-        data.add_area()
         data.add_user()
         data.add_user2()
+        data.add_user3()
+        data.add_user4()
+        data.add_user5()
         data.add_agent_message()
         data.add_company_message()
         data.add_alreadyRead()
         data.add_product()
+        data.add_amount()
+        data.add_amount2()
+        data.add_amount3()
+        data.add_amount4()
+        data.add_amount5()
+        data.add_amount6()
+        data.add_amount7()
+        data.add_DiscountRuler()

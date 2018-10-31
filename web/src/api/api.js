@@ -4,7 +4,7 @@ import {getStore} from "src/common/js/mUtils"
 import {TOKEN} from "src/common/js/const"
 
 const debug = false;
-const title = debug ? 'https://dsn.apizza.net/mock/60c954072cfff536376e5acb0392c590' : 'http://112.74.175.144:7444';
+export const title = debug ? 'https://dsn.apizza.net/mock/60c954072cfff536376e5acb0392c590' : 'http://112.74.175.144:7444';
 
 const myAxios = async (url, {params, data, method = 'get', showIndicator = true}) => {
     if (showIndicator) {
@@ -12,7 +12,7 @@ const myAxios = async (url, {params, data, method = 'get', showIndicator = true}
     }
 
     let res = await axios({
-        baseURL: '/api',    //todo 代理
+        baseURL: title,    //todo 代理
         method: method,
         url: url,
         params: params,
@@ -102,6 +102,9 @@ export const getInforcode = (phone) => myAxios('/mycenter/get_inforcode', {
  */
 export const updatePwd = (oldpassword, newpassword) => myAxios('/user/update_pwd', {
     method: 'post',
+    params: {
+        token: getStore(TOKEN),
+    },
     data: {
         oldpassword,
         newpassword
@@ -123,6 +126,20 @@ export const findBackPwd = (usphonenum, iccode, newpassword) => myAxios('/user/f
     }
 });
 
+/**
+ * 更换头像
+ * @param file  string
+ * @returns {Promise<*|undefined>}
+ */
+export const updateHeadImg = (file) => myAxios('/mycenter/update_headimg', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN),
+    },
+    data: {
+        file
+    }
+});
 /**
  * 获取收货地址
  * @param isdefault
@@ -153,7 +170,7 @@ export const getAllArea = (isdefault, all, UAid) => myAxios('/mycenter/get_all_a
  * @param areaid
  * @returns {Promise<*|undefined>}
  */
-export const addUserAddress = (USname, USphonenum, details, areaid) => myAxios('/mycenter/add_useraddress', {
+export const addUserAddress = (USname, USphonenum, details, areaid, cityid) => myAxios('/mycenter/add_useraddress', {
     method: 'post',
     params: {
         token: getStore(TOKEN),
@@ -163,6 +180,7 @@ export const addUserAddress = (USname, USphonenum, details, areaid) => myAxios('
         USphonenum,
         details,
         areaid,
+        cityid,
     }
 });
 /**
@@ -174,7 +192,7 @@ export const addUserAddress = (USname, USphonenum, details, areaid) => myAxios('
  * @param areaid
  * @returns {Promise<*|undefined>}
  */
-export const updateUserAddress = (UAid, USname, USphonenum, details, areaid) => myAxios('/mycenter/update_useraddress', {
+export const updateUserAddress = (UAid, USname, USphonenum, details, areaid, cityid) => myAxios('/mycenter/update_useraddress', {
     method: 'post',
     params: {
         token: getStore(TOKEN),
@@ -185,20 +203,17 @@ export const updateUserAddress = (UAid, USname, USphonenum, details, areaid) => 
         USphonenum,
         details,
         areaid,
+        cityid,
     }
 });
 
-export const deleteUserAddress = (UAid, USname, USphonenum, details, areaid) => myAxios('/mycenter/delete_useraddress', {
+export const deleteUserAddress = (UAid) => myAxios('/mycenter/delete_useraddress', {
     method: 'post',
     params: {
         token: getStore(TOKEN),
     },
     data: {
         UAid,
-        USname,
-        USphonenum,
-        details,
-        areaid,
     }
 });
 
@@ -306,12 +321,12 @@ export const getProduct = (PRid) => myAxios('/product/get_product', {
  * @param totalprice    总价
  * @returns {Promise<*|undefined>}
  */
-export const createOrder = (UAid,product_list,OInote,PRlogisticsfee,totalprice) => myAxios('/order/create_order', {
+export const createOrder = (UAid, product_list, OInote, PRlogisticsfee, totalprice) => myAxios('/order/create_order', {
     method: 'post',
     params: {
         token: getStore(TOKEN),
     },
-    data:{
+    data: {
         UAid,
         product_list,
         OInote,
@@ -324,15 +339,83 @@ export const createOrder = (UAid,product_list,OInote,PRlogisticsfee,totalprice) 
  * @param type  0为全部订单，1已待发货，2为已发货，3为已完成
  * @returns {Promise<*|undefined>}
  */
-export const getOrderList = (type) => myAxios('/order/get_order_list', {
+export const getOrderList = (type, page, count = 10) => myAxios('/order/get_order_list', {
     method: 'post',
     params: {
         token: getStore(TOKEN),
     },
     data: {
         type,
+        page,
+        count,
     }
 });
+/**
+ * 获取订单详情
+ * @param OIsn  订单编号
+ * @returns {Promise<*|undefined>}
+ */
+export const getOrderDetails = (OIsn) => myAxios('/order/get_order_details', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN),
+    },
+    data: {
+        OIsn
+    }
+});
+
+/**
+ * 获取业绩排行榜
+ * @param month
+ * @returns {Promise<*|undefined>}
+ */
+export const getRankList = (month) => myAxios('/account/get_rank_list', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN),
+    },
+    data: {
+        month
+    }
+});
+/**
+ * 获取金额信息(直推奖励，销售折扣，团队销量)
+ * @param month
+ * @returns {Promise<*|undefined>}
+ */
+export const getAccount = (month) => myAxios('/account/get_account', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN),
+    },
+    data: {
+        month
+    }
+});
+
+/**
+ * 获取所有直属代理
+ * @returns {Promise<*|undefined>}
+ */
+export const getDirectagent = () => myAxios('/account/get_directagent', {
+    params: {
+        token: getStore(TOKEN),
+    }
+});
+/**
+ * 获取所有分销商代理
+ * @returns {Promise<*|undefined>}
+ */
+export const getDistribute = () => myAxios('/account/get_distribute', {
+    params: {
+        token: getStore(TOKEN),
+    },
+});
+
+
+
+
 
 
 

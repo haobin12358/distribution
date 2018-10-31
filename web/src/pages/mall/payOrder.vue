@@ -225,7 +225,7 @@
 </template>
 
 <script>
-    import {mapState, mapGetters} from "vuex"
+    import {mapState, mapGetters, mapActions} from "vuex"
     import {createOrder, getUserAddress} from "src/api/api"
 
 
@@ -247,6 +247,14 @@
         components: {},
 
         methods: {
+            ...mapActions(['getUserInfo']),
+            async setDefaultAddress() {
+                let resData = await getUserAddress(1, 0, '');
+
+                if (resData) {
+                    this.defaultAddress = resData.data;
+                }
+            },
 
             confirmPayOrder() {
                 if (this.defaultAddress) {
@@ -254,8 +262,22 @@
                         () => {
                             createOrder(this.defaultAddress.uaid, this.usefulCartList,
                                 this.remark, this.payDeliverFee, this.cartTotalPrice).then(
-                                (data) => {
-                                    console.log(data);
+                                (resData) => {
+                                    if (resData) {
+                                        let {success, message, data: newCartList} = resData;
+
+                                        if (success) {
+                                            this.$toast(message);
+                                            this.$store.commit('CLEAR_CART');
+                                            //  更新账户余额
+                                            this.getUserInfo();
+
+                                            this.$router.back();
+                                        } else {
+                                            this.$messagebox('提示', '商品价格或运费有变动,下单失败,数据已更新,请再次确认下单!')
+                                            this.$store.commit('SET_CART', newCartList);
+                                        }
+                                    }
                                 }
                             )
                         }
@@ -269,9 +291,7 @@
         },
 
         async mounted() {
-            let {data} = await getUserAddress(1, 0, '');
-
-            this.defaultAddress = data;  //  todo 测试没有地址
+            this.setDefaultAddress();
         }
     }
 </script>

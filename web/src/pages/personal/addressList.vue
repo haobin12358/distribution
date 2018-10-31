@@ -86,7 +86,7 @@
                         </p>
 
                         <p class="row-two" >
-                            {{item.provincename}}-{{item.cityname}}-{{item.areaname}} {{item.details}}
+                            {{item.provincename}}-{{item.cityname}}{{item.areaname ? `-${item.areaname}`: ''}} {{item.details}}
                         </p>
                     </section>
                 </section>
@@ -101,7 +101,7 @@
 </template>
 
 <script>
-    import {getUserAddress,changeDefaultAddress} from "src/api/api"
+    import {getUserAddress, changeDefaultAddress, deleteUserAddress} from "src/api/api"
 
     export default {
         name: "addressList",
@@ -120,6 +120,13 @@
         },
 
         methods: {
+            refreshAddressList(){
+                getUserAddress(0, 1, '').then(
+                    ({data: adrList}) => {
+                        this.addressList = adrList;
+                    }
+                )
+            },
             gotoEditAddress(address){
                 this.$router.push({
                     path: '/addressEdit',
@@ -129,7 +136,18 @@
                 })
             },
             doDeleteAddress(address){
-
+                this.$messagebox.confirm('确认删除该地址?').then(
+                    ()=>{
+                        deleteUserAddress(address.uaid).then(
+                            (data)=>{
+                                if(data){
+                                    this.$toast(data.message);
+                                    this.refreshAddressList();
+                                }
+                            }
+                        )
+                    }
+                )
             },
             //  下单页选择收货地址
             chooseDeliveryAddress(address){
@@ -137,18 +155,24 @@
 
                 if(defaultAddress){
                     changeDefaultAddress(defaultAddress.uaid, address.uaid).then(
-                        ({message}) => {
-                            this.$toast(message);
-                            this.$router.back();
+                        (data)=>{
+                            if(data) {
+                                this.$toast(data.message);
+
+                                if (this.isChoose) {
+                                    this.$router.back();
+                                } else {
+                                    this.refreshAddressList();
+                                }
+                            }
                         }
                     )
                 }
             }
         },
 
-        async created() {
-            let {data: adrList} = await getUserAddress(0, 1, '');
-            this.addressList = adrList;
+        created() {
+            this.refreshAddressList();
 
             if(this.$route.query.isChoose){
                 this.isChoose = true;

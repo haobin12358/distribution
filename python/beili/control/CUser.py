@@ -2,17 +2,22 @@
 import sys
 import os
 import json
+import uuid
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
-    NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR, NOT_FOUND_FILE
+    NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR, NOT_FOUND_FILE, DELETE_CODE_FAIL
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
 from common.timeformat import get_db_time_str
 from service.SUser import SUser
+from service.DBSession import db_session
+from common.beili_error import stockerror, dberror
 from service.SMyCenter import SMyCenter
+from datetime import datetime
+from common.timeformat import format_for_db
 import platform
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -120,8 +125,6 @@ class CUser():
 
     @verify_token_decorator
     def upload_file(self):
-        if is_tourist():
-            return TOKEN_ERROR
         try:
             files = request.files.get("file")
         except:
@@ -136,7 +139,7 @@ class CUser():
             os.makedirs(rootdir)
         lastpoint = str(files.filename).rindex(".")
         filessuffix = str(files.filename)[lastpoint + 1:]
-        filename = request.user.id + get_db_time_str() + "." + filessuffix
+        filename = str(uuid.uuid4()) + get_db_time_str() + "." + filessuffix
         filepath = os.path.join(rootdir, filename)
         print(filepath)
         files.save(filepath)
@@ -144,3 +147,133 @@ class CUser():
         url = QRCODEHOSTNAME + "/file/" + filename
         response["data"] = url
         return response
+
+    @verify_token_decorator
+    def remove_file(self):
+        try:
+            data = request.json
+            url = str(data.get('url'))
+        except:
+            return PARAMS_ERROR
+        list = url.split('/file/')
+        filename = list[0] + '/opt/beili/file/' + list[1]
+        os.remove(filename)
+        response = import_status("remove_file_success", "OK")
+        return response
+
+
+    @verify_token_decorator
+    def add_qrcode(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            date = str(data.get('overtime'))
+            number = int(data.get('number'))
+        except:
+            return PARAMS_ERROR
+        result = self.suser.add_qrcode(str(uuid.uuid4()), request.user.id, date, number)
+        if result:
+            response = import_status("add_qrcode_success", "OK")
+            return response
+        else:
+            return SYSTEM_ERROR
+
+    @verify_token_decorator
+    def get_qrcode(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+        except:
+            return PARAMS_ERROR
+        time = datetime.strftime(datetime.now(), format_for_db)
+        from common.timeformat import get_web_time_str
+        qrcode_list = self.suser.get_qrcode_list(request.user.id)
+        if qrcode_list:
+            return_list = []
+            qrcode_list = get_model_return_list(qrcode_list)
+            for code in qrcode_list:
+                if str(code['QRovertime']) > time:
+                    code['QRovertime'] = get_web_time_str(code['QRovertime'])
+                    return_list.append(code)
+            response = import_status("get_qrcode_success", "OK")
+            response['data'] = return_list
+            return response
+        else:
+            response = import_status("get_qrcode_success", "OK")
+            response['data'] = []
+            return response
+
+    @verify_token_decorator
+    def delete_qrcode(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            qrcodeid = str(data.get('qrcodeid'))
+        except:
+            return PARAMS_ERROR
+        if not qrcodeid:
+            return PARAMS_ERROR
+        result = self.suser.delete_qrcode(request.user.id, qrcodeid)
+        if request:
+            response = import_status("delete_qrcode_success", "OK")
+            return response
+        else:
+            return DELETE_CODE_FAIL
+
+    @verify_token_decorator
+    def register(self):
+        params = ['preid', 'preusername', 'prephonenum', 'predetails', 'username', 'phonenum', 'inforcode', 'password',
+                  'idcardnum', 'wechat', 'cityid', 'areaid', 'details', 'paytype', 'payamount', 'paytime',
+                  'headimg', 'proof', 'alipaynum', 'bankname', 'accountname', 'cardnum']
+        data = request.json
+        for param in data:
+            if param not in params:
+                return PARAMS_MISS
+        try:
+            preid = data['preid']
+            preusername = data['preusername']
+            prephonenum = data['prephonenum']
+            predetails = data['predetails']
+            username = data['username']
+            phonenum = data['phonenum']
+            inforcode = data['inforcode']
+            password = data['password']
+            idcardnum = data['idcardnum']
+            wechat = data['wechat']
+            cityid = data['cityid']
+            areaid = data['areaid']
+            details = data['details']
+            paytype = data['paytype']
+            payamount = data['payamount']
+            paytime = data['paytime']
+            headimg = data['headimg']
+            alipaynum = data['alipaynum']
+            bankname = data['bankname']
+            accountname = data['accountname']
+            cardnum = data['cardnum']
+            if int(paytype) == 1:
+                if not alipaynum or bankname or accountname or cardnum:
+                    return PARAMS_ERROR
+            if int(paytype) == 2:
+                if alipaynum or not bankname or not accountname or not cardnum:
+                    return PARAMS_ERROR
+        except:
+            return PARAMS_ERROR
+        session = db_session()
+        try:
+            result = self.suser.insertInvitate(session, data)
+            if not result:
+                raise dberror
+            session.commit()
+        except Exception as e:
+            print e
+            session.rollback()
+            return SYSTEM_ERROR
+        finally:
+            session.close()
+        response = import_status("register_success", "OK")
+        return response
+

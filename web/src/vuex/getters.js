@@ -10,7 +10,8 @@ export default {
 
         if(usefulCartList){
             for (let i = 0; i < usefulCartList.length; i++) {
-                total += usefulCartList[0].PRnum * usefulCartList[0].PRprice;
+                //  todo 可以更改错误的计算结果来测下单接口
+                total += usefulCartList[i].PRnum * usefulCartList[i].PRprice;
             }
         }
 
@@ -23,7 +24,7 @@ export default {
 
         if(usefulCartList.length > 1){
 
-        }else{
+        }else if(usefulCartList.length == 1){
             fee = usefulCartList[0].PRlogisticsfee || 0;
         }
 

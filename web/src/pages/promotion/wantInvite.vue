@@ -2,32 +2,31 @@
     @import "../../common/css/index";
 
     .container {
-        .invite-code-list{
+        .invite-code-list {
             margin-top: 10px;
 
-            .invite-code-item{
+            .invite-code-item {
                 .bgw();
                 .bs(10px, 3px, 6px);
                 padding: 25px;
                 .fj();
 
-                .invite-code-img{
+                .invite-code-img {
                     .wl(100px, 100px);
                     margin-right: 40px;
                 }
 
-                .invite-remain{
+                .invite-remain {
                     flex: 1;
                     display: flex;
                     justify-content: space-between;
                     flex-direction: column;
 
-                    .deadline{
+                    .deadline {
                     }
                 }
 
-
-                .remove-btn{
+                .remove-btn {
                     align-self: center;
                     .wl(40px, 40px);
                 }
@@ -46,22 +45,24 @@
         </header-top>
 
         <ul class="invite-code-list">
-            <li class="invite-code-item" v-for="item in 4">
-                <img src="/static/images/testbg.jpg" alt="" class="invite-code-img">
-
+            <li class="invite-code-item" v-for="item,index in 4" @click="gotoInviteLink(index)">
+                <vue-qr :text="generateCodeUrl(index)" :size="50" :margin="0" class="invite-code-img"></vue-qr>
                 <section class="invite-remain">
                     <span class="deadline">有限期限：2018-08-15 14：56：24</span>
                     <span class="residue-degree">可用次数：10</span>
                 </section>
 
-                <img src="/static/images/close.png" alt="" class="remove-btn">
+                <img src="/static/images/close.png" @click.stop="removeInvite" alt="" class="remove-btn">
             </li>
         </ul>
+
 
     </div>
 </template>
 
 <script>
+    import VueQr from 'vue-qr'
+
     export default {
         name: "wantInvite",
 
@@ -69,11 +70,27 @@
             return {}
         },
 
-        components: {},
+        components: {VueQr},
 
         computed: {},
 
-        methods: {},
+        methods: {
+            generateCodeUrl(item) {
+                return  'http://'+ location.host + '/#/agentAgreement?code=' + item;
+            },
+            gotoInviteLink(index) {
+                this.$router.push({
+                    path: '/inviteLink?code=' + encodeURIComponent( this.generateCodeUrl(index))
+                })
+            },
+            removeInvite() {
+                this.$messagebox.confirm('确定删除邀请链接吗?').then(
+                    () => {
+
+                    }
+                );
+            }
+        },
 
         created() {
         },

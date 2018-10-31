@@ -55,13 +55,13 @@
                 flex-wrap: nowrap;
 
                 .pillow-item {
-                    /*line-height: 80px;*/
-                    /*display: inline-block;*/
                     margin-right: 50px;
                     border: 1px solid rgba(110, 171, 184, 1);
-                    padding: 4px 23px;
                     border-radius: 30px;
                     white-space: nowrap;
+                    /*height: 40px;*/
+                    line-height: normal;
+                    padding: 8px 40px;
 
                     &.active {
                         color: white;
@@ -89,7 +89,7 @@
             background: white;
 
             .goods-item {
-                padding: 35px 2px 32px 16px;
+                padding: 25px 2px 22px 16px;
                 border-bottom: 1px solid #DBDBDB;
                 .fj();
 
@@ -99,7 +99,7 @@
 
                 .goods-img {
                     margin-right: 40px;
-                    .wl(100px, 100px);
+                    .wl(120px, 120px);
 
                     img {
                         .wl(100%, 100%);
@@ -111,22 +111,36 @@
                     .fj();
                     flex-direction: column;
                     .goods-description-header {
-                        .fz(28px);
+                        .fj();
+                        align-items: center;
 
+                        .name{
+                            .fz(28px);
+                        }
+
+                        .stock{
+                            .sc(28px, @mainFontColor);
+                            text-align: right;
+                            margin-bottom: 10px;
+                        }
                     }
+
                     .goods-description-content {
                         .fj();
+                        align-items: center;
 
                         .goods-description-price {
 
                             .current-price {
                                 margin-right: 20px;
                                 color: #FC0000;
+                                .fz(26px);
 
                             }
                             .original-price {
                                 color: black;
                                 text-decoration: line-through;
+                                .fz(26px);
 
                             }
                         }
@@ -134,6 +148,37 @@
                     }
                 }
             }
+        }
+
+        .label-parent {
+            .fj();
+            align-items: center;
+            text-align: center;
+            border: 1px solid black;
+
+            .label {
+
+            }
+        }
+
+        .info {
+            display: flex;
+            align-items: center;
+            padding: 0px;
+            background: #db4000;
+        }
+
+        .zhiwei {
+            /*width: 30px;*/
+            border-radius: 30px;
+            text-align: center;
+            color: #FFFFFF;
+            line-height: 24px;
+            height: 24px;
+            font-size: 24px;
+            margin-left: 5px;
+            white-space: nowrap;
+
         }
     }
 </style>
@@ -164,29 +209,34 @@
 
             <ul class="nav-list-children">
                 <li v-for="item in secondCategory" :class="{'pillow-item': true, 'active': item.PAid == secondSelected}"
-                    @click="chooseSECategory(item)">{{item.PAname}}
+                    @click="chooseSECategory(item)">
+                    {{item.PAname}}
                 </li>
                 <!--<li class="pillow-item-tail"></li>-->
             </ul>
         </section>
 
         <ul class="goods-list">
-            <li class="goods-item" v-for="item in productListWithCart">
+            <li class="goods-item" v-for="item in productListWithCart" @click.stop="addCart(item)">
                 <section class="goods-img">
                     <img :src="item.PRpic" alt="">
                 </section>
                 <section class="goods-description">
                     <header class="goods-description-header">
-                        {{item.PRname}}
+                        <span class="name">{{item.PRname}}</span>
+                        <span v-if="item.PRstock < 1000000" class="stock">
+                            库存: {{item.PRstock}} 件
+                        </span>
+
                     </header>
-                    <section class="goods-description-content">
+                    <section class="goods-description-content" >
                         <p class="goods-description-price">
                             <span class="current-price">￥{{item.PRoldprice}}</span>
                             <span class="original-price">￥{{item.PRprice}}</span>
                         </p>
 
-                        <buy-cart :shopNum.sync="item.PRnum" @add.passive="addCart(item)"
-                                  @minus.passive="reduceCart(item)"></buy-cart>
+                        <buy-cart :shopNum.sync="item.PRnum" @add="addCart(item)"
+                                  @minus="reduceCart(item)"></buy-cart>
                     </section>
                 </section>
             </li>
@@ -207,7 +257,7 @@
     import {getProductCategory, getProductList} from "src/api/api"
     import LoadMore from "src/components/common/loadMore"
     import common from "src/common/js/common"
-    import {mapMutations, mapState,mapGetters} from "vuex"
+    import {mapMutations, mapState, mapGetters} from "vuex"
 
 
     export default {
@@ -235,9 +285,10 @@
         },
 
         computed: {
+            ...mapState(['userInfo']),
             ...mapState({
                 productListWithCart: function (state) {
-                    let rst = this.productList.concat();
+                    let rst = JSON.parse(JSON.stringify(this.productList));
 
                     for (let i = 0; i < state.cartList.length; i++) {
                         for (let j = 0; j < this.productList.length; j++) {
@@ -270,11 +321,21 @@
                 }
             },
             gotoPayOrder() {
-                if(this.usefulCartList.length){
-                    this.$router.push('/payOrder');
-                }else{
+                if (this.usefulCartList.length) {
+                    if (this.userInfo.USbail >= 0) {
+                        this.$router.push('/payOrder');
+                    }else{
+                        this.$messagebox.confirm('交纳保证金后才可下单,是否前往钱包页交纳?').then(
+                            () => {
+                                this.$router.push('/wallet')
+                            }
+                        )
+                    }
+                } else {
                     this.$toast('请选几样商品加入购物车!');
                 }
+
+
             },
 
             switchPACategory(categroy) {
@@ -349,6 +410,7 @@
         async mounted() {
             await this.initCategoryAndPrds();
             window.addEventListener('scroll', this.touchMove);
+
         }
     }
 </script>

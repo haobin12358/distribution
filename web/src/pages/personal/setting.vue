@@ -32,11 +32,12 @@
                     .wl(47px, 47px);
                     margin-right: 20px;
 
-                    &:nth-of-type(2){
+                    &:nth-of-type(1){
                         .wl(40px, 40px);
 
                     }
-                    &:nth-of-type(3){
+                    &:nth-of-type(2){
+                        .wl(40px, 56px);
 
                     }
 
