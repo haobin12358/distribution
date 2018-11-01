@@ -127,7 +127,7 @@ class CUser():
             if platform.system() == "Windows":
                 rootdir = "D:/task"
             else:
-                rootdir = "/Users/fx/opt/beili/file/"
+                rootdir = "/opt/beili/file/"
             if not os.path.isdir(rootdir):
                 os.makedirs(rootdir)
             lastpoint = str(files.filename).rindex(".")
