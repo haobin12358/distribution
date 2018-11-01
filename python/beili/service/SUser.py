@@ -55,10 +55,8 @@ class SUser(SBase):
     def insertInvitate(self, session, data):
         record = InvitaRecord()
         record.IRIid = str(uuid.uuid4())
-        record.IRIpreid = data['preid']
-        record.IRIprename = data['prephonenum']
+        record.IRIprename = data['preusername']
         record.IRIprephonenum = data['prephonenum']
-        record.IRIpredetails = data['predetails']
         record.IRIname = data['username']
         record.IRIphonenum = data['phonenum']
         record.IRIpassword = data['password']

@@ -405,7 +405,7 @@ class CUser():
 
     @verify_token_decorator
     def register(self):
-        params = ['qrid', 'username', 'phonenum', 'inforcode', 'password',
+        params = ['preusername', 'prephonenum','username', 'phonenum', 'inforcode', 'password',
                   'idcardnum', 'wechat', 'cityid', 'areaid', 'details', 'paytype', 'payamount', 'paytime',
                   'headimg', 'proof', 'alipaynum', 'bankname', 'accountname', 'cardnum']
         data = request.json
@@ -413,7 +413,8 @@ class CUser():
             if param not in params:
                 return PARAMS_MISS
         try:
-            qrid = data['qrid']
+            preusername = data['preusername']
+            prephonenum = data['prephonenum']
             username = data['username']
             phonenum = data['phonenum']
             inforcode = data['inforcode']

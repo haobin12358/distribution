@@ -63,6 +63,7 @@ class ProductCategory(Base):
     PAname = Column(String(16))  # 类别名
     PAtype = Column(Integer)  # 类目级别{1 一级分类, 2 二级分类, 3 三级分类}
     Parentid = Column(String(64), default=0)  # 父类别id, 默认0
+    PAstatus = Column(Boolean)  # True能用 False不可用
 
 class Product(Base):
     """
@@ -90,7 +91,6 @@ class InvitaRecord(Base):
     IRIprename = Column(String(64))  # 邀请人姓名
     IRIprephonenum = Column(String(64))  # 邀请人电话号码
     IRIname = Column(String(64))  # 邀请人姓名
-    IRIpredetails = Column(String(255))  # 邀请人详细地址
     IRIphonenum = Column(String(64))  # 被邀请人电话号码
     IRIpassword = Column(String(64))  # 被邀请人密码
     IRIidcardnum = Column(String(64))  # 被邀请人身份证号码
