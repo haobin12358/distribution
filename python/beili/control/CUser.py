@@ -3,6 +3,8 @@ import sys
 import os
 import json
 import uuid
+reload(sys)
+sys.setdefaultencoding("utf8")
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
@@ -125,7 +127,7 @@ class CUser():
             if platform.system() == "Windows":
                 rootdir = "D:/task"
             else:
-                rootdir = "/opt/beili/file/"
+                rootdir = "/Users/fx/opt/beili/file/"
             if not os.path.isdir(rootdir):
                 os.makedirs(rootdir)
             lastpoint = str(files.filename).rindex(".")
