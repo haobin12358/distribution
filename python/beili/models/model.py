@@ -51,7 +51,7 @@ class Admin(Base):
     ADlevel = Column(Integer, default=0)  # 用户级别{0: 一般管理员, 1: 超级管理员}　
     ADcreatetime = Column(String(14))  # 创建时间
     ADisfreeze = Column(Boolean, default=False)  # 是否被冻结
-    ADisdelete = Column(Boolean, default=False)  # 是否被删除
+    #ADisdelete = Column(Boolean, default=False)  # 是否被删除
 
 
 class ProductCategory(Base):

@@ -188,12 +188,14 @@ class CUser():
         except:
             return PARAMS_ERROR
         time = datetime.strftime(datetime.now(), format_for_db)
+        from common.timeformat import get_web_time_str
         qrcode_list = self.suser.get_qrcode_list(request.user.id)
         if qrcode_list:
             return_list = []
             qrcode_list = get_model_return_list(qrcode_list)
             for code in qrcode_list:
                 if str(code['QRovertime']) > time:
+                    code['QRovertime'] = get_web_time_str(code['QRovertime'])
                     return_list.append(code)
             response = import_status("get_qrcode_success", "OK")
             response['data'] = return_list
