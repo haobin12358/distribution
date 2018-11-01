@@ -20,6 +20,10 @@ class SUser(SBase):
         return self.session.query(User.USid, User.USpassword).filter_by(USphonenum=usphonenum).first()
 
     @close_session
+    def getuserinfo_by_uid(self, id):
+        return self.session.query(User.USname, User.USphonenum).filter(User.USid == id).first()
+
+    @close_session
     def getuser_by_uid(self, usid):
         return self.session.query(User.USid, User.USpassword).filter_by(USid=usid).all()
 
@@ -102,5 +106,9 @@ class SUser(SBase):
 
     @close_session
     def get_arcode_details(self, usid, id):
-            return self.session.query(Qrcode.QRovertime, Qrcode.QRnumber).filter(Qrcode.USid == usid).filter(Qrcode.QRid == id).\
+        return self.session.query(Qrcode.QRovertime, Qrcode.QRnumber).filter(Qrcode.USid == usid).filter(Qrcode.QRid == id).\
                 filter(Qrcode.QRstatus == 1).first()
+
+    @close_session
+    def get_user_by_qrid(self, qrid):
+        return self.session.query(Qrcode.USid).filter(Qrcode.QRid == qrid).filter(Qrcode.QRstatus == 1).first()

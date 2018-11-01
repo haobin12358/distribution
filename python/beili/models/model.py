@@ -87,7 +87,6 @@ class InvitaRecord(Base):
     """
     __tablename__ = 'invitarecord'
     IRIid = Column(String(64), primary_key=True)
-    IRIpreid = Column(String(64))  # 邀请人id
     IRIprename = Column(String(64))  # 邀请人姓名
     IRIprephonenum = Column(String(64))  # 邀请人电话号码
     IRIname = Column(String(64))  # 邀请人姓名

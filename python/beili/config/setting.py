@@ -16,6 +16,16 @@ WindowsRoot = 'D:/'
 # 保证金
 BAIL = 0
 
+# 打款信息
+ALIPAYNUM = 13588046059
+ALIPAYNAME = u'冯欣'
+WECHAT = 'youknowfx'
+BANKNAME = u'宁波银行'
+COUNTNAME = u'刘莉'
+CARDNUM = 711001122000127426
+
+
+
 # weidian
 APP_ID = 'wx8206635590c9cc0e'
 APP_SECRET_KEY = 'ba8c532bfd8e7390e3cfc91ac17c0472'

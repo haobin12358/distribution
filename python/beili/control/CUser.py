@@ -10,7 +10,7 @@ from flask import request
 from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
     NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR, NOT_FOUND_FILE, DELETE_CODE_FAIL, \
     NOT_FOUND_QRCODE
-from config.setting import QRCODEHOSTNAME
+from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser, is_temp
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
@@ -127,7 +127,7 @@ class CUser():
             if platform.system() == "Windows":
                 rootdir = "D:/task"
             else:
-                rootdir = "/opt/beili/file/"
+                rootdir = "/Users/fx/opt/beili/file/"
             if not os.path.isdir(rootdir):
                 os.makedirs(rootdir)
             lastpoint = str(files.filename).rindex(".")
@@ -179,7 +179,7 @@ class CUser():
                 url = str(data.get('url'))
             except:
                 return PARAMS_ERROR
-            real_url = QRCODEHOSTNAME + "/opt/beili/file/" + url
+            real_url = QRCODEHOSTNAME + "/Users/fx/opt/beili/file/" + url
             if request.user.id not in real_url:
                 return AUTHORITY_ERROR
             try:
@@ -300,9 +300,108 @@ class CUser():
         else:
             return DELETE_CODE_FAIL
 
+    def get_registerinfo(self):
+        try:
+            data = request.json
+            qrcodeid = str(data.get('qrid'))
+        except:
+            return PARAMS_ERROR
+        if not qrcodeid:
+            return PARAMS_ERROR
+        usid = self.suser.get_user_by_qrid(qrcodeid)
+        if not usid:
+            return SYSTEM_ERROR
+        else:
+            usid = get_model_return_dict(usid)
+            user = self.suser.getuserinfo_by_uid(usid['USid'])
+            if not user:
+                return SYSTEM_ERROR
+            user = get_model_return_dict(user)
+            user_dict = {}
+            user_dict['name'] = user['USname']
+            user_dict['USphonenum'] = user['USphonenum']
+            address = self.smycenter.get_user_default_details(usid['USid'])
+            if address:
+                address = get_model_return_dict(address)
+                area = get_model_return_dict(self.smycenter.get_area_by_areaid(address['areaid']))
+                if area:
+                    city = get_model_return_dict(self.smycenter.get_city_by_cityid(area['cityid']))
+                    province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city['provinceid']))
+                    provincename = province['provincename']
+                    cityname = city['cityname']
+                    areaname = area['areaname']
+                    details = address['UAdetails']
+                    real_address = provincename + cityname + areaname + details
+                    user_dict['address'] = real_address
+                    user_dict['alipaynum'] = ALIPAYNUM
+                    user_dict['alipayname'] = ALIPAYNAME
+                    user_dict['bankname'] = BANKNAME
+                    user_dict['accountname'] = COUNTNAME
+                    user_dict['cardnum'] = CARDNUM
+                    response = import_status("get_registerinfo_success", "OK")
+                    response['data'] = user_dict
+                    return response
+                else:
+                    city = get_model_return_dict(self.smycenter.get_city_by_cityid(address['cityid']))
+                    province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city['provinceid']))
+                    data = {}
+                    provincename = province['provincename']
+                    cityname = city['cityname']
+                    details = address['UAdetails']
+                    real_address = provincename + cityname + details
+                    user_dict['address'] = real_address
+                    user_dict['alipaynum'] = ALIPAYNUM
+                    user_dict['alipayname'] = ALIPAYNAME
+                    user_dict['bankname'] = BANKNAME
+                    user_dict['accountname'] = COUNTNAME
+                    user_dict['cardnum'] = CARDNUM
+                    response = import_status("get_registerinfo_success", "OK")
+                    response['data'] = user_dict
+                    return response
+            else:
+                address = self.smycenter.get_user_otherdefault_details(usid['USid'])
+                if address:
+                    address = get_model_return_dict(address)
+                    area = get_model_return_dict(self.smycenter.get_area_by_areaid(address['areaid']))
+                    if area:
+                        city = get_model_return_dict(self.smycenter.get_city_by_cityid(area['cityid']))
+                        province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city['provinceid']))
+                        provincename = province['provincename']
+                        cityname = city['cityname']
+                        areaname = area['areaname']
+                        details = address['UAdetails']
+                        real_address = provincename + cityname + areaname + details
+                        user_dict['address'] = real_address
+                        user_dict['alipaynum'] = ALIPAYNUM
+                        user_dict['alipayname'] = ALIPAYNAME
+                        user_dict['bankname'] = BANKNAME
+                        user_dict['accountname'] = COUNTNAME
+                        user_dict['cardnum'] = CARDNUM
+                        response = import_status("get_registerinfo_success", "OK")
+                        response['data'] = user_dict
+                        return response
+                    else:
+                        city = get_model_return_dict(self.smycenter.get_city_by_cityid(address['cityid']))
+                        province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city['provinceid']))
+                        data = {}
+                        provincename = province['provincename']
+                        cityname = city['cityname']
+                        details = address['UAdetails']
+                        real_address = provincename + cityname + details
+                        user_dict['address'] = real_address
+                        user_dict['alipaynum'] = ALIPAYNUM
+                        user_dict['alipayname'] = ALIPAYNAME
+                        user_dict['bankname'] = BANKNAME
+                        user_dict['accountname'] = COUNTNAME
+                        user_dict['cardnum'] = CARDNUM
+                        response = import_status("get_registerinfo_success", "OK")
+                        response['data'] = user_dict
+                        return response
+
+
     @verify_token_decorator
     def register(self):
-        params = ['preid', 'preusername', 'prephonenum', 'predetails', 'username', 'phonenum', 'inforcode', 'password',
+        params = ['qrid', 'username', 'phonenum', 'inforcode', 'password',
                   'idcardnum', 'wechat', 'cityid', 'areaid', 'details', 'paytype', 'payamount', 'paytime',
                   'headimg', 'proof', 'alipaynum', 'bankname', 'accountname', 'cardnum']
         data = request.json
@@ -310,10 +409,7 @@ class CUser():
             if param not in params:
                 return PARAMS_MISS
         try:
-            preid = data['preid']
-            preusername = data['preusername']
-            prephonenum = data['prephonenum']
-            predetails = data['predetails']
+            qrid = data['qrid']
             username = data['username']
             phonenum = data['phonenum']
             inforcode = data['inforcode']

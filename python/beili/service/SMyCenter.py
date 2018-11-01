@@ -67,6 +67,16 @@ class SMyCenter(SBase):
                                   .filter(UserAddress.UAstatus == 1).all()
 
     @close_session
+    def get_user_default_details(self, usid):
+        return self.session.query(UserAddress.cityid, UserAddress.areaid, UserAddress.UAdetails).filter(UserAddress.USid == usid) \
+            .filter(UserAddress.UAstatus == 1).filter(UserAddress.UAdefault == 1).first()
+
+    @close_session
+    def get_user_otherdefault_details(self, usid):
+        return self.session.query(UserAddress.cityid, UserAddress.areaid, UserAddress.UAdetails).filter(UserAddress.USid == usid) \
+            .filter(UserAddress.UAstatus == 0).filter(UserAddress.UAdefault == 1).first()
+
+    @close_session
     def get_default_address_by_usid(self, usid):
         """获取默认地址"""
         return self.session.query(UserAddress.UAid, UserAddress.USid) \

@@ -23,7 +23,7 @@ class AUser(Resource):
             'remove_file':'self.cuser.remove_file()',
             'delete_qrcode': 'self.cuser.delete_qrcode()',
             'add_qrcode': 'self.cuser.add_qrcode()',
-
+            'get_registerinfo': 'self.cuser.get_registerinfo()'
         }
         res = eval(apis[user])
         return jsonify(res)
