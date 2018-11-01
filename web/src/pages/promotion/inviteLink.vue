@@ -26,7 +26,7 @@
 
 <template>
     <div class="container">
-        <header-top :show-back="true"></header-top>
+        <header-top :show-back="showBack()"></header-top>
 
         <section class="invite-code-wrap">
             <!--<img src="/static/images/testbg.jpg" @click="$router.push('/applyAgent')" alt="" class="invite-code-img">-->
@@ -40,6 +40,8 @@
 
 <script>
     import VueQr from 'vue-qr'
+    import {setStore, getStore} from "src/common/js/mUtils"
+    import {TOKEN} from "src/common/js/const"
 
     export default {
         name: "inviteLink",
@@ -56,12 +58,14 @@
 
         computed: {},
 
-        methods: {},
+        methods: {
+            showBack(){
+                return !!getStore(TOKEN)
+            }
+        },
 
         created() {
             this.code =this.$route.query.code;
-            console.log(this.code);
-
         },
     }
 </script>
