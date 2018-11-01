@@ -4,6 +4,7 @@ import os
 from werkzeug.security import check_password_hash
 from service.SBase import SBase, close_session
 from models.model import User, Admin
+
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -22,24 +23,25 @@ class SAdmin(SBase):
         self.session.query(Admin).filter_by(ADid=adminid).update(users)
 
     @close_session
-    def get_same_adnum(self,ADnum):
-        return self.session.query(Admin.ADnum).filter_by(ADnum=ADnum).all()
+    def get_all_adnum(self):
+        return self.session.query(Admin.ADnum).all()
 
     @close_session
-    def get_same_adname(self,ADname):
-        return self.session.query(Admin.ADname).filter_by(ADname=ADname).all()
+    def get_all_adname(self):
+        return self.session.query(Admin.ADname).all()
 
     @close_session
-    def add_admin(self, uaid, ADnum, ADname, ADpassword,Adheadering,ADlevel,time_str,ADisfreeze=False):
+    def add_admin(self, uaid, ADnum, ADname, ADpassword, ADlevel, time_str, Adheadering='www.baidu.com'):
         admin = Admin()
-        admin.ADid = uaid
-        admin.ADnum = ADnum  # 管理员账号
-        admin.ADname = ADname  # 管理员用户名
-        admin.ADpassword = ADpassword  # 密码
-        admin.ADheaderimg = Adheadering  # 用户头像, 可以设置一个默认值
-        admin.ADlevel = ADlevel  # 用户级别{0: 一般管理员, 1: 超级管理员}　
-        admin.ADcreatetime = time_str  # 创建时间
-        admin.ADisfreeze = ADisfreeze
-        self.session.add(admin)
 
+        admin.ADid = uaid
+        admin.ADnum = ADnum
+        admin.ADname = ADname
+        admin.ADpassword = ADpassword
+        admin.ADheaderimg = Adheadering
+        admin.ADlevel = ADlevel
+        admin.ADcreatetime = time_str
+
+        self.session.add(admin)
+        return True
 

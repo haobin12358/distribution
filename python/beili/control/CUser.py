@@ -9,17 +9,19 @@ from flask import request
 # import logging
 from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
     NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR, NOT_FOUND_FILE, DELETE_CODE_FAIL, \
-    NOT_FOUND_QRCODE
-from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM, MONEY
+    NOT_FOUND_QRCODE, HAS_REGISTER, NO_BAIL
+from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM, MONEY, BAIL
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser, is_temp
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
 from common.timeformat import get_db_time_str
 from service.SUser import SUser
 from service.DBSession import db_session
+from service.SAccount import SAccount
 from common.beili_error import stockerror, dberror
 from service.SMyCenter import SMyCenter
 from datetime import datetime
+from models.model import Amount
 from common.timeformat import format_for_db
 import platform
 sys.path.append(os.path.dirname(os.getcwd()))
@@ -30,6 +32,7 @@ class CUser():
     def __init__(self):
         self.suser = SUser()
         self.smycenter = SMyCenter()
+        self.saccount = SAccount()
 
     def login(self):
         print "hello"
@@ -39,7 +42,7 @@ class CUser():
         usphonenum = json_data.get('usphonenum')
         uspassword = json_data.get('uspassword')
         if not usphonenum or not uspassword:
-            return PARAMS_MISS(u'请输入手机号或密码')
+            return PARAMS_MISS
         print type(usphonenum)
         user = get_model_return_dict(self.suser.getuser_by_phonenum(usphonenum))
         # print "aaaa" + user.USphone + ":" + user.USpassword
@@ -127,7 +130,7 @@ class CUser():
             if platform.system() == "Windows":
                 rootdir = "D:/task"
             else:
-                rootdir = "/Users/fx/opt/beili/file/"
+                rootdir = "/opt/beili/file/"
             if not os.path.isdir(rootdir):
                 os.makedirs(rootdir)
             lastpoint = str(files.filename).rindex(".")
@@ -169,8 +172,6 @@ class CUser():
             }
             return data
 
-
-
     @verify_token_decorator
     def remove_file(self):
         if is_ordirnaryuser():
@@ -179,7 +180,7 @@ class CUser():
                 url = str(data.get('url'))
             except:
                 return PARAMS_ERROR
-            real_url = QRCODEHOSTNAME + "/Users/fx/opt/beili/file/" + url
+            real_url = QRCODEHOSTNAME + "/opt/beili/file/" + url
             if request.user.id not in real_url:
                 return AUTHORITY_ERROR
             try:
@@ -215,6 +216,12 @@ class CUser():
             id = str(data.get('qrcodeid'))
         except:
             return PARAMS_ERROR
+        user_info = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id)) if self.smycenter \
+            .get_user_basicinfo(request.user.id) else None
+        if not user_info:
+            return NOT_FOUND_USER
+        if user_info['USbail'] < BAIL:
+            return NO_BAIL
         result = self.suser.get_arcode_details(request.user.id, id)
         if not result:
             return NOT_FOUND_QRCODE
@@ -249,6 +256,12 @@ class CUser():
             number = int(data.get('number'))
         except:
             return PARAMS_ERROR
+        user_info = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id)) if self.smycenter\
+                .get_user_basicinfo(request.user.id) else None
+        if not user_info:
+            return NOT_FOUND_USER
+        if user_info['USbail'] < BAIL:
+            return NO_BAIL
         result = self.suser.add_qrcode(str(uuid.uuid4()), request.user.id, date, number)
         if result:
             response = import_status("add_qrcode_success", "OK")
@@ -320,6 +333,12 @@ class CUser():
             user_dict = {}
             user_dict['name'] = user['USname']
             user_dict['USphonenum'] = user['USphonenum']
+            user_dict['alipaynum'] = ALIPAYNUM
+            user_dict['alipayname'] = ALIPAYNAME
+            user_dict['bankname'] = BANKNAME
+            user_dict['accountname'] = COUNTNAME
+            user_dict['cardnum'] = CARDNUM
+            user_dict['money'] = MONEY
             address = self.smycenter.get_user_default_details(usid['USid'])
             if address:
                 address = get_model_return_dict(address)
@@ -333,12 +352,6 @@ class CUser():
                     details = address['UAdetails']
                     real_address = provincename + cityname + areaname + details
                     user_dict['address'] = real_address
-                    user_dict['alipaynum'] = ALIPAYNUM
-                    user_dict['alipayname'] = ALIPAYNAME
-                    user_dict['bankname'] = BANKNAME
-                    user_dict['accountname'] = COUNTNAME
-                    user_dict['cardnum'] = CARDNUM
-                    user_dict['money'] = MONEY
                     response = import_status("get_registerinfo_success", "OK")
                     response['data'] = user_dict
                     return response
@@ -351,12 +364,6 @@ class CUser():
                     details = address['UAdetails']
                     real_address = provincename + cityname + details
                     user_dict['address'] = real_address
-                    user_dict['alipaynum'] = ALIPAYNUM
-                    user_dict['alipayname'] = ALIPAYNAME
-                    user_dict['bankname'] = BANKNAME
-                    user_dict['accountname'] = COUNTNAME
-                    user_dict['money'] = MONEY
-                    user_dict['cardnum'] = CARDNUM
                     response = import_status("get_registerinfo_success", "OK")
                     response['data'] = user_dict
                     return response
@@ -373,13 +380,6 @@ class CUser():
                         areaname = area['areaname']
                         details = address['UAdetails']
                         real_address = provincename + cityname + areaname + details
-                        user_dict['address'] = real_address
-                        user_dict['alipaynum'] = ALIPAYNUM
-                        user_dict['alipayname'] = ALIPAYNAME
-                        user_dict['bankname'] = BANKNAME
-                        user_dict['accountname'] = COUNTNAME
-                        user_dict['money'] = MONEY
-                        user_dict['cardnum'] = CARDNUM
                         response = import_status("get_registerinfo_success", "OK")
                         response['data'] = user_dict
                         return response
@@ -392,12 +392,6 @@ class CUser():
                         details = address['UAdetails']
                         real_address = provincename + cityname + details
                         user_dict['address'] = real_address
-                        user_dict['alipaynum'] = ALIPAYNUM
-                        user_dict['alipayname'] = ALIPAYNAME
-                        user_dict['bankname'] = BANKNAME
-                        user_dict['money'] = MONEY
-                        user_dict['accountname'] = COUNTNAME
-                        user_dict['cardnum'] = CARDNUM
                         response = import_status("get_registerinfo_success", "OK")
                         response['data'] = user_dict
                         return response
@@ -417,7 +411,7 @@ class CUser():
             prephonenum = data['prephonenum']
             username = data['username']
             phonenum = data['phonenum']
-            inforcode = data['inforcode']
+            inforcode = data['inforcode']  # 验证码
             password = data['password']
             idcardnum = data['idcardnum']
             wechat = data['wechat']
@@ -428,6 +422,7 @@ class CUser():
             payamount = data['payamount']
             paytime = data['paytime']
             headimg = data['headimg']
+            proof = data['proof']
             alipaynum = data['alipaynum']
             bankname = data['bankname']
             accountname = data['accountname']
@@ -440,11 +435,45 @@ class CUser():
                     return PARAMS_ERROR
         except:
             return PARAMS_ERROR
+        check_phone = self.suser.getuser_by_phonenum(phonenum)
+        if check_phone:
+            return HAS_REGISTER
+        codeinfo = get_model_return_dict(self.smycenter.get_inforcode_by_usphonenum(phonenum)) if self.smycenter\
+            .get_inforcode_by_usphonenum(phonenum) else None
+        if not codeinfo:
+            return SYSTEM_ERROR
+        if inforcode != codeinfo['ICcode']:
+            return INFORCODE_WRONG
         session = db_session()
         try:
             result = self.suser.insertInvitate(session, data)
             if not result:
                 raise dberror
+            user = self.smycenter.get_user_basicinfo(request.user.id)  # 插入销售表，有数据就更新
+            if not user:
+                raise dberror
+            user = get_model_return_dict(user)
+            monthnow = datetime.strftime(datetime.now(), format_for_db)[0:6]
+            amount_data = self.saccount.get_user_date(request.user.id, monthnow)
+            if amount_data:
+                amount_data = get_model_return_dict(amount_data)
+                new_data = {}
+                new_data['reward'] = amount_data['reward'] + 100
+                try:
+                    session.query(Amount).filter(Amount.USid == request.user.id).update(new_data)
+                except:
+                    raise dberror
+            else:
+                amount = Amount()
+                amount.USid = request.user.id
+                amount.AMid = str(uuid.uuid4())
+                amount.USagentid = user['USagentid']
+                amount.USname = user['USname']
+                amount.reward = 100
+                amount.USheadimg = user['USheadimg']
+                amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
+                amount.AMmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
+                session.add(amount)
             session.commit()
         except Exception as e:
             print e

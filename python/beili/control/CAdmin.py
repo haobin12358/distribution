@@ -8,12 +8,13 @@ from flask import request
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, PHONE_OR_PASSWORD_WRONG, \
     AUTHORITY_ERROR, PARAMS_MISS, NO_PHONENUM_OR_PASSWORD
 from config.setting import QRCODEHOSTNAME
-from common.token_required import verify_token_decorator,is_superadmin, usid_to_token, is_admin, is_ordirnaryuser
+from common.token_required import verify_token_decorator, is_superadmin, usid_to_token, is_admin, is_ordirnaryuser
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
 from common.timeformat import get_db_time_str
 from service.SAdmin import SAdmin
 import platform
+
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -40,7 +41,8 @@ class CAdmin():
             'token': token,
         }
         return data
-    #更新密码
+
+    # 更新密码
     @verify_token_decorator
     def update_pwd(self):
         if not is_admin():
@@ -58,9 +60,10 @@ class CAdmin():
         self.sadmin.update_amdin_by_adminid(user.ADid, admin_update)
         data = import_status("update_password_success", "OK")
         return data
-    #获得所有的管理员
 
-    #创建管理员
+    # 获得所有的管理员
+
+    # 创建管理员
     @verify_token_decorator
     def register(self):
         if not is_superadmin():
@@ -74,39 +77,40 @@ class CAdmin():
         except:
             return PARAMS_ERROR
         try:
-            if ADnum:
-                all_ADnum = self.sadmin.get_same_adnum(ADnum)#查看是否有相同的管理员号码
-                if all_ADnum:
-                    return '该用户号已存在 this adnum is already exists'
-            if ADname:
-                all_ADname = self.sadmin.get_same_adname(ADname)
-                if all_ADname:
-                    return '该用户名已存在 this adname is already exists'
+            all_adnum = get_model_return_list(self.sadmin.get_all_adnum())  # 查看是否有相同的管理员号码
+            print all_adnum
+            if ADnum == all_adnum['ADnum']:
+                return 'sorry, this adnum is already exists'
+            all_adname = get_model_return_list(self.sadmin.get_all_adname())  # 查看是否有相同的管理员名
+            print all_adname
+            if ADname == all_adname[0]['ADname']:
+                return 'sorry, this adname is already exists'
             import datetime
             from common.timeformat import format_for_db
             time_time = datetime.datetime.now()
             time_str = datetime.datetime.strftime(time_time, format_for_db)
             adid = str(uuid.uuid1())
-            self.sadmin.add_admin(adid,ADnum,ADname,ADpassword,Adheadering,ADlevel,time_str,False)
-            response = import_status("add_admin_success", "OK")
+            result = self.sadmin.add_admin(adid, ADnum, ADname, ADpassword, ADlevel, time_str)
+            if result:
+                response = import_status("add_admin_success", "OK")
             response['data'] = {
-                "UAid":adid
+                "UAid": adid
             }
             return response
-        except:
+        except Exception as e:
+            print e
             return SYSTEM_ERROR
-    #删除管理员
+    # 删除管理员
 
-    #更新管理员个人信息
-
-
+    # 更新管理员个人信息
 
 
 
 
-             
 
 
 
 
-        
+
+
+

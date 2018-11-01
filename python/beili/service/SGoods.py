@@ -34,7 +34,7 @@ class SGoods(SBase):
     def get_product(self, PRid):
         return self.session.query(Product.PRstock, Product.PRpic, Product.PRstatus, Product.PRprice, Product.PRoldprice,
                 Product.PRname, Product.PRpic, Product.PRoldprice, Product.PAid, Product.PRcreatetime,
-                Product.PRlogisticsfee).filter_by(PRid=PRid).first()
+                Product.PRlogisticsfee, Product.PAdiscountnum).filter_by(PRid=PRid).first()
 
     @close_session
     def update_product(self, PRid, product):

@@ -109,4 +109,4 @@ class SUser(SBase):
 
     @close_session
     def get_user_by_qrid(self, qrid):
-        return self.session.query(Qrcode.USid).filter(Qrcode.QRid == qrid).filter(Qrcode.QRstatus == 1).first()
+        return self.session.query(Qrcode.USid).filter(Qrcode.QRid == qrid).first()

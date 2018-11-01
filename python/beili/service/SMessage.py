@@ -69,6 +69,10 @@ class SMessage(SBase):
         all = self.session.query(AlreadyRead).filter_by(ARid=messageid).all()
         self.session.delete(all)
 
-
-
+    @close_session
+    def update_status(self, id):
+        from models.model import InvitaRecord
+        update = {}
+        update['IRIstatus'] = 2
+        self.session.query(InvitaRecord).filter(InvitaRecord.IRIid == id).update(update)
 

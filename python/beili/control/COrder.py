@@ -20,11 +20,12 @@ from service.SOrder import SOrder
 from service.SGoods import SGoods
 from service.SMyCenter import SMyCenter
 from service.DBSession import db_session
+from service.SAccount import SAccount
 import platform
 from common.beili_error import stockerror, dberror
 from datetime import datetime
 from common.timeformat import format_for_db
-from models.model import User, AgentMessage
+from models.model import User, AgentMessage, Performance, Amount
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -36,6 +37,7 @@ class COrder():
         self.sgoods = SGoods()
         self.smycenter = SMyCenter()
         self.smessage = SMessage()
+        self.saccount = SAccount()
 
     @verify_token_decorator
     def create_order(self):
@@ -67,12 +69,14 @@ class COrder():
             return NO_BAIL
         mount = 0
         new_list = []
+        discountnum = 0
         try:
             for product in product_list:
                 num = product['PRnum']
                 check_product = get_model_return_dict(self.sgoods.get_product(product['PRid']))
                 mount = mount + num * check_product['PRprice']
                 product['PRprice'] = check_product['PRprice']
+                discountnum = discountnum + num * check_product['PAdiscountnum']
                 new_list.append(product)
             if totalprice != mount or real_PRlogisticsfee != PRlogisticsfee:
                 response = {}
@@ -84,7 +88,8 @@ class COrder():
                 return response
             if user_info['USmount'] < mount + PRlogisticsfee:
                 return NO_ENOUGH_MOUNT
-        except:
+        except Exception as e:
+            print e
             return SYSTEM_ERROR
         session = db_session()
         try:
@@ -137,13 +142,47 @@ class COrder():
             user = {}
             user['USmount'] = user_info['USmount'] - mount
             session.query(User).filter_by(USid=request.user.id).update(user)
-            agentmessage = AgentMessage()
+            agentmessage = AgentMessage()  # 插入代理消息
             agentmessage.AMid = str(uuid.uuid4())
             agentmessage.USid = request.user.id
             agentmessage.AMdate = OIcreatetime
             agentmessage.AMtype = 0
             agentmessage.AMcontent = u'您的订单创建成功，订单号为' + ' ' + str(OIsn)
             session.add(agentmessage)
+
+            performance = Performance()   # 插入业绩表
+            performance.USid = request.user.id
+            performance.REmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
+            performance.PEid = str(uuid.uuid4())
+            performance.PEdiscountnum = discountnum
+            performance.PEcreatetime = datetime.strftime(datetime.now(), format_for_db)
+            session.add(performance)
+
+            user = self.smycenter.get_user_basicinfo(request.user.id)  # 插入销售表，有数据就更新
+            if not user:
+                raise dberror
+            user = get_model_return_dict(user)
+            monthnow = datetime.strftime(datetime.now(), format_for_db)[0:6]
+            amount_data = self.saccount.get_user_date(request.user.id, monthnow)
+            if amount_data:
+                amount_data = get_model_return_dict(amount_data)
+                new_data = {}
+                new_data['performance'] = amount_data['performance'] + discountnum
+                try:
+                    session.query(Amount).filter(Amount.USid == request.user.id).update(new_data)
+                except:
+                    raise dberror
+            else:
+                amount = Amount()
+                amount.USid = request.user.id
+                amount.AMid = str(uuid.uuid4())
+                amount.USagentid = user['USagentid']
+                amount.performance = discountnum
+                amount.USname = user['USname']
+                amount.USheadimg = user['USheadimg']
+                amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
+                amount.AMmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
+                session.add(amount)
             session.commit()
         except stockerror as e:
             session.rollback()
