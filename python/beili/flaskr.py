@@ -12,7 +12,9 @@ from apis.AAccount import AAccount
 sg = Flask(__name__)
 sg.config.from_object('config.setting')
 api = flask_restful.Api(sg)
-
+@sg.route('/index')
+def index():
+    return "Hello,World!"
 api.add_resource(AGoods, "/product/<string:product>")
 api.add_resource(AUser, "/user/<string:user>")
 api.add_resource(AMyCenter, "/mycenter/<string:mycenter>")

@@ -45,14 +45,14 @@
         </header-top>
 
         <ul class="invite-code-list">
-            <li class="invite-code-item" v-for="item,index in 4" @click="gotoInviteLink(index)">
-                <vue-qr :text="generateCodeUrl(index)" :size="50" :margin="0" class="invite-code-img"></vue-qr>
+            <li class="invite-code-item" v-for="item,index in qrCodeList" @click="gotoInviteLink(item)">
+                <vue-qr :text="generateCodeUrl(item)" :size="50" :margin="0" class="invite-code-img"></vue-qr>
                 <section class="invite-remain">
-                    <span class="deadline">有限期限：2018-08-15 14：56：24</span>
-                    <span class="residue-degree">可用次数：10</span>
+                    <span class="deadline">有限期限：{{item.QRovertime}}</span>
+                    <span class="residue-degree">可用次数：{{item.QRnumber}}</span>
                 </section>
 
-                <img src="/static/images/close.png" @click.stop="removeInvite" alt="" class="remove-btn">
+                <img src="/static/images/close.png" @click.stop="removeInvite(item)" alt="" class="remove-btn">
             </li>
         </ul>
 
@@ -62,12 +62,16 @@
 
 <script>
     import VueQr from 'vue-qr'
+    import {getQrcode, deleteQrcode} from "src/api/api"
+
 
     export default {
         name: "wantInvite",
 
         data() {
-            return {}
+            return {
+                qrCodeList: []
+            }
         },
 
         components: {VueQr},
@@ -75,24 +79,41 @@
         computed: {},
 
         methods: {
+            setQrcodeList() {
+                getQrcode().then(
+                    resData => {
+                        if (resData) {
+                            this.qrCodeList = resData.data;
+                        }
+                    }
+                )
+            },
             generateCodeUrl(item) {
-                return  'http://'+ location.host + '/#/agentAgreement?code=' + item;
+                return 'http://' + location.host + '/#/agentAgreement?QRid=' + item.QRid;
             },
-            gotoInviteLink(index) {
+            gotoInviteLink(item) {
                 this.$router.push({
-                    path: '/inviteLink?code=' + encodeURIComponent( this.generateCodeUrl(index))
-                })
+                    path: '/inviteLink?code=' + encodeURIComponent(this.generateCodeUrl(item)) + '& QRid=' + item.QRid
+                });
             },
-            removeInvite() {
+            removeInvite(item) {
                 this.$messagebox.confirm('确定删除邀请链接吗?').then(
                     () => {
-
+                        deleteQrcode(item.QRid).then(
+                            resData => {
+                                if (resData) {
+                                    this.$toast('删除邀请链接成功');
+                                    this.setQrcodeList();
+                                }
+                            }
+                        )
                     }
                 );
             }
         },
 
         created() {
+            this.setQrcodeList();
         },
     }
 </script>

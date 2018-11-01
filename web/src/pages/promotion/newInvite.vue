@@ -19,18 +19,14 @@
         <header-top :show-back="true"></header-top>
 
         <section class="form-container">
-            <mt-field class="form-item" label="有效期限" placeholder="请选择有效期限" v-model="expiryDate" :readonly="true"
+            <mt-field class="form-item" label="有效期限" placeholder="请选择有效期限" v-model="expireDateTxt" :readonly="true"
                       :disableClear="true" @click.native="sheetVisible =true"></mt-field>
-            <mt-field class="form-item" label="可用次数" placeholder="请输入可用次数"></mt-field>
-
-
-            <mt-field class="form-item" label="邀请人" placeholder="有就用默认地址的"></mt-field>
-            <mt-field class="form-item" label="电话" placeholder="有就用默认地址的"></mt-field>
-            <mt-field class="form-item" label="地址" placeholder="有就用默认地址的"></mt-field>
+            <mt-field class="form-item" type="number" v-model="count" label="可用次数"
+                      placeholder="请输入可用次数" :state="checkNumber(count) ?  '' :'warning'"></mt-field>
         </section>
 
         <section class="my-confirm-btn-wrap">
-            <router-link to="/inviteLink" tag="button" class="my-confirm-btn">确 认</router-link>
+            <button @click="doConfirm" class="my-confirm-btn">确 认</button>
         </section>
 
         <mt-actionsheet
@@ -41,17 +37,22 @@
 </template>
 
 <script>
+    import {addQrcode} from "src/api/api"
+
     export default {
         name: "newInvite",
 
         data() {
             return {
-                expiryDate: '',
+                expireDateTxt: '',  // 显示用
+                expireDate: '',
+                count: '',
 
                 actions: [
+                    {name: '一小时', method: this.selectExpiryDate},
                     {name: '一天', method: this.selectExpiryDate},
-                    {name: '三天', method: this.selectExpiryDate},
-                    {name: '一星期', method: this.selectExpiryDate},
+                    {name: '一周', method: this.selectExpiryDate},
+                    {name: '一月', method: this.selectExpiryDate},
                 ],
                 sheetVisible: false,
             }
@@ -62,13 +63,61 @@
         computed: {},
 
         methods: {
-            selectExpiryDate(evt){
-                this.expiryDate = evt.name;
+            checkNumber(number){
+                let reg = /^[1-9]+[0-9]*]*$/;
+                if(!number){
+                    return true;
+                }
+                return reg.test(number);
+            },
+            selectExpiryDate(evt) {
+                this.expireDateTxt = evt.name;
+
+            },
+
+            expireDateTxtToVal(){
+                switch (this.expireDateTxt) {
+                    case '一小时':
+                        this.expireDate = new Date().getTime() + 60 * 60 * 1000;
+                        break;
+                    case '一天':
+                        this.expireDate = new Date().getTime() + 24 * 60 * 60 * 1000;
+                        break;
+                    case '一周':
+                        this.expireDate = new Date().getTime() + 7 * 24 * 60 * 60 * 1000;
+                        break;
+                    case '一月':
+                        this.expireDate = new Date().getTime() + 30 * 24 * 60 * 60 * 1000;
+                        break;
+                }
+
+                let tempDate = new Date(Number(this.expireDate)).toLocaleString('zh-CN', {hour12: false});
+
+                this.expireDate = tempDate.replace(/[:\/\s]/g, '');
+            },
+
+            doConfirm() {
+                if (this.expireDateTxt && this.count > 0) {
+
+                    this.expireDateTxtToVal();
+
+                    addQrcode(this.expireDate, this.count).then(
+                        resData => {
+                            if(resData){
+                                this.$toast('邀请新增成功');
+                                this.$router.back();
+                            }
+                        }
+                    )
+                } else {
+                    this.$toast('请填写完整!');
+                }
             }
         },
 
         created() {
-        },
+        }
+        ,
     }
 </script>
 

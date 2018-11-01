@@ -414,6 +414,32 @@ export const getDistribute = () => myAxios('/account/get_distribute', {
 });
 
 
+export const getQrcode = () => myAxios('/user/get_qrcode', {
+    params: {
+        token: getStore(TOKEN),
+    },
+});
+export const addQrcode = (overtime,number) => myAxios('/user/add_qrcode', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN),
+    },
+    data: {
+        overtime,
+        number,
+    }
+});
+export const deleteQrcode = (qrcodeid) => myAxios('/user/delete_qrcode', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN),
+    },
+    data: {
+        qrcodeid
+    }
+});
+
+
 
 
 
