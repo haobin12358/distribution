@@ -20,7 +20,7 @@ class AAdmin(Resource):
             'delete':'self.admin.delete()',#我的任务2 删除管理员
             'findback_pwd': 'self.cuser.findback_pwd()',
             'update_pwd': 'self.cuser.update_pwd()',
-            'update_headimg': 'self.cuser.update_headimg()'
+            'update_headimg': 'self.cuser.update_headimg()',
             'update_admin':'self.admin.update_admin'#我的任务3 更新信息
         }
         res = eval(apis[admin])
