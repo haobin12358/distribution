@@ -188,3 +188,14 @@ DELETE_CODE_FAIL = {
     "status_code": 405023,
     "message": "删除二维码失败"
 }
+REMOVE_FILR_FAIL = {
+    "status": 405,
+    "status_code": 405024,
+    "message": "删除文件失败"
+}
+NOT_FOUND_QRCODE = {
+    "status": 405,
+    "status_code": 405025,
+    "message": "二维码不存在"
+
+}

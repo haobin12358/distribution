@@ -6,9 +6,10 @@ import uuid
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
-    NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR, NOT_FOUND_FILE, DELETE_CODE_FAIL
+    NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR, NOT_FOUND_FILE, DELETE_CODE_FAIL, \
+    NOT_FOUND_QRCODE
 from config.setting import QRCODEHOSTNAME
-from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser
+from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser, is_temp
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
 from common.timeformat import get_db_time_str
@@ -96,70 +97,144 @@ class CUser():
 
     @verify_token_decorator
     def update_headimg(self):  # 更新头像
-        if not is_ordirnaryuser():
-            return AUTHORITY_ERROR(u"权限不足")
-        files = request.files.get("file")
-        if not files:
-            return NOT_FOUND_IMAGE(u"图片不存在")
-        if platform.system() == "Windows":
-            rootdir = "D:/task"
-        else:
-            rootdir = "/opt/beili/imgs/mycenter/"
-        if not os.path.isdir(rootdir):
-            os.mkdir(rootdir)
-        lastpoint = str(files.filename).rindex(".")
-        filessuffix = str(files.filename)[lastpoint+1:]
-        filename = request.user.id + get_db_time_str() + "." + filessuffix
-        filepath = os.path.join(rootdir, filename)
-        print(filepath)
-        files.save(filepath)
-        response = import_status("updata_headimg_success", "OK")
-        # url = Inforcode.ip + Inforcode.LinuxImgs + "/" + filename
-        url = QRCODEHOSTNAME + "/imgs/mycenter/" + filename
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            url = data.get('url')
+        except:
+            return PARAMS_ERROR
         user_update = {}
         user_update['USheadimg'] = url
-        self.suser.update_user_by_uid(request.user.id, user_update)
-        # print(url)
-        response["data"] = url
-        return response
+        result = self.suser.update_user_by_uid(request.user.id, user_update)
+        if result:
+            response = import_status("updata_headimg_success", "OK")
+            return response
+        else:
+            return SYSTEM_ERROR
 
     @verify_token_decorator
     def upload_file(self):
-        try:
-            files = request.files.get("file")
-        except:
-            return PARAMS_ERROR
-        if not files:
-            return NOT_FOUND_FILE
-        if platform.system() == "Windows":
-            rootdir = "D:/task"
+        if is_ordirnaryuser():
+            try:
+                files = request.files.get("file")
+            except:
+                return PARAMS_ERROR
+            if not files:
+                return NOT_FOUND_FILE
+            if platform.system() == "Windows":
+                rootdir = "D:/task"
+            else:
+                rootdir = "/opt/beili/file/"
+            if not os.path.isdir(rootdir):
+                os.makedirs(rootdir)
+            lastpoint = str(files.filename).rindex(".")
+            filessuffix = str(files.filename)[lastpoint + 1:]
+            filename = request.user.id + get_db_time_str() + "." + filessuffix
+            filepath = os.path.join(rootdir, filename)
+            print(filepath)
+            files.save(filepath)
+            response = import_status("upload_file_success", "OK")
+            url = QRCODEHOSTNAME + "/file/" + filename
+            response["data"] = url
+            return response
         else:
-            rootdir = "/opt/beili/file/"
-        if not os.path.isdir(rootdir):
-            os.makedirs(rootdir)
-        lastpoint = str(files.filename).rindex(".")
-        filessuffix = str(files.filename)[lastpoint + 1:]
-        filename = str(uuid.uuid4()) + get_db_time_str() + "." + filessuffix
-        filepath = os.path.join(rootdir, filename)
-        print(filepath)
-        files.save(filepath)
-        response = import_status("upload_file_success", "OK")
-        url = QRCODEHOSTNAME + "/file/" + filename
-        response["data"] = url
-        return response
+            id1 = str(uuid.uuid4())
+            token = usid_to_token(id=id1, type='Temp')
+            try:
+                files = request.files.get("file")
+            except:
+                return PARAMS_ERROR
+            if not files:
+                return NOT_FOUND_FILE
+            if platform.system() == "Windows":
+                rootdir = "D:/task"
+            else:
+                rootdir = "/opt/beili/file/"
+            if not os.path.isdir(rootdir):
+                os.makedirs(rootdir)
+            lastpoint = str(files.filename).rindex(".")
+            filessuffix = str(files.filename)[lastpoint + 1:]  # 后缀名
+            filename = id1 + get_db_time_str() + "." + filessuffix
+            filepath = os.path.join(rootdir, filename)
+            print(filepath)
+            files.save(filepath)
+            url = QRCODEHOSTNAME + "/file/" + filename
+            data = import_status("upload_file_success", "OK")
+            data['data'] = {
+                'token': token,
+                'url': url
+            }
+            return data
+
+
 
     @verify_token_decorator
     def remove_file(self):
+        if is_ordirnaryuser():
+            try:
+                data = request.json
+                url = str(data.get('url'))
+            except:
+                return PARAMS_ERROR
+            real_url = QRCODEHOSTNAME + "/opt/beili/file/" + url
+            if request.user.id not in real_url:
+                return AUTHORITY_ERROR
+            try:
+                os.remove(real_url)
+                response = import_status("remove_file_success", "OK")
+                return response
+            except:
+                return AUTHORITY_ERROR
+        elif is_temp():
+            try:
+                data = request.json
+                url = str(data.get('url'))
+            except:
+                return PARAMS_ERROR
+            real_url = QRCODEHOSTNAME + "/opt/beili/file/" + url
+            if request.temp not in real_url:
+                return AUTHORITY_ERROR
+            try:
+                os.remove(real_url)
+                response = import_status("remove_file_success", "OK")
+                return response
+            except:
+                return AUTHORITY_ERROR
+        else:
+            return TOKEN_ERROR
+
+    @verify_token_decorator
+    def check_qrcode(self):
+        if is_tourist():
+            return TOKEN_ERROR
         try:
             data = request.json
-            url = str(data.get('url'))
+            id = str(data.get('qrcodeid'))
         except:
             return PARAMS_ERROR
-        list = url.split('/file/')
-        filename = list[0] + '/opt/beili/file/' + list[1]
-        os.remove(filename)
-        response = import_status("remove_file_success", "OK")
-        return response
+        result = self.suser.get_arcode_details(request.user.id, id)
+        if not result:
+            return NOT_FOUND_QRCODE
+        else:
+            result = get_model_return_dict(result)
+            response = {}
+            date = result['QRovertime']
+            number = result['QRnumber']
+            timenow = datetime.strftime(datetime.now(), format_for_db)
+            if date < timenow:
+                response['message'] = u"二维码已过期"
+                response['success'] = False
+                return response
+            if number < 1:
+                response['message'] = u"二维码次数已用完"
+                response['success'] = False
+                return response
+            response['status'] = 200
+            response['data'] = result
+            response['success'] = True
+            return response
+
 
 
     @verify_token_decorator

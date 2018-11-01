@@ -26,6 +26,7 @@ class SUser(SBase):
     @close_session
     def update_user_by_uid(self, uid, users):
         self.session.query(User).filter_by(USid=uid).update(users)
+        return True
 
     @close_session
     def getuser_by_preid(self, preid):
@@ -98,3 +99,8 @@ class SUser(SBase):
         update['QRstatus'] = 0
         self.session.query(Qrcode).filter(Qrcode.USid == id).filter(Qrcode.QRid == codeid).update(update)
         return True
+
+    @close_session
+    def get_arcode_details(self, usid, id):
+            return self.session.query(Qrcode.QRovertime, Qrcode.QRnumber).filter(Qrcode.USid == usid).filter(Qrcode.QRid == id).\
+                filter(Qrcode.QRstatus == 1).first()
