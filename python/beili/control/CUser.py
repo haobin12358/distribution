@@ -310,7 +310,7 @@ class CUser():
             return PARAMS_ERROR
         usid = self.suser.get_user_by_qrid(qrcodeid)
         if not usid:
-            return SYSTEM_ERROR
+            return NOT_FOUND_QRCODE
         else:
             usid = get_model_return_dict(usid)
             user = self.suser.getuserinfo_by_uid(usid['USid'])
