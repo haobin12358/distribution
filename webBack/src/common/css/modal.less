@@ -1,0 +1,113 @@
+@import "./resize.css";
+@import "./_variate.less";
+@import "./_mixture.less";
+@import "./_argument.less";
+
+.m-modal{
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0,0,0,0.2);
+  z-index: 1001;
+  transition: opacity .5s;
+  .m-modal-state{
+    background-color: #fff;
+    padding: 0.2rem 0.4rem;
+    position: absolute;
+    width: 7.5rem;
+    height: 4.5rem;
+    top: 0;
+    left: 0;
+    right:0;
+    bottom:0;
+    margin: auto;
+    border: 1px solid @borderColor;
+    box-shadow: 1px 1px 2px @green;
+    border-radius: 5px;
+    -webkit-transition: height 0.88s;
+    transition: height 0.88s;
+    .m-modal-head{
+      border-bottom: 1px solid @borderColor;
+      padding-bottom: 0.1rem;
+      .m-close{
+        cursor: pointer;
+      }
+    }
+    .m-modal-content{
+      padding: 0.4rem 0.2rem;
+      .m-table{
+        text-align: center;
+        line-height: 0.6rem;
+        border-radius: 5px;
+        thead{
+          line-height: 0.3rem;
+        }
+        td{
+          border: 1px solid @borderColor;
+        }
+      }
+      .m-approve-box{
+        margin: 0.2rem 0 0;
+        p{
+          padding: 0.05rem;
+          font-size: 0.14rem;
+        }
+        .m-approve-info{
+          border: 1px solid @borderColor;
+          border-radius: 10px;
+          margin: 0.1rem 0;
+          padding: 0.1rem;
+          height: 1.2rem;
+          font-size: 0.12rem;
+          color: @greyColor;
+        }
+      }
+    }
+    .m-modal-foot{
+     display: flex;
+      flex-flow: row;
+      align-content: center;
+      justify-content: center;
+      span.m-btn{
+        display: block;
+        background-color: @borderColor;
+        color: @greyColor;
+        padding: 0.05rem 0.3rem;
+        border-radius: 5px;
+        margin-left: 0.2rem;
+        font-size: 0.16rem;
+        cursor: pointer;
+        &.active{
+          background-color: @btnActiveColor;
+          color: #fff;
+
+        }
+      }
+    }
+  }
+}
+.el-dropdown-link {
+  cursor: pointer;
+  color: #409EFF;
+}
+.el-icon-arrow-down {
+  font-size: 12px;
+}
+.el-dropdown-menu__item{
+  padding:0 0.2rem;
+
+}
+.m-input-m{
+  width: 1.8rem;
+}
+.m-input-pwd{
+  width: 2.4rem;
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
