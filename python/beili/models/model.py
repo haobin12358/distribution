@@ -63,6 +63,7 @@ class ProductCategory(Base):
     PAname = Column(String(16))  # 类别名
     PAtype = Column(Integer)  # 类目级别{1 一级分类, 2 二级分类, 3 三级分类}
     Parentid = Column(String(64), default=0)  # 父类别id, 默认0
+    PAstatus = Column(Boolean)  # True能用 False不可用
 
 class Product(Base):
     """
@@ -80,6 +81,7 @@ class Product(Base):
     PRlogisticsfee = Column(Float)  # 物流费
     PRstatus = Column(Integer)     # 商品状态，1出售中，2已售罄，3已下架
     PAid = Column(String(64))      # 分类id，用于绑定商品类目，空值表示未绑定分类
+    PAdiscountnum = Column(Float,default=1)  # 折扣件数
 
 class InvitaRecord(Base):
     """
@@ -87,11 +89,9 @@ class InvitaRecord(Base):
     """
     __tablename__ = 'invitarecord'
     IRIid = Column(String(64), primary_key=True)
-    IRIpreid = Column(String(64))  # 邀请人id
     IRIprename = Column(String(64))  # 邀请人姓名
     IRIprephonenum = Column(String(64))  # 邀请人电话号码
     IRIname = Column(String(64))  # 邀请人姓名
-    IRIpredetails = Column(String(255))  # 邀请人详细地址
     IRIphonenum = Column(String(64))  # 被邀请人电话号码
     IRIpassword = Column(String(64))  # 被邀请人密码
     IRIidcardnum = Column(String(64))  # 被邀请人身份证号码
@@ -191,7 +191,7 @@ class Performance(Base):
     __tablename__ = 'performance'
     PEid = Column(String(64), primary_key=True)
     USid = Column(String(64))
-    PEnum = Column(Integer)  # 销售件数
+    PEdiscountnum = Column(Integer)  # 销售折扣件数
     REmonth = Column(String(6))  # 月份
     PEcreatetime = Column(String(14))  # 记录创建时间
 
@@ -205,8 +205,8 @@ class Amount(Base):
     USname = Column(String(64))  # 用户名
     USagentid = Column(Integer)
     USheadimg = Column(String(255))  # 头像
-    reward = Column(Float)  # 直推奖励金额
-    performance = Column(Float)  # 业绩总额,就是总件数
+    reward = Column(Float, default=0)  # 直推奖励金额
+    performance = Column(Float, default=0)  # 业绩总额,就是总件数
     AMmonth = Column(String(6))  # 月份
     AMcreattime = Column(String(14))  # 记录创建时间
 

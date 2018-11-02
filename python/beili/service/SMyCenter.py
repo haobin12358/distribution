@@ -38,8 +38,14 @@ class SMyCenter(SBase):
 
     @close_session
     def get_user_basicinfo(self, usid):
-        return self.session.query(User.USphonenum, User.USmount, User.USbail, User.USheadimg, User.USname,\
+        return self.session.query(User.USphonenum, User.USmount, User.USbail, User.USheadimg, User.USname, User.USagentid,\
                                   User.subscribe, User.USpre).filter_by(USid=usid).first()
+
+    @close_session
+    def get_user_basicinfo_byphone(self, num):
+        return self.session.query(User.USphonenum, User.USid, User.USmount, User.USbail, User.USheadimg, User.USname,
+                                  User.USagentid, \
+                                  User.subscribe, User.USpre).filter_by(USphonenum=num).first()
 
     @close_session
     def get_user_totalinfo(self, usid):
@@ -67,6 +73,16 @@ class SMyCenter(SBase):
                                   .filter(UserAddress.UAstatus == 1).all()
 
     @close_session
+    def get_user_default_details(self, usid):
+        return self.session.query(UserAddress.cityid, UserAddress.areaid, UserAddress.UAdetails).filter(UserAddress.USid == usid) \
+            .filter(UserAddress.UAstatus == 1).filter(UserAddress.UAdefault == 1).first()
+
+    @close_session
+    def get_user_otherdefault_details(self, usid):
+        return self.session.query(UserAddress.cityid, UserAddress.areaid, UserAddress.UAdetails).filter(UserAddress.USid == usid) \
+            .filter(UserAddress.UAstatus == 0).filter(UserAddress.UAdefault == 1).first()
+
+    @close_session
     def get_default_address_by_usid(self, usid):
         """获取默认地址"""
         return self.session.query(UserAddress.UAid, UserAddress.USid) \
@@ -86,6 +102,20 @@ class SMyCenter(SBase):
         address.UAcreatetime = createtime
         address.cityid = cityid
         self.session.add(address)
+
+    def add_address_selfsession(self, session, uaid, usid, usname, usphonenum, usdetails, areaid, uadefault, createtime, cityid):
+        """添加地址地址"""
+        address = UserAddress()
+        address.UAid = uaid
+        address.USid = usid
+        address.UAname = usname
+        address.UAphonenum = usphonenum
+        address.UAdetails = usdetails
+        address.areaid = areaid
+        address.UAdefault = uadefault
+        address.UAcreatetime = createtime
+        address.cityid = cityid
+        session.add(address)
 
     @close_session
     def get_default_address(self, usid):

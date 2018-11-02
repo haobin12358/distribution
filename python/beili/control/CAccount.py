@@ -52,7 +52,12 @@ class CAccount():
         account = get_model_return_dict(self.saccount.get_account_by_month(id, month)) if self.saccount.get_account_by_month(id, month) else None
         if not account:
             response = import_status("get_saleinfo_success", "OK")
-            response['data'] = []
+            data2 = {}
+            data2["reward"] = 0
+            data2["discount"] = 0
+            data2["performance"] = 0
+            data2["myprofit"] = 0
+            response['data'] = data2
             return response
         mydiscount = self.get_mydiscount(id, month)
         teamperformance = self.get_myteamsalenum(id, month)
@@ -110,6 +115,10 @@ class CAccount():
             return PARAMS_ERROR
 
         performance_list = self.get_teamperformance_list(request.user.id, month)
+        if not performance_list:
+            response = import_status("get_performancelist_success", "OK")
+            response['data'] = []
+            return response
         new_list = sorted(performance_list, key=lambda performance: performance['performance'], reverse=True)
         response = import_status("get_performancelist_success", "OK")
         response['data'] = new_list[:10]

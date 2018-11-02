@@ -36,9 +36,6 @@ class CMyCenter():
             return PARAMS_ERROR
         if not phonenum:
             return PARAMS_ERROR
-        user = self.suser.getuser_by_phonenum(phonenum)
-        if not user:
-            return NOT_FOUND_PHONENUM
         code = ""
         while len(code) < 6:
             import random

@@ -20,12 +20,17 @@ class SUser(SBase):
         return self.session.query(User.USid, User.USpassword).filter_by(USphonenum=usphonenum).first()
 
     @close_session
+    def getuserinfo_by_uid(self, id):
+        return self.session.query(User.USname, User.USphonenum).filter(User.USid == id).first()
+
+    @close_session
     def getuser_by_uid(self, usid):
         return self.session.query(User.USid, User.USpassword).filter_by(USid=usid).all()
 
     @close_session
     def update_user_by_uid(self, uid, users):
         self.session.query(User).filter_by(USid=uid).update(users)
+        return True
 
     @close_session
     def getuser_by_preid(self, preid):
@@ -50,10 +55,8 @@ class SUser(SBase):
     def insertInvitate(self, session, data):
         record = InvitaRecord()
         record.IRIid = str(uuid.uuid4())
-        record.IRIpreid = data['preid']
-        record.IRIprename = data['prephonenum']
+        record.IRIprename = data['preusername']
         record.IRIprephonenum = data['prephonenum']
-        record.IRIpredetails = data['predetails']
         record.IRIname = data['username']
         record.IRIphonenum = data['phonenum']
         record.IRIpassword = data['password']
@@ -98,3 +101,21 @@ class SUser(SBase):
         update['QRstatus'] = 0
         self.session.query(Qrcode).filter(Qrcode.USid == id).filter(Qrcode.QRid == codeid).update(update)
         return True
+
+    @close_session
+    def get_arcode_details(self, id):
+        return self.session.query(Qrcode.QRovertime, Qrcode.QRnumber).filter(Qrcode.QRid == id).\
+                filter(Qrcode.QRstatus == 1).first()
+
+    @close_session
+    def get_user_by_qrid(self, qrid):
+        return self.session.query(Qrcode.USid).filter(Qrcode.QRid == qrid).first()
+
+    @close_session
+    def update_qrcode(self, qrid, update):
+        self.session.query(Qrcode).filter(Qrcode.QRid == qrid).update(update)
+        return True
+
+    @close_session
+    def get_qrcode_by_qrid(self, id):
+        return self.session.query(Qrcode.QRovertime, Qrcode.QRnumber).filter(Qrcode.QRid == id).first()

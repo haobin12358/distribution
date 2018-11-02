@@ -21,7 +21,7 @@ def usid_to_token(id, type='User', expiration=''):
     time_now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return s.dumps({
         'id': id,
-        'type':type,
+        'type': type,
         'time': time_now,
     })
 
@@ -65,7 +65,7 @@ def verify_token_decorator(func):
         id = data['id']
         time = data['time']
         type = data['type']
-        if type != 'User' and type != 'SuperUser':
+        if type != 'User' and type != 'SuperUser' and type != 'Temp':
             return func(self, *args, **kwargs)
         sessions = db_session()
         try:
@@ -86,6 +86,8 @@ def verify_token_decorator(func):
                 user.id = user.ADid
                 user.type = 'SuperUser'
                 user.level = user.ADlevel
+            if type == 'Temp':
+                request.temp = id
             sessions.expunge_all()
             sessions.commit()
             if user:
@@ -106,11 +108,15 @@ def is_admin():
 
 def is_superadmin():
     """是否是超级管理员"""
-    return (hasattr(request, 'user') and request.user.type == 'SuperUser' and request.user.level == 1)
+    return (hasattr(request, 'user') and request.user.type == 'SuperUser' and request.user.level >= 1)
 
 def is_tourist():
     """游客，未登录"""
     return (not hasattr(request, 'user'))
+
+def is_temp():
+    """仅用于上传临时图片"""
+    return (hasattr(request, 'temp'))
 # if __name__ == '__main__':
 #     from WeiDian import create_app
 #     app = create_app()

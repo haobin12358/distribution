@@ -184,6 +184,12 @@ class CMessage():
         response = import_status("delete_message_success", "OK")
         return response
 
-
-
+    @verify_token_decorator
+    def change_registerstatus(self):
+        try:
+            json_data = request.json
+            IRIid = json_data.get('IRIid')
+        except Exception as e:
+            return PARAMS_ERROR
+        self.smessage.update_status(IRIid)
 

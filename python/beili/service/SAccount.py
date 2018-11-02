@@ -26,3 +26,8 @@ class SAccount(SBase):
     def get_user_performance(self, usid, month):
         return self.session.query(Amount.USname, Amount.performance, Amount.USheadimg, Amount.USagentid
                                   ).filter_by(USid=usid).filter_by(AMmonth=month).all()
+
+    @close_session
+    def get_user_date(self, id, month):
+        return self.session.query(Amount.reward, Amount.performance).filter(Amount.USid == id)\
+            .filter(Amount.AMmonth == month).first()

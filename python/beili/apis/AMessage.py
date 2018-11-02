@@ -14,7 +14,8 @@ class AMessage(Resource):
         print message
         apis = {
             'publish_commessage': 'self.cmessage.publish_commessage()',
-            'delete_commessage': 'self.cmessage.delete_commessage()'
+            'delete_commessage': 'self.cmessage.delete_commessage()',
+            'change_registerstatus': 'self.cmessage.change_registerstatus()'
         }
         res = eval(apis[message])
         return jsonify(res)
