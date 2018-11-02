@@ -212,39 +212,42 @@
                     @click="chooseSECategory(item)">
                     {{item.PAname}}
                 </li>
-                <!--<li class="pillow-item-tail"></li>-->
             </ul>
         </section>
 
-        <ul class="goods-list">
-            <li class="goods-item" v-for="item in productListWithCart" @click.stop="addCart(item)">
-                <section class="goods-img">
-                    <img :src="item.PRpic" alt="">
-                </section>
-                <section class="goods-description">
-                    <header class="goods-description-header">
-                        <span class="name">{{item.PRname}}</span>
-                        <span v-if="item.PRstock < 1000000" class="stock">
+        <template v-if="productListWithCart.length">
+            <ul class="goods-list">
+                <li class="goods-item" v-for="item in productListWithCart" @click.stop="addCart(item)">
+                    <section class="goods-img">
+                        <img :src="item.PRpic" alt="">
+                    </section>
+                    <section class="goods-description">
+                        <header class="goods-description-header">
+                            <span class="name">{{item.PRname}}</span>
+                            <span v-if="item.PRstock < 1000000" class="stock">
                             库存: {{item.PRstock}} 件
                         </span>
 
-                    </header>
-                    <section class="goods-description-content" >
-                        <p class="goods-description-price">
-                            <span class="current-price">￥{{item.PRoldprice}}</span>
-                            <span class="original-price">￥{{item.PRprice}}</span>
-                        </p>
+                        </header>
+                        <section class="goods-description-content" >
+                            <p class="goods-description-price">
+                                <span class="current-price">￥{{item.PRoldprice}}</span>
+                                <span class="original-price">￥{{item.PRprice}}</span>
+                            </p>
 
-                        <buy-cart :shopNum.sync="item.PRnum" @add="addCart(item)"
-                                  @minus="reduceCart(item)"></buy-cart>
+                            <buy-cart :shopNum.sync="item.PRnum" @add="addCart(item)"
+                                      @minus="reduceCart(item)"></buy-cart>
+                        </section>
                     </section>
-                </section>
-            </li>
-        </ul>
+                </li>
+            </ul>
 
-        <section class="load-more-wrap">
-            <load-more :type="loadingType"></load-more>
-        </section>
+            <section class="load-more-wrap">
+                <load-more :type="loadingType"></load-more>
+            </section>
+        </template>
+        <place-holder v-else title="该类暂时没有上架的商品"></place-holder>
+
 
         <footer-guide></footer-guide>
     </div>
@@ -258,6 +261,7 @@
     import LoadMore from "src/components/common/loadMore"
     import common from "src/common/js/common"
     import {mapMutations, mapState, mapGetters} from "vuex"
+    import PlaceHolder from "src/components/common/placeHolder"
 
 
     export default {
@@ -282,6 +286,7 @@
             buyCart,
             footerGuide,
             LoadMore,
+            PlaceHolder
         },
 
         computed: {

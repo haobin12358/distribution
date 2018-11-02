@@ -85,6 +85,7 @@
 <script>
     import UploadField from "src/components/common/uploadField"
     import {updateHeadImg} from "src/api/api"
+    import {mapActions} from "vuex"
 
 
     export default {
@@ -107,6 +108,7 @@
         computed: {},
 
         methods: {
+            ...mapActions(['getUserInfo']),
             updateNewHeadImg(imgs){
                 this.newHeadImgs = imgs;
             },
@@ -119,6 +121,8 @@
                         data=>{
                             if(data){
                                 this.$toast('修改成功');
+                                this.getUserInfo();
+
                                 this.$router.back();
                             }
                         }

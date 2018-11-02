@@ -140,7 +140,7 @@
                             if (data) {
                                 setStore(TOKEN, data.data.token);
                                 this.$toast('登录成功');
-                                this.$router.push('/message');
+                                this.$router.push('/personal');
                                 this.setNotReadMsgNum();
                                 this.getUserInfo();
                             }
@@ -156,7 +156,7 @@
         created() {
             if (getStore(TOKEN)) {
                 this.setNotReadMsgNum();
-                this.$router.push('/mall');
+                this.$router.push('/personal');
                 this.$toast('已登录');
             }
         }

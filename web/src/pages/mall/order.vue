@@ -120,42 +120,45 @@
             </li>
         </ul>
 
-        <ul class="order-list">
-            <li v-for="item in orderList" @click="gotoOrderDetail(item.OIsn)" class="order-item">
-                <header class="order-item-header">
-                    <p class="row-one">
-                        <span class="no">编号：{{item.OIsn}}</span>
-                        <span class="status">{{statusZh(item.OIstatus)}}</span>
-                    </p>
-                    <p class="row-two">
-                        时间：{{item.OIcreatetime}}
-                    </p>
-                </header>
+        <template v-if="orderList.length">
+            <ul class="order-list">
+                <li v-for="item in orderList" @click="gotoOrderDetail(item.OIsn)" class="order-item">
+                    <header class="order-item-header">
+                        <p class="row-one">
+                            <span class="no">编号：{{item.OIsn}}</span>
+                            <span class="status">{{statusZh(item.OIstatus)}}</span>
+                        </p>
+                        <p class="row-two">
+                            时间：{{item.OIcreatetime}}
+                        </p>
+                    </header>
 
-                <ul class="goods-list">
-                    <li class="goods-item" v-for="product in item.product_list">
-                        <section class="goods-img">
-                            <img :src="product.PRimage" alt="">
-                        </section>
-                        <section class="goods-description">
-                            <p class="row-one">
-                                <span class="goods-name">{{product.PRname}}</span>
-                                <span class="goods-price">￥{{product.PRprice}}</span>
-                            </p>
-                            <p class="row-two">
-                                ×{{product.PRnum}}
-                            </p>
-                        </section>
-                    </li>
-                </ul>
-                <footer class="order-item-total">
-                    <span class="total-num">共{{item.product_list.length}}件商品</span>
-                    <span class="total-price">价值:￥{{item.OImount}}</span>
-                </footer>
-            </li>
-        </ul>
+                    <ul class="goods-list">
+                        <li class="goods-item" v-for="product in item.product_list">
+                            <section class="goods-img">
+                                <img :src="product.PRimage" alt="">
+                            </section>
+                            <section class="goods-description">
+                                <p class="row-one">
+                                    <span class="goods-name">{{product.PRname}}</span>
+                                    <span class="goods-price">￥{{product.PRprice}}</span>
+                                </p>
+                                <p class="row-two">
+                                    ×{{product.PRnum}}
+                                </p>
+                            </section>
+                        </li>
+                    </ul>
+                    <footer class="order-item-total">
+                        <span class="total-num">共{{item.product_list.length}}件商品</span>
+                        <span class="total-price">价值:￥{{item.OImount}}</span>
+                    </footer>
+                </li>
+            </ul>
+            <load-more :type="loadingType"></load-more>
+        </template>
+        <place-holder v-else title="没有该类订单"></place-holder>
 
-        <load-more :type="loadingType"></load-more>
     </div>
 </template>
 
@@ -163,6 +166,7 @@
     import {getOrderList} from "src/api/api"
     import LoadMore from "src/components/common/loadMore"
     import common from "src/common/js/common"
+    import PlaceHolder from "src/components/common/placeHolder"
 
 
     export default {
@@ -197,7 +201,8 @@
         computed: {},
 
         components: {
-            LoadMore
+            LoadMore,
+            PlaceHolder
         },
 
         methods: {
