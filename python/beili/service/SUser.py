@@ -103,10 +103,19 @@ class SUser(SBase):
         return True
 
     @close_session
-    def get_arcode_details(self, usid, id):
-        return self.session.query(Qrcode.QRovertime, Qrcode.QRnumber).filter(Qrcode.USid == usid).filter(Qrcode.QRid == id).\
+    def get_arcode_details(self, id):
+        return self.session.query(Qrcode.QRovertime, Qrcode.QRnumber).filter(Qrcode.QRid == id).\
                 filter(Qrcode.QRstatus == 1).first()
 
     @close_session
     def get_user_by_qrid(self, qrid):
         return self.session.query(Qrcode.USid).filter(Qrcode.QRid == qrid).first()
+
+    @close_session
+    def update_qrcode(self, qrid, update):
+        self.session.query(Qrcode).filter(Qrcode.QRid == qrid).update(update)
+        return True
+
+    @close_session
+    def get_qrcode_by_qrid(self, id):
+        return self.session.query(Qrcode.QRovertime, Qrcode.QRnumber).filter(Qrcode.QRid == id).first()

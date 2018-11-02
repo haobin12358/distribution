@@ -103,6 +103,20 @@ class SMyCenter(SBase):
         address.cityid = cityid
         self.session.add(address)
 
+    def add_address_selfsession(self, session, uaid, usid, usname, usphonenum, usdetails, areaid, uadefault, createtime, cityid):
+        """添加地址地址"""
+        address = UserAddress()
+        address.UAid = uaid
+        address.USid = usid
+        address.UAname = usname
+        address.UAphonenum = usphonenum
+        address.UAdetails = usdetails
+        address.areaid = areaid
+        address.UAdefault = uadefault
+        address.UAcreatetime = createtime
+        address.cityid = cityid
+        session.add(address)
+
     @close_session
     def get_default_address(self, usid):
         return self.session.query(UserAddress.UAdefault, UserAddress.UAid, UserAddress.cityid\
