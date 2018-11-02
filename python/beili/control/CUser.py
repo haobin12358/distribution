@@ -21,7 +21,8 @@ from service.SAccount import SAccount
 from common.beili_error import stockerror, dberror
 from service.SMyCenter import SMyCenter
 from datetime import datetime
-from models.model import Amount
+import random
+from models.model import Amount, User
 from common.timeformat import format_for_db
 import platform
 sys.path.append(os.path.dirname(os.getcwd()))
@@ -474,6 +475,17 @@ class CUser():
                 amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
                 amount.AMmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
                 session.add(amount)
+            new_user = User()
+            new_user.USid = str(uuid.uuid4())
+            new_user.USname = username
+            new_user.USpre = user['USid']
+            new_user.USheadimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
+            new_user.USphonenum = phonenum
+            new_user.USmount = 10000000
+            new_user.USbail = 0
+            new_user.USpassword = password
+            new_user.USagentid = random.randint(1000, 1000000)
+            session.add(new_user)
             session.commit()
         except Exception as e:
             print e
