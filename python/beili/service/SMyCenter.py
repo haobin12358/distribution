@@ -42,6 +42,12 @@ class SMyCenter(SBase):
                                   User.subscribe, User.USpre).filter_by(USid=usid).first()
 
     @close_session
+    def get_user_basicinfo_byphone(self, num):
+        return self.session.query(User.USphonenum, User.USid, User.USmount, User.USbail, User.USheadimg, User.USname,
+                                  User.USagentid, \
+                                  User.subscribe, User.USpre).filter_by(USphonenum=num).first()
+
+    @close_session
     def get_user_totalinfo(self, usid):
         return self.session.query(User.USphonenum, User.USmount, User.USbail, User.USheadimg, User.USname, \
                                   User.subscribe, User.USpre, User.unionid, User.openid,\

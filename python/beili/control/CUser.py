@@ -449,23 +449,23 @@ class CUser():
             result = self.suser.insertInvitate(session, data)
             if not result:
                 raise dberror
-            user = self.smycenter.get_user_basicinfo(request.user.id)  # 插入销售表，有数据就更新
+            user = self.smycenter.get_user_basicinfo_byphone(prephonenum)  # 插入销售表，有数据就更新
             if not user:
                 raise dberror
             user = get_model_return_dict(user)
             monthnow = datetime.strftime(datetime.now(), format_for_db)[0:6]
-            amount_data = self.saccount.get_user_date(request.user.id, monthnow)
+            amount_data = self.saccount.get_user_date(user['USid'], monthnow)
             if amount_data:
                 amount_data = get_model_return_dict(amount_data)
                 new_data = {}
                 new_data['reward'] = amount_data['reward'] + 100
                 try:
-                    session.query(Amount).filter(Amount.USid == request.user.id).update(new_data)
+                    session.query(Amount).filter(Amount.USid == user['USid']).update(new_data)
                 except:
                     raise dberror
             else:
                 amount = Amount()
-                amount.USid = request.user.id
+                amount.USid = user['USid']
                 amount.AMid = str(uuid.uuid4())
                 amount.USagentid = user['USagentid']
                 amount.USname = user['USname']
