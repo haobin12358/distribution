@@ -180,7 +180,7 @@ class CUser():
                 url = str(data.get('url'))
             except:
                 return PARAMS_ERROR
-            real_url = QRCODEHOSTNAME + "/opt/beili/file/" + url
+            real_url = "/opt/beili/file/" + url
             if request.user.id not in real_url:
                 return AUTHORITY_ERROR
             try:
@@ -195,7 +195,7 @@ class CUser():
                 url = str(data.get('url'))
             except:
                 return PARAMS_ERROR
-            real_url = QRCODEHOSTNAME + "/opt/beili/file/" + url
+            real_url = "/opt/beili/file/" + url
             if request.temp not in real_url:
                 return AUTHORITY_ERROR
             try:
