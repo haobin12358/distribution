@@ -80,7 +80,7 @@ class COrder():
                 product['PRprice'] = check_product['PRprice']
                 discountnum = discountnum + num * check_product['PAdiscountnum']
                 new_list.append(product)
-            if totalprice != mount or real_PRlogisticsfee != PRlogisticsfee:
+            if totalprice != mount + real_PRlogisticsfee or real_PRlogisticsfee != PRlogisticsfee:
                 response = {}
                 response['status'] = 200
                 response['success'] = False
