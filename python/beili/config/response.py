@@ -140,3 +140,18 @@ HAS_REGISTER = {
     "status_code": 405028,
     "message": "手机号已注册"
 }
+
+
+
+ADMINNUM_ERROR = {
+    "status": 405,
+    "status_code": 405100,
+    "message": "该用户号不存在"
+}
+
+
+ADMINNAME_ERROR = {
+    "status": 405,
+    "status_code": 405101,
+    "message": "该用户名不存在"
+}

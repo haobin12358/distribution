@@ -39,4 +39,7 @@ add_qrcode_success = "添加二维码成功"
 get_qrcode_success = "获取二维码成功"
 delete_qrcode_success = "删除二维码成功"
 get_registerinfo_success = "获取注册时信息成功"
+get_admin_success = "添加管理员成功"
+delete_admin_success = "删除管理员成功"
+update_admin = "更新管理员信息成功"
 

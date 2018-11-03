@@ -133,6 +133,7 @@ class CMyCenter():
         if is_tourist():
             return TOKEN_ERROR
         result = get_model_return_dict(self.smycenter.get_user_totalinfo(request.user.id))
+
         if result:
             res = import_status("get_user_basicinfo_success", "OK")
             res['data'] = result
@@ -223,6 +224,10 @@ class CMyCenter():
         try:
             if areaid:
                 all_areaid = get_model_return_list(self.smycenter.get_all_areaid())
+                print self.smycenter.get_all_areaid()
+                #print all_areaid
+                print 'sheng'
+                print all_areaid
                 area_list = []
                 for area in all_areaid:
                     area_list.append(area['areaid'])
@@ -243,6 +248,7 @@ class CMyCenter():
                 return response
             else :
                 all_cityid = get_model_return_list(self.smycenter.get_all_cityid())
+
                 cityid_list = []
                 for city in all_cityid:
                     cityid_list.append(city['cityid'])
@@ -412,7 +418,6 @@ class CMyCenter():
             return TOKEN_ERROR
         try:
             data = request.json
-            #print data
             UAid = data.get('UAid')
             USname = data.get('USname')
             USphonenum = data.get('USphonenum')
