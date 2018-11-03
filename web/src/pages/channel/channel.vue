@@ -2,9 +2,12 @@
     @import "../../common/css/index";
 
     .container {
+        //.least-full-screen();
+        .bgw();
 
         .search-bar-wrap {
             padding: 15px 25px;
+            background: #eeeeee;
 
             .search-bar {
                 .wl(694px, 50px);
@@ -70,8 +73,8 @@
     <div class="container">
         <header-top :show-back="true"></header-top>
         <mt-navbar v-model="selected" style="margin-bottom: 3px">
-            <mt-tab-item id="1">直属代理 (20)</mt-tab-item>
-            <mt-tab-item id="2">分销商 (21)</mt-tab-item>
+            <mt-tab-item id="1">直属代理 ({{directAgentLen}})</mt-tab-item>
+            <mt-tab-item id="2">分销商 ({{distributeAgentLen}})</mt-tab-item>
         </mt-navbar>
 
         <section class="search-bar-wrap">
@@ -87,7 +90,7 @@
 
         <mt-tab-container v-model="selected" :swipeable="true">
             <mt-tab-container-item id="1">
-                <mt-index-list>
+                <mt-index-list v-if="directAgentFilter.length">
                     <mt-index-section v-for="indexItem in directAgentFilter" :key="indexItem.index"
                                       :index="indexItem.index">
                         <section class="people-info-item-wrap">
@@ -100,32 +103,35 @@
                         </section>
                     </mt-index-section>
                 </mt-index-list>
+                <place-holder1 v-else title="你还没有直属代理"></place-holder1>
+
             </mt-tab-container-item>
             <mt-tab-container-item id="2">
-                <mt-index-list>
+                <mt-index-list v-if="distributeAgentFilter.length">
                     <mt-index-section v-for="indexItem in distributeAgentFilter" :key="indexItem.index"
                                       :index="indexItem.index">
                         <section class="people-info-item-wrap">
                             <section class="people-info-item" v-for="info in indexItem.list">
                                 <img :src="info.USheadimg" alt="" class="people-img">
-
                                 <span class="people-name">{{info.USname}}</span>
                                 <span class="people-phone">{{info.USagentid}}</span>
                             </section>
                         </section>
                     </mt-index-section>
                 </mt-index-list>
+                <place-holder2 v-else title="你还没有分销商"></place-holder2>
+
             </mt-tab-container-item>
         </mt-tab-container>
-
-
     </div>
 </template>
 
 <script>
     import {getDirectagent, getDistribute} from "src/api/api"
-    // import {convertToPinyinUpper} from ""
     import pinyin from "pinyin"
+    import PlaceHolder from "src/components/common/placeHolder"
+
+    const addressBookIndexes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '#'];
 
     export default {
         name: "channel",
@@ -139,84 +145,9 @@
                 directAgent: [],    //  直属代理
                 distributeAgent: [],    //  分销商
 
-                customerList: [
-                    {
-                        index: 'A',
-                        list: [
-                            {
-                                name: 'A代理1',
-                                phone: '123456'
-                            }, {
-                                name: 'A代理2',
-                                phone: '123456'
-                            }, {
-                                name: 'A代理1',
-                                phone: '123456'
-                            }, {
-                                name: 'A代理2',
-                                phone: '123456'
-                            }, {
-                                name: 'A代理1',
-                                phone: '123456'
-                            }, {
-                                name: 'A代理2',
-                                phone: '123456'
-                            }, {
-                                name: 'A代理1',
-                                phone: '123456'
-                            }, {
-                                name: 'A代理2',
-                                phone: '123456'
-                            }, {
-                                name: 'A代理1',
-                                phone: '123456'
-                            }, {
-                                name: 'A代理2',
-                                phone: '123456'
-                            },
-                        ]
-                    }, {
-                        index: 'B',
-                        list: [
-                            {
-                                name: 'B代理1',
-                                phone: '123456'
-                            }, {
-                                name: 'B代理2',
-                                phone: '123456'
-                            }, {
-                                name: 'B代理3',
-                                phone: '123456'
-                            }, {
-                                name: 'B代理2',
-                                phone: '123456'
-                            }, {
-                                name: 'B代理3',
-                                phone: '123456'
-                            },
-                        ]
-                    }, {
-                        index: 'C',
-                        list: [
-                            {
-                                name: 'C代理1',
-                                phone: '123456'
-                            },
-                        ]
-                    }, {
-                        index: '#',
-                        list: [
-                            {
-                                name: 'C代理1',
-                                phone: '123456'
-                            },
-                        ]
-                    },
-                ],
+                directAgentLen: 0,
+                distributeAgentLen: 0,
 
-                // customerList
-
-                addressBookIndexes: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '#'],
             }
         },
 
@@ -224,6 +155,8 @@
         computed: {
             directAgentFilter() {
                 let rst = [];
+
+
 
                 if (!this.addressBookSearch) {
                     return this.directAgent;
@@ -284,7 +217,10 @@
 
         },
 
-        components: {},
+        components: {
+            PlaceHolder1: PlaceHolder,
+            PlaceHolder2: PlaceHolder,
+        },
 
         methods: {
             getWordFirstLetter(word) {
@@ -302,6 +238,13 @@
             dataToAddressList(data) {
                 let rst = [];
 
+                for (let i = 0; i < addressBookIndexes.length; i++) {
+                    rst.push({
+                        index:addressBookIndexes[i],
+                        list: []
+                    })
+                }
+
                 for (let i = 0; i < data.length; i++) {
                     let groupIndex = 0,
                         exist = rst.some((group, index) => {
@@ -309,21 +252,12 @@
                             return group.index == this.getWordFirstLetter(data[i].USname);
                         });
 
-                    if (exist) {
-                        rst[groupIndex].list.push(
-                            data[i]
-                        )
-                    } else {
-                        rst.push(
-                            {
-                                index: this.getWordFirstLetter(data[i].USname),
-                                list: [
-                                    data[i]
-                                ]
-                            }
-                        );
-                    }
+                    rst[groupIndex].list.push(
+                        data[i]
+                    );
                 }
+
+                rst = rst.filter(item => item.list.length)
 
                 return rst;
             },
@@ -333,6 +267,8 @@
                     resData => {
                         if (resData) {
                             this.directAgent = this.dataToAddressList(resData.data);
+                            this.directAgentLen = resData.directcount
+                            this.distributeAgentLen = resData.distribucount
                         }
                     }
                 );

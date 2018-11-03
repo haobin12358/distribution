@@ -41,11 +41,6 @@
                 <img src="/static/images/arrow_down.png" style="width: 16px;height: 14px;" alt="">
             </mt-field>
             <mt-field label="详细地址" v-model.trim="formData.details" placeholder="请输入详细地址"></mt-field>
-            <!--<mt-field label="邮政编码" placeholder="请输入邮政编码"></mt-field>-->
-            <!--<mt-field label="设为默认地址" placeholder="" :readonly="true">-->
-            <!--<mt-switch v-model="isDefault"></mt-switch>-->
-            <!--</mt-field>-->
-
         </section>
 
         <section class="my-confirm-btn-wrap">
@@ -123,7 +118,8 @@
             }
         },
 
-        components: {},
+        components: {
+        },
 
         computed: {},
 

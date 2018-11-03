@@ -113,7 +113,7 @@
 
             <section class="user-info-detail">
                 <p class="user-level">{{userInfo.USname}}</p>
-                <p class="user-sale">销售量：<span class="user-sale-num">todo</span> 件</p>
+                <p class="user-sale">销售量：<span class="user-sale-num">{{performance}}</span> 件</p>
             </section>
         </section>
 
@@ -162,33 +162,20 @@
 <script>
     import footerGuide from "src/components/footer/footerGuide"
     import {mapState,mapActions,mapMutations} from "vuex"
-    import {setStore, getStore} from "src/common/js/mUtils"
-    import {TOKEN,USER_INFO} from "src/common/js/const"
+    import {getAccount} from "src/api/api"
+
 
     export default {
         name: "personal",
 
         data() {
-            return {}
+            return {
+                performance: 0
+            }
         },
 
         computed:{
             ...mapState(['userInfo']),
-            // userInfo(){
-            //     let userInfoState = this.$store.state.userInfo;
-            //
-            //     if(!Object.keys(userInfoState).length){
-            //         let userInfoSto = getStore(USER_INFO);
-            //
-            //         if(userInfoSto){
-            //             userInfoSto = JSON.parse(userInfoSto);
-            //             this.setUserInfo(userInfoSto);
-            //             return userInfoSto;
-            //         }
-            //     }else{
-            //         return userInfoState;
-            //     }
-            // }
         },
 
         components: {
@@ -196,13 +183,25 @@
         },
 
         methods: {
-            ...mapMutations({
-                setUserInfo: 'SET_USER_INFO'
-            })
 
         },
 
         created(){
+            let nowDate = new Date(),
+                month = nowDate.getFullYear().toString();
+
+            if(nowDate.getMonth() + 1 < 10){
+                month += '0' + nowDate.getMonth() + 1;
+            }else{
+                month += nowDate.getMonth() + 1
+            }
+            getAccount(month).then(
+                resData => {
+                    if(resData){
+                        this.performance = resData.data.performance;
+                    }
+                }
+            )
         }
     }
 </script>

@@ -1,0 +1,78 @@
+body, h1, h2, h3, h4, h5, h6, dl, dt, dd, ul, ol, li, th, td, p, blockquote, pre, form, fieldset, legend, input, button, textarea, hr {
+  margin: 0;
+  padding: 0;
+}
+
+body, button, input, select, textarea {
+  font: 0.14rem "微软雅黑", SimHei, verdana, sans-serif
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-size: 100%;
+  font-weight: normal
+}
+
+li {
+  list-style: none
+}
+
+fieldset, img {
+  border: 0
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0
+}
+
+q:before, q:after {
+  content: ''
+}
+
+button, input, select, textarea {
+  font-size: 100%
+}
+
+legend {
+  color: #000
+}
+
+small {
+  font-size: 12px
+}
+
+hr {
+  border: none;
+  height: 1px
+}
+
+a {
+  text-decoration: none
+}
+
+.cle:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden
+}
+
+
+
+.clear {
+  clear: both;
+}
+
+a.router-link {
+  text-decoration: none;
+}
+
+a.router-link-active {
+  text-decoration: none;
+}
+
+a.router-link:hover {
+  text-decoration: none;
+}
+

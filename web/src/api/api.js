@@ -4,7 +4,7 @@ import {getStore} from "src/common/js/mUtils"
 import {TOKEN} from "src/common/js/const"
 
 const debug = false;
-export const title = debug ? 'https://dsn.apizza.net/mock/60c954072cfff536376e5acb0392c590' : 'http://112.74.175.144:7444';
+export const title = debug ? 'https://dsn.apizza.net/mock/60c954072cfff536376e5acb0392c590' : 'https://beiliserver.daaiti.cn:443';
 
 const myAxios = async (url, {params, data, method = 'get', showIndicator = true}) => {
     if (showIndicator) {
@@ -131,13 +131,13 @@ export const findBackPwd = (usphonenum, iccode, newpassword) => myAxios('/user/f
  * @param file  string
  * @returns {Promise<*|undefined>}
  */
-export const updateHeadImg = (file) => myAxios('/mycenter/update_headimg', {
+export const updateHeadImg = (url) => myAxios('/mycenter/update_headimg', {
     method: 'post',
     params: {
         token: getStore(TOKEN),
     },
     data: {
-        file
+        url
     }
 });
 /**
@@ -159,7 +159,7 @@ export const getUserAddress = (isdefault, all, UAid) => myAxios('/mycenter/get_u
     }
 });
 //  获取所有地区
-export const getAllArea = (isdefault, all, UAid) => myAxios('/mycenter/get_all_area', {
+export const getAllArea = () => myAxios('/mycenter/get_all_area', {
     showIndicator: false,
 });
 /**
@@ -413,12 +413,21 @@ export const getDistribute = () => myAxios('/account/get_distribute', {
     },
 });
 
-
+/**
+ * 获取二维码列表
+ * @returns {Promise<*|undefined>}
+ */
 export const getQrcode = () => myAxios('/user/get_qrcode', {
     params: {
         token: getStore(TOKEN),
     },
 });
+/**
+ * 添加二维码
+ * @param overtime
+ * @param number
+ * @returns {Promise<*|undefined>}
+ */
 export const addQrcode = (overtime,number) => myAxios('/user/add_qrcode', {
     method: 'post',
     params: {
@@ -429,6 +438,11 @@ export const addQrcode = (overtime,number) => myAxios('/user/add_qrcode', {
         number,
     }
 });
+/**
+ * 删除二维码
+ * @param qrcodeid
+ * @returns {Promise<*|undefined>}
+ */
 export const deleteQrcode = (qrcodeid) => myAxios('/user/delete_qrcode', {
     method: 'post',
     params: {
@@ -437,6 +451,46 @@ export const deleteQrcode = (qrcodeid) => myAxios('/user/delete_qrcode', {
     data: {
         qrcodeid
     }
+});
+
+export const removeFile = (url) => myAxios('/user/remove_file', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN),
+    },
+    data: {
+        url
+    }
+});
+
+/**
+ * 获取注册页面信息
+ * @param url
+ * @returns {Promise<*|undefined>}
+ */
+export const getRegisterInfo = (qrid) => myAxios('/user/get_registerinfo', {
+    method: 'post',
+    data:{
+        qrid
+    }
+});
+export const checkQrcode = (qrid) => myAxios('/user/check_qrcode', {
+    method: 'post',
+    data:{
+        qrid
+    }
+});
+/**
+ * 注册
+ * @param formData
+ * @returns {Promise<*|undefined>}
+ */
+export const register = (formData) => myAxios('/user/register', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN),
+    },
+    data: formData
 });
 
 

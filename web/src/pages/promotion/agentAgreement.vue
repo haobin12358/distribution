@@ -84,13 +84,18 @@
 <script>
     import {setStore, getStore} from "src/common/js/mUtils"
     import {TOKEN, AGREE_AGENT_AGREEMENT_EXP} from "src/common/js/const"
+    import {checkQrcode} from "src/api/api"
+
 
     export default {
         name: "agentAgreement",
 
         data() {
             return {
-                agree: []
+                agree: [],
+
+                canUse: false,
+                cantUseInfo: ''
             }
         },
 
@@ -103,19 +108,37 @@
         methods: {
             doConfirm() {
                 if (this.agree[0]) {
-                    setStore(AGREE_AGENT_AGREEMENT_EXP, new Date().toLocaleString('zh-CN', {hour12: false}));
-                    this.$router.push('/applyAgent')
+                    if (this.canUse) {
+                        setStore(AGREE_AGENT_AGREEMENT_EXP, new Date().toLocaleString('zh-CN', {hour12: false}));
+                        this.$router.push('/applyAgent?QRid=' + this.$route.query.QRid)
+                    } else {
+                        this.$toast(this.cantUseInfo);
+                    }
                 } else {
                     this.$toast('请先同意签署此协议!');
                 }
             }
         },
 
-        created() {
-            alert(this.$router.query.QRid);
+        async created() {
+
             if (getStore(AGREE_AGENT_AGREEMENT_EXP) && new Date() - new Date(getStore(AGREE_AGENT_AGREEMENT_EXP)) < 30 * 1000) {
-                this.$router.push('/applyAgent')
+                this.$router.push('/applyAgent?QRid=' + this.$route.query.QRid)
                 this.$toast('你已同意协议');
+            }
+
+            let resData = await checkQrcode(this.$route.query.QRid);
+
+            if (resData) {
+                if (resData.data.QRnumber < 1) {
+                    this.canUse = false
+                    this.cantUseInfo = '二维码次数用完'
+                } else if (new Date() > new Date(resData.data.QRovertime)) {
+                    this.canUse = false
+                    this.cantUseInfo = '二维码已过期'
+                } else {
+                    this.canUse = true
+                }
             }
         },
     }

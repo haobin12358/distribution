@@ -73,7 +73,7 @@
             </section>
         </header-top>
 
-        <ul class="address-list">
+        <ul v-if="addressList.length" class="address-list">
             <li class="address-item" v-for="item in addressList">
                 <section class="address-item-detail" @click="chooseDeliveryAddress(item)">
                     <img :src="item.isdefault ? '/static/images/radio_check.png': '/static/images/radio_uncheck.png'"
@@ -97,11 +97,14 @@
 
             </li>
         </ul>
+        <place-holder v-else title="没有地址"></place-holder>
+
     </div>
 </template>
 
 <script>
     import {getUserAddress, changeDefaultAddress, deleteUserAddress} from "src/api/api"
+    import PlaceHolder from "src/components/common/placeHolder"
 
     export default {
         name: "addressList",
@@ -113,7 +116,9 @@
             }
         },
 
-        components: {},
+        components: {
+            PlaceHolder
+        },
 
         computed: {
 

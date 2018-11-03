@@ -71,34 +71,40 @@
             <section :class="{'tab-item': true,active: !showAgent}" @click="switchTab(false)">公司消息</section>
         </header>
 
-        <ul v-show="showAgent" class="message-list">
-            <li class="message-item" v-for="item in agentMessages">
-                <section class="item-hd">
+        <template v-if="(showAgent && agentMessages.length) || (!showAgent && companyMessages.length)">
+            <ul v-show="showAgent" class="message-list">
+                <li class="message-item" v-for="item in agentMessages">
+                    <section class="item-hd">
                     <span class="title">
                          {{item.AMtypeCH}}
                     </span>
-                    <span class="date">
+                        <span class="date">
                         {{item.AMdate}}
                   </span>
-                </section>
-                <section class="item-bd">
-                    {{item.AMcontent}}
-                </section>
-            </li>
-        </ul>
-        <ul v-show="!showAgent" class="message-list">
-            <li class="message-item" v-for="item in companyMessages" @click="gotoMessageDetail(item)">
-                <section class="item-hd">
-                    <img v-if="item.isread == 0" class="message-new" src="/static/images/message_new.png" alt=""/>
-                    <span class="title">公告</span>
-                    <span class="date">{{item.CMdate}}</span>
-                </section>
-                <section class="item-bd">
-                    {{item.CMtitle}}
-                </section>
-            </li>
-        </ul>
-        <load-more :type="loadingType"></load-more>
+                    </section>
+                    <section class="item-bd">
+                        {{item.AMcontent}}
+                    </section>
+                </li>
+            </ul>
+            <ul v-show="!showAgent" class="message-list">
+                <li class="message-item" v-for="item in companyMessages" @click="gotoMessageDetail(item)">
+                    <section class="item-hd">
+                        <img v-if="item.isread == 0" class="message-new" src="/static/images/message_new.png" alt=""/>
+                        <span class="title">公告</span>
+                        <span class="date">{{item.CMdate}}</span>
+                    </section>
+                    <section class="item-bd">
+                        {{item.CMtitle}}
+                    </section>
+                </li>
+            </ul>
+            <load-more :type="loadingType"></load-more>
+        </template>
+        <template v-else>
+            <place-holder title="暂时没有该类消息"></place-holder>
+        </template>
+
         <footer-guide></footer-guide>
     </div>
 </template>
@@ -106,6 +112,7 @@
 <script>
     import footerGuide from "src/components/footer/footerGuide"
     import LoadMore from "src/components/common/loadMore"
+    import PlaceHolder from "src/components/common/placeHolder"
     import {mapState, mapMutations} from 'vuex'
     import {getAgentMessage, getCompanyMessage} from "src/api/api"
     import {setStore, getStore} from "src/common/js/mUtils"
@@ -132,7 +139,8 @@
 
         components: {
             footerGuide,
-            LoadMore
+            LoadMore,
+            PlaceHolder,
         },
 
         methods: {

@@ -159,7 +159,6 @@
             },
             getCode() {
                 if (this.tel) {
-
                     getInforcode(this.tel).then(
                         data => {
                             if (data) {
