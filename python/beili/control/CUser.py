@@ -478,8 +478,9 @@ class CUser():
                 amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
                 amount.AMmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
                 session.add(amount)
+            new_userid = str(uuid.uuid4())
             new_user = User()
-            new_user.USid = str(uuid.uuid4())
+            new_user.USid = new_userid
             new_user.USname = username
             new_user.USpre = user['USid']
             new_user.USheadimg = headimg if headimg else 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_100' \
@@ -506,9 +507,9 @@ class CUser():
                 time_time = datetime.now()
                 time_str = datetime.strftime(time_time, format_for_db)
                 uaid = str(uuid.uuid1())
-                exist_default = self.smycenter.get_default_address_by_usid(user['USid'])
+                exist_default = self.smycenter.get_default_address_by_usid(new_userid)
                 uadefault = True if not exist_default else False
-                self.smycenter.add_address_selfsession(session, uaid, user['USid'], USname, USphonenum, USdatails, \
+                self.smycenter.add_address_selfsession(session, uaid, new_userid, USname, USphonenum, USdatails, \
                                                        areaid, uadefault, time_str, None)
             else:
                 all_cityid = get_model_return_list(self.smycenter.get_all_cityid())
@@ -520,9 +521,9 @@ class CUser():
                 time_time = datetime.now()
                 time_str = datetime.strftime(time_time, format_for_db)
                 uaid = str(uuid.uuid1())
-                exist_default = self.smycenter.get_default_address_by_usid(user['USid'])
+                exist_default = self.smycenter.get_default_address_by_usid(new_userid)
                 uadefault = True if not exist_default else False
-                self.smycenter.add_address_selfsession(session, uaid, user['USid'], USname, USphonenum, USdatails,  \
+                self.smycenter.add_address_selfsession(session, uaid, new_userid, USname, USphonenum, USdatails,  \
                                                        None, uadefault, time_str, cityid)
             session.commit()
         except Exception as e:
