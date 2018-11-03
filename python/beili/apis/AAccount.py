@@ -24,7 +24,8 @@ class AAccount(Resource):
         print account
         apis = {
             'get_directagent': 'self.caccount.get_directagent()',
-            'get_distribute': 'self.caccount.get_distribute()'
+            'get_distribute': 'self.caccount.get_distribute()',
+            'get_draw_info': 'self.caccount.get_draw_info'
         }
         res = eval(apis[account])
         return jsonify(res)

@@ -25,6 +25,8 @@ COUNTNAME = u'刘莉'
 CARDNUM = 711001122000127426
 MONEY = 398
 
+# 提现银行信息
+DRAWBANK = u'中国工商银行'
 
 
 # weidian

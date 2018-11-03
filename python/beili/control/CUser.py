@@ -232,6 +232,8 @@ class CUser():
                 response['message'] = u"二维码次数已用完"
                 response['success'] = False
                 return response
+            from common.timeformat import get_web_time_str
+            result['QRovertime'] = get_web_time_str(result['QRovertime'])
             response['status'] = 200
             response['data'] = result
             response['success'] = True
@@ -433,7 +435,7 @@ class CUser():
         if not qr:
             return NOT_FOUND_QRCODE
         update = {}
-        update['QRnumber'] = qr['QRnumber'] - 1
+        update['QRnumber'] = str(int(qr['QRnumber']) - 1)
         result = self.suser.update_qrcode(qrid, update)
         if not result:
             return NOT_FOUND_QRCODE

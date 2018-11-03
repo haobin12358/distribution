@@ -7,8 +7,8 @@ import random
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR, STOCK_NOT_ENOUGH,\
-        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS
-from config.setting import QRCODEHOSTNAME
+        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_USER
+from config.setting import QRCODEHOSTNAME, DRAWBANK
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
 from common.timeformat import get_db_time_str
@@ -195,3 +195,19 @@ class CAccount():
         response = import_status("get_distribuagent_list_success", "OK")
         response['data'] = distribution_list
         return response
+
+    @verify_token_decorator
+    def get_draw_info(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        bank = DRAWBANK
+        user = get_model_return_dict(self.suser.getuserinfo_by_uid(request.user.id))
+        if not user:
+            return NOT_FOUND_USER
+        response = import_status("get_drawinfo_success", "OK")
+        data = {}
+        data['bankname'] = bank
+        data['username'] = user['USname']
+        response['data'] = data
+        return response
+

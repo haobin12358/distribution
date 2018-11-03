@@ -238,7 +238,7 @@ class OfflineDraw(Base):
     """
     __tablename__ = 'offlinedraw'
     OFDid = Column(String(64), primary_key=True)
-    USid = Column(String(64))  # 用户
+    USid = Column(String(64))  # 用户id
     OFDamount = Column(Float)  # 提现金额
     OFDbankname = Column(String(64), nullable=False)     # 银行名称
     OFDbranchname = Column(String(64), nullable=False)     # 支行名称
