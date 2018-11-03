@@ -25,7 +25,7 @@ import platform
 from common.beili_error import stockerror, dberror
 from datetime import datetime
 from common.timeformat import format_for_db
-from models.model import User, AgentMessage, Performance, Amount
+from models.model import User, AgentMessage, Performance, Amount, Reward
 sys.path.append(os.path.dirname(os.getcwd()))
 
 

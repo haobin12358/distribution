@@ -178,11 +178,11 @@ class Reward(Base):
     """
     __tablename__ = 'reward'
     REid = Column(String(64), primary_key=True)
+    RElastuserid = Column(String(64))  # 推荐用户id
     REnextuserid = Column(String(64))  # 被推荐用户id
     REmount = Column(Float)  # 奖励金额
     REmonth = Column(String(6))  # 月份
     REcreatetime = Column(String(14))  # 记录创建时间
-    RElastuserid = Column(String(64))  # 推荐用户id
 
 class Performance(Base):
     """

@@ -10,7 +10,7 @@ from flask import request
 from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
     NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR, NOT_FOUND_FILE, DELETE_CODE_FAIL, \
     NOT_FOUND_QRCODE, HAS_REGISTER, NO_BAIL, BAD_ADDRESS
-from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM, MONEY, BAIL
+from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM, MONEY, BAIL, REWARD
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser, is_temp
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
@@ -22,7 +22,7 @@ from common.beili_error import stockerror, dberror
 from service.SMyCenter import SMyCenter
 from datetime import datetime
 import random
-from models.model import Amount, User
+from models.model import Amount, User, Reward
 from common.timeformat import format_for_db
 import platform
 sys.path.append(os.path.dirname(os.getcwd()))
@@ -462,7 +462,7 @@ class CUser():
             if amount_data:
                 amount_data = get_model_return_dict(amount_data)
                 new_data = {}
-                new_data['reward'] = amount_data['reward'] + 100
+                new_data['reward'] = amount_data['reward'] + REWARD
                 try:
                     session.query(Amount).filter(Amount.USid == user['USid']).update(new_data)
                 except:
@@ -473,12 +473,13 @@ class CUser():
                 amount.AMid = str(uuid.uuid4())
                 amount.USagentid = user['USagentid']
                 amount.USname = user['USname']
-                amount.reward = 100
+                amount.reward = REWARD
                 amount.USheadimg = user['USheadimg']
                 amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
                 amount.AMmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
                 session.add(amount)
-            new_userid = str(uuid.uuid4())
+
+            new_userid = str(uuid.uuid4())  # 插入新用户
             new_user = User()
             new_user.USid = new_userid
             new_user.USname = username
@@ -494,7 +495,16 @@ class CUser():
             new_user.USagentid = random.randint(1000, 1000000)
             session.add(new_user)
 
-            USname = username
+            reward = Reward()  # 插入直推奖励表
+            reward.REid = str(uuid.uuid4())
+            reward.RElastuserid = user['USid']
+            reward.REnextuserid = new_userid
+            reward.REmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
+            reward.REmount = REWARD
+            reward.REcreatetime = datetime.strftime(datetime.now(), format_for_db)
+            session.add(reward)
+
+            USname = username  # 插入默认收货地址
             USphonenum = phonenum
             USdatails = details
             if areaid:
