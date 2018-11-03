@@ -86,7 +86,7 @@ class COrder():
                 response['success'] = False
                 response['data'] = new_list
                 response['PRlogisticsfee'] = real_PRlogisticsfee
-                response['totalprice'] = mount
+                response['totalprice'] = mount + real_PRlogisticsfee
                 return response
             if user_info['USmount'] < mount + PRlogisticsfee:
                 return NO_ENOUGH_MOUNT
