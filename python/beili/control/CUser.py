@@ -489,7 +489,7 @@ class CUser():
                                  '1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommun' \
                                  'ity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
             new_user.USphonenum = phonenum
-            new_user.USmount = 10000000
+            new_user.USmount = 10000
             new_user.USbail = 0
             new_user.USpassword = password
             new_user.USagentid = random.randint(1000, 1000000)
