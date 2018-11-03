@@ -211,3 +211,34 @@ class CAccount():
         response['data'] = data
         return response
 
+    @verify_token_decorator
+    def draw_money(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            bankname = str(data.get('bankname'))
+            branchbank = str(data.get('branchbank'))
+            accountname = str(data.get('accountname'))
+            cardnum = str(data.get('cardnum'))
+            amount = str(data.get('amount'))
+        except:
+            return PARAMS_ERROR
+        user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
+        if not user:
+            return NOT_FOUND_USER
+        if float(user['USmount']) < float(amount):
+            return NO_ENOUGH_MOUNT
+        time_now = datetime.strftime(datetime.now(), format_for_db)
+        tradenum = datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
+        result = self.saccount.add_drawmoney(str(uuid.uuid4()), request.user.id, bankname, branchbank, accountname, cardnum,\
+                                    amount, time_now, tradenum)
+        if result:
+            update = {}
+            update['USmount'] = float(user['USmount']) - float(amount)
+            self.smycenter.update_user_by_uid(request.user.id, update)
+            response = import_status("drawmoney_success", "OK")
+            return response
+        else:
+            return SYSTEM_ERROR
+

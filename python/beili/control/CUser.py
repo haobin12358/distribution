@@ -279,7 +279,7 @@ class CUser():
             return_list = []
             qrcode_list = get_model_return_list(qrcode_list)
             for code in qrcode_list:
-                if str(code['QRovertime']) > time:
+                if str(code['QRovertime']) > time and int(code['QRnumber']) > 0:
                     code['QRovertime'] = get_web_time_str(code['QRovertime'])
                     return_list.append(code)
             response = import_status("get_qrcode_success", "OK")

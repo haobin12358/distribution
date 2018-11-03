@@ -4,7 +4,7 @@ import os
 import uuid
 from werkzeug.security import check_password_hash
 from service.SBase import SBase, close_session
-from models.model import User, IdentifyingCode, OrderInfo, OrderProductInfo, Reward, Performance, Amount, DiscountRuler
+from models.model import User,DrawMoney, Amount, DiscountRuler
 from sqlalchemy import func
 from common.beili_error import dberror, stockerror
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
@@ -31,3 +31,18 @@ class SAccount(SBase):
     def get_user_date(self, id, month):
         return self.session.query(Amount.reward, Amount.performance).filter(Amount.USid == id)\
             .filter(Amount.AMmonth == month).first()
+
+    @close_session
+    def add_drawmoney(self, id, usid, bankname, branchbank, accountname, cardnum, amount, time_now, tradenum):
+        draw = DrawMoney()
+        draw.DMDid = id
+        draw.USid = usid
+        draw.DMbankname = bankname
+        draw.DMbranchname = branchbank
+        draw.DMaccountname = accountname
+        draw.DMcardnum = cardnum
+        draw.DMamount = amount
+        draw.DMcreatetime = time_now
+        draw.DMtradenum = tradenum
+        self.session.add(draw)
+        return True
