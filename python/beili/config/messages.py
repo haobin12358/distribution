@@ -39,4 +39,6 @@ add_qrcode_success = "添加二维码成功"
 get_qrcode_success = "获取二维码成功"
 delete_qrcode_success = "删除二维码成功"
 get_registerinfo_success = "获取注册时信息成功"
+get_drawinfo_success = "获取提现银行卡信息成功"
+drawmoney_success = "提现申请提交成功"
 

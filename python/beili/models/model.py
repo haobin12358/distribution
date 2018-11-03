@@ -178,11 +178,11 @@ class Reward(Base):
     """
     __tablename__ = 'reward'
     REid = Column(String(64), primary_key=True)
+    RElastuserid = Column(String(64))  # 推荐用户id
     REnextuserid = Column(String(64))  # 被推荐用户id
     REmount = Column(Float)  # 奖励金额
     REmonth = Column(String(6))  # 月份
     REcreatetime = Column(String(14))  # 记录创建时间
-    RElastuserid = Column(String(64))  # 推荐用户id
 
 class Performance(Base):
     """
@@ -232,21 +232,21 @@ class OnlineCharge(Base):
     ONDcreatetime = Column(String(14))  # 创建时间
     ONDtradenum = Column(String(125))  # 交易号, (如果有)
 
-class OfflineDraw(Base):
+class DrawMoney(Base):
     """
     银行卡线下提现记录表
     """
-    __tablename__ = 'offlinedraw'
-    OFDid = Column(String(64), primary_key=True)
-    USid = Column(String(64))  # 用户
-    OFDamount = Column(Float)  # 提现金额
-    OFDbankname = Column(String(64), nullable=False)     # 银行名称
-    OFDbranchname = Column(String(64), nullable=False)     # 支行名称
-    OFDcardnum = Column(String(19), nullable=False)      # 银行卡号
-    OFDaccountname = Column(String(64), nullable=False)     # 开户名称
-    OFDstatus = Column(Integer)  # 提现状态: {0: 全部, 1: 待审核, 2: 待打款, 3: 已打款 4: 未通过}
-    OFDcreatetime = Column(String(14))  # 创建时间
-    OFDtradenum = Column(String(125))  # 交易号, (如果有)
+    __tablename__ = 'drawmoney'
+    DMDid = Column(String(64), primary_key=True)
+    USid = Column(String(64))  # 用户id
+    DMamount = Column(Float)  # 提现金额
+    DMbankname = Column(String(64), nullable=False)     # 银行名称
+    DMbranchname = Column(String(64), nullable=False)     # 支行名称
+    DMcardnum = Column(String(19), nullable=False)      # 银行卡号
+    DMaccountname = Column(String(64), nullable=False)     # 开户名称
+    DMstatus = Column(Integer)  # 提现状态: {0: 全部, 1: 待审核, 2: 待打款, 3: 已打款 4: 未通过}
+    DMcreatetime = Column(String(14))  # 创建时间
+    DMtradenum = Column(String(125))  # 交易号, (如果有)
 
 class AgentMessage(Base):
     """

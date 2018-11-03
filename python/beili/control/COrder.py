@@ -25,7 +25,7 @@ import platform
 from common.beili_error import stockerror, dberror
 from datetime import datetime
 from common.timeformat import format_for_db
-from models.model import User, AgentMessage, Performance, Amount
+from models.model import User, AgentMessage, Performance, Amount, Reward
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -73,18 +73,20 @@ class COrder():
         try:
             for product in product_list:
                 num = product['PRnum']
+                if num > 1:
+                    real_PRlogisticsfee = 0
                 check_product = get_model_return_dict(self.sgoods.get_product(product['PRid']))
                 mount = mount + num * check_product['PRprice']
                 product['PRprice'] = check_product['PRprice']
                 discountnum = discountnum + num * check_product['PAdiscountnum']
                 new_list.append(product)
-            if totalprice != mount or real_PRlogisticsfee != PRlogisticsfee:
+            if totalprice != mount + real_PRlogisticsfee or real_PRlogisticsfee != PRlogisticsfee:
                 response = {}
                 response['status'] = 200
                 response['success'] = False
                 response['data'] = new_list
                 response['PRlogisticsfee'] = real_PRlogisticsfee
-                response['totalprice'] = mount
+                response['totalprice'] = mount + real_PRlogisticsfee
                 return response
             if user_info['USmount'] < mount + PRlogisticsfee:
                 return NO_ENOUGH_MOUNT
@@ -140,7 +142,7 @@ class COrder():
                 if not result:
                     raise dberror
             user = {}
-            user['USmount'] = user_info['USmount'] - mount
+            user['USmount'] = user_info['USmount'] - mount - real_PRlogisticsfee
             session.query(User).filter_by(USid=request.user.id).update(user)
             agentmessage = AgentMessage()  # 插入代理消息
             agentmessage.AMid = str(uuid.uuid4())

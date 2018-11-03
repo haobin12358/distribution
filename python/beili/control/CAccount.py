@@ -7,8 +7,8 @@ import random
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR, STOCK_NOT_ENOUGH,\
-        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS
-from config.setting import QRCODEHOSTNAME
+        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_USER
+from config.setting import QRCODEHOSTNAME, DRAWBANK
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
 from common.timeformat import get_db_time_str
@@ -195,3 +195,50 @@ class CAccount():
         response = import_status("get_distribuagent_list_success", "OK")
         response['data'] = distribution_list
         return response
+
+    @verify_token_decorator
+    def get_draw_info(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        bank = DRAWBANK
+        user = get_model_return_dict(self.suser.getuserinfo_by_uid(request.user.id))
+        if not user:
+            return NOT_FOUND_USER
+        response = import_status("get_drawinfo_success", "OK")
+        data = {}
+        data['bankname'] = bank
+        data['username'] = user['USname']
+        response['data'] = data
+        return response
+
+    @verify_token_decorator
+    def draw_money(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            bankname = str(data.get('bankname'))
+            branchbank = str(data.get('branchbank'))
+            accountname = str(data.get('accountname'))
+            cardnum = str(data.get('cardnum'))
+            amount = str(data.get('amount'))
+        except:
+            return PARAMS_ERROR
+        user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
+        if not user:
+            return NOT_FOUND_USER
+        if float(user['USmount']) < float(amount):
+            return NO_ENOUGH_MOUNT
+        time_now = datetime.strftime(datetime.now(), format_for_db)
+        tradenum = datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
+        result = self.saccount.add_drawmoney(str(uuid.uuid4()), request.user.id, bankname, branchbank, accountname, cardnum,\
+                                    amount, time_now, tradenum)
+        if result:
+            update = {}
+            update['USmount'] = float(user['USmount']) - float(amount)
+            self.smycenter.update_user_by_uid(request.user.id, update)
+            response = import_status("drawmoney_success", "OK")
+            return response
+        else:
+            return SYSTEM_ERROR
+
