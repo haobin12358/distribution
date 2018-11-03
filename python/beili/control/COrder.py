@@ -73,6 +73,8 @@ class COrder():
         try:
             for product in product_list:
                 num = product['PRnum']
+                if num > 1:
+                    real_PRlogisticsfee = 0
                 check_product = get_model_return_dict(self.sgoods.get_product(product['PRid']))
                 mount = mount + num * check_product['PRprice']
                 product['PRprice'] = check_product['PRprice']
@@ -140,7 +142,7 @@ class COrder():
                 if not result:
                     raise dberror
             user = {}
-            user['USmount'] = user_info['USmount'] - mount
+            user['USmount'] = user_info['USmount'] - mount - real_PRlogisticsfee
             session.query(User).filter_by(USid=request.user.id).update(user)
             agentmessage = AgentMessage()  # 插入代理消息
             agentmessage.AMid = str(uuid.uuid4())
