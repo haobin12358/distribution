@@ -24,7 +24,7 @@ export default {
 
         if(usefulCartList.length > 1){
 
-        }else if(usefulCartList.length == 1){
+        }else if(usefulCartList.length == 1 && usefulCartList[0].PRnum == 1){
             fee = usefulCartList[0].PRlogisticsfee || 0;
         }
 

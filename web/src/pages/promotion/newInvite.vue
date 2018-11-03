@@ -38,6 +38,8 @@
 
 <script>
     import {addQrcode} from "src/api/api"
+    import common from "src/common/js/common"
+
 
     export default {
         name: "newInvite",
@@ -91,9 +93,9 @@
                         break;
                 }
 
-                let tempDate = new Date(Number(this.expireDate)).toLocaleString('zh-CN', {hour12: false});
+                let tempDate = new Date(Number(this.expireDate));
 
-                this.expireDate = tempDate.replace(/[:\/\s]/g, '');
+                this.expireDate = common.dateFormat(tempDate);
             },
 
             doConfirm() {
