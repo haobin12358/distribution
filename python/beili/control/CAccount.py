@@ -265,11 +265,11 @@ class CAccount():
                 result['DMcreatetime'] = get_web_time_str(result['DMcreatetime'])
             response = import_status("get_drawmoneylist_success", "OK")
             response['data'] = result_list
-            response['全部'] = count0
-            response['待审核'] = count1
-            response['待打款'] = count2
-            response['已打款'] = count3
-            response['未通过'] = count4
+            response['count0'] = count0
+            response['count1'] = count1
+            response['count2'] = count2
+            response['count3'] = count3
+            response['count4'] = count4
             return response
         else:
             result_list = get_model_return_list(self.saccount.get_drawmoney_list(request.user.id, status))
@@ -340,11 +340,11 @@ class CAccount():
                     result['CMcreatetime'] = get_web_time_str(result['CMcreatetime'])
                 response = import_status("get_chargemoneylist_success", "OK")
                 response['data'] = result_list
-                response['全部'] = count0
-                response['待审核'] = count1
-                response['待打款'] = count2
-                response['已打款'] = count3
-                response['未通过'] = count4
+                response['count0'] = count0
+                response['count1'] = count1
+                response['count2'] = count2
+                response['count3'] = count3
+                response['count4'] = count4
                 return response
             else:
                 result_list = get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, status))

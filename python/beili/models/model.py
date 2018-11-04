@@ -2,7 +2,7 @@
 import sys
 import os
 sys.path.append(os.path.dirname(os.getcwd()))
-from sqlalchemy import Column, create_engine, Integer, String, Text, Float, Boolean, orm
+from sqlalchemy import Column, create_engine, Integer, String, Text, Float, Boolean, orm, DECIMAL
 from config import dbconfig as cfg
 from sqlalchemy.ext.declarative import declarative_base
 # from models.base_model import Base, auto_createtime
@@ -30,7 +30,7 @@ class User(Base):
     USagentid = Column(Integer)                  # 代理编号
     USheadimg = Column(String(255))              # 头像
     USbail = Column(Float)                       # 保证金余额
-    USmount = Column(Float)                      # 账户余额
+    USmount = Column(DECIMAL)                      # 账户余额
     USpre = Column(String(64))                   # 上级代理id
     USwechat = Column(String(64))                # 用户微信号
     openid = Column(String(64))                  # 微信唯一值
