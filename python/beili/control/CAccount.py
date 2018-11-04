@@ -284,7 +284,7 @@ class CAccount():
     def charge_monney(self):
         if is_tourist():
             return TOKEN_ERROR
-        params_list = ['paytype', 'alipaynum', 'bankname', 'accountname', 'cardnum', 'amount', 'remark', 'proof']
+        params_list = ['paytype', 'alipaynum', 'bankname', 'accountname', 'cardnum', 'amount', 'remark', 'proof', 'paytime']
         try:
             data = request.json
             for param in params_list:
@@ -304,6 +304,7 @@ class CAccount():
             amount = int(data.get('amount'))
             remark = str(data.get('remark'))
             proof = str(data.get('proof'))
+            paytime = str(data.get('paytime'))
         except:
             from config.response import PARAMS_ERROR
             return PARAMS_ERROR
@@ -311,7 +312,7 @@ class CAccount():
         createtime = datetime.strftime(datetime.now(), format_for_db)
         tradenum = datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
         result = self.saccount.charge_money(str(uuid.uuid4()), request.user.id, paytype, alipaynum, bankname, accountname, \
-                                            cardnum, amount, remark, tradenum, createtime, proof)
+                                            cardnum, amount, remark, tradenum, createtime, proof, paytime)
         if not result:
             return SYSTEM_ERROR
         response = import_status("charge_money_success", "OK")
@@ -319,7 +320,7 @@ class CAccount():
 
 
     @verify_token_decorator
-    def get_chargemonney_list(self):
+    def get_chargemoney_list(self):
             if is_tourist():
                 return TOKEN_ERROR
             try:
@@ -336,9 +337,10 @@ class CAccount():
                 count2 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 2)))
                 count3 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 3)))
                 count4 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 4)))
-                from common.timeformat import get_web_time_str
+                from common.timeformat import get_web_time_str, format_forweb_no_HMS
                 for result in result_list:
                     result['CMcreatetime'] = get_web_time_str(result['CMcreatetime'])
+                    result['CMpaytime'] = get_web_time_str(result['CMpaytime'], formattype=format_forweb_no_HMS)
                 response = import_status("get_chargemoneylist_success", "OK")
                 response['data'] = result_list
                 response['count0'] = count0

@@ -60,16 +60,17 @@ class SAccount(SBase):
 
     @close_session
     def get_all_chargemoney_list(self, id):
-        return self.session.query(ChargeMoney.CMstatus, ChargeMoney.CMcreatetime, ChargeMoney.CMtradenum, ChargeMoney.CMamount)\
-            .filter(ChargeMoney.USid == id).all()
+        return self.session.query(ChargeMoney.CMstatus, ChargeMoney.CMcreatetime, ChargeMoney.CMtradenum,
+                                  ChargeMoney.CMamount, ChargeMoney.CMpaytime).filter(ChargeMoney.USid == id).all()
 
     @close_session
     def get_chargemoney_list(self, id, status):
         return self.session.query(ChargeMoney.CMstatus, ChargeMoney.CMcreatetime, ChargeMoney.CMtradenum,
-            ChargeMoney.CMamount).filter(ChargeMoney.USid == id).filter(ChargeMoney.CMstatus == status).all()
+            ChargeMoney.CMamount, ChargeMoney.CMpaytime).filter(ChargeMoney.USid == id).filter(ChargeMoney.CMstatus == status).all()
 
     @close_session
-    def charge_money(self, cmid, usid, paytype, alipaynum, bankname, accountname, cardnum, amount, remark, tradenum, createtime, proof):
+    def charge_money(self, cmid, usid, paytype, alipaynum, bankname, accountname, cardnum, amount, remark, tradenum,\
+                     createtime, proof, paytime):
         charge = ChargeMoney()
         charge.CMid = cmid
         charge.USid = usid
@@ -84,6 +85,7 @@ class SAccount(SBase):
         charge.CMtradenum = tradenum
         charge.CMcreatetime = createtime
         charge.CMproof = proof
+        charge.CMpaytime = paytime
         self.session.add(charge)
         return True
 
