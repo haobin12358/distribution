@@ -148,6 +148,7 @@
                 blobImgs: [],
                 //  readonly为false时  关联用
                 blobLinkImgs: {},
+                blobLinkTokenImgs: {},
                 //  是否有token    为私有文件
                 haveToken: false
             }
@@ -181,13 +182,15 @@
         methods: {
             removeImg(index) {
                 let removeBlockImgUrl = this.blobImgs.splice(index, 1)[0],
-                    removeImgUrl = this.blobLinkImgs[removeBlockImgUrl];
+                    removeImgUrl = this.blobLinkImgs[removeBlockImgUrl],
+                    removeImgToken = this.blobLinkTokenImgs[removeBlockImgUrl];
 
                 removeImgUrl = removeImgUrl.split('file/')[1]
 
                 if (this.haveToken) {
-                    removeFile(removeImgUrl).then();
+                    removeFile(removeImgUrl, getStore(TOKEN)).then();
                 } else {
+                    // removeFile(removeImgUrl, removeImgToken).then(); todo
                 }
             },
             uploadFile() {
@@ -227,6 +230,7 @@
                                 this.blobLinkImgs[blobImgUrl] = resData.data;
                             } else {
                                 this.blobLinkImgs[blobImgUrl] = resData.data.url;
+                                this.blobLinkTokenImgs[blobImgUrl] = resData.data.token;
                             }
                         } else {
                             this.$toast({

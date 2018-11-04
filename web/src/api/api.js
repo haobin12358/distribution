@@ -453,10 +453,10 @@ export const deleteQrcode = (qrcodeid) => myAxios('/user/delete_qrcode', {
     }
 });
 
-export const removeFile = (url) => myAxios('/user/remove_file', {
+export const removeFile = (url, token) => myAxios('/user/remove_file', {
     method: 'post',
     params: {
-        token: getStore(TOKEN),
+        token,
     },
     data: {
         url
@@ -487,9 +487,6 @@ export const checkQrcode = (qrid) => myAxios('/user/check_qrcode', {
  */
 export const register = (formData) => myAxios('/user/register', {
     method: 'post',
-    params: {
-        token: getStore(TOKEN),
-    },
     data: formData
 });
 

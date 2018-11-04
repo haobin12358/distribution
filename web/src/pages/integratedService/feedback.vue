@@ -2,6 +2,8 @@
     @import "../../common/css/index";
 
     .container {
+        .least-full-screen();
+
         .tip{
             margin: 20px 0 10px 25px;
         }

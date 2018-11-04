@@ -126,7 +126,7 @@
                         <span class="margin-money-num">￥0.00</span>
                     </router-link>
                 </p>
-                <p class="num">￥200.00</p>
+                <p class="num">￥{{userInfo.USmount}}</p>
             </header>
 
             <router-link to="/balanceCharge" tag="section" class="bank-balance-charge">
@@ -162,6 +162,8 @@
 </template>
 
 <script>
+    import {mapState,mapActions,mapMutations} from "vuex"
+
     export default {
         name: "wallet",
 
@@ -170,6 +172,10 @@
         },
 
         components: {},
+
+        computed:{
+            ...mapState(['userInfo']),
+        },
 
         methods: {},
     }
