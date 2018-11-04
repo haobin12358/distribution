@@ -72,6 +72,9 @@
                             this.clearCookie();
                         }
 
+                        this.$router.push('/profile');
+                        return
+
                         axios.post(api.login, {
                             username: this.ruleForm.MAname,
                             password: this.ruleForm.MApassword
@@ -80,7 +83,7 @@
                                 if (res.data.status == 200) {
                                     this.$store.state.username = this.ruleForm.MAname;
                                     sessionStorage.setItem('token', res.data.data.token);
-                                    this.$router.push({path: '/operationOverview'});
+                                    this.$router.push({path: '/profile'});
                                 } else {
                                     this.$message.error(res.data.message);
                                 }
