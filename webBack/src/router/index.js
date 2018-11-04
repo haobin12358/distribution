@@ -24,30 +24,194 @@ import Layout from '../views/layout/Layout'
     noCache: true                if true ,the page will no be cached(default is false)
   }
  **/
+
+const login = r => require.ensure([], () => r(require('../views/login/index')), 'login');
+const forgetPwd = r => require.ensure([], () => r(require('../views/login/forgetPwd')), 'forgetPwd');
+
+
+const commonLayout = r => require.ensure([], () => r(require('../views/common/commonLayout')), 'commonLayout');
+
+
+const profile = r => require.ensure([], () => r(require('../views/profile/index')), 'profile');
+
+const mall = r => require.ensure([], () => r(require('../views/mall/index')), 'mall');
+
+const category = r => require.ensure([], () => r(require('../views/product/category')), 'category');
+const product = r => require.ensure([], () => r(require('../views/product/index')), 'product');
+const productEdit = r => require.ensure([], () => r(require('../views/product/productEdit')), 'productEdit');
+
+const order = r => require.ensure([], () => r(require('../views/order/index')), 'order');
+const orderDetail = r => require.ensure([], () => r(require('../views/order/detail')), 'orderDetail');
+
+const sale = r => require.ensure([], () => r(require('../views/sale/index')), 'sale');  //  销售统计
+const personSale = r => require.ensure([], () => r(require('../views/sale/person')), 'personSale'); //  个人返现
+
+const message = r => require.ensure([], () => r(require('../views/message/index')), 'message');
+
+const service = r => require.ensure([], () => r(require('../views/service/index')), 'service');     //反馈
+const charge = r => require.ensure([], () => r(require('../views/service/charge')), 'charge');     //充值
+const withdraw = r => require.ensure([], () => r(require('../views/service/withdraw')), 'withdraw');     //充值
+const marginMoney = r => require.ensure([], () => r(require('../views/service/marginMoney')), 'marginMoney');     //保证金
+
+
 export const constantRouterMap = [
-  {path: '/', component: () => import('../views/login/index'), redirect: 'login', hidden: true},
-  {path: '/login', component: () => import('../views/login/index'), hidden: true},
-  {path: '/forgetPwd', component: () => import('../views/login/forgetPwd'), hidden: true},
+    {
+        path: '/',
+        redirect: '/login',
+        meta: {}
+    }, {
+        path: '/login',
+        component: login,
+        meta: {}
+    }, {
+        path: '/forgetPwd',
+        component: forgetPwd,
+        meta: {}
+    },
+
+    {
+        path: '/profile',
+        redirect: 'profile/index',
+        component: commonLayout,
+        meta: {},
+        children: [
+            {
+                path: 'index',
+                component: profile,
+                meta: {}
+            },
+        ]
+    },
+
+    {
+        path: '/mall',
+        redirect: 'mall/index',
+        component: commonLayout,
+        meta: {},
+        children: [
+            {
+                path: 'index',
+                component: mall,
+                meta: {}
+            },
+        ]
+    },
+
+    {
+        path: '/product',
+        redirect: 'product/index',
+        component: commonLayout,
+        meta: {},
+        children: [
+            {
+                path: 'index',
+                component: product,
+                meta: {}
+            }, {
+                path: 'productEdit',
+                component: productEdit,
+                meta: {}
+            },
+        ]
+    },
+
+    {
+        path: '/order',
+        redirect: 'order/index',
+        component: commonLayout,
+        meta: {},
+        children: [
+            {
+                path: 'index',
+                component: order,
+                meta: {}
+            }, {
+                path: 'productEdit',
+                component: orderDetail,
+                meta: {}
+            },
+        ]
+    },
+
+    {
+        path: '/sale',
+        redirect: 'sale/index',
+        component: commonLayout,
+        meta: {},
+        children: [
+            {
+                path: 'index',
+                component: sale,
+                meta: {}
+            }, {
+                path: 'personSale',
+                component: personSale,
+                meta: {}
+            },
+        ]
+    },
+
+    {
+        path: '/message',
+        redirect: 'message/index',
+        component: commonLayout,
+        meta: {},
+        children: [
+            {
+                path: 'index',
+                component: message,
+                meta: {}
+            },
+        ]
+    },
+
+    {
+        path: '/service',
+        redirect: 'service/index',
+        component: commonLayout,
+        meta: {},
+        children: [
+            {
+                path: 'index',
+                component: service,
+                meta: {}
+            },  {
+                path: 'withdraw',
+                component: withdraw,
+                meta: {}
+            },  {
+                path: 'charge',
+                component: charge,
+                meta: {}
+            },  {
+                path: 'marginMoney',
+                component: marginMoney,
+                meta: {}
+            },
+        ]
+    },
+
+
+
 ]
 
 const router = new Router({
-  // mode: 'history', // require service support
-  scrollBehavior: () => ({y: 0}),
-  routes: constantRouterMap
+    scrollBehavior: () => ({y: 0}),
+    routes: constantRouterMap
 })
 router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requireAuth)) {
-    if (sessionStorage.getItem('token')) {  // 判断当前的token是否存在
-      next();
+    if (to.matched.some(record => record.meta.requireAuth)) {
+        if (sessionStorage.getItem('token')) {  // 判断当前的token是否存在
+            next();
+        } else {
+            next({
+                path: '/login',
+                query: {redirect: to.fullPath}  // 将跳转的路由path作为参数，登录成功后跳转到该路由
+            })
+        }
     } else {
-      next({
-        path: '/login',
-        query: {redirect: to.fullPath}  // 将跳转的路由path作为参数，登录成功后跳转到该路由
-      })
+        next();
     }
-  } else {
-    next();
-  }
 });
 
 export default router;
