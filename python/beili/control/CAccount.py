@@ -242,3 +242,118 @@ class CAccount():
         else:
             return SYSTEM_ERROR
 
+    @verify_token_decorator
+    def get_drawmoney_list(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            status = int(data.get('status'))
+            if status < 0:
+                return PARAMS_ERROR
+        except:
+            return PARAMS_ERROR
+        if status == 0:
+            result_list = get_model_return_list(self.saccount.get_all_drawmoney_list(request.user.id))
+            count0 = len(result_list)
+            count1 = len(get_model_return_list(self.saccount.get_drawmoney_list(request.user.id, 1)))
+            count2 = len(get_model_return_list(self.saccount.get_drawmoney_list(request.user.id, 2)))
+            count3 = len(get_model_return_list(self.saccount.get_drawmoney_list(request.user.id, 3)))
+            count4 = len(get_model_return_list(self.saccount.get_drawmoney_list(request.user.id, 4)))
+            from common.timeformat import get_web_time_str
+            for result in result_list:
+                result['DMcreatetime'] = get_web_time_str(result['DMcreatetime'])
+            response = import_status("get_drawmoneylist_success", "OK")
+            response['data'] = result_list
+            response['count0'] = count0
+            response['count1'] = count1
+            response['count2'] = count2
+            response['count3'] = count3
+            response['count4'] = count4
+            return response
+        else:
+            result_list = get_model_return_list(self.saccount.get_drawmoney_list(request.user.id, status))
+            from common.timeformat import get_web_time_str
+            for result in result_list:
+                result['DMcreatetime'] = get_web_time_str(result['DMcreatetime'])
+            response = import_status("get_drawmoneylist_success", "OK")
+            response['data'] = result_list
+            return response
+
+    @verify_token_decorator
+    def charge_monney(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        params_list = ['paytype', 'alipaynum', 'bankname', 'accountname', 'cardnum', 'amount', 'remark', 'proof', 'paytime']
+        try:
+            data = request.json
+            for param in params_list:
+                if param not in params_list:
+                    PARAMS_ERROR = {
+                        "param": param,
+                        "status": 405,
+                        "status_code": 405002,
+                        "message": u"参数错误"
+                    }
+                    return PARAMS_ERROR
+            paytype = int(data.get('paytype'))
+            alipaynum = data.get('alipaynum')
+            bankname = str(data.get('bankname'))
+            accountname = str(data.get('accountname'))
+            cardnum = data.get('cardnum')
+            amount = int(data.get('amount'))
+            remark = str(data.get('remark'))
+            proof = str(data.get('proof'))
+            paytime = str(data.get('paytime'))
+        except:
+            from config.response import PARAMS_ERROR
+            return PARAMS_ERROR
+
+        createtime = datetime.strftime(datetime.now(), format_for_db)
+        tradenum = datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
+        result = self.saccount.charge_money(str(uuid.uuid4()), request.user.id, paytype, alipaynum, bankname, accountname, \
+                                            cardnum, amount, remark, tradenum, createtime, proof, paytime)
+        if not result:
+            return SYSTEM_ERROR
+        response = import_status("charge_money_success", "OK")
+        return response
+
+
+    @verify_token_decorator
+    def get_chargemoney_list(self):
+            if is_tourist():
+                return TOKEN_ERROR
+            try:
+                data = request.json
+                status = int(data.get('status'))
+                if status < 0:
+                    return PARAMS_ERROR
+            except:
+                return PARAMS_ERROR
+            if status == 0:
+                result_list = get_model_return_list(self.saccount.get_all_chargemoney_list(request.user.id))
+                count0 = len(result_list)
+                count1 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 1)))
+                count2 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 2)))
+                count3 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 3)))
+                count4 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 4)))
+                from common.timeformat import get_web_time_str, format_forweb_no_HMS
+                for result in result_list:
+                    result['CMcreatetime'] = get_web_time_str(result['CMcreatetime'])
+                    result['CMpaytime'] = get_web_time_str(result['CMpaytime'], formattype=format_forweb_no_HMS)
+                response = import_status("get_chargemoneylist_success", "OK")
+                response['data'] = result_list
+                response['count0'] = count0
+                response['count1'] = count1
+                response['count2'] = count2
+                response['count3'] = count3
+                response['count4'] = count4
+                return response
+            else:
+                result_list = get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, status))
+                from common.timeformat import get_web_time_str
+                for result in result_list:
+                    result['CMcreatetime'] = get_web_time_str(result['CMcreatetime'])
+                response = import_status("get_chargemoneylist_success", "OK")
+                response['data'] = result_list
+                return response

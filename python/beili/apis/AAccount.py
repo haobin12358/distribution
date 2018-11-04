@@ -16,7 +16,10 @@ class AAccount(Resource):
         apis = {
             'get_account': 'self.caccount.get_account()',
             'get_rank_list': 'self.caccount.get_rank_list()',
-            'draw_money': 'self.caccount.draw_money()'
+            'draw_money': 'self.caccount.draw_money()',
+            'get_drawmoney_list': 'self.caccount.get_drawmoney_list()',
+            'charge_monney': 'self.caccount.charge_monney()',
+            'get_chargemoney_list': 'self.caccount.get_chargemoney_list()'
         }
         res = eval(apis[account])
         return jsonify(res)
