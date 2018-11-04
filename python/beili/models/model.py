@@ -172,6 +172,7 @@ class ChargeMoney(Base):
     CMremark = Column(String(255))  # 充值备注
     CMstatus = Column(Integer)  # 提现状态:{0:全部, 1:待审核, 2:待打款, 3:已打款, 4:未通过}
     CMtradenum = Column(String(64))  # 流水号
+    CMproof = Column(String(512))  # 打款凭证
 
 class Reward(Base):
     """

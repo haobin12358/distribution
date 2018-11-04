@@ -315,15 +315,23 @@ class CUser():
         except:
             return PARAMS_ERROR
         if not qrcodeid:
-            return PARAMS_ERROR
+            user_dict = {}
+            user_dict['alipaynum'] = ALIPAYNUM
+            user_dict['alipayname'] = ALIPAYNAME
+            user_dict['bankname'] = BANKNAME
+            user_dict['accountname'] = COUNTNAME
+            user_dict['cardnum'] = CARDNUM
+            user_dict['money'] = MONEY
+            response = import_status("get_registerinfo_success", "OK")
+            response['data'] = user_dict
+            return response
         usid = self.suser.get_user_by_qrid(qrcodeid)
         if not usid:
             return NOT_FOUND_QRCODE
-
         usid = get_model_return_dict(usid)
         user = self.suser.getuserinfo_by_uid(usid['USid'])
         if not user:
-            return SYSTEM_ERROR
+            return NOT_FOUND_USER
         user = get_model_return_dict(user)
         user_dict = {}
         user_dict['name'] = user['USname']

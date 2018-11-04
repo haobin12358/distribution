@@ -69,7 +69,7 @@ class SAccount(SBase):
             ChargeMoney.CMamount).filter(ChargeMoney.USid == id).filter(ChargeMoney.CMstatus == status).all()
 
     @close_session
-    def charge_money(self, cmid, usid, paytype, alipaynum, bankname, accountname, cardnum, amount, remark, tradenum, createtime):
+    def charge_money(self, cmid, usid, paytype, alipaynum, bankname, accountname, cardnum, amount, remark, tradenum, createtime, proof):
         charge = ChargeMoney()
         charge.CMid = cmid
         charge.USid = usid
@@ -83,6 +83,7 @@ class SAccount(SBase):
         charge.CMstatus = 1
         charge.CMtradenum = tradenum
         charge.CMcreatetime = createtime
+        charge.CMproof = proof
         self.session.add(charge)
         return True
 

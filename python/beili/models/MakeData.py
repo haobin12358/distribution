@@ -466,14 +466,14 @@ if __name__ == "__main__":
 
     else:
         #databse_deal().create_database()
-        #create()
-        data = MakeData()
+        create()
+        # data = MakeData()
         # print "OK!"
         # print('start add data')
         # data.add_superuser()
         # data.add_user()
         # data.add_user2()
-        data.add_user3()
+        # data.add_user3()
         # data.add_user4()
         # data.add_user5()
         # data.add_agent_message()

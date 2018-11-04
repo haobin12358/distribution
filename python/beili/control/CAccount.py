@@ -284,7 +284,7 @@ class CAccount():
     def charge_monney(self):
         if is_tourist():
             return TOKEN_ERROR
-        params_list = ['paytype', 'alipaynum', 'bankname', 'accountname', 'cardnum', 'amount', 'remark']
+        params_list = ['paytype', 'alipaynum', 'bankname', 'accountname', 'cardnum', 'amount', 'remark', 'proof']
         try:
             data = request.json
             for param in params_list:
@@ -303,6 +303,7 @@ class CAccount():
             cardnum = data.get('cardnum')
             amount = int(data.get('amount'))
             remark = str(data.get('remark'))
+            proof = str(data.get('proof'))
         except:
             from config.response import PARAMS_ERROR
             return PARAMS_ERROR
@@ -310,7 +311,7 @@ class CAccount():
         createtime = datetime.strftime(datetime.now(), format_for_db)
         tradenum = datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
         result = self.saccount.charge_money(str(uuid.uuid4()), request.user.id, paytype, alipaynum, bankname, accountname, \
-                                            cardnum, amount, remark, tradenum, createtime)
+                                            cardnum, amount, remark, tradenum, createtime, proof)
         if not result:
             return SYSTEM_ERROR
         response = import_status("charge_money_success", "OK")
