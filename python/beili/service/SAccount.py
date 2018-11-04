@@ -4,7 +4,7 @@ import os
 import uuid
 from werkzeug.security import check_password_hash
 from service.SBase import SBase, close_session
-from models.model import User,DrawMoney, Amount, DiscountRuler
+from models.model import User,DrawMoney, Amount, DiscountRuler, ChargeMoney
 from sqlalchemy import func
 from common.beili_error import dberror, stockerror
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
@@ -44,5 +44,45 @@ class SAccount(SBase):
         draw.DMamount = amount
         draw.DMcreatetime = time_now
         draw.DMtradenum = tradenum
+        draw.DMstatus = 1
         self.session.add(draw)
         return True
+
+    @close_session
+    def get_drawmoney_list(self, id, status):
+        return self.session.query(DrawMoney.DMstatus, DrawMoney.DMcreatetime, DrawMoney.DMamount, DrawMoney.DMtradenum)\
+            .filter(DrawMoney.USid == id).order_by(DrawMoney.DMcreatetime.desc()).filter(DrawMoney.DMstatus == status).all()
+
+    @close_session
+    def get_all_drawmoney_list(self, id):
+        return self.session.query(DrawMoney.DMstatus, DrawMoney.DMcreatetime, DrawMoney.DMamount, DrawMoney.DMtradenum)\
+            .filter(DrawMoney.USid == id).order_by(DrawMoney.DMcreatetime.desc()).all()
+
+    @close_session
+    def get_all_chargemoney_list(self, id):
+        return self.session.query(ChargeMoney.CMstatus, ChargeMoney.CMcreatetime, ChargeMoney.CMtradenum, ChargeMoney.CMamount)\
+            .filter(ChargeMoney.USid == id).all()
+
+    @close_session
+    def get_chargemoney_list(self, id, status):
+        return self.session.query(ChargeMoney.CMstatus, ChargeMoney.CMcreatetime, ChargeMoney.CMtradenum,
+            ChargeMoney.CMamount).filter(ChargeMoney.USid == id).filter(ChargeMoney.CMstatus == status).all()
+
+    @close_session
+    def charge_money(self, cmid, usid, paytype, alipaynum, bankname, accountname, cardnum, amount, remark, tradenum, createtime):
+        charge = ChargeMoney()
+        charge.CMid = cmid
+        charge.USid = usid
+        charge.CMpaytype = paytype
+        charge.CMalipaynum = alipaynum
+        charge.CMbankname = bankname
+        charge.CMaccountname = accountname
+        charge.CMcardnum = cardnum
+        charge.CMamount = amount
+        charge.CMremark = remark
+        charge.CMstatus = 1
+        charge.CMtradenum = tradenum
+        charge.CMcreatetime = createtime
+        self.session.add(charge)
+        return True
+

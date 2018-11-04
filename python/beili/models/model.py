@@ -155,22 +155,23 @@ class OrderProductInfo(Base):
     PRimage = Column(String(255))  # 商品主图
     PRnum = Column(Integer)  # 购买数量
 
-class OfflineCharge(Base):
+class ChargeMoney(Base):
     """
-    线下充值记录表
+    充值记录表
     """
-    __tablename__ = 'offlinecharge'
-    LRid = Column(String(64), primary_key=True)
+    __tablename__ = 'chargemoney'
+    CMid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户
-    LRpaytype = Column(Integer)  # 充值方式:{1:支付宝, 2:银行转账}
-    LRalipaynum = Column(String(64))  # 支付宝账户
-    LRbankname = Column(String(64))  # 银行名称
-    LRaccountname = Column(String(64))  # 开户名称
-    LRcardnum = Column(String(64))  # 银行卡账户
-    LRpayamount = Column(Float)  # 充值金额
-    LRpaydate = Column(String(14))  # 充值日期
-    LRremark = Column(String(64))  # 充值备注
-    LRcreatetime = Column(String(14))  # 记录创建时间
+    CMpaytype = Column(Integer)  # 充值方式:{1:支付宝, 2:银行转账}
+    CMalipaynum = Column(String(64))  # 支付宝账户
+    CMbankname = Column(String(64))  # 银行名称
+    CMaccountname = Column(String(64))  # 开户名称
+    CMcardnum = Column(String(64))  # 银行卡卡号
+    CMamount = Column(Float)  # 充值金额
+    CMcreatetime = Column(String(14))  # 充值日期
+    CMremark = Column(String(255))  # 充值备注
+    CMstatus = Column(Integer)  # 提现状态:{0:全部, 1:待审核, 2:待打款, 3:已打款, 4:未通过}
+    CMtradenum = Column(String(64))  # 流水号
 
 class Reward(Base):
     """
