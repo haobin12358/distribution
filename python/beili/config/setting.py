@@ -18,7 +18,7 @@ BAIL = 0
 
 # 打款信息
 ALIPAYNUM = 13588046059
-ALIPAYNAME = u'冯欣'
+ALIPAYNAME = u'刘莉'
 WECHAT = 'youknowfx'
 BANKNAME = u'宁波银行'
 COUNTNAME = u'刘莉'
