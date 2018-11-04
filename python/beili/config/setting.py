@@ -24,6 +24,7 @@ BANKNAME = u'宁波银行'
 COUNTNAME = u'刘莉'
 CARDNUM = 711001122000127426
 MONEY = 398
+WECHATSERVICE = 'beili123'
 
 # 提现银行信息
 DRAWBANK = u'中国工商银行'

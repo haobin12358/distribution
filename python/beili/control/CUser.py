@@ -10,7 +10,8 @@ from flask import request
 from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
     NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR, NOT_FOUND_FILE, DELETE_CODE_FAIL, \
     NOT_FOUND_QRCODE, HAS_REGISTER, NO_BAIL, BAD_ADDRESS
-from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM, MONEY, BAIL, REWARD
+from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM, MONEY, BAIL, \
+    WECHATSERVICE, REWARD
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser, is_temp
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
@@ -322,6 +323,7 @@ class CUser():
             user_dict['accountname'] = COUNTNAME
             user_dict['cardnum'] = CARDNUM
             user_dict['money'] = MONEY
+            user_dict['service'] = WECHATSERVICE
             response = import_status("get_registerinfo_success", "OK")
             response['data'] = user_dict
             return response
@@ -342,6 +344,7 @@ class CUser():
         user_dict['accountname'] = COUNTNAME
         user_dict['cardnum'] = CARDNUM
         user_dict['money'] = MONEY
+        user_dict['service'] = WECHATSERVICE
         address = self.smycenter.get_user_default_details(usid['USid'])
         if address:
             address = get_model_return_dict(address)

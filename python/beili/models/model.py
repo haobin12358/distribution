@@ -171,7 +171,7 @@ class ChargeMoney(Base):
     CMpaytime = Column(String(14))  # 充值日期
     CMcreatetime = Column(String(14))  # 创建时间
     CMremark = Column(String(255))  # 充值备注
-    CMstatus = Column(Integer)  # 提现状态:{0:全部, 1:待审核, 2:待打款, 3:已打款, 4:未通过}
+    CMstatus = Column(Integer)  # 提现状态:{0:全部, 1:待审核, 2:已充值, 3:未通过}
     CMtradenum = Column(String(64))  # 流水号
     CMproof = Column(String(512))  # 打款凭证
 

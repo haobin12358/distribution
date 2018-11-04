@@ -336,7 +336,6 @@ class CAccount():
                 count1 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 1)))
                 count2 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 2)))
                 count3 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 3)))
-                count4 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 4)))
                 from common.timeformat import get_web_time_str, format_forweb_no_HMS
                 for result in result_list:
                     result['CMcreatetime'] = get_web_time_str(result['CMcreatetime'])
@@ -347,7 +346,6 @@ class CAccount():
                 response['count1'] = count1
                 response['count2'] = count2
                 response['count3'] = count3
-                response['count4'] = count4
                 return response
             else:
                 result_list = get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, status))
