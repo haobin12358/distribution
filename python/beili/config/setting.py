@@ -31,6 +31,9 @@ DRAWBANK = u'中国工商银行'
 
 # 直推奖励金额
 REWARD = 100
+# 支付相关
+APPID = ''
+REDIRECT_URI = 'https://beiliserver.daaiti.cn:443/account/get_code'
 
 # weidian
 APP_ID = 'wx8206635590c9cc0e'

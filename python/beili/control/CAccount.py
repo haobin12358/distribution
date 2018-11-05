@@ -8,7 +8,7 @@ from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR, STOCK_NOT_ENOUGH,\
         NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_USER
-from config.setting import QRCODEHOSTNAME, DRAWBANK
+from config.setting import QRCODEHOSTNAME, DRAWBANK, BAIL
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
 from common.timeformat import get_db_time_str
@@ -20,11 +20,12 @@ from service.SGoods import SGoods
 from service.SMyCenter import SMyCenter
 from service.DBSession import db_session
 from service.SAccount import SAccount
+from config.urlconfig import get_code
 import platform
 from common.beili_error import stockerror, dberror
 from datetime import datetime
 from common.timeformat import format_for_db
-from models.model import User, AgentMessage
+from models.model import User, AgentMessage, BailRecord
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -321,37 +322,128 @@ class CAccount():
 
     @verify_token_decorator
     def get_chargemoney_list(self):
-            if is_tourist():
-                return TOKEN_ERROR
-            try:
-                data = request.json
-                status = int(data.get('status'))
-                if status < 0:
-                    return PARAMS_ERROR
-            except:
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            status = int(data.get('status'))
+            if status < 0:
                 return PARAMS_ERROR
-            if status == 0:
-                result_list = get_model_return_list(self.saccount.get_all_chargemoney_list(request.user.id))
-                count0 = len(result_list)
-                count1 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 1)))
-                count2 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 2)))
-                count3 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 3)))
-                from common.timeformat import get_web_time_str, format_forweb_no_HMS
-                for result in result_list:
-                    result['CMcreatetime'] = get_web_time_str(result['CMcreatetime'])
-                    result['CMpaytime'] = get_web_time_str(result['CMpaytime'], formattype=format_forweb_no_HMS)
-                response = import_status("get_chargemoneylist_success", "OK")
-                response['data'] = result_list
-                response['count0'] = count0
-                response['count1'] = count1
-                response['count2'] = count2
-                response['count3'] = count3
+        except:
+            return PARAMS_ERROR
+        if status == 0:
+            result_list = get_model_return_list(self.saccount.get_all_chargemoney_list(request.user.id))
+            count0 = len(result_list)
+            count1 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 1)))
+            count2 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 2)))
+            count3 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 3)))
+            from common.timeformat import get_web_time_str, format_forweb_no_HMS
+            for result in result_list:
+                result['CMcreatetime'] = get_web_time_str(result['CMcreatetime'])
+                result['CMpaytime'] = get_web_time_str(result['CMpaytime'], formattype=format_forweb_no_HMS)
+            response = import_status("get_chargemoneylist_success", "OK")
+            response['data'] = result_list
+            response['count0'] = count0
+            response['count1'] = count1
+            response['count2'] = count2
+            response['count3'] = count3
+            return response
+        else:
+            result_list = get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, status))
+            from common.timeformat import get_web_time_str
+            for result in result_list:
+                result['CMcreatetime'] = get_web_time_str(result['CMcreatetime'])
+            response = import_status("get_chargemoneylist_success", "OK")
+            response['data'] = result_list
+            return response
+
+    @verify_token_decorator
+    def check_bail(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        system_bail = BAIL
+        userinfo = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
+        if not userinfo:
+            return SYSTEM_ERROR
+        record = self.saccount.get_bail_record(request.user.id, 2)
+        if record:
+            response = import_status("check_bail_success", "OK")
+            response['bailstatus'] = 3  # 退还中
+        if userinfo['USbail'] < system_bail:
+            response = import_status("check_bail_success", "OK")
+            response['bailstatus'] = 2  # 未充值
+            shouldpay = system_bail - userinfo['USbail']
+            data = {}
+            data['shouldpay'] = shouldpay
+            response['data'] = data
+        else:
+            response = import_status("check_bail_success", "OK")
+            response['bailstatus'] = 1  # 已充值
+        return response
+
+
+    @verify_token_decorator
+    def charge_draw_bail(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            type = int(data.get('type'))
+            mount = int(data.get('mount'))
+        except:
+            return PARAMS_ERROR
+        user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
+        if not user:
+            return SYSTEM_ERROR
+        session = db_session()
+        try:
+            if type == 1:
+                if user['USmount'] < mount:
+                    return NO_ENOUGH_MOUNT
+                bail_now = user['USbail']
+                update_mount = {}
+                update_mount['USmount'] = user['USmount'] - mount
+                session.query(User).filter(User.USid == request.user.id).update(update_mount)
+
+                update_bail = {}
+                update_bail['USbail'] = bail_now + mount
+                session.query(User).filter(User.USid == request.user.id).update(update_bail)
+
+                record = BailRecord()
+                record.BRid = str(uuid.uuid4())
+                record.USid = request.user.id
+                record.BRmount = mount
+                record.BRtype = 1
+                record.BRstatus = 1
+                record.BRcreatetime = datetime.strftime(datetime.now(), format_for_db)
+                session.add(record)
+                session.commit()
+                response = import_status("charge_bail_success", "OK")
                 return response
-            else:
-                result_list = get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, status))
-                from common.timeformat import get_web_time_str
-                for result in result_list:
-                    result['CMcreatetime'] = get_web_time_str(result['CMcreatetime'])
-                response = import_status("get_chargemoneylist_success", "OK")
-                response['data'] = result_list
+            if type == 2:
+                update_bail = {}
+                update_bail['USbail'] = user['USbail'] - mount
+                session.query(User).filter(User.USid == request.user.id).update(update_bail)
+                record = BailRecord()
+                record.BRid = str(uuid.uuid4())
+                record.USid = request.user.id
+                record.BRmount = mount
+                record.BRtype = 2
+                record.BRstatus = 2
+                record.BRcreatetime = datetime.strftime(datetime.now(), format_for_db)
+                session.add(record)
+                session.commit()
+                response = import_status("draw_bail_success", "OK")
                 return response
+        except Exception as e:
+            print e
+            session.rollback()
+            return SYSTEM_ERROR
+        finally:
+            session.close()
+
+
+
+
+
+

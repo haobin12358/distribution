@@ -101,11 +101,6 @@ class CGoods():
         return response
 
     @verify_token_decorator
-    def new_product(self):
-        self.json_param_miss("post")
-        return
-
-    @verify_token_decorator
     def update_product(self):
         self.json_param_miss("post")
         return

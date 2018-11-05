@@ -11,7 +11,7 @@ from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, 
     NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR, NOT_FOUND_FILE, DELETE_CODE_FAIL, \
     NOT_FOUND_QRCODE, HAS_REGISTER, NO_BAIL, BAD_ADDRESS
 from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM, MONEY, BAIL, \
-    WECHATSERVICE, REWARD
+    WECHATSERVICE, REWARD,  APPID, REDIRECT_URI
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser, is_temp
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
@@ -22,6 +22,7 @@ from service.SAccount import SAccount
 from common.beili_error import stockerror, dberror
 from service.SMyCenter import SMyCenter
 from datetime import datetime
+from config.urlconfig import get_code
 import random
 from models.model import Amount, User, Reward
 from common.timeformat import format_for_db
@@ -556,3 +557,21 @@ class CUser():
         response = import_status("register_success", "OK")
         return response
 
+
+
+    @verify_token_decorator
+    def check_openid(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        usid = request.user.id
+        openid = get_model_return_dict(self.saccount.check_openid(usid))
+        if not openid:
+            response = {}
+            response['message'] = u'执行跳转'
+            response['status'] = 302
+            data = {}
+            data['data'] = get_code.format(APPID, REDIRECT_URI)
+            response['data'] = data
+            return response
+        response = import_status("has_opid", "OK")
+        return response

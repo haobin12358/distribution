@@ -32,11 +32,11 @@ class User(Base):
     USbail = Column(Float)                       # 保证金余额
     USmount = Column(DECIMAL)                      # 账户余额
     USpre = Column(String(64))                   # 上级代理id
-    USwechat = Column(String(64))                # 用户微信号
+    USwechat = Column(String(64))                # 用户微信号,暂时不用
     openid = Column(String(64))                  # 微信唯一值
-    unionid = Column(String(255))                # 绑定公众号会出现
-    accesstoken = Column(String(255))            # 微信token
-    subscribe = Column(Integer)                  # 是否关注公众号
+    unionid = Column(String(255))                # 绑定公众号会出现,暂时不用
+    accesstoken = Column(String(255))            # 微信token,暂时不用
+    subscribe = Column(Integer)                  # 是否关注公众号,暂时不用
 
 class Admin(Base):
     """
@@ -76,12 +76,26 @@ class Product(Base):
     PRoldprice = Column(Float)  # 原价
     PRprice = Column(Float, nullable=False)  # 显示价格
     PRstock = Column(Integer)  # 库存
-    PRprofit = Column(Integer)  # 每件的收益，即销售折扣
+    PRprofit = Column(Integer)  # 每件的收益，即销售折扣,已废弃，勿动
     PRcreatetime = Column(String(14))  # 创建时间
     PRlogisticsfee = Column(Float)  # 物流费
     PRstatus = Column(Integer)     # 商品状态，1出售中，2已售罄，3已下架
     PAid = Column(String(64))      # 分类id，用于绑定商品类目，空值表示未绑定分类
     PAdiscountnum = Column(Float,default=1)  # 折扣件数
+
+class BailRecord(Base):
+    """
+    保证操作记录表金
+    """
+    __tablename__ = 'bailrecord'
+    BRid = Column(String(64), primary_key=True)
+    USid = Column(String(64))  # 用户id
+    BRtype = Column(Integer)  # 记录类型 1充值 2退还
+    BRmount = Column(Float)  # 交易金额
+    BRstatus = Column(Integer)  # 状态，1，已充值 2，退还中 3，已退还
+    BRcreatetime = Column(String(14))  # 创建日期
+
+
 
 class InvitaRecord(Base):
     """

@@ -4,7 +4,7 @@ import os
 import uuid
 from werkzeug.security import check_password_hash
 from service.SBase import SBase, close_session
-from models.model import User,DrawMoney, Amount, DiscountRuler, ChargeMoney
+from models.model import User,DrawMoney, Amount, DiscountRuler, ChargeMoney, BailRecord
 from sqlalchemy import func
 from common.beili_error import dberror, stockerror
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
@@ -89,3 +89,10 @@ class SAccount(SBase):
         self.session.add(charge)
         return True
 
+    @close_session
+    def check_openid(self, usid):
+        return self.session.query(User.openid).filter(User.USid == usid)
+
+    @close_session
+    def get_bail_record(self, id, status):
+        return self.session.query(BailRecord).filter(BailRecord.USid == id).filter(BailRecord.BRstatus == status).first()
