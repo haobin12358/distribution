@@ -49,4 +49,7 @@ check_bail_success = "查询是否缴纳保证金成功"
 get_shouldpaybail_success = "查询需要缴纳的保证金成功"
 charge_bail_success = "保证金充值成功"
 draw_bail_success = "保证金退还申请已提交"
+get_admin_success = "添加管理员成功"
+delete_admin_success = "删除管理员成功"
+update_admin = "更新管理员信息成功"
 

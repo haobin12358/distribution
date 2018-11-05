@@ -12,7 +12,7 @@ class SAdmin(SBase):
 
     @close_session
     def getadmin_by_adnum(self, num):
-        return self.session.query(Admin.ADid, Admin.ADlevel, Admin.ADpassword).filter_by(ADnum=num).first()
+        return self.session.query(Admin.ADid, Admin.ADlevel, Admin.ADpassword, Admin.ADisfreeze).filter_by(ADnum=num).first()
 
     @close_session
     def getadmin_by_adminid(self, adminid):
@@ -32,8 +32,8 @@ class SAdmin(SBase):
 
     @close_session
     def add_admin(self, uaid, ADnum, ADname, ADpassword, ADlevel, time_str, Adheadering='www.baidu.com'):
+        #添加管理员
         admin = Admin()
-
         admin.ADid = uaid
         admin.ADnum = ADnum
         admin.ADname = ADname
@@ -44,4 +44,12 @@ class SAdmin(SBase):
 
         self.session.add(admin)
         return True
+    @close_session
+    def delete_admin(self, ADnum, update_admin):
+        #删除管理员
+        return self.session.query(Admin).filter_by(ADnum=ADnum).update(update_admin)
+    @close_session
+    def update_admin(self, id, update):
+        #更新用户信息
+        return self.session.query(Admin).filter_by(ADnum=id).update(update)
 
