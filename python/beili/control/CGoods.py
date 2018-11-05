@@ -23,7 +23,6 @@ class CGoods():
 
     #@verify_token_decorator
     def get_product_list(self):
-        #self.json_param_miss("get")
         args = request.args.to_dict()
         try:
             page_num = int(args.get("page_num"))
@@ -82,7 +81,6 @@ class CGoods():
 
     #@verify_token_decorator
     def get_product_category(self):
-        #self.json_param_miss("get")
         args = request.args.to_dict()
         try:
             PAtype = int(args.get("PAtype"))

@@ -24,7 +24,7 @@ from config.urlconfig import get_code
 import platform
 from common.beili_error import stockerror, dberror
 from datetime import datetime
-from common.timeformat import format_for_db
+from common.timeformat import format_for_db, get_random_str
 from models.model import User, AgentMessage, BailRecord
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -430,6 +430,7 @@ class CAccount():
                 record.BRmount = mount
                 record.BRtype = 2
                 record.BRstatus = 2
+                record.BRtradenum = datetime.strftime(datetime.now(), format_for_db) + get_random_str(5)
                 record.BRcreatetime = datetime.strftime(datetime.now(), format_for_db)
                 session.add(record)
                 session.commit()

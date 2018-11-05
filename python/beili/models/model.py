@@ -93,6 +93,7 @@ class BailRecord(Base):
     BRtype = Column(Integer)  # 记录类型 1充值 2退还
     BRmount = Column(Float)  # 交易金额
     BRstatus = Column(Integer)  # 状态，1，已充值 2，退还中 3，已退还
+    BRtradenum = Column(String(30))  # 流水号
     BRcreatetime = Column(String(14))  # 创建日期
 
 
