@@ -422,7 +422,7 @@ class CAccount():
                 return response
             if type == 2:
                 update_bail = {}
-                update_bail['USbail'] = user['USbail'] - mount
+                update_bail['USbail'] = (user['USbail'] - mount) if (user['USbail'] - mount) >= 0 else 0
                 session.query(User).filter(User.USid == request.user.id).update(update_bail)
                 record = BailRecord()
                 record.BRid = str(uuid.uuid4())

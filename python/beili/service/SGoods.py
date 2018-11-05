@@ -12,6 +12,25 @@ class SGoods(SBase):
         super(SGoods, self).__init__()
 
     @close_session
+    def admin_get_product(self, PRstatus=None, PRname=None, PAid=None):
+        product_list = self.session.query(Product.PRpic, Product.PRname, Product.PAid, Product.PRoldprice, Product.PRprice,
+                                          Product.PRstock, Product.PRid, Product.PRlogisticsfee, Product.PAdiscountnum,
+                                          Product.PRcreatetime, Product.PRstatus)
+        if PAid:
+            product_list = product_list.filter(Product.PAid == PAid)
+        if PRstatus > 0:
+            product_list = product_list.filter_by(PRstatus=PRstatus)
+        if PRname:
+            product_list = product_list.filter(Product.PRname.like('%{0}%'.format(PRname)))
+        product_list = product_list.order_by(Product.PRcreatetime.desc()).all()
+        return product_list
+
+    @close_session
+    def get_category_byid(self, id):
+        return self.session.query(ProductCategory.PAname).filter(ProductCategory.PAid == id).first()
+
+
+    @close_session
     def get_product_list(self, page_size, page_num, PAid=None, PRstatus=None):
         product_list = self.session.query(Product.PRpic, Product.PRname, Product.PRoldprice, Product.PRprice,
                 Product.PRstock, Product.PRid, Product.PRlogisticsfee,

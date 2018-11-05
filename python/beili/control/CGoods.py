@@ -4,9 +4,9 @@ import sys
 import os
 from flask import request
 # import logging
-from config.response import PARAMS_MISS, NO_THIS_CATEGORY
+from config.response import PARAMS_MISS, NO_THIS_CATEGORY, PARAMS_ERROR
 from config.setting import QRCODEHOSTNAME
-from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser
+from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
 from common.timeformat import get_db_time_str
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
@@ -28,40 +28,44 @@ class CGoods():
             page_num = int(args.get("page_num"))
             page_size = int(args.get("page_size"))
             PRstatus = int(args.get("PRstatus"))
-            PAid = args.get("PAid")
+            PRname = args.get("PRname")
+            PAid = str(args.get("PAid"))
             PAtype = int(args.get("PAtype"))
         except:
             return PARAMS_MISS
+        product_list = []
+        if PAid == '':
+            return PARAMS_ERROR
         if int(PAid) == 0:
-            return_list, mount = self.sgoods.get_product_list(page_size, page_num, None, PRstatus)
-            return_list = get_model_return_list(return_list)
-        elif PAtype == 1:
-            paid_list = get_model_return_list(self.sgoods.get_childid(int(args.get("PAid"))))
-            product_list = []
-            for row in paid_list:
-                product_list = product_list + (get_model_return_list(self.sgoods.get_type1_product(row['PAid'], PRstatus)))
-            mount = len(product_list)
-            page = mount/page_size
-            if page == 0 or page == 1 and mount%page_num == 0:
-                return_list = product_list[0:]
-            else:
-                if ((mount - (page_num - 1) * page_size)/page_size) >= 1 and \
-                        ((mount - (page_num - 1) * page_size)%page_size) > 0:
-                    return_list = product_list[((page_num - 1) * page_size):(page_num * page_size)]
-                else:
-                    return_list = product_list[((page_num - 1) * page_size):]
-
-        elif PAtype == 2:
-            return_list, mount = self.sgoods.get_product_list(page_size, page_num, PAid, PRstatus)
-            return_list = get_model_return_list(return_list)
-        else:
-            return PARAMS_MISS
-        for product in return_list:
+            product_list = get_model_return_list(self.sgoods.admin_get_product(PRstatus, PRname))
+        elif int(PAtype) == 1:
+            paid_list = get_model_return_list(self.sgoods.get_childid(str(PAid)))
+            for paid in paid_list:
+                product_list = product_list + get_model_return_list(
+                    self.sgoods.admin_get_product(PRstatus, PRname, paid['PAid']))
+        elif int(PAtype) == 2:
+                product_list = product_list + get_model_return_list(
+                    self.sgoods.admin_get_product(PRstatus, PRname, PAid))
+        for product in product_list:
+            categoryname = get_model_return_dict(self.sgoods.get_category_byid(product['PAid']))['PAname']
+            product['categoryname'] = categoryname
             product['PRcreatetime'] = get_web_time_str(product['PRcreatetime'])
+
+        mount = len(product_list)
+        page = mount / page_size
+        if page == 0 or page == 1 and mount % page_num == 0:
+            return_list = product_list[0:]
+        else:
+            if ((mount - (page_num - 1) * page_size) / page_size) >= 1 and \
+                    ((mount - (page_num - 1) * page_size) % page_size) > 0:
+                return_list = product_list[((page_num - 1) * page_size):(page_num * page_size)]
+            else:
+                return_list = product_list[((page_num - 1) * page_size):]
         response = import_status("get_product_list_success", "OK")
         response["data"] = return_list
         response['mount'] = mount
         return response
+
 
     @verify_token_decorator
     def get_product(self):
