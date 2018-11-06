@@ -94,3 +94,27 @@ class SOrder(SBase):
                                   , OrderInfo.OImount, OrderInfo.OIcreatetime, OrderInfo.username, OrderInfo.userphonenum\
                                   , OrderInfo.provincename, OrderInfo.cityname, OrderInfo.areaname, OrderInfo.details)\
                                   .filter(OrderInfo.OIsn == oisn).first()
+
+    @close_session
+    def get_all_order(self, oisn, starttime, endtime, status, username, userphonenum):
+        order_list = self.session.query(OrderInfo.OIid, OrderInfo.OIsn, OrderInfo.OIstatus, OrderInfo.OIlogisticsfee,
+                                        OrderInfo.username, OrderInfo.userphonenum, OrderInfo.OImount, OrderInfo.expressname,
+                                        OrderInfo.expressnum, OrderInfo.OIcreatetime).order_by(OrderInfo.OIcreatetime.desc())
+        if oisn:
+            order_list = order_list.filter(OrderInfo.OIsn.like('%{0}%'.format(oisn)))
+        if starttime:
+            order_list = order_list.filter(OrderInfo.OIcreatetime >= starttime)
+        if endtime:
+            order_list = order_list.filter(OrderInfo.OIcreatetime <= endtime)
+        if status:
+            order_list = order_list.filter(OrderInfo.OIstatus == status)
+        if username:
+            order_list = order_list.filter(OrderInfo.username.like('%{0}%'.format(username)))
+        if userphonenum:
+            order_list = order_list.filter(OrderInfo.userphonenum.like('%{0}%'.format(userphonenum)))
+        return order_list.all()
+
+    @close_session
+    def update_order(self, oisn, update):
+        self.session.query(OrderInfo).filter(OrderInfo.OIsn == oisn).update(update)
+        return True

@@ -272,4 +272,79 @@ class COrder():
         response['data'] = detail
         return response
 
+    @verify_token_decorator
+    def get_all_order(self):
+        if not is_admin():
+            return AUTHORITY_ERROR
+        params = ['page_size', 'page_num', 'oisn', 'starttime', 'endtime', 'status', 'username', 'userphonenum', 'productname']
+        try:
+            data = request.json
+            for param in params:
+                if param not in data:
+                    response = {}
+                    response['message'] = u"参数缺失"
+                    response['paramname'] = param
+                    response['status'] = 405
+                    return response
+        except:
+            return PARAMS_ERROR
+        page_size = data.get('page_size')
+        page_num = data.get('page_num')
+        oisn = data.get('oisn')
+        starttime = str(data.get('starttime')) + '000000' if data.get('starttime') else None
+        endtime = data.get('endtime') + '000000' if data.get('endtime') else None
+        status = data.get('status')
+        username = data.get('username')
+        userphonenum = data.get('userphonenum')
+        productname = data.get('productname')
+        all_order = get_model_return_list(self.sorder.get_all_order(oisn, starttime, endtime, status, username, userphonenum))
+        return_list = []
+        for order in all_order:
+            detail = get_model_return_dict(self.sorder.get_order_details(order['OIsn']))
+            from common.timeformat import get_web_time_str
+            order['OIcreatetime'] = get_web_time_str(order['OIcreatetime'])
+            product_list = get_model_return_list(self.sorder.get_product_list(detail['OIid']))
+            order['product_list'] = product_list
+            if productname:
+                for product in product_list:
+                    if productname in product['PRname']:
+                        return_list.append(order)
+                        break
+            else:
+                return_list.append(order)
 
+        mount = len(return_list)
+        page = mount / page_size
+        if page == 0 or page == 1 and mount % page_num == 0:
+            real_return_list = return_list[0:]
+        else:
+            if ((mount - (page_num - 1) * page_size) / page_size) >= 1 and \
+                    ((mount - (page_num - 1) * page_size) % page_size) > 0:
+                real_return_list = return_list[((page_num - 1) * page_size):(page_num * page_size)]
+            else:
+                real_return_list = return_list[((page_num - 1) * page_size):]
+
+        response = import_status("get_allorder_success", "OK")
+        response['data'] = real_return_list
+        return response
+
+    @verify_token_decorator
+    def update_order(self):
+        if not is_admin():
+            return AUTHORITY_ERROR
+        try:
+            data = request.json
+            oisn = data.get('oisn')
+            expressname = data.get('expressname')
+            expressnum = data.get('expressnum')
+        except:
+            return PARAMS_ERROR
+        update = {}
+        update['OIstatus'] = 2
+        update['expressname'] = expressname
+        update['expressnum'] = expressnum
+        result = self.sorder.update_order(oisn, update)
+        if not result:
+            return SYSTEM_ERROR
+        reponse = import_status("update_order_success", "OK")
+        return reponse

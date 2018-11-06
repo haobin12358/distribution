@@ -2,9 +2,12 @@
 import re
 import sys
 import os
+import uuid
+from datetime import datetime
+from common.timeformat import format_for_db, get_random_str
 from flask import request
 # import logging
-from config.response import PARAMS_MISS, NO_THIS_CATEGORY, PARAMS_ERROR
+from config.response import PARAMS_MISS, NO_THIS_CATEGORY, PARAMS_ERROR, AUTHORITY_ERROR, SYSTEM_ERROR
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
@@ -103,9 +106,52 @@ class CGoods():
         return response
 
     @verify_token_decorator
-    def update_product(self):
-        self.json_param_miss("post")
-        return
+    def create_update_product(self):
+        if not is_admin():
+            return AUTHORITY_ERROR
+        params = ['paid', 'prname', 'prpic', 'proldprice', 'prprice', 'prstock', 'prlogisticsfee', 'prdiscountnum', 'prstatus']
+        data = request.json
+        for param in params:
+            if param not in data:
+                response = {}
+                response['message'] = u"参数缺失"
+                response['paramname'] = param
+                response['status'] = 405
+                return response
+        paid = data.get('paid')
+        prname = data.get('prname')
+        prpic = data.get('prpic')
+        proldprice = data.get('proldprice')
+        prprice = data.get('prprice')
+        prstock = data.get('prstock')
+        prlogisticsfee = data.get('prlogisticsfee')
+        prdiscountnum = data.get('prdiscountnum')
+        prstatus = data.get('prstatus')
+        prid = data.get('prid')
+        if prid:
+            product = {}
+            product['PAid'] = paid
+            product['PRname'] = prname
+            product['PRpic'] = prpic
+            product['PRoldprice'] = proldprice
+            product['PRprice'] = prprice
+            product['PRstock'] = prstock
+            product['PRlogisticsfee'] = prlogisticsfee
+            product['PRstatus'] = prstatus
+            product['PAdiscountnum'] = prdiscountnum
+            result = self.sgoods.update_product(prid, product)
+            if not result:
+                return SYSTEM_ERROR
+            response = import_status("update_product_success", "OK")
+            return response
+        else:
+            time_now = datetime.strftime(datetime.now(), format_for_db)
+            result = self.sgoods.create_product(str(uuid.uuid4()), paid, prname, prpic, proldprice, prprice, prstock
+                                       , prlogisticsfee, prstatus, prdiscountnum, time_now)
+            if not result:
+                return SYSTEM_ERROR
+            response = import_status("create_product_success", "OK")
+            return response
 
     @verify_token_decorator
     def new_category(self):

@@ -29,7 +29,8 @@ class AGoods(Resource):
             "update_product": "self.cgoods.update_product()",
             "new_category": "self.cgoods.new_category()",
             "update_category": "self.cgoods.update_category()",
-            "delete_category": "self.cgoods.delete_category()"
+            "delete_category": "self.cgoods.delete_category()",
+            'create_update_product': 'self.cgoods.create_update_product()'
         }
         res = eval(apis[product])
         return res

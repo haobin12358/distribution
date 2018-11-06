@@ -49,4 +49,7 @@ check_bail_success = "查询是否缴纳保证金成功"
 get_shouldpaybail_success = "查询需要缴纳的保证金成功"
 charge_bail_success = "保证金充值成功"
 draw_bail_success = "保证金退还申请已提交"
-
+update_product_success = "更新商品信息成功"
+create_product_success = "创建商品成功"
+get_allorder_success = "获取平台订单成功"
+update_order_success = "更新订单成功"

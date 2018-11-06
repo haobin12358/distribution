@@ -18,7 +18,7 @@ class SGoods(SBase):
                                           Product.PRcreatetime, Product.PRstatus)
         if PAid:
             product_list = product_list.filter(Product.PAid == PAid)
-        if PRstatus > 0:
+        if PRstatus:
             product_list = product_list.filter_by(PRstatus=PRstatus)
         if PRname:
             product_list = product_list.filter(Product.PRname.like('%{0}%'.format(PRname)))
@@ -58,6 +58,24 @@ class SGoods(SBase):
     @close_session
     def update_product(self, PRid, product):
         self.session.query(Product).filter_by(PRid=PRid).update(product)
+        return True
+
+    @close_session
+    def create_product(self, id, paid, prname, prpic, proldprice, prprice, prstock
+                                       , prlogisticsfee, prstatus, prdiscountnum, createtime):
+        product = Product()
+        product.PRid = id
+        product.PAid = paid
+        product.PRname = prname
+        product.PRpic = prpic
+        product.PRoldprice = proldprice
+        product.PRprice = prprice
+        product.PRstock = prstock
+        product.PRlogisticsfee = prlogisticsfee
+        product.PRstatus = prstatus
+        product.PAdiscountnum = prdiscountnum
+        product.PRcreatetime = createtime
+        self.session.add(product)
         return True
 
     @close_session
