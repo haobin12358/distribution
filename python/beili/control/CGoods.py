@@ -56,11 +56,11 @@ class CGoods():
 
         mount = len(product_list)
         page = mount / page_size
-        if page == 0 or page == 1 and mount % page_num == 0:
+        if page == 0 or page == 1 and mount % page_size == 0:
             return_list = product_list[0:]
         else:
             if ((mount - (page_num - 1) * page_size) / page_size) >= 1 and \
-                    ((mount - (page_num - 1) * page_size) % page_size) > 0:
+                    (mount - (page_num * page_size)) > 0:
                 return_list = product_list[((page_num - 1) * page_size):(page_num * page_size)]
             else:
                 return_list = product_list[((page_num - 1) * page_size):]

@@ -315,17 +315,18 @@ class COrder():
 
         mount = len(return_list)
         page = mount / page_size
-        if page == 0 or page == 1 and mount % page_num == 0:
+        if page == 0 or page == 1 and mount % page_size == 0:
             real_return_list = return_list[0:]
         else:
             if ((mount - (page_num - 1) * page_size) / page_size) >= 1 and \
-                    ((mount - (page_num - 1) * page_size) % page_size) > 0:
+                    (mount - (page_num  * page_size)) > 0:
                 real_return_list = return_list[((page_num - 1) * page_size):(page_num * page_size)]
             else:
                 real_return_list = return_list[((page_num - 1) * page_size):]
 
         response = import_status("get_allorder_success", "OK")
         response['data'] = real_return_list
+        response['mount'] = mount
         return response
 
     @verify_token_decorator

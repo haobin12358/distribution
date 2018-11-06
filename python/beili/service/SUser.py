@@ -104,7 +104,7 @@ class SUser(SBase):
 
     @close_session
     def get_arcode_details(self, id):
-        return self.session.query(Qrcode.QRovertime, Qrcode.QRnumber).filter(Qrcode.QRid == id).\
+        return self.session.query(Qrcode.QRovertime, Qrcode.QRnumber, Qrcode.USid).filter(Qrcode.QRid == id).\
                 filter(Qrcode.QRstatus == 1).first()
 
     @close_session
