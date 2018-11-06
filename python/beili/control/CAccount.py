@@ -24,7 +24,7 @@ from config.urlconfig import get_code
 import platform
 from common.beili_error import stockerror, dberror
 from datetime import datetime
-from common.timeformat import format_for_db
+from common.timeformat import format_for_db, get_random_str
 from models.model import User, AgentMessage, BailRecord
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -422,7 +422,7 @@ class CAccount():
                 return response
             if type == 2:
                 update_bail = {}
-                update_bail['USbail'] = user['USbail'] - mount
+                update_bail['USbail'] = (user['USbail'] - mount) if (user['USbail'] - mount) >= 0 else 0
                 session.query(User).filter(User.USid == request.user.id).update(update_bail)
                 record = BailRecord()
                 record.BRid = str(uuid.uuid4())
@@ -430,6 +430,7 @@ class CAccount():
                 record.BRmount = mount
                 record.BRtype = 2
                 record.BRstatus = 2
+                record.BRtradenum = datetime.strftime(datetime.now(), format_for_db) + get_random_str(5)
                 record.BRcreatetime = datetime.strftime(datetime.now(), format_for_db)
                 session.add(record)
                 session.commit()

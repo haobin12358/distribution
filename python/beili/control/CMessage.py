@@ -135,29 +135,16 @@ class CMessage():
     def publish_commessage(self):
         if not is_admin():
             return AUTHORITY_ERROR
-        files = request.files.get("file")
 
         try:
             json_data = request.json
             type = json_data.get('type')
             title = json_data.get('title')
+            url = json_data.get('url')
         except Exception as e:
             return PARAMS_ERROR
-        if not type or not title or not file:
+        if not title or not url:
             return PARAMS_MISS
-
-        if platform.system() == "Windows":
-            rootdir = "D:/task"
-        else:
-            rootdir = "/opt/beili/file/message/"
-        if not os.path.isdir(rootdir):
-            os.mkdir(rootdir)
-        # lastpoint = str(files.filename).rindex(".")
-        # filessuffix = str(files.filename)[lastpoint + 1:]
-        fileallname = get_db_time_str() + str(files.filename)
-        filepath = os.path.join(rootdir, fileallname)
-        files.save(filepath)
-        url = QRCODEHOSTNAME + "/file/message/" + fileallname
         # 获取当前时间
         import datetime
         from common.timeformat import format_for_db

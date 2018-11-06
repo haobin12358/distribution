@@ -1,5 +1,6 @@
 # *- coding:utf8 *-
 import datetime
+import random
 import re
 """
 统一日期交互格式 
@@ -7,6 +8,7 @@ import re
 传给前端是 2017-08-06 12:35:26
 """
 format_for_db = '%Y%m%d%H%M%S'
+format_for_db_no_HMS = '%Y%m%d'
 format_for_dbmonth = '%Y%m'
 format_for_web_second = '%Y-%m-%d %H:%M:%S'
 re_format_for_web = r"^\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}$"
@@ -27,6 +29,13 @@ def get_web_time_str(time_str, formattype=format_for_web_second):
     if not time_str:
         return
     return datetime.datetime.strptime(time_str, format_for_db).strftime(formattype)
+
+def get_random_str(length=6):
+    str = ''
+    result = random.sample('zyxwvutsrqponmlkjihgfedcba0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', length)
+    for i in result:
+        str = str + i
+    return str
 
 
 if __name__ == "__main__":

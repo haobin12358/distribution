@@ -76,7 +76,6 @@ class Product(Base):
     PRoldprice = Column(Float)  # 原价
     PRprice = Column(Float, nullable=False)  # 显示价格
     PRstock = Column(Integer)  # 库存
-    PRprofit = Column(Integer)  # 每件的收益，即销售折扣,已废弃，勿动
     PRcreatetime = Column(String(14))  # 创建时间
     PRlogisticsfee = Column(Float)  # 物流费
     PRstatus = Column(Integer)     # 商品状态，1出售中，2已售罄，3已下架
@@ -93,6 +92,7 @@ class BailRecord(Base):
     BRtype = Column(Integer)  # 记录类型 1充值 2退还
     BRmount = Column(Float)  # 交易金额
     BRstatus = Column(Integer)  # 状态，1，已充值 2，退还中 3，已退还
+    BRtradenum = Column(String(30))  # 流水号
     BRcreatetime = Column(String(14))  # 创建日期
 
 
@@ -157,6 +157,8 @@ class OrderInfo(Base):
     cityname = Column(String(64))  # 市
     areaname = Column(String(64))  # 区
     details = Column(String(255))  # 详细地址
+    expressname = Column(String(64))  # 快递名称
+    expressnum = Column(String(64))  # 快递单号
 
 class OrderProductInfo(Base):
     """订单商品详情, 多个订单商品详情对应一个订单"""

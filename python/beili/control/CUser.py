@@ -217,9 +217,15 @@ class CUser():
             id = str(data.get('qrid'))
         except:
             return PARAMS_ERROR
-        result = self.suser.get_arcode_details(id)
+        result = get_model_return_dict(self.suser.get_arcode_details(id)) if self.suser.get_arcode_details(id) else None
         if not result:
             return NOT_FOUND_QRCODE
+        user_info = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if self.smycenter \
+            .get_user_basicinfo(result['USid']) else None
+        if not user_info:
+            return NOT_FOUND_USER
+        if user_info['USbail'] < BAIL:
+            return NO_BAIL
         else:
             result = get_model_return_dict(result)
             response = {}
