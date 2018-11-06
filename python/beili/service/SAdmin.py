@@ -16,11 +16,12 @@ class SAdmin(SBase):
 
     @close_session
     def getadmin_by_adminid(self, adminid):
-        return self.session.query(Admin).filter_by(ADid=adminid).first()
+        return self.session.query(Admin.ADid, Admin.ADpassword).filter_by(ADid=adminid).first()
 
     @close_session
     def update_amdin_by_adminid(self, adminid, users):
         self.session.query(Admin).filter_by(ADid=adminid).update(users)
+        return True
 
     @close_session
     def get_all_adnum(self):

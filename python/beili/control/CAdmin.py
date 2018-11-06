@@ -6,7 +6,7 @@ import uuid
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, PHONE_OR_PASSWORD_WRONG, \
-    AUTHORITY_ERROR, PARAMS_MISS, NO_PHONENUM_OR_PASSWORD, ADMINNUM_ERROR, ADMINNAME_ERROR
+    AUTHORITY_ERROR, PARAMS_MISS, NO_PHONENUM_OR_PASSWORD, ADMINNUM_ERROR, ADMINNAME_ERROR, PASSWORD_WRONG
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, is_superadmin, usid_to_token, is_admin, is_ordirnaryuser
 from common.import_status import import_status
@@ -53,12 +53,14 @@ class CAdmin():
             return PARAMS_MISS
         oldpassword = json_data.get('oldpassword')
         newpassword = json_data.get('newpassword')
-        user = self.sadmin.getadmin_by_adminid(request.user.id)
-        if not user or user.ADpassword != oldpassword:
-            return PARAMS_ERROR
+        user = get_model_return_dict(self.sadmin.getadmin_by_adminid(request.user.id))
+        if not user or user['ADpassword'] != oldpassword:
+            return PASSWORD_WRONG
         admin_update = {}
         admin_update["ADpassword"] = newpassword
-        self.sadmin.update_amdin_by_adminid(user.ADid, admin_update)
+        result = self.sadmin.update_amdin_by_adminid(user['ADid'], admin_update)
+        if not result:
+            return SYSTEM_ERROR
         data = import_status("update_password_success", "OK")
         return data
 
@@ -96,7 +98,9 @@ class CAdmin():
             return response
         except:
             return SYSTEM_ERROR
+
     # 删除管理员
+    @verify_token_decorator
     def delete_admin(self):
         if not is_superadmin():
             return AUTHORITY_ERROR
