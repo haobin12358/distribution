@@ -7,8 +7,8 @@ import random
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR, STOCK_NOT_ENOUGH,\
-        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS
-from config.setting import QRCODEHOSTNAME
+        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_USER
+from config.setting import QRCODEHOSTNAME, DRAWBANK, BAIL
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
 from common.timeformat import get_db_time_str
@@ -20,11 +20,12 @@ from service.SGoods import SGoods
 from service.SMyCenter import SMyCenter
 from service.DBSession import db_session
 from service.SAccount import SAccount
+from config.urlconfig import get_code
 import platform
 from common.beili_error import stockerror, dberror
 from datetime import datetime
-from common.timeformat import format_for_db
-from models.model import User, AgentMessage
+from common.timeformat import format_for_db, get_random_str
+from models.model import User, AgentMessage, BailRecord
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -195,3 +196,255 @@ class CAccount():
         response = import_status("get_distribuagent_list_success", "OK")
         response['data'] = distribution_list
         return response
+
+    @verify_token_decorator
+    def get_draw_info(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        bank = DRAWBANK
+        user = get_model_return_dict(self.suser.getuserinfo_by_uid(request.user.id))
+        if not user:
+            return NOT_FOUND_USER
+        response = import_status("get_drawinfo_success", "OK")
+        data = {}
+        data['bankname'] = bank
+        data['username'] = user['USname']
+        response['data'] = data
+        return response
+
+    @verify_token_decorator
+    def draw_money(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            bankname = str(data.get('bankname'))
+            branchbank = str(data.get('branchbank'))
+            accountname = str(data.get('accountname'))
+            cardnum = str(data.get('cardnum'))
+            amount = str(data.get('amount'))
+        except:
+            return PARAMS_ERROR
+        user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
+        if not user:
+            return NOT_FOUND_USER
+        if float(user['USmount']) < float(amount):
+            return NO_ENOUGH_MOUNT
+        time_now = datetime.strftime(datetime.now(), format_for_db)
+        tradenum = datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
+        result = self.saccount.add_drawmoney(str(uuid.uuid4()), request.user.id, bankname, branchbank, accountname, cardnum,\
+                                    amount, time_now, tradenum)
+        if result:
+            update = {}
+            update['USmount'] = float(user['USmount']) - float(amount)
+            self.smycenter.update_user_by_uid(request.user.id, update)
+            response = import_status("drawmoney_success", "OK")
+            return response
+        else:
+            return SYSTEM_ERROR
+
+    @verify_token_decorator
+    def get_drawmoney_list(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            status = int(data.get('status'))
+            if status < 0:
+                return PARAMS_ERROR
+        except:
+            return PARAMS_ERROR
+        if status == 0:
+            result_list = get_model_return_list(self.saccount.get_all_drawmoney_list(request.user.id))
+            count0 = len(result_list)
+            count1 = len(get_model_return_list(self.saccount.get_drawmoney_list(request.user.id, 1)))
+            count2 = len(get_model_return_list(self.saccount.get_drawmoney_list(request.user.id, 2)))
+            count3 = len(get_model_return_list(self.saccount.get_drawmoney_list(request.user.id, 3)))
+            count4 = len(get_model_return_list(self.saccount.get_drawmoney_list(request.user.id, 4)))
+            from common.timeformat import get_web_time_str
+            for result in result_list:
+                result['DMcreatetime'] = get_web_time_str(result['DMcreatetime'])
+            response = import_status("get_drawmoneylist_success", "OK")
+            response['data'] = result_list
+            response['count0'] = count0
+            response['count1'] = count1
+            response['count2'] = count2
+            response['count3'] = count3
+            response['count4'] = count4
+            return response
+        else:
+            result_list = get_model_return_list(self.saccount.get_drawmoney_list(request.user.id, status))
+            from common.timeformat import get_web_time_str
+            for result in result_list:
+                result['DMcreatetime'] = get_web_time_str(result['DMcreatetime'])
+            response = import_status("get_drawmoneylist_success", "OK")
+            response['data'] = result_list
+            return response
+
+    @verify_token_decorator
+    def charge_monney(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        params_list = ['paytype', 'alipaynum', 'bankname', 'accountname', 'cardnum', 'amount', 'remark', 'proof', 'paytime']
+        try:
+            data = request.json
+            for param in params_list:
+                if param not in params_list:
+                    PARAMS_ERROR = {
+                        "param": param,
+                        "status": 405,
+                        "status_code": 405002,
+                        "message": u"参数错误"
+                    }
+                    return PARAMS_ERROR
+            paytype = int(data.get('paytype'))
+            alipaynum = data.get('alipaynum')
+            bankname = str(data.get('bankname'))
+            accountname = str(data.get('accountname'))
+            cardnum = data.get('cardnum')
+            amount = int(data.get('amount'))
+            remark = str(data.get('remark'))
+            proof = str(data.get('proof'))
+            paytime = str(data.get('paytime'))
+        except:
+            from config.response import PARAMS_ERROR
+            return PARAMS_ERROR
+
+        createtime = datetime.strftime(datetime.now(), format_for_db)
+        tradenum = datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
+        result = self.saccount.charge_money(str(uuid.uuid4()), request.user.id, paytype, alipaynum, bankname, accountname, \
+                                            cardnum, amount, remark, tradenum, createtime, proof, paytime)
+        if not result:
+            return SYSTEM_ERROR
+        response = import_status("charge_money_success", "OK")
+        return response
+
+
+    @verify_token_decorator
+    def get_chargemoney_list(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            status = int(data.get('status'))
+            if status < 0:
+                return PARAMS_ERROR
+        except:
+            return PARAMS_ERROR
+        if status == 0:
+            result_list = get_model_return_list(self.saccount.get_all_chargemoney_list(request.user.id))
+            count0 = len(result_list)
+            count1 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 1)))
+            count2 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 2)))
+            count3 = len(get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, 3)))
+            from common.timeformat import get_web_time_str, format_forweb_no_HMS
+            for result in result_list:
+                result['CMcreatetime'] = get_web_time_str(result['CMcreatetime'])
+                result['CMpaytime'] = get_web_time_str(result['CMpaytime'], formattype=format_forweb_no_HMS)
+            response = import_status("get_chargemoneylist_success", "OK")
+            response['data'] = result_list
+            response['count0'] = count0
+            response['count1'] = count1
+            response['count2'] = count2
+            response['count3'] = count3
+            return response
+        else:
+            result_list = get_model_return_list(self.saccount.get_chargemoney_list(request.user.id, status))
+            from common.timeformat import get_web_time_str
+            for result in result_list:
+                result['CMcreatetime'] = get_web_time_str(result['CMcreatetime'])
+            response = import_status("get_chargemoneylist_success", "OK")
+            response['data'] = result_list
+            return response
+
+    @verify_token_decorator
+    def check_bail(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        system_bail = BAIL
+        userinfo = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
+        if not userinfo:
+            return SYSTEM_ERROR
+        record = self.saccount.get_bail_record(request.user.id, 2)
+        if record:
+            response = import_status("check_bail_success", "OK")
+            response['bailstatus'] = 3  # 退还中
+        if userinfo['USbail'] < system_bail:
+            response = import_status("check_bail_success", "OK")
+            response['bailstatus'] = 2  # 未充值
+            shouldpay = system_bail - userinfo['USbail']
+            data = {}
+            data['shouldpay'] = shouldpay
+            response['data'] = data
+        else:
+            response = import_status("check_bail_success", "OK")
+            response['bailstatus'] = 1  # 已充值
+        return response
+
+
+    @verify_token_decorator
+    def charge_draw_bail(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            type = int(data.get('type'))
+            mount = int(data.get('mount'))
+        except:
+            return PARAMS_ERROR
+        user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
+        if not user:
+            return SYSTEM_ERROR
+        session = db_session()
+        try:
+            if type == 1:
+                if user['USmount'] < mount:
+                    return NO_ENOUGH_MOUNT
+                bail_now = user['USbail']
+                update_mount = {}
+                update_mount['USmount'] = user['USmount'] - mount
+                session.query(User).filter(User.USid == request.user.id).update(update_mount)
+
+                update_bail = {}
+                update_bail['USbail'] = bail_now + mount
+                session.query(User).filter(User.USid == request.user.id).update(update_bail)
+
+                record = BailRecord()
+                record.BRid = str(uuid.uuid4())
+                record.USid = request.user.id
+                record.BRmount = mount
+                record.BRtype = 1
+                record.BRstatus = 1
+                record.BRcreatetime = datetime.strftime(datetime.now(), format_for_db)
+                session.add(record)
+                session.commit()
+                response = import_status("charge_bail_success", "OK")
+                return response
+            if type == 2:
+                update_bail = {}
+                update_bail['USbail'] = (user['USbail'] - mount) if (user['USbail'] - mount) >= 0 else 0
+                session.query(User).filter(User.USid == request.user.id).update(update_bail)
+                record = BailRecord()
+                record.BRid = str(uuid.uuid4())
+                record.USid = request.user.id
+                record.BRmount = mount
+                record.BRtype = 2
+                record.BRstatus = 2
+                record.BRtradenum = datetime.strftime(datetime.now(), format_for_db) + get_random_str(5)
+                record.BRcreatetime = datetime.strftime(datetime.now(), format_for_db)
+                session.add(record)
+                session.commit()
+                response = import_status("draw_bail_success", "OK")
+                return response
+        except Exception as e:
+            print e
+            session.rollback()
+            return SYSTEM_ERROR
+        finally:
+            session.close()
+
+
+
+
+
+

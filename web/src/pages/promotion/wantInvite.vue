@@ -89,7 +89,7 @@
                 )
             },
             generateCodeUrl(item) {
-                return 'http://' + location.host + '/#/agentAgreement?QRid=' + item.QRid;
+                return location.origin + '/#/agentAgreement?QRid=' + item.QRid;
             },
             gotoInviteLink(item) {
                 this.$router.push({

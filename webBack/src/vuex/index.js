@@ -1,79 +1,48 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import side from '../common/json/side';
-
+import actions from "./actions"
+import mutations from "./mutations"
+import getters from "./getters"
 
 Vue.use(Vuex);
 
-let store= new Vuex.Store({
-	state: {
-	  side:null,
-    username:'',
-    route: null,
-    now:null,
-    number:0,
-    isCollapse:false,
-    token:'',
-    activity:{
-      COabo:'',
-      COname:'',
-      COstatus:'',
-      COstart:'',
-      COend:'',
-      COfilter:null,
-      COother:'',
-      COdiscount:null,
-      COamount:null,
-      COtype:'满减',
-      COunit:'元',
-      COnumber:null,
-      COimage:[],
-      COotherType:'0',
-      COotherContent:[
-        '','',''
-      ],
-      COproduct:'全店商品',
-      PRids:[],
-      COgenre:'活动',
-      disabled:false
-    },
-    discount:{
-      COabo:'',
-      COname:'',
-      COstatus:'',
-      COstart:'',
-      COend:'',
-      COfilter:null,
-      COother:'',
-      COdiscount:null,
-      COamount:null,
-      COtype:'',
-      COnumber:null,
-      PRids:[],
-      COuserfilter:null,
-      COgenre:'优惠券'
-    }
-	},
-	mutations: {
-	    add(state,route) {
-	    	state.now=route.name;
-	    	var len=Object.keys(state.route);
-	    	if (len.length<5||!!state.route[route.name]) {
-    			state.route[route.name]=route.path;
-	    	}else{
-	    		delete state.route[len[0]]
-    			state.route[route.name]=route.path;
-	    	}
-	    },
-	    remove(state,name){
-	    	Vue.delete(state.route,name)
-	    	// delete state.route[name]
+const state = {
+    menu: [
+        {
+            title: '概览',
+            path: '/profile',
+            iconPath: '/static/images/menu_profile.png',
+        },{
+            title: '商城',
+            path: '/mall',
+            iconPath: '/static/images/menu_profile.png',
+        },{
+            title: '商品',
+            path: '/product',
+            iconPath: '/static/images/menu_profile.png',
+        },{
+            title: '订单',
+            path: '/order',
+            iconPath: '/static/images/menu_profile.png',
+        },{
+            title: '销售',
+            path: '/sale',
+            iconPath: '/static/images/menu_profile.png',
+        },{
+            title: '消息',
+            path: '/message',
+            iconPath: '/static/images/menu_profile.png',
+        },{
+            title: '客服',
+            path: '/service',
+            iconPath: '/static/images/menu_profile.png',
+        },
+    ],     //  主页左侧菜单
+}
 
-
-        // this.$store.commit('remove',name)调用此方法
-	    }
-	}
+export default new Vuex.Store({
+    state,
+    getters,
+    mutations,
+    actions,
 })
-
-
-export default store

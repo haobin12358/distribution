@@ -10,7 +10,8 @@ from flask import request
 from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
     NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR, NOT_FOUND_FILE, DELETE_CODE_FAIL, \
     NOT_FOUND_QRCODE, HAS_REGISTER, NO_BAIL, BAD_ADDRESS
-from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM, MONEY, BAIL
+from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM, MONEY, BAIL, \
+    WECHATSERVICE, REWARD,  APPID, REDIRECT_URI
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser, is_temp
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
@@ -21,8 +22,9 @@ from service.SAccount import SAccount
 from common.beili_error import stockerror, dberror
 from service.SMyCenter import SMyCenter
 from datetime import datetime
+from config.urlconfig import get_code
 import random
-from models.model import Amount, User
+from models.model import Amount, User, Reward
 from common.timeformat import format_for_db
 import platform
 sys.path.append(os.path.dirname(os.getcwd()))
@@ -215,9 +217,15 @@ class CUser():
             id = str(data.get('qrid'))
         except:
             return PARAMS_ERROR
-        result = self.suser.get_arcode_details(id)
+        result = get_model_return_dict(self.suser.get_arcode_details(id)) if self.suser.get_arcode_details(id) else None
         if not result:
             return NOT_FOUND_QRCODE
+        user_info = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if self.smycenter \
+            .get_user_basicinfo(result['USid']) else None
+        if not user_info:
+            return NOT_FOUND_USER
+        if user_info['USbail'] < BAIL:
+            return NO_BAIL
         else:
             result = get_model_return_dict(result)
             response = {}
@@ -232,6 +240,8 @@ class CUser():
                 response['message'] = u"二维码次数已用完"
                 response['success'] = False
                 return response
+            from common.timeformat import get_web_time_str
+            result['QRovertime'] = get_web_time_str(result['QRovertime'])
             response['status'] = 200
             response['data'] = result
             response['success'] = True
@@ -277,7 +287,7 @@ class CUser():
             return_list = []
             qrcode_list = get_model_return_list(qrcode_list)
             for code in qrcode_list:
-                if str(code['QRovertime']) > time:
+                if str(code['QRovertime']) > time and int(code['QRnumber']) > 0:
                     code['QRovertime'] = get_web_time_str(code['QRovertime'])
                     return_list.append(code)
             response = import_status("get_qrcode_success", "OK")
@@ -313,15 +323,24 @@ class CUser():
         except:
             return PARAMS_ERROR
         if not qrcodeid:
-            return PARAMS_ERROR
+            user_dict = {}
+            user_dict['alipaynum'] = ALIPAYNUM
+            user_dict['alipayname'] = ALIPAYNAME
+            user_dict['bankname'] = BANKNAME
+            user_dict['accountname'] = COUNTNAME
+            user_dict['cardnum'] = CARDNUM
+            user_dict['money'] = MONEY
+            user_dict['service'] = WECHATSERVICE
+            response = import_status("get_registerinfo_success", "OK")
+            response['data'] = user_dict
+            return response
         usid = self.suser.get_user_by_qrid(qrcodeid)
         if not usid:
             return NOT_FOUND_QRCODE
-
         usid = get_model_return_dict(usid)
         user = self.suser.getuserinfo_by_uid(usid['USid'])
         if not user:
-            return SYSTEM_ERROR
+            return NOT_FOUND_USER
         user = get_model_return_dict(user)
         user_dict = {}
         user_dict['name'] = user['USname']
@@ -332,6 +351,7 @@ class CUser():
         user_dict['accountname'] = COUNTNAME
         user_dict['cardnum'] = CARDNUM
         user_dict['money'] = MONEY
+        user_dict['service'] = WECHATSERVICE
         address = self.smycenter.get_user_default_details(usid['USid'])
         if address:
             address = get_model_return_dict(address)
@@ -433,7 +453,7 @@ class CUser():
         if not qr:
             return NOT_FOUND_QRCODE
         update = {}
-        update['QRnumber'] = qr['QRnumber'] - 1
+        update['QRnumber'] = str(int(qr['QRnumber']) - 1)
         result = self.suser.update_qrcode(qrid, update)
         if not result:
             return NOT_FOUND_QRCODE
@@ -460,7 +480,7 @@ class CUser():
             if amount_data:
                 amount_data = get_model_return_dict(amount_data)
                 new_data = {}
-                new_data['reward'] = amount_data['reward'] + 100
+                new_data['reward'] = amount_data['reward'] + REWARD
                 try:
                     session.query(Amount).filter(Amount.USid == user['USid']).update(new_data)
                 except:
@@ -471,13 +491,15 @@ class CUser():
                 amount.AMid = str(uuid.uuid4())
                 amount.USagentid = user['USagentid']
                 amount.USname = user['USname']
-                amount.reward = 100
+                amount.reward = REWARD
                 amount.USheadimg = user['USheadimg']
                 amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
                 amount.AMmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
                 session.add(amount)
+
+            new_userid = str(uuid.uuid4())  # 插入新用户
             new_user = User()
-            new_user.USid = str(uuid.uuid4())
+            new_user.USid = new_userid
             new_user.USname = username
             new_user.USpre = user['USid']
             new_user.USheadimg = headimg if headimg else 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_100' \
@@ -485,13 +507,22 @@ class CUser():
                                  '1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommun' \
                                  'ity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
             new_user.USphonenum = phonenum
-            new_user.USmount = 10000000
+            new_user.USmount = 10000
             new_user.USbail = 0
             new_user.USpassword = password
             new_user.USagentid = random.randint(1000, 1000000)
             session.add(new_user)
 
-            USname = username
+            reward = Reward()  # 插入直推奖励表
+            reward.REid = str(uuid.uuid4())
+            reward.RElastuserid = user['USid']
+            reward.REnextuserid = new_userid
+            reward.REmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
+            reward.REmount = REWARD
+            reward.REcreatetime = datetime.strftime(datetime.now(), format_for_db)
+            session.add(reward)
+
+            USname = username  # 插入默认收货地址
             USphonenum = phonenum
             USdatails = details
             if areaid:
@@ -504,9 +535,9 @@ class CUser():
                 time_time = datetime.now()
                 time_str = datetime.strftime(time_time, format_for_db)
                 uaid = str(uuid.uuid1())
-                exist_default = self.smycenter.get_default_address_by_usid(user['USid'])
+                exist_default = self.smycenter.get_default_address_by_usid(new_userid)
                 uadefault = True if not exist_default else False
-                self.smycenter.add_address_selfsession(session, uaid, user['USid'], USname, USphonenum, USdatails, \
+                self.smycenter.add_address_selfsession(session, uaid, new_userid, USname, USphonenum, USdatails, \
                                                        areaid, uadefault, time_str, None)
             else:
                 all_cityid = get_model_return_list(self.smycenter.get_all_cityid())
@@ -518,9 +549,9 @@ class CUser():
                 time_time = datetime.now()
                 time_str = datetime.strftime(time_time, format_for_db)
                 uaid = str(uuid.uuid1())
-                exist_default = self.smycenter.get_default_address_by_usid(user['USid'])
+                exist_default = self.smycenter.get_default_address_by_usid(new_userid)
                 uadefault = True if not exist_default else False
-                self.smycenter.add_address_selfsession(session, uaid, user['USid'], USname, USphonenum, USdatails,  \
+                self.smycenter.add_address_selfsession(session, uaid, new_userid, USname, USphonenum, USdatails,  \
                                                        None, uadefault, time_str, cityid)
             session.commit()
         except Exception as e:
@@ -532,3 +563,21 @@ class CUser():
         response = import_status("register_success", "OK")
         return response
 
+
+
+    @verify_token_decorator
+    def check_openid(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        usid = request.user.id
+        openid = get_model_return_dict(self.saccount.check_openid(usid))
+        if not openid:
+            response = {}
+            response['message'] = u'执行跳转'
+            response['status'] = 302
+            data = {}
+            data['data'] = get_code.format(APPID, REDIRECT_URI)
+            response['data'] = data
+            return response
+        response = import_status("has_opid", "OK")
+        return response

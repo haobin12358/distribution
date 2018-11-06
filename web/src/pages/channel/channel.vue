@@ -2,7 +2,7 @@
     @import "../../common/css/index";
 
     .container {
-        //.least-full-screen();
+        .least-full-screen();
         .bgw();
 
         .search-bar-wrap {

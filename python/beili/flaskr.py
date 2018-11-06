@@ -26,10 +26,13 @@ api.add_resource(AAccount, "/account/<string:account>")
 '''
 if __name__ == '__main__':
     sg.run('0.0.0.0', 443, debug=False, ssl_context=(
-        "/etc/nginx/cert/1525609592348.pem"
+        "/etc/nginx/cert/cert-1541142792481_beiliserver.daaiti.cn.crt"
     ))
-    
+
 '''
 if __name__ == '__main__':
-    sg.run('0.0.0.0', 7444, debug=True)
+
+    sg.run('0.0.0.0', 7444, debug=False)
+# '''
+
 

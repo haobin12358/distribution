@@ -41,13 +41,13 @@ export default {
         state.notReadComMsg = payload;
     },
     [ADD_CART](state, payload) {
-        let changeItem = state.cartList.find(item => item.PRid == payload.PRid);
+        let changeItem = state.cartList.find(item => item.PRid == payload.product.PRid);
 
         if (changeItem) {
-            changeItem.PRnum++;
+            changeItem.PRnum += payload.num;
         } else {
-            payload.PRnum = 1;
-            state.cartList = [...state.cartList, payload];
+            payload.product.PRnum = payload.num;
+            state.cartList = [...state.cartList, payload.product];
         }
 
         state.cartList = state.cartList.concat();

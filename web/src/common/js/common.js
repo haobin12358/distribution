@@ -64,5 +64,26 @@ const common = {
             width: document.body.clientWidth
         }
     },
+
+    dateFormat(tempDate) {
+        let year = tempDate.getFullYear().toString(),
+            month = (tempDate.getMonth() + 1).toString(),
+            date = tempDate.getDate().toString(),
+            hour = tempDate.getHours().toString(),
+            minute = tempDate.getMinutes().toString(),
+            second = tempDate.getSeconds().toString(),
+            rst = '';
+
+        rst = year.padStart(4, '0') +
+            month.padStart(2, '0') +
+            date.padStart(2, '0') +
+            hour.padStart(2, '0') +
+            minute.padStart(2, '0') +
+            second.padStart(2, '0');
+
+        return rst;
+    }
 }
+
+
 export default common

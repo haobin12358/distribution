@@ -132,14 +132,14 @@ class MakeData():
         from model import User
         for i in range(3):
             user = User()
-            user.USid = 'rfesrgbrtthert4535g' + str(i)
+            user.USid = 'rfesrgbrt34qw32thert4535g' + str(i)
             user.USname = 'guodongtest' + str(i)
             user.USphonenum = '1505896854' + str(i)
             user.USwechat = 'wechat'
             user.USpassword = "123"
             user.USagentid = 100 + int(i)
             user.USbail = 0
-            user.USmount = 10000
+            user.USmount = 999999998.56
             user.USheadimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
             user.USpre = '3404cf38-c3cf-401f-8ba7-f8ce040f064f'
             self.session.add(user)
@@ -289,8 +289,8 @@ class MakeData():
         for i in range(5):
             ruler = DiscountRuler()
             ruler.DRid = 'afrewgtrhb' + str(i)
-            ruler.DRnumber = 100 + pow(100, int(i))
-            ruler.DRratio = 1 + int(i)
+            ruler.DRnumber = 5 + pow(100, int(i))
+            ruler.DRratio = 2 + int(i)
             self.session.add(ruler)
             self.session.commit()
 
@@ -465,26 +465,26 @@ if __name__ == "__main__":
         drop()
 
     else:
-        databse_deal().create_database()
+        #databse_deal().create_database()
         create()
-        data = MakeData()
-        print "OK!"
-        print('start add data')
-        data.add_superuser()
-        data.add_user()
-        data.add_user2()
-        data.add_user3()
-        data.add_user4()
-        data.add_user5()
-        data.add_agent_message()
-        data.add_company_message()
-        data.add_alreadyRead()
-        data.add_product()
-        data.add_amount()
-        data.add_amount2()
-        data.add_amount3()
-        data.add_amount4()
-        data.add_amount5()
-        data.add_amount6()
-        data.add_amount7()
-        data.add_DiscountRuler()
+        # data = MakeData()
+        # print "OK!"
+        # print('start add data')
+        # data.add_superuser()
+        # data.add_user()
+        # data.add_user2()
+        # data.add_user3()
+        # data.add_user4()
+        # data.add_user5()
+        # data.add_agent_message()
+        # data.add_company_message()
+        # data.add_alreadyRead()
+        # data.add_product()
+        # data.add_amount()
+        # data.add_amount2()
+        # data.add_amount3()
+        # data.add_amount4()
+        # data.add_amount5()
+        # data.add_amount6()
+        # data.add_amount7()
+        # data.add_DiscountRuler()

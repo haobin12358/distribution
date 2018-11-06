@@ -17,15 +17,23 @@ WindowsRoot = 'D:/'
 BAIL = 0
 
 # 打款信息
-ALIPAYNUM = 13588046059
-ALIPAYNAME = u'冯欣'
+ALIPAYNUM = 15158078922
+ALIPAYNAME = u'刘莉'
 WECHAT = 'youknowfx'
 BANKNAME = u'宁波银行'
 COUNTNAME = u'刘莉'
 CARDNUM = 711001122000127426
 MONEY = 398
+WECHATSERVICE = 'beili123'
 
+# 提现银行信息
+DRAWBANK = u'中国工商银行'
 
+# 直推奖励金额
+REWARD = 100
+# 支付相关
+APPID = ''
+REDIRECT_URI = 'https://beiliserver.daaiti.cn:443/account/get_code'
 
 # weidian
 APP_ID = 'wx8206635590c9cc0e'
