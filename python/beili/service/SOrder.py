@@ -100,6 +100,7 @@ class SOrder(SBase):
     def get_all_order(self, oisn, starttime, endtime, status, username, userphonenum):
         order_list = self.session.query(OrderInfo.OIid, OrderInfo.OIsn, OrderInfo.OIstatus, OrderInfo.OIlogisticsfee,
                                         OrderInfo.username, OrderInfo.userphonenum, OrderInfo.OImount, OrderInfo.expressname,
+                                        OrderInfo.provincename, OrderInfo.cityname, OrderInfo.areaname,OrderInfo.details,
                                         OrderInfo.expressnum, OrderInfo.OIcreatetime).order_by(OrderInfo.OIcreatetime.desc())
         if oisn:
             order_list = order_list.filter(OrderInfo.OIsn.like('%{0}%'.format(oisn)))
