@@ -348,4 +348,10 @@ class COrder():
         if not result:
             return SYSTEM_ERROR
         reponse = import_status("update_order_success", "OK")
+        detail = get_model_return_dict(self.sorder.get_order_details(oisn))
+        from common.timeformat import get_web_time_str
+        detail['OIcreatetime'] = get_web_time_str(detail['OIcreatetime'])
+        product_list = get_model_return_list(self.sorder.get_product_list(detail['OIid']))
+        detail['product_list'] = product_list
+        reponse['data'] = detail
         return reponse
