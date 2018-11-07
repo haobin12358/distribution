@@ -595,6 +595,7 @@ class CUser():
         args = request.args.to_dict()
         code = args.get('code')
         state = args.get('state')
+        print code,state
         login = WeixinLogin(APP_ID, APP_SECRET)
         data = login.access_token(code)
 
