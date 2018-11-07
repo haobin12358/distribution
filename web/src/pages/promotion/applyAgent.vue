@@ -104,7 +104,7 @@
             </template>
 
 
-            <mt-field class="form-item" label="打款日期" placeholder="请输入打款日期" :readonly="true" :disableClear="true"
+            <mt-field class="form-item" label="打款日期" placeholder="请选择打款日期" :readonly="true" :disableClear="true"
                       v-model="date" @click.native="$refs.picker.open()"></mt-field>
             <head-img-field label="新头像" :readOnly="false" @update="updateNewHeadImg" @isUploading="listenHdUpload"
                             :upload-limit="1"></head-img-field>
@@ -133,7 +133,7 @@
                          :readonly="true"></my-cell>
             </template>
 
-            <my-cell title="客服微信" value="beiliyuncang123" :readonly="true"></my-cell>
+            <my-cell title="客服微信" :value="registerInfo.service" :readonly="true"></my-cell>
         </section>
 
         <section class="my-confirm-btn-wrap" style="margin: 30px 0 60px;">
@@ -161,6 +161,7 @@
             ref="picker"
             type="datetime"
             v-model="datetime"
+            :startDate = "startDate"
             @confirm="dateTimeConfirm"
         >
         </mt-datetime-picker>
@@ -182,6 +183,8 @@
             return {
                 transferWay: '支付宝',
                 date: '',
+                datetime: '',
+                startDate: new Date('2016'),
 
                 timer: null,    //  计时器
                 lastEnableCodeSecond: 0,    //  下一次可用验证码倒计时
@@ -253,7 +256,6 @@
                 ],
                 pickAreaVal: [],
 
-                datetime: '',
 
                 headImgs: [],   //  头像
                 isHdImgUploading: false,    //  头像正在上传

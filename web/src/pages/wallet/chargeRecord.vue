@@ -8,8 +8,7 @@
 
 <template>
     <div class="container">
-        <header-top :title="$route.meta.title" :show-back="true">
-        </header-top>
+        <header-top :show-back="true"></header-top>
 
         <ul class="nav-bar">
             <li v-for="item in recordType" :class="{'nav-bar-item': true, 'active': item.value == selectStatus}"
@@ -20,12 +19,12 @@
         <ul class="money-record">
             <li class="money-record-item" v-for="item in record">
                 <p class="row">
-                    <span class="hard">{{statusToTxt(item.DMstatus)}}</span>
-                    <span class="weak">{{item.DMcreatetime}}</span>
+                    <span class="hard">{{statusToTxt(item.CMstatus)}}</span>
+                    <span class="weak">{{item.CMcreatetime}}</span>
                 </p>
                 <p class="row">
-                    <span class="weak">{{item.DMtradenum}}</span>
-                    <span class="hard">￥{{item.DMamount}}</span>
+                    <span class="weak">{{item.CMtradenum}}</span>
+                    <span class="hard">￥{{item.CMamount}}</span>
                 </p>
 
             </li>
@@ -36,11 +35,11 @@
 
 <script>
     import moneyRecord from "src/components/common/moneyRecord"
-    import {getDrawMoneyList} from "src/api/api"
+    import {getChargeMoneyList} from "src/api/api"
 
-
+    //  充值记录
     export default {
-        name: "withdrawCashRecord",
+        name: "chargeRecord",
 
         data() {
             return {
@@ -55,16 +54,12 @@
                         value: 1,
                         num: 0
                     }, {
-                        label: '待打款',
+                        label: '已充值',
                         value: 2,
                         num: 0
-                    }, {
-                        label: '已打款',
-                        value: 3,
-                        num: 0
-                    }, {
+                    },{
                         label: '未通过',
-                        value: 4,
+                        value: 3,
                         num: 0
                     },
                 ],
@@ -88,7 +83,7 @@
                 return this.recordType.find(item => item.value === status).label;
             },
             setData(){
-                getDrawMoneyList(this.selectStatus).then(
+                getChargeMoneyList(this.selectStatus).then(
                     resData => {
                         if (resData) {
                             if(this.selectStatus == 0){
@@ -96,7 +91,6 @@
                                 this.recordType[1].num = resData.count1;
                                 this.recordType[2].num = resData.count2;
                                 this.recordType[3].num = resData.count3;
-                                this.recordType[4].num = resData.count4;
                             }
                             this.record = resData.data;
                         }

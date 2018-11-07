@@ -139,10 +139,10 @@
                 <img src="/static/images/order.png" alt="">
                 <span>云仓订单</span>
             </router-link>
-            <router-link tag="li" class="function-item" to="/authorization">
+            <li class="function-item" @click="gotoAuthorization">
                 <img src="/static/images/authorization.png" alt="">
                 <span>我的授权</span>
-            </router-link>
+            </li>
             <router-link tag="li" class="function-item" to="/promotion">
                 <img src="/static/images/promotion.png" alt="">
                 <span>我要推广</span>
@@ -183,7 +183,9 @@
         },
 
         methods: {
-
+            gotoAuthorization(){
+                this.$toast('功能开发中,敬请期待!');
+            }
         },
 
         created(){

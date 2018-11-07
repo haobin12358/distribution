@@ -256,7 +256,7 @@
     import {Toast} from "mint-ui"
     import footerGuide from "src/components/footer/footerGuide"
     import buyCart from "src/components/common/buyCart"
-    import {getProductCategory, getProductList} from "src/api/api"
+    import {getProductCategory, getProductList, checkBail} from "src/api/api"
     import LoadMore from "src/components/common/loadMore"
     import common from "src/common/js/common"
     import {mapMutations, mapState, mapGetters} from "vuex"
@@ -310,15 +310,15 @@
         },
 
         methods: {
-            dbclick(){
-              console.log('dbclick');
+            dbclick() {
+                console.log('dbclick');
             },
             ...mapMutations({
-                addCart({} ,product, num = 1) {
-                   this.$store.commit('ADD_CART', {
-                       product,
-                       num
-                   })
+                addCart({}, product, num = 1) {
+                    this.$store.commit('ADD_CART', {
+                        product,
+                        num
+                    })
                 },
                 reduceCart: 'REDUCE_CART'
             }),
@@ -332,16 +332,21 @@
                     this.setProductList();
                 }
             },
-            gotoPayOrder() {
+            async gotoPayOrder() {
                 if (this.usefulCartList.length) {
-                    if (this.userInfo.USbail >= 0) {
+                    let checkBailData = await checkBail();
+
+                    if (checkBailData.bailstatus ==  1) {
                         this.$router.push('/payOrder');
-                    } else {
-                        this.$messagebox.confirm('交纳保证金后才可下单,是否前往钱包页交纳?').then(
+                    } else if (checkBailData.bailstatus ==  2){
+                        this.$messagebox.confirm(`还需交纳保证金(${checkBailData.data.shouldpay}元)后才可下单,是否前往钱包页交纳?`).then(
                             () => {
                                 this.$router.push('/wallet')
                             }
                         )
+                    }else if (checkBailData.bailstatus ==  3){
+                        this.$toast('保证金退还中,无法下单!');
+
                     }
                 } else {
                     this.$toast('请选几样商品加入购物车!');
