@@ -34,6 +34,7 @@ class User(Base):
     USpre = Column(String(64))                   # 上级代理id
     USwechat = Column(String(64))                # 用户微信号,暂时不用
     openid = Column(String(64))                  # 微信唯一值
+    state = Column(String(128))                  # 用于获取openid
     unionid = Column(String(255))                # 绑定公众号会出现,暂时不用
     accesstoken = Column(String(255))            # 微信token,暂时不用
     subscribe = Column(Integer)                  # 是否关注公众号,暂时不用
@@ -227,6 +228,7 @@ class Amount(Base):
     reward = Column(Float, default=0)  # 直推奖励金额
     performance = Column(Float, default=0)  # 业绩总额,就是总件数
     AMmonth = Column(String(6))  # 月份
+    AMstatus = Column(Integer)  # 状态:{0: 所有状态 1:未打款 2:已打款}
     AMcreattime = Column(String(14))  # 记录创建时间
 
 class DiscountRuler(Base):

@@ -34,7 +34,7 @@ class AUser(Resource):
         apis = {
             'get_single_message': 'self.cuser.get_single_message()',
             'get_qrcode': 'self.cuser.get_qrcode()',
-            'check_openid': 'self.caccount.check_openid()'
+            'check_openid': 'self.cuser.check_openid()'
         }
         res = eval(apis[user])
         return jsonify(res)

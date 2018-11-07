@@ -7,6 +7,7 @@ TOKEN_EXPIRATION = 3600 * 222220  # token过期时间(秒)
 
 # 服务器域名
 QRCODEHOSTNAME = 'http://112.74.175.144:7444'
+SERVER = 'https://beiliserver.daaiti.cn'
 
 # 图片存储位置
 LinuxRoot = '/opt/beili/'
@@ -31,9 +32,13 @@ DRAWBANK = u'中国工商银行'
 
 # 直推奖励金额
 REWARD = 100
+
 # 支付相关
-APPID = ''
-REDIRECT_URI = 'https://beiliserver.daaiti.cn:443/account/get_code'
+APP_ID = 'wxe618ef815a774878'
+MCH_ID = '1516500191'
+MCH_KEY = 'hiuhef98y3198dg928dhhsdGHHUY8y98'
+APP_SECRET= '3befb44903c957180ddad2d18d1677c5'
+REDIRECT_URI = 'https://beili.daaiti.cn:443/user/get_code'
 
 # weidian
 APP_ID = 'wx8206635590c9cc0e'

@@ -20,7 +20,8 @@ class AAccount(Resource):
             'get_drawmoney_list': 'self.caccount.get_drawmoney_list()',
             'charge_monney': 'self.caccount.charge_monney()',
             'get_chargemoney_list': 'self.caccount.get_chargemoney_list()',
-            'charge_draw_bail': 'self.caccount.charge_draw_bail()'
+            'charge_draw_bail': 'self.caccount.charge_draw_bail()',
+            'get_alluser_account': 'self.caccount.get_alluser_account()'
         }
         res = eval(apis[account])
         return jsonify(res)

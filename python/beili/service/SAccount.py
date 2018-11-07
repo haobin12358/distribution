@@ -91,8 +91,26 @@ class SAccount(SBase):
 
     @close_session
     def check_openid(self, usid):
-        return self.session.query(User.openid).filter(User.USid == usid)
+        return self.session.query(User.openid).filter(User.USid == usid).first()
 
     @close_session
     def get_bail_record(self, id, status):
         return self.session.query(BailRecord).filter(BailRecord.USid == id).filter(BailRecord.BRstatus == status).first()
+
+    @close_session
+    def get_alluser_account(self, name, month, agentid, status):
+        list = self.session.query(Amount.USid, Amount.reward, Amount.USagentid, Amount.USname, Amount.AMmonth, Amount.AMstatus
+                                  , Amount.AMid, Amount.performance)
+        if name:
+            list = list.filter(Amount.USname.like('%{0}%'.format(name)))
+        if month:
+            list = list.filter(Amount.AMmonth == month)
+        if agentid:
+            list = list.filter(Amount.USagentid.like('%{0}%'.format(agentid)))
+        if status > 0:
+            list = list.filter(Amount.AMstatus == status)
+        list = list.all()
+        return list
+
+
+

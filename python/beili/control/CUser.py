@@ -11,11 +11,11 @@ from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, 
     NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR, NOT_FOUND_FILE, DELETE_CODE_FAIL, \
     NOT_FOUND_QRCODE, HAS_REGISTER, NO_BAIL, BAD_ADDRESS
 from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM, MONEY, BAIL, \
-    WECHATSERVICE, REWARD,  APPID, REDIRECT_URI
+    WECHATSERVICE, REWARD, REDIRECT_URI, APP_ID, APP_SECRET, SERVER
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser, is_temp
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
-from common.timeformat import get_db_time_str
+from common.timeformat import get_db_time_str, get_random_str
 from service.SUser import SUser
 from service.DBSession import db_session
 from service.SAccount import SAccount
@@ -27,6 +27,8 @@ import random
 from models.model import Amount, User, Reward
 from common.timeformat import format_for_db
 import platform
+from weixin import WeixinError
+from weixin.login import WeixinLoginError, WeixinLogin
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -571,13 +573,33 @@ class CUser():
             return TOKEN_ERROR
         usid = request.user.id
         openid = get_model_return_dict(self.saccount.check_openid(usid))
-        if not openid:
+        if not openid['openid']:
             response = {}
             response['message'] = u'执行跳转'
             response['status'] = 302
             data = {}
-            data['data'] = get_code.format(APPID, REDIRECT_URI)
+            state = get_random_str(10)
+            update = {}
+            update['state'] = state
+            result = self.suser.update_user_by_uid(usid, update)
+            if not result:
+                return SYSTEM_ERROR
+            login = WeixinLogin(APP_ID, APP_SECRET)
+            data['url'] = login.authorize(SERVER + "/user/get_code", 'snsapi_base', state=state)
             response['data'] = data
             return response
         response = import_status("has_opid", "OK")
         return response
+
+
+    def get_code(self):
+        args = request.args.to_dict()
+        code = args.get('code')
+        state = args.get('state')
+        login = WeixinLogin(APP_ID, APP_SECRET)
+        data = login.access_token(code)
+
+        openid = data.openid
+        update = {}
+        update['openid'] = openid
+        self.suser.update_user_by_state(state, update)

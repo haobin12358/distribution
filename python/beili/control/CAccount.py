@@ -443,6 +443,68 @@ class CAccount():
         finally:
             session.close()
 
+    @verify_token_decorator
+    def get_alluser_account(self):
+        if not is_admin():
+            return AUTHORITY_ERROR
+        try:
+            data = request.json
+            username = data.get('username')
+            userphonenum = data.get('userphonenum')
+            month = data.get('month')
+            status = data.get('status')
+            agentid = data.get('agentid')
+            page_size = data.get('page_size')
+            page_num = data.get('page_num')
+        except:
+            return PARAMS_ERROR
+        this_month = str(datetime.now())[0:6]
+        if month > this_month:
+            response = {}
+            response['data'] = []
+            response['message'] = import_status("get_alluser_account_success", "OK")
+            return response
+        all_list = get_model_return_list(self.saccount.get_alluser_account(username, month, agentid, status))
+        if not all_list:
+            response = {}
+            response['data'] = []
+            response['message'] = import_status("get_alluser_account_success", "OK")
+            return response
+        real_list = []
+        if userphonenum:
+            for user in all_list:
+                phonenum = get_model_return_dict(self.smycenter.get_user_basicinfo(user['USid']))['USphonenum']
+                if userphonenum in phonenum:
+                    real_list.append(user)
+        else:
+            real_list = all_list
+        if month == this_month:
+            for real in real_list:
+                real['AMstatus'] = 3
+        for real in real_list:
+            phonenum = get_model_return_dict(self.smycenter.get_user_basicinfo(real['USid']))['USphonenum']
+            real['userphonenum'] = phonenum
+            real['mydiscount'] = self.get_mydiscount(real['USid'], month)
+            real['myprofit'] = real['mydiscount'] + real['reward']
+
+        mount = len(real_list)
+        page = mount / page_size
+        if page == 0 or page == 1 and mount % page_size == 0:
+            real_return_list = real_list[0:]
+        else:
+            if ((mount - (page_num - 1) * page_size) / page_size) >= 1 and \
+                    (mount - (page_num * page_size)) > 0:
+                real_return_list = real_list[((page_num - 1) * page_size):(page_num * page_size)]
+            else:
+                real_return_list = real_list[((page_num - 1) * page_size):]
+
+        response = import_status("get_alluser_account_success", "OK")
+        response['data'] = real_return_list
+        response['mount'] = mount
+        return response
+
+
+
 
 
 
