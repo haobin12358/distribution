@@ -7,219 +7,107 @@
 
 <template>
     <div class="container">
-        <el-tabs v-model="activeName">
-            <el-tab-pane label="所有商品" name="first">
-                <el-form :inline="true" size="small" :model="formInline" class="demo-form-inline">
-                    <el-form-item label="名称">
-                        <el-input v-model="formInline.user" placeholder="商品名"></el-input>
-                    </el-form-item>
+        <!--查询-->
+        <section class="tool-tip-wrap">
+            <el-form :inline="true" size="small" :model="formInline" class="demo-form-inline">
+                <el-form-item type="index"></el-form-item>
 
-                    <el-form-item label="分类">
-                        <el-cascader
-                            :options="options"
-                            v-model="selectedOptions">
-                        </el-cascader>
-                    </el-form-item>
-                    <el-form-item label="状态">
-                        <el-select v-model="formInline.region">
-                            <el-option label="全部" value="all"></el-option>
-                            <el-option label="出售中" value="shanghai"></el-option>
-                            <el-option label="已售罄" value="beijing"></el-option>
-                            <el-option label="已下架" value="beijing1"></el-option>
-                        </el-select>
-                    </el-form-item>
+                <el-form-item label="名称">
+                    <el-input v-model.trim="formInline.PRname" placeholder="商品名"></el-input>
+                </el-form-item>
 
-                    <el-form-item>
-                        <el-button type="primary">查询</el-button>
-                    </el-form-item>
-                </el-form>
+                <el-form-item label="分类">
+                    <el-cascader
+                        :options="options"
+                        :props="cascaderProps"
+                        v-model="formInline.CAselect">
+                    </el-cascader>
+                </el-form-item>
+                <el-form-item label="状态">
+                    <el-select v-model="formInline.PRstatus">
+                        <el-option label="全部" value="0"></el-option>
+                        <el-option label="出售中" value="1"></el-option>
+                        <el-option label="已售罄" value="2"></el-option>
+                        <el-option label="已下架" value="3"></el-option>
+                    </el-select>
+                </el-form-item>
 
-                <!--<div>-->
-                <!--<el-button type="primary">新增</el-button>-->
-                <!--<el-button type="primary">编辑</el-button>-->
-                <!--</div>-->
+                <el-form-item>
+                    <el-button type="primary" icon="el-icon-search" @click="doSearch">查询</el-button>
+                    <el-button @click="doReset" icon="el-icon-refresh">重置</el-button>
+                </el-form-item>
+            </el-form>
+        </section>
+        <!--商品表格-->
+        <el-table :data="tableData" v-loading="loading" stripe style="width: 100%">
+            <el-table-column prop="img" align="center" label="图片" width="120">
+                <template slot-scope="scope">
+                    <img :src="scope.row.PRpic" class="table-pic"/>
+                </template>
+            </el-table-column>
+            <el-table-column prop="PRname" label="商品名" width="180" align="center"></el-table-column>
+            <el-table-column prop="categoryname" label="所属分类" width="180" align="center"></el-table-column>
+            <el-table-column prop="PRoldprice" label="原价格" align="center"></el-table-column>
+            <el-table-column prop="PRprice" label="折后价格" align="center"></el-table-column>
+            <el-table-column prop="PRlogisticsfee" label="邮费" align="center"></el-table-column>
+            <el-table-column prop="PAdiscountnum" label="返点件数" align="center"></el-table-column>
+            <el-table-column prop="PRstock" label="库存" align="center"></el-table-column>
+            <el-table-column prop="PRcreatetime" label="创建时间" width="180" align="center"></el-table-column>
 
-                <el-table
-                    :data="tableData" stripe style="width: 100%">
-                    <el-table-column prop="name" label="商品名" width="180"></el-table-column>
-                    <el-table-column prop="name" label="所属分类" width="180"></el-table-column>
-                    <el-table-column prop="name" label="价格"></el-table-column>
-                    <el-table-column prop="name" label="邮费"></el-table-column>
-                    <el-table-column prop="name" label="返点件数"></el-table-column>
-                    <el-table-column prop="name" label="创建时间"></el-table-column>
-
-                    <el-table-column  label="操作" width="120" fixed="right" :render-header="renderHeader">
-                        <template slot-scope="scope">
-                            <el-button type="text" size="small">编辑</el-button>
-                        </template>
-                    </el-table-column>
-
-                    <!--<el-table-column-->
-                        <!--align="right">-->
-                        <!--<template slot="header" slot-scope="slot">-->
-                            <!--<el-button-->
-                                <!--size="mini">Edit</el-button>-->
-                        <!--</template>-->
-                        <!--<template slot-scope="scope">-->
-                            <!--<el-button-->
-                                <!--size="mini">Edit</el-button>-->
-                        <!--</template>-->
-                    <!--</el-table-column>-->
-                </el-table>
+            <el-table-column label="操作" width="120" fixed="right" align="center" :render-header="renderHeader">
+                <template slot-scope="scope">
+                    <el-button type="text" size="small">编辑</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
 
 
-                <section style="display: flex; justify-content: center">
-                    <el-pagination
-                        style="margin-top: .5rem"
-                        :current-page="1"
-                        :page-sizes="[100, 200, 300, 400]"
-                        :page-size="100"
-                        layout="total, sizes, prev, pager, next, jumper"
-                        :total="400">
-                    </el-pagination>
-                </section>
-            </el-tab-pane>
-            <el-tab-pane label="商品分类" name="second">
-                <div class="block">
-                    <el-tree :data="data5" show-checkbox node-key="id" default-expand-all :expand-on-click-node="false">
-                      <span class="custom-tree-node" slot-scope="{ node, data }">
-                        <span>{{ node.label }}</span>
-                        <span>
-                          <el-button type="text" size="mini" @click="() => append(data)">
-                            Append
-                          </el-button>
-                          <el-button type="text" size="mini" @click="() => remove(node, data)">
-                            Delete
-                          </el-button>
-                        </span>
-                      </span>
-                    </el-tree>
-                </div>
-            </el-tab-pane>
-        </el-tabs>
+        <section style="display: flex; justify-content: center">
+            <el-pagination
+                style="margin-top: .5rem"
+                :current-page="currentPage"
+                :page-sizes="[10, 20, 30, 40]"
+                :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total"
+                @size-change="sizeChange"
+                @current-change="pageChange">
+            </el-pagination>
+        </section>
     </div>
 </template>
 
 <script>
-    let id = 1000;
-    const data = [{
-        id: 1,
-        label: '一级 1',
-        children: [{
-            id: 4,
-            label: '二级 1-1',
-            children: [{
-                id: 9,
-                label: '三级 1-1-1'
-            }, {
-                id: 10,
-                label: '三级 1-1-2'
-            }]
-        }]
-    }, {
-        id: 2,
-        label: '一级 2',
-        children: [{
-            id: 5,
-            label: '二级 2-1'
-        }, {
-            id: 6,
-            label: '二级 2-2'
-        }]
-    }, {
-        id: 3,
-        label: '一级 3',
-        children: [{
-            id: 7,
-            label: '二级 3-1'
-        }, {
-            id: 8,
-            label: '二级 3-2'
-        }]
-    }];
+
 
     export default {
         name: "index",
 
         data() {
             return {
-                activeName: 'first',
-
+                //  查询表单
                 formInline: {
-                    user: '',
-                    region: 'all'
+                    PRname: '',
+                    CAselect: [],
+                    PRstatus: '0',
+                },
+                //  商品分类选项
+                options: [
+
+                ],
+                cascaderProps: {
+                    value: 'PAid',
+                    label: 'Parentname',
+                    children: 'child_category',
                 },
 
-                options: [
-                    {
-                        value: '0-1',
-                        label: '上衣',
-                        children: [{
-                            value: '1-1',
-                            label: '短袖',
-                        }, {
-                            value: '1-2',
-                            label: '卫衣',
-                        }, {
-                            value: '1-3',
-                            label: '衬衫',
-                        },]
-                    }, {
-                        value: '0-2',
-                        label: '下装',
-                        children: [{
-                            value: '1-1',
-                            label: '短裤',
-                        }, {
-                            value: '1-2',
-                            label: '长裤',
-                        },]
-                    },
-                ],
-                selectedOptions: '',
 
-
-                tableData: [{
-                    date: '2016-05-02',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄'
-                }, {
-                    date: '2016-05-04',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1517 弄'
-                }, {
-                    date: '2016-05-01',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1519 弄'
-                }, {
-                    date: '2016-05-03',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1516 弄'
-                }, {
-                    date: '2016-05-04',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1517 弄'
-                }, {
-                    date: '2016-05-01',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1519 弄'
-                }, {
-                    date: '2016-05-03',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1516 弄'
-                }, {
-                    date: '2016-05-01',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1519 弄'
-                }, {
-                    date: '2016-05-03',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1516 弄'
-                }],
+                loading: false,
+                total: 0,
+                currentPage: 1,
+                pageSize: 10,
+                tableData: [],
                 search: '',
-
-                data5: JSON.parse(JSON.stringify(data))
-
 
 
             }
@@ -233,31 +121,80 @@
             renderHeader(h) {
                 return (
                     <router-link tag="el-button" to="productEdit" type="primary">
-                            新增
+                        新增
                     </router-link>
 
-            )
+                )
             },
-            handleEdit(){},
-            handleDelete(){},
-
-            append(data) {
-                const newChild = {id: id++, label: 'testtest', children: []};
-                if (!data.children) {
-                    this.$set(data, 'children', []);
-                }
-                data.children.push(newChild);
+            handleEdit() {
+            },
+            handleDelete() {
             },
 
-            remove(node, data) {
-                const parent = node.parent;
-                const children = parent.data.children || parent.data;
-                const index = children.findIndex(d => d.id === data.id);
-                children.splice(index, 1);
+            setCategoryList() {
+                this.$http.get(this.$api.getProductCategoryList).then(
+                    res => {
+                        if (res.data.status == 200) {
+                            let resData = res.data,
+                                data = res.data.data;
+
+                            this.options = data;
+                        }
+                    }
+                )
             },
+
+            doSearch() {
+                this.setProductList();
+            },
+
+            doReset() {
+                this.formInline.PRname = '';
+                this.formInline.CAselect = [];
+                this.formInline.PRstatus = '0';
+
+                this.setProductList();
+            },
+
+
+            sizeChange(pageSize) {
+                this.pageSize = pageSize;
+                this.currentPage = 1;
+
+                this.setProductList();
+            },
+            pageChange(page) {
+                this.currentPage = page;
+                this.setProductList();
+            },
+            setProductList() {
+                this.loading = true;
+                this.$http.get(this.$api.getProductList, {
+                    params: {
+                        page_size: this.pageSize,
+                        page_num: this.currentPage,
+                        PRstatus: this.formInline.PRstatus,
+                        PAid: 0,
+                        PAtype: '1',
+                        PRname: this.formInline.PRname
+                    }
+                }).then(
+                    res => {
+                        if (res.data.status == 200) {
+                            this.loading = false;
+                            this.tableData = res.data.data;
+                            this.total = res.data.mount;
+                        }
+                    }
+                )
+            }
+
         },
 
         created() {
+            this.currentPage = 1;
+            this.setCategoryList();
+            this.setProductList();
         },
     }
 </script>

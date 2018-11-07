@@ -33,7 +33,6 @@ class AGoods(Resource):
             "delete_category": "self.cgoods.delete_category()",
             "create_update_product":"self.cgoods.create_update_product()",
             "sowing_map":"self.cgoods.sowing_map()"
-
         }
         res = eval(apis[product])
         return res

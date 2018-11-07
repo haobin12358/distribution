@@ -20,6 +20,15 @@ const state = {
             title: '商品',
             path: '/product',
             iconPath: '/static/images/menu_profile.png',
+            children: [
+                {
+                    title: '所有商品',
+                    path: 'index',
+                },{
+                    title: '商品分类',
+                    path: 'category',
+                },
+            ]
         },{
             title: '订单',
             path: '/order',
@@ -28,6 +37,15 @@ const state = {
             title: '销售',
             path: '/sale',
             iconPath: '/static/images/menu_profile.png',
+            children: [
+                {
+                    title: '销售统计',
+                    path: 'index',
+                },{
+                    title: '个人销售',
+                    path: 'personSale',
+                },
+            ]
         },{
             title: '消息',
             path: '/message',
@@ -36,6 +54,21 @@ const state = {
             title: '客服',
             path: '/service',
             iconPath: '/static/images/menu_profile.png',
+            children: [
+                {
+                    title: '用户反馈',
+                    path: 'index',
+                },{
+                    title: '用户注册',
+                    path: 'register',
+                },{
+                    title: '充值',
+                    path: 'charge',
+                },{
+                    title: '提现',
+                    path: 'withdraw',
+                },
+            ]
         },
     ],     //  主页左侧菜单
 }

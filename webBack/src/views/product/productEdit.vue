@@ -7,6 +7,30 @@
             .fz(.3rem);
             font-weight: bold;
         }
+
+        .avatar-uploader .el-upload {
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .avatar-uploader .el-upload:hover {
+            border-color: #409EFF;
+        }
+        .avatar-uploader-icon {
+            font-size: 28px;
+            color: #8c939d;
+            width: 178px;
+            height: 178px;
+            line-height: 178px;
+            text-align: center;
+        }
+        .avatar {
+            width: 178px;
+            height: 178px;
+            display: block;
+        }
     }
 </style>
 
@@ -18,42 +42,54 @@
         </el-breadcrumb>
 
         <el-row style="margin-top: .3rem;">
-            <el-col span="14">
-                <el-form :model="formData" label-position="left" ref="ruleForm" size="medium" label-width="100px" class="demo-ruleForm">
+            <el-col :span="14">
+                <el-form :model="formData" label-position="left" ref="ruleForm" size="medium" label-width="100px"
+                         class="demo-ruleForm">
                     <el-form-item label="商品名" >
-                        <el-input v-model="formData.productName"></el-input>
+                        <el-input v-model.trim="formData.PRname"></el-input>
                     </el-form-item>
                     <el-form-item label="商品图片">
+                        <!--<el-upload-->
+                            <!--class="swiper-uploader"-->
+                            <!--action="https://jsonplaceholder.typicode.com/posts/"-->
+                            <!--list-type="picture-card"-->
+                            <!--:on-preview="handlePictureCardPreview"-->
+                            <!--:on-remove="handleRemove"-->
+                            <!--:limit="1">-->
+                            <!--<i class="el-icon-plus"></i>-->
+                        <!--</el-upload>-->
                         <el-upload
-                            class="swiper-uploader"
-                            action="https://jsonplaceholder.typicode.com/posts/"
-                            list-type="picture-card"
+                            class="avatar-uploader"
+                            :action="$api.uploadFile"
+                            :show-file-list="false"
+                            :on-success="handleAvatarSuccess"
+                            :before-upload="beforeAvatarUpload"
                             :on-preview="handlePictureCardPreview"
                             :on-remove="handleRemove"
-                            :limit="1">
-                            <i class="el-icon-plus"></i>
+                        >
+                            <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                         </el-upload>
                     </el-form-item>
                     <el-form-item label="分类" >
-                        <el-cascader :options="options" v-model="formData.PAid">
+                        <el-cascader :options="options" v-model="selectedOption">
                         </el-cascader>
                     </el-form-item>
-                    <el-form-item label="价格">
-                        <el-input v-model="formData.productName"></el-input>
-                    </el-form-item>
                     <el-form-item label="原价格" >
-                        <el-input v-model="formData.productName"></el-input>
+                        <el-input v-model="formData.PRoldprice" type="number"></el-input>
+                    </el-form-item>
+                    <el-form-item label="价格">
+                        <el-input v-model="formData.PRprice" type="number"></el-input>
                     </el-form-item>
                     <el-form-item label="库存" >
-                        <el-input v-model="formData.productName"></el-input>
+                        <el-input v-model="formData.PRstock" type="number"></el-input>
                     </el-form-item>
                     <el-form-item label="邮费" >
-                        <el-input v-model="formData.productName"></el-input>
+                        <el-input v-model="formData.PRlogisticsfee" type="number"></el-input>
                     </el-form-item>
                     <el-form-item label="返点件数" >
-                        <el-input v-model="formData.productName"></el-input>
+                        <el-input v-model="formData.PAdiscountnum" type="number"></el-input>
                     </el-form-item>
-
 
                     <el-form-item>
                         <el-button type="primary">立即创建</el-button>
@@ -77,6 +113,9 @@
             return {
                 dialogImageUrl: '',
                 dialogVisible: false,
+
+                imageUrl: '',
+
 
                 options: [
                     {
@@ -104,10 +143,16 @@
                         }, ]
                     },
                 ],
+                selectedOption: [],
 
                 formData: {
-                    productName: '',
-                    PAid: '',
+                    PRname: '',
+                    PRoldprice: '',
+                    PRprice: '',
+                    PRlogisticsfee: '',
+                    PAdiscountnum: '',
+                    PRstock: '',
+
                 },
                 // rules: { todo 校验
                 //     name: [
@@ -147,6 +192,22 @@
             handlePictureCardPreview(file) {
                 this.dialogImageUrl = file.url;
                 this.dialogVisible = true;
+            },
+
+            handleAvatarSuccess(res, file) {
+                this.imageUrl = URL.createObjectURL(file.raw);
+            },
+            beforeAvatarUpload(file) {
+                const isJPG = file.type === 'image/jpeg';
+                const isLt2M = file.size / 1024 / 1024 < 2;
+
+                if (!isJPG) {
+                    this.$message.error('上传头像图片只能是 JPG 格式!');
+                }
+                if (!isLt2M) {
+                    this.$message.error('上传头像图片大小不能超过 2MB!');
+                }
+                return isJPG && isLt2M;
             }
         },
 

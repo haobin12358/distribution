@@ -9,8 +9,10 @@ from flask import request
 import copy
 # import logging
 
+
 from config.response import PARAMS_MISS, NO_THIS_CATEGORY, PARAMS_ERROR, PRODUCE_CATEGORY_EXIST, PRODUCE_CATEGORY_NOT_EXIST, AUTHORITY_ERROR, SYSTEM_ERROR
-from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser,is_superadmin, is_admin
+from config.setting import QRCODEHOSTNAME
+from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin, is_ordirnaryuser,is_superadmin
 from common.import_status import import_status
 from common.timeformat import get_db_time_str
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
@@ -145,6 +147,7 @@ class CGoods():
         response = import_status("add_product_category_success", "OK")
         #response["data"] = product_category
         return response
+
     @verify_token_decorator
     def update_category(self):
         #更新商品分类
@@ -180,6 +183,7 @@ class CGoods():
         response = import_status("update_product_category_success", "OK")
         #response["data"] = product_category
         return response
+
     @verify_token_decorator
     def delete_category(self):
         #删除商品分类
@@ -278,6 +282,7 @@ class CGoods():
                 return SYSTEM_ERROR
             response = import_status("create_product_success", "OK")
             return response
+<<<<<<< HEAD
     @verify_token_decorator
     def sowing_map(self):
         try:
@@ -323,6 +328,8 @@ class CGoods():
 
 
 
+=======
+>>>>>>> c0662c872d8971c57f0c99496a10aaf74b8387a3
 
     def json_param_miss(self, type):
         if is_tourist():
