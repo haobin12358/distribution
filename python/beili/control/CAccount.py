@@ -458,7 +458,7 @@ class CAccount():
             page_num = data.get('page_num')
         except:
             return PARAMS_ERROR
-        this_month = str(datetime.now())[0:6]
+        this_month = str(datetime.strftime(datetime.now(), format_for_db))[0:6]
         if month > this_month:
             response = {}
             response['data'] = []
