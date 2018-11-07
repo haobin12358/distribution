@@ -92,7 +92,8 @@ class SOrder(SBase):
         return self.session.query(OrderInfo.OIid, OrderInfo.OIsn, OrderInfo.OIcreatetime, OrderInfo.OIstatus,\
                                   OrderInfo.OIlogisticsfee, OrderInfo.USid, OrderInfo.UAid, OrderInfo.OInote\
                                   , OrderInfo.OImount, OrderInfo.OIcreatetime, OrderInfo.username, OrderInfo.userphonenum\
-                                  , OrderInfo.provincename, OrderInfo.cityname, OrderInfo.areaname, OrderInfo.details)\
+                                  , OrderInfo.provincename, OrderInfo.cityname, OrderInfo.areaname, OrderInfo.details
+                                  , OrderInfo.expressname, OrderInfo.expressnum)\
                                   .filter(OrderInfo.OIsn == oisn).first()
 
     @close_session
