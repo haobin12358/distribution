@@ -42,4 +42,7 @@ get_registerinfo_success = "获取注册时信息成功"
 get_admin_success = "添加管理员成功"
 delete_admin_success = "删除管理员成功"
 update_admin = "更新管理员信息成功"
-
+get_product_category_list_success = "获得商品分类列表成功"
+add_product_category_success = "添加商品分类成功"
+update_product_category_success = "更新商品分类成功"
+delete_product_category_success = "删除商品分类成功"

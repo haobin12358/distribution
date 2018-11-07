@@ -17,7 +17,8 @@ class AGoods(Resource):
         apis = {
             "get_product_list": "self.cgoods.get_product_list()",
             "get_product": "self.cgoods.get_product()",
-            "get_product_category": "self.cgoods.get_product_category()"
+            "get_product_category": "self.cgoods.get_product_category()",
+            "get_product_category_list":"self.cgoods.get_product_category_list()",
         }
         res = eval(apis[product])
         return res
@@ -27,9 +28,9 @@ class AGoods(Resource):
         apis = {
             "new_product": "self.cgoods.new_product()",
             "update_product": "self.cgoods.update_product()",
-            "new_category": "self.cgoods.new_category()",
+            "add_product_category": "self.cgoods.add_product_category()",
             "update_category": "self.cgoods.update_category()",
-            "delete_category": "self.cgoods.delete_category()"
+            "delete_category": "self.cgoods.delete_category()",
         }
         res = eval(apis[product])
         return res
