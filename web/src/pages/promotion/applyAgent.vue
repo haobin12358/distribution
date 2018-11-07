@@ -37,7 +37,7 @@
 
             .city-picker-toolbar {
                 .fj();
-                padding: 10px 30px;
+                padding: 10px 60px;
 
                 button {
                     .bgw();
@@ -89,24 +89,27 @@
                       :disableClear="true" @click.native="showTransferWay">
                 <img src="/static/images/arrow_down.png" style="width: 16px;height: 14px;" alt="">
             </mt-field>
-            <mt-field class="form-item" label="金额" :value="registerInfo.money" :readonly="true" placeholder="请输入打款金额"></mt-field>
+            <mt-field class="form-item" label="金额" :value="registerInfo.money" :readonly="true"
+                      placeholder="请输入打款金额"></mt-field>
 
             <template v-if="formData.paytype == 1">
                 <mt-field class="form-item" v-model="formData.alipaynum" label="支付宝" placeholder="请输入支付宝账号"></mt-field>
             </template>
             <template v-if="formData.paytype == 2">
                 <mt-field class="form-item" v-model="formData.bankname" label="开户银行" placeholder="请输入开户银行"></mt-field>
-                <mt-field class="form-item" v-model="formData.accountname" label="银行户名" placeholder="请输入银行户名"></mt-field>
-                <mt-field class="form-item" v-model="formData.cardnum" type="number" label="银行账号" placeholder="请输入银行账号"></mt-field>
+                <mt-field class="form-item" v-model="formData.accountname" label="银行户名"
+                          placeholder="请输入银行户名"></mt-field>
+                <mt-field class="form-item" v-model="formData.cardnum" type="number" label="银行账号"
+                          placeholder="请输入银行账号"></mt-field>
             </template>
 
 
-            <mt-field class="form-item" label="打款日期" placeholder="请输入打款日期" :readonly="true" :disableClear="true"
+            <mt-field class="form-item" label="打款日期" placeholder="请选择打款日期" :readonly="true" :disableClear="true"
                       v-model="date" @click.native="$refs.picker.open()"></mt-field>
             <head-img-field label="新头像" :readOnly="false" @update="updateNewHeadImg" @isUploading="listenHdUpload"
-                                 :upload-limit="1"></head-img-field>
+                            :upload-limit="1"></head-img-field>
             <evidence-field label="打款凭证(1-2张)" :readOnly="false" @update="updateEvdImg" @isUploading="listenEvdUpload"
-                                 :upload-limit="2"></evidence-field>
+                            :upload-limit="2"></evidence-field>
         </section>
 
         <section class="form-title">
@@ -116,16 +119,21 @@
 
         <section class="inviter-info">
             <template v-if="formData.paytype == 1">
-                <my-cell style="text-align: right" title="支付宝账号" :value="registerInfo.alipayname" :readonly="true"></my-cell>
-                <my-cell style="text-align: right" title="支付宝实名" :value="registerInfo.alipaynum" :readonly="true"></my-cell>
+                <my-cell style="text-align: right" title="支付宝账号" :value="registerInfo.alipayname"
+                         :readonly="true"></my-cell>
+                <my-cell style="text-align: right" title="支付宝实名" :value="registerInfo.alipaynum"
+                         :readonly="true"></my-cell>
             </template>
             <template v-if="formData.paytype == 2">
-                <my-cell style="text-align: right" title="开户银行" :value="registerInfo.bankname" :readonly="true"></my-cell>
-                <my-cell style="text-align: right" title="银行户名" :value="registerInfo.accountname" :readonly="true"></my-cell>
-                <my-cell style="text-align: right" title="银行账号" :value="registerInfo.cardnum" :readonly="true"></my-cell>
+                <my-cell style="text-align: right" title="开户银行" :value="registerInfo.bankname"
+                         :readonly="true"></my-cell>
+                <my-cell style="text-align: right" title="银行户名" :value="registerInfo.accountname"
+                         :readonly="true"></my-cell>
+                <my-cell style="text-align: right" title="银行账号" :value="registerInfo.cardnum"
+                         :readonly="true"></my-cell>
             </template>
 
-            <my-cell title="客服微信" value="beiliyuncang123" :readonly="true"></my-cell>
+            <my-cell title="客服微信" :value="registerInfo.service" :readonly="true"></my-cell>
         </section>
 
         <section class="my-confirm-btn-wrap" style="margin: 30px 0 60px;">
@@ -153,6 +161,7 @@
             ref="picker"
             type="datetime"
             v-model="datetime"
+            :startDate = "startDate"
             @confirm="dateTimeConfirm"
         >
         </mt-datetime-picker>
@@ -161,8 +170,9 @@
 
 <script>
     import myCell from "src/components/common/myCell"
-    import {getInforcode,getAllArea,getRegisterInfo,register} from "src/api/api"
+    import {getInforcode, getAllArea, getRegisterInfo, register} from "src/api/api"
     import {setStore, getStore} from "src/common/js/mUtils"
+    import common from "src/common/js/common"
     import {ALL_AREA} from "src/common/js/const"
     import UploadField from "src/components/common/uploadField"
 
@@ -173,16 +183,16 @@
             return {
                 transferWay: '支付宝',
                 date: '',
+                datetime: '',
+                startDate: new Date('2016'),
 
                 timer: null,    //  计时器
                 lastEnableCodeSecond: 0,    //  下一次可用验证码倒计时
 
-                registerInfo:{
-
-                },
+                registerInfo: {},
 
                 formData: {
-                    qrid: '',
+                    // qrid: '',
                     preusername: "",
                     prephonenum: "",
                     username: '',
@@ -195,7 +205,6 @@
                     areaid: '',
                     details: '',
                     paytype: 1,
-                    payamount: 1,
                     paytime: '',
                     headimg: '',
                     proof: '',
@@ -203,7 +212,7 @@
                     bankname: '',
                     accountname: '',
                     cardnum: '',
-
+                    payamount: ''
                 },
 
                 passwordConfirm: '',
@@ -247,7 +256,6 @@
                 ],
                 pickAreaVal: [],
 
-                datetime: '',
 
                 headImgs: [],   //  头像
                 isHdImgUploading: false,    //  头像正在上传
@@ -267,7 +275,7 @@
 
         methods: {
             //  点击获取二维码
-            getCode(){
+            getCode() {
                 if (this.formData.phonenum) {
                     getInforcode(this.formData.phonenum).then(
                         data => {
@@ -285,10 +293,10 @@
             useCode() {
                 this.lastEnableCodeSecond = 60;
                 this.timer = setInterval(() => {
-                    if (this.lastEnableCodeSecond > 0){
+                    if (this.lastEnableCodeSecond > 0) {
                         this.lastEnableCodeSecond--;
-                    }else{
-                        if(this.timer){
+                    } else {
+                        if (this.timer) {
                             clearInterval(this.timer)
                         }
                     }
@@ -312,20 +320,20 @@
             },
 
             showCityPopup() {
-                if(!this.allArea.length){
-                    if(getStore(ALL_AREA)){
+                if (!this.allArea.length) {
+                    if (getStore(ALL_AREA)) {
                         this.initCityPicker();
                         setTimeout(() => {
                             this.cityPopupVisible = true
                         }, 300)
-                    }else{
+                    } else {
                         getAllArea().then(
-                            ({data})=>{
+                            ({data}) => {
                                 setStore(ALL_AREA, data);
                             }
                         )
                     }
-                }else{
+                } else {
                     setTimeout(() => {
                         this.cityPopupVisible = true
                     }, 300)
@@ -392,108 +400,108 @@
                 this.slots[4].values = this.allArea[0].city[0].area;
             },
 
-            updateNewHeadImg(imgs){
+            updateNewHeadImg(imgs) {
                 this.headImgs = imgs;
             },
-            listenHdUpload(bool){
+            listenHdUpload(bool) {
                 this.isHdImgUploading = bool;
             },
 
-            updateEvdImg(imgs){
+            updateEvdImg(imgs) {
                 this.evidenceImgs = imgs;
             },
-            listenEvdUpload(bool){
+            listenEvdUpload(bool) {
                 this.isEvdImgUploading = bool;
             },
 
-            formDataCheck(){
-                if(!this.formData.username){
+            formDataCheck() {
+
+                if (!this.formData.username) {
                     return '请输入姓名'
                 }
-                if(!this.formData.phonenum){
+                if (!this.formData.phonenum) {
                     return '请输入联系电话'
                 }
-                if(!this.formData.inforcode){
+                if (!this.formData.inforcode) {
                     return '请输入验证码'
                 }
-                if(!this.formData.password){
+                if (!this.formData.password) {
                     return '请输入密码'
                 }
-                if(!this.passwordConfirm){
+                if (!this.passwordConfirm) {
                     return '请再次输入密码'
                 }
-                if(this.formData.password != this.passwordConfirm){
+                if (this.formData.password != this.passwordConfirm) {
                     return '两次密码输入不一致'
                 }
-                if(!this.formData.idcardnum){
+                if (!this.formData.idcardnum) {
                     return '请输入身份证号'
                 }
-                if(!this.formData.wechat){
+                if (!this.formData.wechat) {
                     return '请输入微信号'
                 }
-                if(!this.formData.cityid && !this.formData.areaid){
+                if (!this.formData.cityid && !this.formData.areaid) {
                     return '请选择省市县'
                 }
-                if(!this.formData.details){
+                if (!this.formData.details) {
                     return '请输入详细地址'
                 }
-                if(this.formData.paytype == 1){
-                    if(!this.formData.alipaynum){
+                if (this.formData.paytype == 1) {
+                    if (!this.formData.alipaynum) {
                         return '请输入支付宝账号'
                     }
                 }
-                if(this.formData.paytype == 2){
-                    if(!this.formData.bankname){
+                if (this.formData.paytype == 2) {
+                    if (!this.formData.bankname) {
                         return '请输入开户银行'
                     }
-                    if(!this.formData.accountname){
+                    if (!this.formData.accountname) {
                         return '请输入银行户名'
                     }
-                    if(!this.formData.cardnum){
+                    if (!this.formData.cardnum) {
                         return '请输入银行账号'
                     }
 
                 }
-                if(!this.date){
+                if (!this.date) {
                     return '请输入打款日期'
-                }else{
-                    this.formData.paytime = this.date.replace(/[:\/\s]/g, '');
+                } else {
+                    this.formData.paytime = common.dateFormat(new Date(this.date));
                 }
 
-                if(!this.headImgs[0]){
+                if (!this.headImgs[0]) {
                     return '请上传头像'
-                }else{
+                } else {
                     this.formData.headimg = this.headImgs[0];
                 }
 
-                if(!this.headImgs[0]){
+                if (!this.headImgs[0]) {
                     return '请上传头像'
-                }else{
+                } else {
                     this.formData.headimg = this.headImgs[0];
                 }
 
-                if(!this.evidenceImgs[0]){
+                if (!this.evidenceImgs[0]) {
                     return '请上传凭证'
-                }else{
+                } else {
                     this.formData.proof = this.evidenceImgs.join(',');
                 }
             },
-            doConfirm(){
+            doConfirm() {
                 let checkRes = this.formDataCheck();
 
-                if(checkRes){
+                if (checkRes) {
                     this.$toast(checkRes);
-                }else{
-                    this.$messagebox.confirm('确认提提交注册表单').then(
-                        ()=>{
+                } else {
+                    this.$messagebox.confirm('确认提交注册表单').then(
+                        () => {
                             register(this.formData).then(
                                 resData => {
-                                    if(resData){
+                                    if (resData) {
                                         this.$router.push('/login');
                                         this.$toast('恭喜您成为蓓莉云仓代理的一员!!!');
                                     }
                                 }
-
                             )
                         }
                     )
@@ -503,9 +511,9 @@
 
         },
 
-        destroyed(){
+        destroyed() {
             //  定时器解除
-            if(this.timer){
+            if (this.timer) {
                 clearTimeout(this.timer)
             }
         },
@@ -513,13 +521,13 @@
         created() {
             this.formData.qrid = this.$route.query.QRid;
 
-            if(getStore(ALL_AREA)){
+            if (getStore(ALL_AREA)) {
                 this.initCityPicker();
             }
 
             getRegisterInfo(this.$route.query.QRid).then(
-                resData=>{
-                    if(resData){
+                resData => {
+                    if (resData) {
                         this.registerInfo = resData.data;
 
                         this.formData.preusername = this.registerInfo.name;

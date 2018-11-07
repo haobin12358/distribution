@@ -173,6 +173,7 @@ body {
     }
 }
 
+//  并没有解决
 //  缩放方案解决安卓小字体 line-height 没用  注意覆盖默认的边距
 //  高度  字体大小    左右边距
 .small-text-parent(@height: 20px, @size, @aroundPadding: 0px) {
@@ -190,4 +191,54 @@ body {
 .small-text {
     display: table-cell;
     vertical-align: middle;
+}
+
+.nav-bar {
+    .fj();
+    background: white;
+    margin-bottom: 10px;
+
+    .nav-bar-item {
+        flex: 1;
+        height: 80px;
+        .fontc(80px);
+        text-align: center;
+
+        &.active {
+            color: @mainColor;
+            border-bottom: 3px solid @mainColor;
+        }
+    }
+
+}
+
+.money-record {
+
+    .money-record-item{
+        padding: 14px 35px;
+        border-bottom: 1px solid @mainFontColor;
+
+        &:first-child{
+            border-top: 1px solid @mainFontColor;
+        }
+
+        .row{
+            .fj();
+            align-items: center;
+
+            &:first-child{
+                margin-bottom: 20px;
+            }
+
+            .hard{
+                .sc(24px, black);
+
+            }
+
+            .weak{
+                .sc(18px, #666666);
+
+            }
+        }
+    }
 }

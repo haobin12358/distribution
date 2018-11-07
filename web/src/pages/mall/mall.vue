@@ -114,11 +114,11 @@
                         .fj();
                         align-items: center;
 
-                        .name{
+                        .name {
                             .fz(28px);
                         }
 
-                        .stock{
+                        .stock {
                             .sc(28px, @mainFontColor);
                             text-align: right;
                             margin-bottom: 10px;
@@ -217,7 +217,7 @@
 
         <template v-if="productListWithCart.length">
             <ul class="goods-list">
-                <li class="goods-item" v-for="item in productListWithCart" @click.stop="addCart(item)">
+                <li class="goods-item" v-for="item in productListWithCart" @dblclick.stop="addCart(item, 10)">
                     <section class="goods-img">
                         <img :src="item.PRpic" alt="">
                     </section>
@@ -225,17 +225,16 @@
                         <header class="goods-description-header">
                             <span class="name">{{item.PRname}}</span>
                             <span v-if="item.PRstock < 1000000" class="stock">
-                            库存: {{item.PRstock}} 件
-                        </span>
-
+                                库存: {{item.PRstock}} 件
+                            </span>
                         </header>
-                        <section class="goods-description-content" >
+                        <section class="goods-description-content">
                             <p class="goods-description-price">
-                                <span class="current-price">￥{{item.PRoldprice}}</span>
-                                <span class="original-price">￥{{item.PRprice}}</span>
+                                <span class="current-price">￥{{item.PRprice}}</span>
+                                <span class="original-price">￥{{item.PRoldprice}}</span>
                             </p>
 
-                            <buy-cart :shopNum.sync="item.PRnum" @add="addCart(item)"
+                            <buy-cart @dblclick.native.stop="" :shopNum.sync="item.PRnum" @add="addCart(item, 1)"
                                       @minus="reduceCart(item)"></buy-cart>
                         </section>
                     </section>
@@ -257,7 +256,7 @@
     import {Toast} from "mint-ui"
     import footerGuide from "src/components/footer/footerGuide"
     import buyCart from "src/components/common/buyCart"
-    import {getProductCategory, getProductList} from "src/api/api"
+    import {getProductCategory, getProductList, checkBail} from "src/api/api"
     import LoadMore from "src/components/common/loadMore"
     import common from "src/common/js/common"
     import {mapMutations, mapState, mapGetters} from "vuex"
@@ -311,8 +310,16 @@
         },
 
         methods: {
+            dbclick() {
+                console.log('dbclick');
+            },
             ...mapMutations({
-                addCart: 'ADD_CART',
+                addCart({}, product, num = 1) {
+                    this.$store.commit('ADD_CART', {
+                        product,
+                        num
+                    })
+                },
                 reduceCart: 'REDUCE_CART'
             }),
             // 滚动条监听事件
@@ -325,16 +332,21 @@
                     this.setProductList();
                 }
             },
-            gotoPayOrder() {
+            async gotoPayOrder() {
                 if (this.usefulCartList.length) {
-                    if (this.userInfo.USbail >= 0) {
+                    let checkBailData = await checkBail();
+
+                    if (checkBailData.bailstatus ==  1) {
                         this.$router.push('/payOrder');
-                    }else{
-                        this.$messagebox.confirm('交纳保证金后才可下单,是否前往钱包页交纳?').then(
+                    } else if (checkBailData.bailstatus ==  2){
+                        this.$messagebox.confirm(`还需交纳保证金(${checkBailData.data.shouldpay}元)后才可下单,是否前往钱包页交纳?`).then(
                             () => {
                                 this.$router.push('/wallet')
                             }
                         )
+                    }else if (checkBailData.bailstatus ==  3){
+                        this.$toast('保证金退还中,无法下单!');
+
                     }
                 } else {
                     this.$toast('请选几样商品加入购物车!');

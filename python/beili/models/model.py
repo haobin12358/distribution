@@ -2,7 +2,7 @@
 import sys
 import os
 sys.path.append(os.path.dirname(os.getcwd()))
-from sqlalchemy import Column, create_engine, Integer, String, Text, Float, Boolean, orm
+from sqlalchemy import Column, create_engine, Integer, String, Text, Float, Boolean, orm, DECIMAL
 from config import dbconfig as cfg
 from sqlalchemy.ext.declarative import declarative_base
 # from models.base_model import Base, auto_createtime
@@ -30,13 +30,14 @@ class User(Base):
     USagentid = Column(Integer)                  # 代理编号
     USheadimg = Column(String(255))              # 头像
     USbail = Column(Float)                       # 保证金余额
-    USmount = Column(Float)                      # 账户余额
+    USmount = Column(DECIMAL)                      # 账户余额
     USpre = Column(String(64))                   # 上级代理id
-    USwechat = Column(String(64))                # 用户微信号
+    USwechat = Column(String(64))                # 用户微信号,暂时不用
     openid = Column(String(64))                  # 微信唯一值
-    unionid = Column(String(255))                # 绑定公众号会出现
-    accesstoken = Column(String(255))            # 微信token
-    subscribe = Column(Integer)                  # 是否关注公众号
+    state = Column(String(128))                  # 用于获取openid
+    unionid = Column(String(255))                # 绑定公众号会出现,暂时不用
+    accesstoken = Column(String(255))            # 微信token,暂时不用
+    subscribe = Column(Integer)                  # 是否关注公众号,暂时不用
 
 class Admin(Base):
     """
@@ -77,12 +78,26 @@ class Product(Base):
     PRoldprice = Column(Float)  # 原价
     PRprice = Column(Float, nullable=False)  # 显示价格
     PRstock = Column(Integer)  # 库存
-    PRprofit = Column(Integer)  # 每件的收益，即销售折扣
     PRcreatetime = Column(String(14))  # 创建时间
     PRlogisticsfee = Column(Float)  # 物流费
     PRstatus = Column(Integer)     # 商品状态，1出售中，2已售罄，3已下架
     PAid = Column(String(64))      # 分类id，用于绑定商品类目，空值表示未绑定分类
     PAdiscountnum = Column(Float,default=1)  # 折扣件数
+
+class BailRecord(Base):
+    """
+    保证操作记录表金
+    """
+    __tablename__ = 'bailrecord'
+    BRid = Column(String(64), primary_key=True)
+    USid = Column(String(64))  # 用户id
+    BRtype = Column(Integer)  # 记录类型 1充值 2退还
+    BRmount = Column(Float)  # 交易金额
+    BRstatus = Column(Integer)  # 状态，1，已充值 2，退还中 3，已退还
+    BRtradenum = Column(String(30))  # 流水号
+    BRcreatetime = Column(String(14))  # 创建日期
+
+
 
 class InvitaRecord(Base):
     """
@@ -144,6 +159,8 @@ class OrderInfo(Base):
     cityname = Column(String(64))  # 市
     areaname = Column(String(64))  # 区
     details = Column(String(255))  # 详细地址
+    expressname = Column(String(64))  # 快递名称
+    expressnum = Column(String(64))  # 快递单号
 
 class OrderProductInfo(Base):
     """订单商品详情, 多个订单商品详情对应一个订单"""
@@ -156,22 +173,25 @@ class OrderProductInfo(Base):
     PRimage = Column(String(255))  # 商品主图
     PRnum = Column(Integer)  # 购买数量
 
-class OfflineCharge(Base):
+class ChargeMoney(Base):
     """
-    线下充值记录表
+    充值记录表
     """
-    __tablename__ = 'offlinecharge'
-    LRid = Column(String(64), primary_key=True)
+    __tablename__ = 'chargemoney'
+    CMid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户
-    LRpaytype = Column(Integer)  # 充值方式:{1:支付宝, 2:银行转账}
-    LRalipaynum = Column(String(64))  # 支付宝账户
-    LRbankname = Column(String(64))  # 银行名称
-    LRaccountname = Column(String(64))  # 开户名称
-    LRcardnum = Column(String(64))  # 银行卡账户
-    LRpayamount = Column(Float)  # 充值金额
-    LRpaydate = Column(String(14))  # 充值日期
-    LRremark = Column(String(64))  # 充值备注
-    LRcreatetime = Column(String(14))  # 记录创建时间
+    CMpaytype = Column(Integer)  # 充值方式:{1:支付宝, 2:银行转账}
+    CMalipaynum = Column(String(64))  # 支付宝账户
+    CMbankname = Column(String(64))  # 银行名称
+    CMaccountname = Column(String(64))  # 开户名称
+    CMcardnum = Column(String(64))  # 银行卡卡号
+    CMamount = Column(Float)  # 充值金额
+    CMpaytime = Column(String(14))  # 充值日期
+    CMcreatetime = Column(String(14))  # 创建时间
+    CMremark = Column(String(255))  # 充值备注
+    CMstatus = Column(Integer)  # 提现状态:{0:全部, 1:待审核, 2:已充值, 3:未通过}
+    CMtradenum = Column(String(64))  # 流水号
+    CMproof = Column(String(512))  # 打款凭证
 
 class Reward(Base):
     """
@@ -179,11 +199,11 @@ class Reward(Base):
     """
     __tablename__ = 'reward'
     REid = Column(String(64), primary_key=True)
+    RElastuserid = Column(String(64))  # 推荐用户id
     REnextuserid = Column(String(64))  # 被推荐用户id
     REmount = Column(Float)  # 奖励金额
     REmonth = Column(String(6))  # 月份
     REcreatetime = Column(String(14))  # 记录创建时间
-    RElastuserid = Column(String(64))  # 推荐用户id
 
 class Performance(Base):
     """
@@ -209,6 +229,7 @@ class Amount(Base):
     reward = Column(Float, default=0)  # 直推奖励金额
     performance = Column(Float, default=0)  # 业绩总额,就是总件数
     AMmonth = Column(String(6))  # 月份
+    AMstatus = Column(Integer)  # 状态:{0: 所有状态 1:未打款 2:已打款}
     AMcreattime = Column(String(14))  # 记录创建时间
 
 class DiscountRuler(Base):
@@ -233,21 +254,21 @@ class OnlineCharge(Base):
     ONDcreatetime = Column(String(14))  # 创建时间
     ONDtradenum = Column(String(125))  # 交易号, (如果有)
 
-class OfflineDraw(Base):
+class DrawMoney(Base):
     """
     银行卡线下提现记录表
     """
-    __tablename__ = 'offlinedraw'
-    OFDid = Column(String(64), primary_key=True)
-    USid = Column(String(64))  # 用户
-    OFDamount = Column(Float)  # 提现金额
-    OFDbankname = Column(String(64), nullable=False)     # 银行名称
-    OFDbranchname = Column(String(64), nullable=False)     # 支行名称
-    OFDcardnum = Column(String(19), nullable=False)      # 银行卡号
-    OFDaccountname = Column(String(64), nullable=False)     # 开户名称
-    OFDstatus = Column(Integer)  # 提现状态: {0: 全部, 1: 待审核, 2: 待打款, 3: 已打款 4: 未通过}
-    OFDcreatetime = Column(String(14))  # 创建时间
-    OFDtradenum = Column(String(125))  # 交易号, (如果有)
+    __tablename__ = 'drawmoney'
+    DMDid = Column(String(64), primary_key=True)
+    USid = Column(String(64))  # 用户id
+    DMamount = Column(Float)  # 提现金额
+    DMbankname = Column(String(64), nullable=False)     # 银行名称
+    DMbranchname = Column(String(64), nullable=False)     # 支行名称
+    DMcardnum = Column(String(19), nullable=False)      # 银行卡号
+    DMaccountname = Column(String(64), nullable=False)     # 开户名称
+    DMstatus = Column(Integer)  # 提现状态: {0: 全部, 1: 待审核, 2: 待打款, 3: 已打款 4: 未通过}
+    DMcreatetime = Column(String(14))  # 创建时间
+    DMtradenum = Column(String(125))  # 交易号, (如果有)
 
 class AgentMessage(Base):
     """
@@ -337,6 +358,17 @@ class AlreadyRead(Base):
     ARid = Column(String(64), primary_key=True)  # 已读消息id
     ARmessageid = Column(String(64))  # 消息id
     USid = Column(String(64))  # 已读消息用户id
+
+class SowingMap(Base):
+    """
+    轮播图列表
+    """
+    __tablename__ = 'sowingmap'
+    SMid = Column(String(64),primary_key=True) 
+    mallUrls = Column(String(255), nullable=False) #商城图片链接
+    personUrls = Column(String(255), nullable=False) #个人图片链接
+    SMstatus = Column(Boolean, default=False) #True表示被获取了，False表示未被获取
+
 
 
 # Base.metadata.create_all(mysql_engine)

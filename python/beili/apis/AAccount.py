@@ -16,6 +16,12 @@ class AAccount(Resource):
         apis = {
             'get_account': 'self.caccount.get_account()',
             'get_rank_list': 'self.caccount.get_rank_list()',
+            'draw_money': 'self.caccount.draw_money()',
+            'get_drawmoney_list': 'self.caccount.get_drawmoney_list()',
+            'charge_monney': 'self.caccount.charge_monney()',
+            'get_chargemoney_list': 'self.caccount.get_chargemoney_list()',
+            'charge_draw_bail': 'self.caccount.charge_draw_bail()',
+            'get_alluser_account': 'self.caccount.get_alluser_account()'
         }
         res = eval(apis[account])
         return jsonify(res)
@@ -24,7 +30,10 @@ class AAccount(Resource):
         print account
         apis = {
             'get_directagent': 'self.caccount.get_directagent()',
-            'get_distribute': 'self.caccount.get_distribute()'
+            'get_distribute': 'self.caccount.get_distribute()',
+            'get_draw_info': 'self.caccount.get_draw_info()',
+            'check_bail': 'self.caccount.check_bail()'
+
         }
         res = eval(apis[account])
         return jsonify(res)

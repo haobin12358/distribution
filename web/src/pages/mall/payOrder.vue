@@ -205,7 +205,7 @@
             </li>
             <li class="cell-item">
                 <div class="cell-left">合计需付</div>
-                <div class="cell-right">￥{{cartTotalPrice}}元</div>
+                <div class="cell-right">￥{{needPayAmount}}元</div>
             </li>
         </ul>
 
@@ -242,6 +242,13 @@
         computed: {
             ...mapState(['userInfo']),
             ...mapGetters(['usefulCartList', 'cartTotalPrice', 'payDeliverFee']),
+            needPayAmount(){
+                if(this.usefulCartList.length == 1 && this.usefulCartList[0].PRnum == 1){
+                    return this.cartTotalPrice + this.usefulCartList[0].PRlogisticsfee;
+                }else{
+                    return this.cartTotalPrice;
+                }
+            }
         },
 
         components: {},
@@ -258,10 +265,10 @@
 
             confirmPayOrder() {
                 if (this.defaultAddress) {
-                    this.$messagebox.confirm(`需支付${this.cartTotalPrice}元,确认下单?`).then(
+                    this.$messagebox.confirm(`需支付${this.needPayAmount}元,确认下单?`).then(
                         () => {
                             createOrder(this.defaultAddress.uaid, this.usefulCartList,
-                                this.remark, this.payDeliverFee, this.cartTotalPrice).then(
+                                this.remark, this.payDeliverFee, this.needPayAmount).then(
                                 (resData) => {
                                     if (resData) {
                                         let {success, message, data: newCartList} = resData;
@@ -270,8 +277,6 @@
                                             this.$toast(message);
                                             this.$store.commit('CLEAR_CART');
                                             //  更新账户余额
-                                            this.getUserInfo();
-
                                             this.$router.back();
                                         } else {
                                             this.$messagebox('提示', '商品价格或运费有变动,下单失败,数据已更新,请再次确认下单!')
@@ -291,6 +296,7 @@
         },
 
         async mounted() {
+            this.getUserInfo();
             this.setDefaultAddress();
         }
     }

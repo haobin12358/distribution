@@ -2,7 +2,7 @@
 import sys
 import os
 from service.SBase import SBase, close_session
-from models.model import Product, ProductCategory
+from models.model import Product, ProductCategory, SowingMap
 from sqlalchemy import func
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -10,6 +10,25 @@ class SGoods(SBase):
 
     def __init__(self):
         super(SGoods, self).__init__()
+
+    @close_session
+    def admin_get_product(self, PRstatus=None, PRname=None, PAid=None):
+        product_list = self.session.query(Product.PRpic, Product.PRname, Product.PAid, Product.PRoldprice, Product.PRprice,
+                                          Product.PRstock, Product.PRid, Product.PRlogisticsfee, Product.PAdiscountnum,
+                                          Product.PRcreatetime, Product.PRstatus)
+        if PAid:
+            product_list = product_list.filter(Product.PAid == PAid)
+        if PRstatus:
+            product_list = product_list.filter_by(PRstatus=PRstatus)
+        if PRname:
+            product_list = product_list.filter(Product.PRname.like('%{0}%'.format(PRname)))
+        product_list = product_list.order_by(Product.PRcreatetime.desc()).all()
+        return product_list
+
+    @close_session
+    def get_category_byid(self, id):
+        return self.session.query(ProductCategory.PAname).filter(ProductCategory.PAid == id).first()
+
 
     @close_session
     def get_product_list(self, page_size, page_num, PAid=None, PRstatus=None):
@@ -39,6 +58,23 @@ class SGoods(SBase):
     @close_session
     def update_product(self, PRid, product):
         self.session.query(Product).filter_by(PRid=PRid).update(product)
+        return True
+
+    @close_session
+    def create_product(self, id, paid, prname, prpic, proldprice, prprice, prstock, prlogisticsfee, prstatus, prdiscountnum, createtime):
+        product = Product()
+        product.PRid = id
+        product.PAid = paid
+        product.PRname = prname
+        product.PRpic = prpic
+        product.PRoldprice = proldprice
+        product.PRprice = prprice
+        product.PRstock = prstock
+        product.PRlogisticsfee = prlogisticsfee
+        product.PRstatus = prstatus
+        product.PAdiscountnum = prdiscountnum
+        product.PRcreatetime = createtime
+        self.session.add(product)
         return True
 
     @close_session
@@ -86,3 +122,19 @@ class SGoods(SBase):
     def delete_category(self, PAid, delete_category):
         #删除商品分类
         return self.session.query(ProductCategory).filter_by(PAid=PAid).update(delete_category)
+
+class SSowing(SBase):
+    def __init__(self):
+        super(SSowing, self).__init__()
+    @close_session
+    def get_url_by_mall(self, url):
+        return self.session.query(SowingMap.personUrls).filter_by(mallUrls=url).all()
+    @close_session
+    def get_url_by_person(self, url):
+        return self.session.query(SowingMap.mallUrls).filter_by(personUrls=url).all()
+    @close_session
+    def update_sowingmap_status(self, url, status):
+        return self.session.query(SowingMap).filter_by(mallUrls=url).update(status)
+    @close_session
+    def update_sowingmap_status(self, url, status):
+        return self.session.query(SowingMap).filter_by(personUrls=url).update(status)

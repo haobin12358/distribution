@@ -79,7 +79,16 @@
         .withdraw-tip {
             .sc(22px, @lightFontColor);
             .bgw();
-            padding:  20px 0 86px 20px;
+            padding: 20px 0 86px 20px;
+
+            p:first-of-type {
+                .fz(28px);
+                text-indent: 0;
+            }
+
+            p {
+                text-indent: 2em;
+            }
 
         }
     }
@@ -89,7 +98,7 @@
     <div class="container">
         <header-top :show-back="true">
             <section slot="right">
-                <router-link to="/withdrawCashRecord" tag="img" src="/static/images/myOrder.png"
+                <router-link to="/chargeRecord" tag="img" src="/static/images/myOrder.png"
                              class="my-order-img"></router-link>
             </section>
         </header-top>
@@ -97,43 +106,46 @@
         <section class="form-container">
             <mt-field class="form-item" label="打款方式" placeholder="请选择打款方式" v-model="transferWay" :readonly="true"
                       :disableClear="true" @click.native="sheetVisible =true"></mt-field>
-            <mt-field class="form-item" label="支付宝" placeholder="请输入支付宝账号"></mt-field>
-            <mt-field class="form-item" label="金额" placeholder="请输入打款金额" type="number"></mt-field>
-            <mt-field class="form-item" label="日期" placeholder="请输入打款日期" :readonly="true" :disableClear="true"
+            <template v-if="formData.paytype == 1">
+                <mt-field class="form-item" label="支付宝" v-model.trim="formData.alipaynum"
+                          placeholder="请输入支付宝账号"></mt-field>
+            </template>
+            <template v-if="formData.paytype == 2">
+                <mt-field class="form-item" v-model="formData.bankname" label="开户银行" placeholder="请输入开户银行"></mt-field>
+                <mt-field class="form-item" v-model="formData.accountname" label="银行户名"
+                          placeholder="请输入银行户名"></mt-field>
+                <mt-field class="form-item" v-model="formData.cardnum" type="number" label="银行账号"
+                          placeholder="请输入银行账号"></mt-field>
+            </template>
+            <mt-field class="form-item" label="金额" v-model.trim="formData.amount" type="number"
+                      placeholder="请输入打款金额"></mt-field>
+            <!--<mt-field style="background: white;" label="打款日期" placeholder="请选择打款日期" v-model="date" :readonly="false" type="date" ></mt-field>-->
+            <mt-field class="form-item" label="打款日期" placeholder="请选择打款日期" :readonly="true" :disableClear="true"
                       v-model="date" @click.native="$refs.picker.open()"></mt-field>
-            <mt-field class="form-item" label="备注" placeholder="如有说明可填写备注" type="password"></mt-field>
-            <section class="upload-evidence">
-                <span class="label">打款凭证</span>
-                <ul class="upload-imgs">
-                    <li class="upload-imgs-item">
-                        <img class="evidence-img" src="/static/images/testbg.jpg" alt="">
-
-
-                        <img class="img-block-close" src="/static/images/close.png" alt="">
-                    </li>
-                    <li class="upload-imgs-item-placeholder ">
-                        <img src="/static/images/img-placeholder.png" alt="">
-                        <input class="picture-file" id="up-picture-file" type="file" accept="image/*" ref="file"
-                               @change="uploadFile">
-                    </li>
-                </ul>
-            </section>
+            <mt-field class="form-item" label="备注" v-model.trim="formData.remark" placeholder="如有说明可填写备注"></mt-field>
+            <evidence-field label="打款凭证(1-2张)" :readOnly="false" @update="updateEvdImg" @isUploading="listenEvdUpload"
+                            :upload-limit="2"></evidence-field>
         </section>
 
 
         <section class="withdraw-tip">
-            <p>
-                请打款至：
-            </p>
-            <p>
-                支付宝账号：zhelishiwoluanxiede@136.com
-            </p>
-            <p>
-                支付宝实名：某某某
-            </p>
-            <p>
-                如有问题可联系微信客服：木木12345
-            </p>
+            <p>请打款至：</p>
+
+            <template v-if="formData.paytype == 1">
+                <p>支付宝账号：{{registerInfo.alipaynum}}</p>
+                <p>支付宝实名：{{registerInfo.alipayname}}</p>
+            </template>
+            <template v-if="formData.paytype == 2">
+                <p>开户银行：{{registerInfo.bankname}}</p>
+                <p>银行户名：{{registerInfo.accountname}}</p>
+                <p>银行账号：{{registerInfo.cardnum}}</p>
+            </template>
+            <p>如有问题可联系微信客服：{{registerInfo.service}}</p>
+        </section>
+
+        <section class="my-confirm-btn-wrap" style="margin-top: 50px">
+            <button v-if="isEvdImgUploading" class="my-confirm-btn disabled">凭 证 上 传 中...</button>
+            <button v-else class="my-confirm-btn" @click="doConfirm">确 认 充 值</button>
         </section>
 
         <mt-actionsheet
@@ -143,8 +155,9 @@
 
         <mt-datetime-picker
             ref="picker"
-            type="datetime"
+            type="date"
             v-model="datetime"
+            :startDate = "startDate"
             @confirm="dateTimeConfirm"
         >
         </mt-datetime-picker>
@@ -152,23 +165,42 @@
 </template>
 
 <script>
+    import {getRegisterInfo, chargeMonney} from "src/api/api"
+    import UploadField from "src/components/common/uploadField"
+    import common from "src/common/js/common"
+
     export default {
         name: "marginMoney",
 
         data() {
             return {
-                transferWay: '',
-                birthday: '',
-                date: '',
-
-
+                transferWay: '支付宝',
                 actions: [
-                    {name: '支付宝', method: this.selectTransferWay},
-                    {name: '微信', method: this.selectTransferWay},
-                    {name: '银行卡', method: this.selectTransferWay},
+                    {name: '支付宝', value: 1, method: this.selectTransferWay},
+                    {name: '银行卡', value: 2, method: this.selectTransferWay},
+                    {name: '微信', value: 3, method: this.selectTransferWay},
                 ],
                 sheetVisible: false,
-                datetime: ''
+                datetime: '',
+                date: '',
+
+                formData: {
+                    "paytype": 1,
+                    "alipaynum": "",
+                    "bankname": "",
+                    "accountname": "",
+                    "cardnum": "",
+                    "amount": '',
+                    "remark": "",
+                    paytime: ''
+                },
+                registerInfo: {},
+
+                startDate: new Date('2016'),
+
+
+                evidenceImgs: [],   //  凭证
+                isEvdImgUploading: false,    //  凭证正在上传
 
             }
         },
@@ -176,22 +208,92 @@
         watch: {},
 
 
-        components: {},
+        components: {
+            evidenceField: UploadField,
+        },
 
         methods: {
             selectTransferWay(evt) {
                 this.transferWay = evt.name;
+                this.formData.paytype = evt.value;
             },
             dateTimeConfirm(evt) {
                 this.date = evt.toLocaleString('zh-CN', {hour12: false});
             },
-            uploadFile() {
-                console.log(this.$refs.file.files[0]);
+
+            updateEvdImg(imgs) {
+                this.evidenceImgs = imgs;
+            },
+            listenEvdUpload(bool) {
+                this.isEvdImgUploading = bool;
+            },
+
+            formDataCheck() {
+                //  支付宝
+                if (this.formData.paytype == 1) {
+                    if (!this.formData.alipaynum) {
+                        return '请输入支付宝账号'
+                    }
+                }
+                if (this.formData.paytype == 2) {
+                    if (!this.formData.bankname) {
+                        return '请输入开户银行'
+                    }
+                    if (!this.formData.accountname) {
+                        return '请输入银行户名'
+                    }
+                    if (!this.formData.cardnum) {
+                        return '请输入银行账号'
+                    }
+                }
+
+                if (!this.formData.amount) {
+                    return '请输入打款金额'
+                }else if(!(this.formData.amount >0 && /^[0-9]+([.]{1}[0-9]+){0,1}$/.test(this.formData.amount))){
+                    return '请输入合理的打款金额数字'
+                }
+
+                if (!this.date) {
+                    return '请输入打款日期'
+                } else {
+                    this.formData.paytime = common.dateFormat(new Date(this.date)).substr(0, 8);
+                }
+
+                if (!this.evidenceImgs.length) {
+                    return '请上传打款凭证';
+                } else {
+                    this.formData.proof = this.evidenceImgs.join(',');
+                }
+
+
+            },
+            doConfirm() {
+                let checkMsg = this.formDataCheck();
+
+                if(checkMsg){
+                    this.$toast(checkMsg);
+                }else {
+                    chargeMonney(this.formData).then(
+                        resData => {
+                            if (resData) {
+                                this.$toast(resData.message);
+                                this.$router.push('/chargeRecord');
+                            }
+                        }
+                    )
+                }
 
             }
         },
 
         created() {
+            getRegisterInfo('').then(
+                resData => {
+                    if (resData) {
+                        this.registerInfo = resData.data;
+                    }
+                }
+            )
         }
     }
 </script>
