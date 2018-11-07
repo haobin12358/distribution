@@ -484,8 +484,9 @@ class CAccount():
         for real in real_list:
             phonenum = get_model_return_dict(self.smycenter.get_user_basicinfo(real['USid']))['USphonenum']
             real['userphonenum'] = phonenum
-            real['mydiscount'] = self.get_mydiscount(real['USid'], month)
-            real['myprofit'] = real['mydiscount'] + real['reward']
+            real['discount'] = self.get_mydiscount(real['USid'], month)
+            real['teamperformance'] = self.get_myteamsalenum(real['USid'], month)
+            real['myprofit'] = real['discount'] + real['reward']
 
         mount = len(real_list)
         page = mount / page_size

@@ -107,7 +107,7 @@ class SAccount(SBase):
             list = list.filter(Amount.AMmonth == month)
         if agentid:
             list = list.filter(Amount.USagentid.like('%{0}%'.format(agentid)))
-        if status > 0:
+        if int(status) > 0:
             list = list.filter(Amount.AMstatus == status)
         list = list.all()
         return list
