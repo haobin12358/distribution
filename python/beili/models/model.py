@@ -55,6 +55,7 @@ class Admin(Base):
     #ADisdelete = Column(Boolean, default=False)  # 是否被删除
 
 
+
 class ProductCategory(Base):
     """
     商品分类
@@ -371,5 +372,14 @@ class SowingMap(Base):
     SMstatus = Column(Boolean, default=False) #True表示被获取了，False表示未被获取
 
 
-
+class Comments(Base):
+    """
+    评论
+    """
+    __tablename__ = 'comment'
+    USid = Column(String(64), primary_key=True)
+    USname = Column(String(64), nullable=False)  # 用户名
+    CMcontent = Column(String(255))  # 用户评论内容
+    CMcreatetime = Column(String(14))  # 评论创建创建时间
+    CMisread = Column(Boolean, default=False)  # 是否被阅读
 # Base.metadata.create_all(mysql_engine)

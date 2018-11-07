@@ -67,4 +67,6 @@ delete_product_category_success = "删除商品分类成功"
 get_alluser_account_success = "获取所有用户销售数据成功"
 
 get_sowing_map_success = "获得轮播图成功"
+add_comment_success = "添加评论成功"
+update_comments_success = "评论已读"
 
