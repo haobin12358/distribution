@@ -282,7 +282,7 @@ class CGoods():
                 return SYSTEM_ERROR
             response = import_status("create_product_success", "OK")
             return response
-<<<<<<< HEAD
+
     @verify_token_decorator
     def sowing_map(self):
         try:
@@ -327,9 +327,6 @@ class CGoods():
         return response
 
 
-
-=======
->>>>>>> c0662c872d8971c57f0c99496a10aaf74b8387a3
 
     def json_param_miss(self, type):
         if is_tourist():

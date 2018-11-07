@@ -97,7 +97,7 @@ class SGoods(SBase):
         return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAstatus).filter_by(Parentid=Parentid).all()
     @close_session
     def get_first_product_category(self, Parentid):
-        return self.session.query(ProductCategory.PAid, ProductCategory.PAname).filter_by(Parentid=Parentid).all()
+        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAtype).filter_by(Parentid=Parentid).all()
     @close_session
     def get_child_product_category(self, Parentid):
         return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.Parentid).filter_by(Parentid=Parentid).all()
