@@ -155,3 +155,14 @@ ADMINNAME_ERROR = {
     "status_code": 405101,
     "message": "该用户名不存在"
 }
+
+PRODUCE_CATEGORY_EXIST = {
+    "status": 405,
+    "status_code": 405102,
+    "message": "该商品分类已经存在"
+}
+PRODUCE_CATEGORY_NOT_EXIST = {
+    "status": 405,
+    "status_code": 405103,
+    "message": "该商品分类不存在"   
+}

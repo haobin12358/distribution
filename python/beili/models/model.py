@@ -64,7 +64,8 @@ class ProductCategory(Base):
     PAname = Column(String(16))  # 类别名
     PAtype = Column(Integer)  # 类目级别{1 一级分类, 2 二级分类, 3 三级分类}
     Parentid = Column(String(64), default=0)  # 父类别id, 默认0
-    PAstatus = Column(Boolean)  # True能用 False不可用
+    #PAstatus = Column(Boolean)  # True能用 False不可用
+    PAstatus = Column(Boolean, default=True)  # True能用 False不可用
 
 class Product(Base):
     """
