@@ -229,6 +229,7 @@ class Amount(Base):
     performance = Column(Float, default=0)  # 业绩总额,就是总件数
     AMmonth = Column(String(6))  # 月份
     AMstatus = Column(Integer)  # 状态:{0: 所有状态 1:未打款 2:已打款}
+    AMtradenum = Column(String(30))  # 流水号
     AMcreattime = Column(String(14))  # 记录创建时间
 
 class DiscountRuler(Base):
