@@ -229,7 +229,6 @@ class CUser():
         if user_info['USbail'] < BAIL:
             return NO_BAIL
         else:
-            result = get_model_return_dict(result)
             response = {}
             date = result['QRovertime']
             number = result['QRnumber']
