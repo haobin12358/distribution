@@ -106,7 +106,7 @@ class CAccount():
                     return ruler_list[len(ruler_list)-1]['DRratio']
 
     @verify_token_decorator
-    def get_rank_list(self):
+    def get_rank_list(self):  # 获取业绩列表
         if is_tourist():
             return TOKEN_ERROR
         try:
@@ -504,8 +504,31 @@ class CAccount():
         response['mount'] = mount
         return response
 
-
-
+    @verify_token_decorator
+    def get_directagent_performance(self):
+        if not is_admin():
+            return AUTHORITY_ERROR
+        try:
+            data = request.json
+            usid = data.get('usid')
+            month = data.get('month')
+        except:
+            return PARAMS_ERROR
+        direct_list = self.suser.getuser_by_preid(usid)
+        if direct_list:
+            direct_list = get_model_return_list(direct_list)
+            for direct in direct_list:
+                teamperformance = self.get_myteamsalenum(direct['USid'], month)
+                direct['teamperformance'] = teamperformance
+            all_direct_num = int(len(direct_list))
+            response = import_status("get_directagent_and_performance_list_success", "OK")
+            response['data'] = direct_list
+            response['directcount'] = all_direct_num
+            return response
+        else:
+            response = import_status("get_directagent_and_performance_list_success", "OK")
+            response['data'] = []
+            return response
 
 
 

@@ -23,7 +23,7 @@ api.add_resource(AOrder, "/order/<string:order>")
 api.add_resource(AAdmin, "/admin/<string:admin>")
 api.add_resource(AAccount, "/account/<string:account>")
 
-# '''
+#'''
 if __name__ == '__main__':
     sg.run('0.0.0.0', 443, debug=False, ssl_context=(
         "/etc/nginx/cert/cert-1541142792481_beiliserver.daaiti.cn.crt"
@@ -33,5 +33,3 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     sg.run('0.0.0.0', 7444, debug=False)
 '''
-
-

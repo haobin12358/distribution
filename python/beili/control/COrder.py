@@ -7,7 +7,7 @@ import random
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR, STOCK_NOT_ENOUGH,\
-        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS
+        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_ORDER
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
@@ -340,6 +340,9 @@ class COrder():
             expressnum = data.get('expressnum')
         except:
             return PARAMS_ERROR
+        detail = get_model_return_dict(self.sorder.get_order_details(oisn))
+        if not detail:
+            return NOT_FOUND_ORDER
         update = {}
         update['OIstatus'] = 2
         update['expressname'] = expressname
@@ -348,4 +351,10 @@ class COrder():
         if not result:
             return SYSTEM_ERROR
         reponse = import_status("update_order_success", "OK")
+        detail = get_model_return_dict(self.sorder.get_order_details(oisn))
+        from common.timeformat import get_web_time_str
+        detail['OIcreatetime'] = get_web_time_str(detail['OIcreatetime'])
+        product_list = get_model_return_list(self.sorder.get_product_list(detail['OIid']))
+        detail['product_list'] = product_list
+        reponse['data'] = detail
         return reponse

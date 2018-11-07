@@ -229,7 +229,6 @@ class CUser():
         if user_info['USbail'] < BAIL:
             return NO_BAIL
         else:
-            result = get_model_return_dict(result)
             response = {}
             date = result['QRovertime']
             number = result['QRnumber']
@@ -596,6 +595,7 @@ class CUser():
         args = request.args.to_dict()
         code = args.get('code')
         state = args.get('state')
+        print code,state
         login = WeixinLogin(APP_ID, APP_SECRET)
         data = login.access_token(code)
 
@@ -603,3 +603,5 @@ class CUser():
         update = {}
         update['openid'] = openid
         self.suser.update_user_by_state(state, update)
+        response = import_status("get_openid_success", "OK")
+        return response

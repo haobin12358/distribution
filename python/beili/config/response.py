@@ -140,18 +140,37 @@ HAS_REGISTER = {
     "status_code": 405028,
     "message": "手机号已注册"
 }
+NOT_FOUND_OPENID = {
+    "status": 405,
+    "status_code": 405029,
+    "message": "该商品分类不存在"
+}
+NOT_FOUND_ORDER = {
+    "status": 405,
+    "status_code": 405030,
+    "message": "未找到该订单"
 
-
-
+}
 ADMINNUM_ERROR = {
     "status": 405,
     "status_code": 405100,
     "message": "该用户号不存在"
 }
-
-
 ADMINNAME_ERROR = {
     "status": 405,
     "status_code": 405101,
     "message": "该用户名不存在"
 }
+
+PRODUCE_CATEGORY_EXIST = {
+    "status": 405,
+    "status_code": 405102,
+    "message": "该商品分类已经存在"
+}
+PRODUCE_CATEGORY_NOT_EXIST = {
+    "status": 405,
+    "status_code": 405103,
+    "message": "该商品分类不存在"   
+}
+
+

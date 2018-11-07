@@ -64,7 +64,8 @@ class ProductCategory(Base):
     PAname = Column(String(16))  # 类别名
     PAtype = Column(Integer)  # 类目级别{1 一级分类, 2 二级分类, 3 三级分类}
     Parentid = Column(String(64), default=0)  # 父类别id, 默认0
-    PAstatus = Column(Boolean)  # True能用 False不可用
+    #PAstatus = Column(Boolean)  # True能用 False不可用
+    PAstatus = Column(Boolean, default=True)  # True能用 False不可用
 
 class Product(Base):
     """
@@ -229,6 +230,7 @@ class Amount(Base):
     performance = Column(Float, default=0)  # 业绩总额,就是总件数
     AMmonth = Column(String(6))  # 月份
     AMstatus = Column(Integer)  # 状态:{0: 所有状态 1:未打款 2:已打款}
+    AMtradenum = Column(String(30))  # 流水号
     AMcreattime = Column(String(14))  # 记录创建时间
 
 class DiscountRuler(Base):
