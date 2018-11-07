@@ -603,3 +603,5 @@ class CUser():
         update = {}
         update['openid'] = openid
         self.suser.update_user_by_state(state, update)
+        response = import_status("get_openid_success", "OK")
+        return response
