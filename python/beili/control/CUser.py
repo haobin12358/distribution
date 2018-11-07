@@ -10,21 +10,25 @@ from flask import request
 from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
     NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR, NOT_FOUND_FILE, DELETE_CODE_FAIL, \
     NOT_FOUND_QRCODE, HAS_REGISTER, NO_BAIL, BAD_ADDRESS
-from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM, MONEY, BAIL, REWARD
+from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM, MONEY, BAIL, \
+    WECHATSERVICE, REWARD, REDIRECT_URI, APP_ID, APP_SECRET, SERVER
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser, is_temp
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
-from common.timeformat import get_db_time_str
+from common.timeformat import get_db_time_str, get_random_str
 from service.SUser import SUser
 from service.DBSession import db_session
 from service.SAccount import SAccount
 from common.beili_error import stockerror, dberror
 from service.SMyCenter import SMyCenter
 from datetime import datetime
+from config.urlconfig import get_code
 import random
 from models.model import Amount, User, Reward
 from common.timeformat import format_for_db
 import platform
+from weixin import WeixinError
+from weixin.login import WeixinLoginError, WeixinLogin
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -215,9 +219,15 @@ class CUser():
             id = str(data.get('qrid'))
         except:
             return PARAMS_ERROR
-        result = self.suser.get_arcode_details(id)
+        result = get_model_return_dict(self.suser.get_arcode_details(id)) if self.suser.get_arcode_details(id) else None
         if not result:
             return NOT_FOUND_QRCODE
+        user_info = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if self.smycenter \
+            .get_user_basicinfo(result['USid']) else None
+        if not user_info:
+            return NOT_FOUND_USER
+        if user_info['USbail'] < BAIL:
+            return NO_BAIL
         else:
             result = get_model_return_dict(result)
             response = {}
@@ -322,6 +332,7 @@ class CUser():
             user_dict['accountname'] = COUNTNAME
             user_dict['cardnum'] = CARDNUM
             user_dict['money'] = MONEY
+            user_dict['service'] = WECHATSERVICE
             response = import_status("get_registerinfo_success", "OK")
             response['data'] = user_dict
             return response
@@ -342,6 +353,7 @@ class CUser():
         user_dict['accountname'] = COUNTNAME
         user_dict['cardnum'] = CARDNUM
         user_dict['money'] = MONEY
+        user_dict['service'] = WECHATSERVICE
         address = self.smycenter.get_user_default_details(usid['USid'])
         if address:
             address = get_model_return_dict(address)
@@ -553,3 +565,41 @@ class CUser():
         response = import_status("register_success", "OK")
         return response
 
+
+
+    @verify_token_decorator
+    def check_openid(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        usid = request.user.id
+        openid = get_model_return_dict(self.saccount.check_openid(usid))
+        if not openid['openid']:
+            response = {}
+            response['message'] = u'执行跳转'
+            response['status'] = 302
+            data = {}
+            state = get_random_str(10)
+            update = {}
+            update['state'] = state
+            result = self.suser.update_user_by_uid(usid, update)
+            if not result:
+                return SYSTEM_ERROR
+            login = WeixinLogin(APP_ID, APP_SECRET)
+            data['url'] = login.authorize(SERVER + "/user/get_code", 'snsapi_base', state=state)
+            response['data'] = data
+            return response
+        response = import_status("has_opid", "OK")
+        return response
+
+
+    def get_code(self):
+        args = request.args.to_dict()
+        code = args.get('code')
+        state = args.get('state')
+        login = WeixinLogin(APP_ID, APP_SECRET)
+        data = login.access_token(code)
+
+        openid = data.openid
+        update = {}
+        update['openid'] = openid
+        self.suser.update_user_by_state(state, update)

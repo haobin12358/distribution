@@ -32,11 +32,12 @@ class User(Base):
     USbail = Column(Float)                       # 保证金余额
     USmount = Column(DECIMAL)                      # 账户余额
     USpre = Column(String(64))                   # 上级代理id
-    USwechat = Column(String(64))                # 用户微信号
+    USwechat = Column(String(64))                # 用户微信号,暂时不用
     openid = Column(String(64))                  # 微信唯一值
-    unionid = Column(String(255))                # 绑定公众号会出现
-    accesstoken = Column(String(255))            # 微信token
-    subscribe = Column(Integer)                  # 是否关注公众号
+    state = Column(String(128))                  # 用于获取openid
+    unionid = Column(String(255))                # 绑定公众号会出现,暂时不用
+    accesstoken = Column(String(255))            # 微信token,暂时不用
+    subscribe = Column(Integer)                  # 是否关注公众号,暂时不用
 
 class Admin(Base):
     """
@@ -76,12 +77,26 @@ class Product(Base):
     PRoldprice = Column(Float)  # 原价
     PRprice = Column(Float, nullable=False)  # 显示价格
     PRstock = Column(Integer)  # 库存
-    PRprofit = Column(Integer)  # 每件的收益，即销售折扣
     PRcreatetime = Column(String(14))  # 创建时间
     PRlogisticsfee = Column(Float)  # 物流费
     PRstatus = Column(Integer)     # 商品状态，1出售中，2已售罄，3已下架
     PAid = Column(String(64))      # 分类id，用于绑定商品类目，空值表示未绑定分类
     PAdiscountnum = Column(Float,default=1)  # 折扣件数
+
+class BailRecord(Base):
+    """
+    保证操作记录表金
+    """
+    __tablename__ = 'bailrecord'
+    BRid = Column(String(64), primary_key=True)
+    USid = Column(String(64))  # 用户id
+    BRtype = Column(Integer)  # 记录类型 1充值 2退还
+    BRmount = Column(Float)  # 交易金额
+    BRstatus = Column(Integer)  # 状态，1，已充值 2，退还中 3，已退还
+    BRtradenum = Column(String(30))  # 流水号
+    BRcreatetime = Column(String(14))  # 创建日期
+
+
 
 class InvitaRecord(Base):
     """
@@ -143,6 +158,8 @@ class OrderInfo(Base):
     cityname = Column(String(64))  # 市
     areaname = Column(String(64))  # 区
     details = Column(String(255))  # 详细地址
+    expressname = Column(String(64))  # 快递名称
+    expressnum = Column(String(64))  # 快递单号
 
 class OrderProductInfo(Base):
     """订单商品详情, 多个订单商品详情对应一个订单"""
@@ -171,7 +188,7 @@ class ChargeMoney(Base):
     CMpaytime = Column(String(14))  # 充值日期
     CMcreatetime = Column(String(14))  # 创建时间
     CMremark = Column(String(255))  # 充值备注
-    CMstatus = Column(Integer)  # 提现状态:{0:全部, 1:待审核, 2:待打款, 3:已打款, 4:未通过}
+    CMstatus = Column(Integer)  # 提现状态:{0:全部, 1:待审核, 2:已充值, 3:未通过}
     CMtradenum = Column(String(64))  # 流水号
     CMproof = Column(String(512))  # 打款凭证
 
@@ -211,6 +228,7 @@ class Amount(Base):
     reward = Column(Float, default=0)  # 直推奖励金额
     performance = Column(Float, default=0)  # 业绩总额,就是总件数
     AMmonth = Column(String(6))  # 月份
+    AMstatus = Column(Integer)  # 状态:{0: 所有状态 1:未打款 2:已打款}
     AMcreattime = Column(String(14))  # 记录创建时间
 
 class DiscountRuler(Base):

@@ -33,6 +33,11 @@ class SUser(SBase):
         return True
 
     @close_session
+    def update_user_by_state(self, state2, update):
+        self.session.query(User).filter_by(state=state2).update(update)
+        return True
+
+    @close_session
     def getuser_by_preid(self, preid):
         return self.session.query(User.USname, User.USid, User.USagentid, User.USheadimg).filter(User.USpre == preid).all()
 
@@ -104,7 +109,7 @@ class SUser(SBase):
 
     @close_session
     def get_arcode_details(self, id):
-        return self.session.query(Qrcode.QRovertime, Qrcode.QRnumber).filter(Qrcode.QRid == id).\
+        return self.session.query(Qrcode.QRovertime, Qrcode.QRnumber, Qrcode.USid).filter(Qrcode.QRid == id).\
                 filter(Qrcode.QRstatus == 1).first()
 
     @close_session
