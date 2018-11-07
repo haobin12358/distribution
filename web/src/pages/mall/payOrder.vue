@@ -277,8 +277,6 @@
                                             this.$toast(message);
                                             this.$store.commit('CLEAR_CART');
                                             //  更新账户余额
-                                            this.getUserInfo();
-
                                             this.$router.back();
                                         } else {
                                             this.$messagebox('提示', '商品价格或运费有变动,下单失败,数据已更新,请再次确认下单!')
@@ -298,6 +296,7 @@
         },
 
         async mounted() {
+            this.getUserInfo();
             this.setDefaultAddress();
         }
     }

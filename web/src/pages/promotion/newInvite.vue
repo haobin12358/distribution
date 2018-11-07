@@ -26,7 +26,9 @@
         </section>
 
         <section class="my-confirm-btn-wrap">
-            <button @click="doConfirm" class="my-confirm-btn">确 认</button>
+            <button v-if="bailstatus == 1" @click="doConfirm" class="my-confirm-btn">确 认</button>
+            <button v-if="bailstatus == 2"  class="my-confirm-btn disabled">还需缴纳保证金({{shouldPay}}元)</button>
+            <button v-if="bailstatus == 3"  class="my-confirm-btn disabled">保证金退还中,无法新增邀请</button>
         </section>
 
         <mt-actionsheet
@@ -39,6 +41,7 @@
 <script>
     import {addQrcode} from "src/api/api"
     import common from "src/common/js/common"
+    import {checkBail} from "src/api/api"
 
 
     export default {
@@ -57,6 +60,9 @@
                     {name: '一月', method: this.selectExpiryDate},
                 ],
                 sheetVisible: false,
+
+                bailstatus: 1,
+                shouldPay: 0
             }
         },
 
@@ -117,9 +123,12 @@
             }
         },
 
-        created() {
-        }
-        ,
+        async created() {
+            let checkData = await checkBail();
+
+            this.bailstatus = checkData.bailstatus;
+            this.shouldPay = checkData.data.shouldpay;
+        },
     }
 </script>
 

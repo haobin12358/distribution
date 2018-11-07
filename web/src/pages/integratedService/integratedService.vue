@@ -34,17 +34,6 @@
                     margin-right: 20px;
                 }
 
-                &:nth-of-type(2){
-                    .cell-icon {
-                        .wl(47px, 44px);
-                    }
-                }
-
-                &:nth-of-type(3){
-                    .cell-icon {
-                        .wl(48px, 62px);
-                    }
-                }
 
 
                 .cell-title {

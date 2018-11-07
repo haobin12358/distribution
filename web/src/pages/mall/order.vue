@@ -3,24 +3,6 @@
 
     .container {
         min-height: 100vh;
-        .nav-bar {
-            .fj();
-            background: white;
-            margin-bottom: 10px;
-
-            .nav-bar-item {
-                flex: 1;
-                height: 80px;
-                .fontc(80px);
-                text-align: center;
-
-                &.active {
-                    color: @mainColor;
-                    border-bottom: 3px solid @mainColor;
-                }
-            }
-
-        }
 
         .order-list {
 
@@ -116,7 +98,8 @@
 
         <ul class="nav-bar">
             <li v-for="item in orderType" :class="{'nav-bar-item': true, 'active': item.value == selectOrderType}"
-                @click="switchOrderType(item)">{{item.label}}
+                @click="switchOrderType(item)">
+                {{item.label}}({{item.num}})
             </li>
         </ul>
 
@@ -179,15 +162,23 @@
                     {
                         label: '全部',
                         value: 0,
+                        num: 0
                     }, {
                         label: '待发货',
                         value: 1,
+                        num: 0
+
                     }, {
                         label: '已发货',
                         value: 2,
+                        num: 0
+
                     }, {
                         label: '已完成',
                         value: 3,
+                        num: 0
+
+
                     },
                 ],
 
@@ -243,20 +234,31 @@
                 this.loadingType = 'loading';
 
                 getOrderList(this.selectOrderType, this.page, this.count).then(
-                    ({data}) => {
-                        if (data.length < this.count) {
-                            this.loadingType = 'nomore';
-                        } else {
-                            this.loadingType = 'normal';
-                        }
+                    (resData) => {
+                        if(resData){
+                            let data = resData.data;
 
-                        if (replace) {
-                            this.orderList = data;
-                        } else {
-                            this.orderList = this.orderList.concat(data);
-                        }
+                            if(this.selectOrderType == 0){
+                                this.orderType[0].num = resData.state0_num;
+                                this.orderType[1].num = resData.state1_num;
+                                this.orderType[2].num = resData.state2_num;
+                                this.orderType[3].num = resData.state3_num;
+                            }
 
-                        this.page++;
+                            if (data.length < this.count) {
+                                this.loadingType = 'nomore';
+                            } else {
+                                this.loadingType = 'normal';
+                            }
+
+                            if (replace) {
+                                this.orderList = data;
+                            } else {
+                                this.orderList = this.orderList.concat(data);
+                            }
+
+                            this.page++;
+                        }
                     }
                 )
             },

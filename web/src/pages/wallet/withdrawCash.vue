@@ -13,14 +13,13 @@
             .form-item {
             }
 
-
         }
 
         .confirm-btn-wrap {
             margin-top: 343px;
             .fj(center);
 
-            .confirm-btn{
+            .confirm-btn {
                 .wl(600px, 90px);
                 .fontc(90px);
                 font-weight: bold;
@@ -29,7 +28,6 @@
                 border-radius: 50px;
 
             }
-
         }
     }
 </style>
@@ -44,31 +42,96 @@
         </header-top>
 
         <section class="form-container">
-            <mt-field class="form-item" label="银行名称" placeholder="请输入银行名称"></mt-field>
-            <mt-field class="form-item" label="支行名称" placeholder="请输入支行名称" type="email"></mt-field>
-            <mt-field class="form-item" label="开户姓名" placeholder="请输入开户姓名" type="password"></mt-field>
-            <mt-field class="form-item" label="卡号" placeholder="请输入卡号" type="password"></mt-field>
-            <mt-field class="form-item" label="金额" placeholder="请输入金额" type="password"></mt-field>
+            <mt-field class="form-item" label="银行名称" v-model="formData.bankname" :readonly="true" :disableClear="true"
+                      placeholder="请输入银行名称"></mt-field>
+            <mt-field class="form-item" label="支行名称" v-model.trim="formData.branchbank" placeholder="请输入支行名称"></mt-field>
+            <mt-field class="form-item" label="开户姓名" v-model="formData.accountname" :readonly="true" :disableClear="true"
+                      placeholder="请输入开户姓名"></mt-field>
+            <mt-field class="form-item" label="卡号" v-model="formData.cardnum" type="number"
+                      placeholder="请输入卡号"></mt-field>
+            <mt-field class="form-item" label="金额" v-model="formData.amount" type="number"
+                      placeholder="请输入金额"></mt-field>
         </section>
 
         <section class="confirm-btn-wrap">
-            <button class="confirm-btn">确 认 提 现</button>
+            <button class="confirm-btn" @click="doConfirm">确 认 提 现</button>
         </section>
 
     </div>
 </template>
 
 <script>
+    import {getDrawInfo, drawMoney} from "src/api/api"
+    import {mapActions} from "vuex"
+
+
     export default {
         name: "withdrawCash",
 
         data() {
-            return {}
+            return {
+                formData: {
+                    bankname: '',
+                    branchbank: '',
+                    accountname: '',
+                    cardnum: '',
+                    amount: '',
+                }
+            }
         },
 
         components: {},
 
-        methods: {},
+        methods: {
+
+            formDataCheck(){
+                if(!this.formData.branchbank){
+                    return '请输入支行名称!';
+                }
+                if(!this.formData.cardnum){
+                    return '请输入银行卡号!';
+                }
+                if(!this.formData.amount){
+                    return '请输入合理的打款金额数字';
+                }else if(!(this.formData.amount >0 && /^[0-9]+([.]{1}[0-9]+){0,1}$/.test(this.formData.amount))){
+                    return '请输入合理的打款金额数字'
+                }
+
+
+            },
+            doConfirm(){
+                let checkMsg = this.formDataCheck();
+
+                if(checkMsg){
+                    this.$toast(checkMsg);
+                }else{
+                    this.$messagebox.confirm(`确认提现${this.formData.amount}元?`).then(
+                        ()=>{
+                            drawMoney(this.formData).then(
+                                resData => {
+                                    if (resData) {
+                                        this.$toast(resData.message);
+                                        this.$router.push('/withdrawCashRecord');
+                                    }
+                                }
+                            )
+                        }
+                    )
+                }
+            },
+
+        },
+
+        created() {
+            getDrawInfo().then(
+                resData => {
+                    if (resData) {
+                        this.formData.bankname = resData.data.bankname;
+                        this.formData.accountname = resData.data.username;
+                    }
+                }
+            )
+        }
     }
 </script>
 

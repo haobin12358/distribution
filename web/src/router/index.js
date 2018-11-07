@@ -26,6 +26,7 @@ const addressEdit = r => require.ensure([], () => r(require('../pages/personal/a
 
 const wallet = r => require.ensure([], () => r(require('../pages/wallet/wallet')), 'wallet')
 const balanceCharge = r => require.ensure([], () => r(require('../pages/wallet/balanceCharge')), 'balanceCharge')
+const chargeRecord = r => require.ensure([], () => r(require('../pages/wallet/chargeRecord')), 'chargeRecord')
 const withdrawCash = r => require.ensure([], () => r(require('../pages/wallet/withdrawCash')), 'withdrawCash')
 const balanceRecord = r => require.ensure([], () => r(require('../pages/wallet/balanceRecord')), 'balanceRecord')
 const balanceRecordDetail = r => require.ensure([], () => r(require('../pages/wallet/balanceRecordDetail')), 'balanceRecordDetail')
@@ -198,6 +199,15 @@ export const constantRouterMap = [
         meta: {
             transitionName: 'router-slid',
             title: '余额充值',
+            requiresAuth: true
+
+        },
+    },{
+        path: '/chargeRecord',
+        component: chargeRecord,
+        meta: {
+            transitionName: 'router-slid',
+            title: '充值记录',
             requiresAuth: true
 
         },

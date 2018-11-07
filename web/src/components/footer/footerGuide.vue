@@ -8,29 +8,31 @@
         left: 0;
         bottom: 0;
         border-top: 1px solid #c1c1c1;
-        padding: 21px 89px 0;
+        padding: 21px 0 10px;
         box-sizing: border-box;
-        .wl(100%, 92px);
+        .wl(100%, 110px);
         .fj();
 
         .footer-item {
-            position: relative;
-            .fj(center);
-            flex-direction: column;
+            flex: 1;
+            .fjc(center);
+            align-items: center;
 
             &:nth-child(1) {
+                position: relative;
+
                 .tab-icon {
                     .wl(59px, 43px);
                 }
             }
             &:nth-child(2) {
                 .tab-icon {
-                    .wl(43px, 43px);
+                    .wl(53px, 53px);
                 }
             }
             &:nth-child(3) {
                 .tab-icon {
-                    .wl(40px, 43px);
+                    .wl(50px, 53px);
                 }
             }
 
@@ -49,8 +51,9 @@
             }
 
             .tab-title {
+                margin-top: 5px;
                 text-align: center;
-                .sc(20px, #aeaeae);
+                .sc(22px, #aeaeae);
 
                 &.active {
                     color: @mainColor;
@@ -65,12 +68,15 @@
 <template>
     <div class="footer">
         <section class="footer-item" @click="gotoAddress('/message')">
-            <img class="tab-icon"
-                 :src="$route.path.indexOf('message')!=-1?'/static/images/tabbar_message_active.png':'/static/images/tabbar_message.png'"
-                 alt="">
+            <section style="position: relative;">
+                <img class="tab-icon"
+                     :src="$route.path.indexOf('message')!=-1?'/static/images/tabbar_message_active.png':'/static/images/tabbar_message.png'"
+                     alt="">
+                <span class="tab-red-dot">{{notReadComMsgNum}}</span>
+            </section>
+
             <span :class="{'tab-title': true,active: $route.path.indexOf('message')!=-1}">信息</span>
 
-            <span class="tab-red-dot">{{notReadComMsgNum}}</span>
         </section>
         <section class="footer-item" @click="gotoAddress('/mall')">
             <img class="tab-icon"

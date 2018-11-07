@@ -175,9 +175,17 @@
 
         computed:{
             ...mapState(['userInfo']),
+
         },
 
-        methods: {},
+        methods: {
+            ...mapActions(['getUserInfo']),
+
+        },
+
+        created(){
+            this.getUserInfo();
+        }
     }
 </script>
 

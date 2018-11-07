@@ -61,69 +61,63 @@
 
 <template>
     <div class="container">
-        <header-top :show-back="true">
-            <section slot="right">
-                <router-link to="/withdrawCashRecord" tag="img" src="/static/images/myOrder.png"
-                             class="my-order-img"></router-link>
+        <header-top :show-back="true"></header-top>
+
+        <template v-if="bailstatus == 2">
+            <section class="form-container">
+                <mt-field class="form-item" label="扣款方式" :value="transferWay" :readonly="true"
+                          :disableClear="true"></mt-field>
+                <mt-field class="form-item" label="保证金额" :value="'￥'+shouldPay" :readonly="true"
+                          :disableClear="true"></mt-field>
             </section>
-        </header-top>
 
-        <section v-if="status == 1" class="form-container">
-            <mt-field class="form-item" label="扣款方式" placeholder="余额" v-model="transferWay" :readonly="true"
-                      :disableClear="true"></mt-field>
-            <mt-field class="form-item" label="金额" :placeholder="'￥'+marginMoney" :readonly="true"
-                      :disableClear="true"></mt-field>
-        </section>
+            <section class="withdraw-tip">
+                <p>
+                    备注：
+                </p>
+                <p>
+                    在后续的过程中，代理没有乱价则在退代理的时候可以退还保证金。
+                </p>
+            </section>
+        </template>
 
-        <section v-if="status == 2" class="form-container">
-            <mt-field class="form-item" label="退款方式" placeholder="银行卡" :readonly="true"
+        <section v-if="bailstatus == 1 || bailstatus == 3" class="form-container">
+            <mt-field class="form-item" label="退款方式" :value="transferWay" :readonly="true"
                       :disableClear="true">
             </mt-field>
-            <mt-field class="form-item" type="number" label="银行卡号" placeholder="请输入银行卡号">
-            </mt-field>
-
-            <mt-field class="form-item" label="金额" :placeholder="'￥'+marginMoney" :readonly="true"
+            <mt-field class="form-item" label="已交金额" :value="'￥'+personBail" :readonly="true"
                       :disableClear="true"></mt-field>
 
         </section>
 
 
-        <section class="withdraw-tip" v-if="status == 1">
-            <p>
-                备注：
-            </p>
-            <p>
-                在后续的过程中，代理没有乱价则在退代理的时候可以退还保证金。
-            </p>
+        <section class="my-confirm-btn-wrap">
+            <button v-if="bailstatus == 1" @click="returnMarginMoney" class="my-confirm-btn">退 还</button>
+            <button v-if="bailstatus == 2" @click="payMarginMoney" class="my-confirm-btn">提 交</button>
+            <button v-if="bailstatus == 3" class="my-confirm-btn disabled">退 还 审 核 中...</button>
         </section>
 
-        <section class="confirm-btn-wrap">
-            <button v-if="status == 1" class="confirm-btn">提 交</button>
-            <button v-if="status == 2 && !isAudit" class="confirm-btn">退 还</button>
-            <button v-if="isAudit" class="confirm-btn disabled">退 还</button>
-        </section>
-
-        <mt-popup v-model="isAudit">
-            <section class="popup-content">
-                <img src="/static/images/toast_audit.png" alt="">
-                <span>审核中...</span>
-            </section>
-        </mt-popup>
+        <!--<mt-popup v-model="isAudit">-->
+        <!--<section class="popup-content">-->
+        <!--<img src="/static/images/toast_audit.png" alt="">-->
+        <!--<span>审核中...</span>-->
+        <!--</section>-->
+        <!--</mt-popup>-->
     </div>
 </template>
 
 <script>
+    import {checkBail, chargeDrawBail, getUserBasicInfo} from "src/api/api"
+
     export default {
         name: "balanceCharge",
 
         data() {
             return {
-                status: 2,
-                isAudit: true,
                 transferWay: '余额',
-                marginMoney: '200',
-
-
+                bailstatus: 3,
+                shouldPay: 100,
+                personBail: 0
             }
         },
 
@@ -133,21 +127,54 @@
         components: {},
 
         methods: {
-            selectTransferWay(evt) {
-                this.transferWay = evt.name;
+            returnMarginMoney() {
+                this.$messagebox.confirm(`退还保证金后无法下单和邀请代理,确认退还(${this.personBail}元)?`).then(
+                    () => {
+                        chargeDrawBail(2, this.personBail).then(
+                            resData => {
+                                if (resData) {
+                                    this.$toast('您的退还申请已进入审核');
+                                    this.$router.back();
+                                }
+                            }
+                        )
+                    }
+                )
             },
-            dateTimeConfirm(evt) {
-                this.date = evt.toLocaleString('zh-CN', {hour12: false});
-            },
-            uploadFile() {
-                console.log(this.$refs.file.files[0]);
+            payMarginMoney() {
+                this.$messagebox.confirm(`缴纳保证金后可以下单和邀请代理,确认缴纳(${this.shouldPay}元)?`).then(
+                    () => {
+                        chargeDrawBail(2, this.personBail).then(
+                            resData => {
+                                if (resData) {
+                                    chargeDrawBail(1, this.shouldPay).then(
+                                        resData => {
+                                            if (resData) {
+                                                this.$toast('缴纳保证金成功');
+                                                this.$router.back();
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        )
+                    }
+                )
 
             }
         },
 
-        created() {
+        async created() {
+            let checkData = await checkBail();
 
-        }
+            this.bailstatus = checkData.bailstatus;
+
+            if (this.bailstatus == 1) {
+                this.personBail = await getUserBasicInfo().data.USbail;
+            }else if(this.bailstatus == 2){
+                this.shouldPay = checkData.data.shouldpay;
+            }
+        },
     }
 </script>
 

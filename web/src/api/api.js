@@ -1,6 +1,6 @@
 import axios from "axios"
 import {Indicator, Toast} from "mint-ui"
-import {getStore} from "src/common/js/mUtils"
+import {getStore,setStore} from "src/common/js/mUtils"
 import {TOKEN} from "src/common/js/const"
 
 const debug = false;
@@ -33,9 +33,15 @@ const myAxios = async (url, {params, data, method = 'get', showIndicator = true}
 
     if (res && res.status == 200) {
         if (res.data.status == 200) {
+            this.$router.push('/login');
+            setStore(TOKEN, '');
             return res.data;
         } else {
             Toast(res.data.message);
+            if(res.data.status == 405 && res.data.status_code == 405003){
+                this.$router.push('/login');
+                setStore(TOKEN, '');
+            }
             return
         }
     }
@@ -489,6 +495,99 @@ export const register = (formData) => myAxios('/user/register', {
     method: 'post',
     data: formData
 });
+
+/**
+ * 提现获取信息
+ * @returns {Promise<*|undefined>}
+ */
+export const getDrawInfo = () => myAxios('/account/get_draw_info', {
+    params:{
+        token: getStore(TOKEN)
+    }
+});
+/**
+ * 提现
+ * @param bankname
+ * @param branchbank
+ * @returns {Promise<*|undefined>}
+ */
+export const drawMoney = (formData) => myAxios('/account/draw_money', {
+    method: 'post',
+    params:{
+        token: getStore(TOKEN)
+    },
+    data:formData
+});
+/**
+ * 获取提现列表
+ * @param status    0全部，1待审核，2待打款，3已打款，4未通过
+ * @returns {Promise<*|undefined>}
+ */
+export const getDrawMoneyList = (status) => myAxios('/account/get_drawmoney_list', {
+    method: 'post',
+    params:{
+        token: getStore(TOKEN)
+    },
+    data:{
+        status
+    }
+});
+
+/**
+ * 线下充值
+ * @param formData
+ * @returns {Promise<*|undefined>}
+ */
+export const chargeMonney = (formData) => myAxios('/account/charge_monney', {
+    method: 'post',
+    params:{
+        token: getStore(TOKEN)
+    },
+    data:formData
+});
+/**
+ * 获取充值记录
+ * @param status
+ * @returns {Promise<*|undefined>}
+ */
+export const getChargeMoneyList = (status) => myAxios('/account/get_chargemoney_list', {
+    method: 'post',
+    params:{
+        token: getStore(TOKEN)
+    },
+    data:{
+        status
+    }
+});
+
+/**
+ * 查询保证金状态
+ * 返回值 bailstatus   1:已缴纳   2.不足    3.退还中
+ * @returns {Promise<*|undefined>}
+ */
+export const checkBail = () => myAxios('/account/check_bail', {
+    params:{
+        token: getStore(TOKEN)
+    }
+});
+/**
+ * 充值/退还 保证金
+ * @param type  1:充值    2:退还
+ * @param mount 金额
+ * @returns {Promise<*|undefined>}
+ */
+export const chargeDrawBail = (type, mount) => myAxios('/account/charge_draw_bail', {
+    method: 'post',
+    params:{
+        token: getStore(TOKEN)
+    },
+    data:{
+        type,
+        mount
+    }
+});
+
+
 
 
 
