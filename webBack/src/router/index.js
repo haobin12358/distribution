@@ -52,6 +52,7 @@ const service = r => require.ensure([], () => r(require('../views/service/index'
 const charge = r => require.ensure([], () => r(require('../views/service/charge')), 'charge');     //充值
 const withdraw = r => require.ensure([], () => r(require('../views/service/withdraw')), 'withdraw');     //充值
 const marginMoney = r => require.ensure([], () => r(require('../views/service/marginMoney')), 'marginMoney');     //保证金
+const register = r => require.ensure([], () => r(require('../views/service/register')), 'register');     //保证金
 
 
 export const constantRouterMap = [
@@ -73,7 +74,9 @@ export const constantRouterMap = [
         path: '/profile',
         redirect: 'profile/index',
         component: commonLayout,
-        meta: {},
+        meta: {
+            requireAuth: true
+        },
         children: [
             {
                 path: 'index',
@@ -87,7 +90,10 @@ export const constantRouterMap = [
         path: '/mall',
         redirect: 'mall/index',
         component: commonLayout,
-        meta: {},
+        meta: {
+            requireAuth: true
+
+        },
         children: [
             {
                 path: 'index',
@@ -101,7 +107,10 @@ export const constantRouterMap = [
         path: '/product',
         redirect: 'product/index',
         component: commonLayout,
-        meta: {},
+        meta: {
+            requireAuth: true
+
+        },
         children: [
             {
                 path: 'index',
@@ -112,6 +121,11 @@ export const constantRouterMap = [
                 component: productEdit,
                 meta: {}
             },
+            {
+                path: 'category',
+                component: category,
+                meta: {}
+            },
         ]
     },
 
@@ -119,17 +133,21 @@ export const constantRouterMap = [
         path: '/order',
         redirect: 'order/index',
         component: commonLayout,
-        meta: {},
+        meta: {
+            requireAuth: true
+
+        },
         children: [
             {
                 path: 'index',
                 component: order,
                 meta: {}
             }, {
-                path: 'productEdit',
+                path: 'orderDetail',
                 component: orderDetail,
                 meta: {}
             },
+
         ]
     },
 
@@ -137,7 +155,10 @@ export const constantRouterMap = [
         path: '/sale',
         redirect: 'sale/index',
         component: commonLayout,
-        meta: {},
+        meta: {
+            requireAuth: true
+
+        },
         children: [
             {
                 path: 'index',
@@ -155,7 +176,10 @@ export const constantRouterMap = [
         path: '/message',
         redirect: 'message/index',
         component: commonLayout,
-        meta: {},
+        meta: {
+            requireAuth: true
+
+        },
         children: [
             {
                 path: 'index',
@@ -169,7 +193,9 @@ export const constantRouterMap = [
         path: '/service',
         redirect: 'service/index',
         component: commonLayout,
-        meta: {},
+        meta: {
+            requireAuth: true
+        },
         children: [
             {
                 path: 'index',
@@ -183,10 +209,12 @@ export const constantRouterMap = [
                 path: 'charge',
                 component: charge,
                 meta: {}
-            },  {
-                path: 'marginMoney',
-                component: marginMoney,
-                meta: {}
+            }, {
+                path: 'register',
+                component: register,
+                meta: {
+
+                }
             },
         ]
     },
@@ -201,7 +229,7 @@ const router = new Router({
 })
 router.beforeEach((to, from, next) => {
     if (to.matched.some(record => record.meta.requireAuth)) {
-        if (sessionStorage.getItem('token')) {  // 判断当前的token是否存在
+        if (localStorage.getItem('token')) {  // 判断当前的token是否存在
             next();
         } else {
             next({

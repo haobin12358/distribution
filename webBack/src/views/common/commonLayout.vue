@@ -14,33 +14,34 @@
             }
         }
 
-        .right-content{
+        .right-content {
             flex: 1;
             padding-left: .2rem;
             padding-right: .4rem;
             overflow-y: scroll;
             /*overflow: scroll;*/
-            .right-content-hd{
+            .right-content-hd {
                 height: 1rem;
                 .fj(flex-end);
                 align-items: center;
                 /*border-bottom: 3px solid rgba(63, 63, 63, .3);*/
 
-                .search-input{
+                .search-input {
                     width: 3rem;
                 }
 
-                .admin-name{
+                .admin-name {
                     .fz(0.24rem);
-                    margin:  0 .2rem 0 .5rem;
+                    margin: 0 .2rem 0 .5rem;
+                    cursor: pointer;
                 }
 
-                .head-img{
+                .head-img {
                     .wl(.31rem, .34rem);
                 }
             }
 
-            .main-view{
+            .main-view {
                 padding-bottom: 1rem;
             }
         }
@@ -52,8 +53,9 @@
         <aside class="left-aside">
             <el-row class="tac">
                 <el-col :span="24">
-                    <el-menu :default-active="defaultIndex" class="el-menu-vertical-demo" background-color="#545c64" text-color="#fff"
-                        active-text-color="#ffd04b" :router="true">
+                    <el-menu :default-active="defaultPage.path" class="el-menu-vertical-demo" background-color="#545c64"
+                             text-color="#fff"
+                             active-text-color="#ffd04b" :router="true">
                         <el-menu-item v-for="item,index in menu" :index="item.path" :key="index">
                             <i class="el-icon-menu"></i>
                             <span slot="title">{{item.title}}</span>
@@ -66,11 +68,25 @@
         <section class="right-content">
             <header class="right-content-hd">
                 <el-input class="search-input" size="mini" v-model="searchTxt" placeholder="请输入内容"></el-input>
-                <span class="admin-name">Admin</span>
+                <el-dropdown class="admin-name" trigger="click" @command="handleCommand">
+                    <span class="el-dropdown-link">
+                        Admin
+                      <i class="el-icon-arrow-down el-icon--right"></i>
+                     </span>
+                    <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item command="changePwd">修改密码</el-dropdown-item>
+                        <el-dropdown-item divided command="logout">退出系统</el-dropdown-item>
+                    </el-dropdown-menu>
+                </el-dropdown>
                 <img class="head-img" src="/static/images/admin.png" alt="">
             </header>
 
             <main class="main-view">
+                <el-tabs v-if="showTabPane" :value="secondIndex" @tab-click="handleClick">
+                    <el-tab-pane v-for="item in defaultPage.children" :label="item.title"
+                                 :name="item.path" :key="item.path">
+                    </el-tab-pane>
+                </el-tabs>
                 <router-view>
 
                 </router-view>
@@ -91,27 +107,58 @@
             }
         },
 
-        components: {
-        },
+        components: {},
 
         computed: {
             ...mapState(['menu']),
 
-            defaultIndex(){
-                let firstLevelPath ='/'+ this.$route.path.split('/')[1]
+            defaultIndex() {
+                let firstLevelPath = '/' + this.$route.path.split('/')[1]
 
                 return firstLevelPath;
-            }
+            },
+            secondIndex() {
+                let secondLevelPath = this.$route.path.split('/')[2]
+
+                return secondLevelPath;
+            },
+
+
+            defaultPage() {
+                let firstLevelPath = '/' + this.$route.path.split('/')[1]
+
+                return this.menu.find(menu => menu.path == firstLevelPath);
+            },
+
+            showTabPane() {
+                let isSecond;
+
+                if (this.defaultPage.children) {
+                    isSecond = this.defaultPage.children.find(item => item.path == this.secondIndex);
+
+                }
+
+                return this.defaultPage.children && this.defaultPage.children.length && isSecond
+            },
         },
 
         methods: {
-            // handlerSelect(index, key) {
-            //     if ()
-            //     this.$route.push(index);
-            // }
+            handleClick(tab) {
+                this.$router.push(tab.name)
+            },
+            handleCommand(command){
+                switch (command) {
+                    case 'logout':
+                        this.$common.setStore('token', '');
+                        this.$router.push('/login');
+                        break;
+                }
+
+            }
         },
 
         created() {
+            // console.log(this.$route.path.split('/')[2]);
         },
     }
 </script>
