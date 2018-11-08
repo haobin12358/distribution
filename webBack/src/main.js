@@ -11,6 +11,7 @@ promise.polyfill();
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css'
 import './common/css/index.less'
+
 Vue.use(ElementUI);
 
 import seeImage from './components/common/SeeImage';
@@ -19,6 +20,7 @@ Vue.use(seeImage);
 
 //过滤器
 import filter from './filter'
+
 filter(Vue);
 
 //图表
@@ -31,53 +33,53 @@ Vue.prototype.$http = axios;
 import api from './api/api';
 Vue.prototype.$api = api;
 
+import common from './common/js/common';
+Vue.prototype.$common = common;
+
 
 //拦截器、
-import { Loading, Message, MessageBox  } from 'element-ui'
+import {Loading, Message, MessageBox} from 'element-ui'
 // 超时时间
 axios.defaults.timeout = 60000
 // http请求拦截器
 var loadinginstace
 axios.interceptors.request.use(config => {
-  // element ui Loading方法
-  loadinginstace = Loading.service({ fullscreen: true });
-  // console.log(loadinginstace)
-  return config
+    // config.baseURL = '/api'
+
+    // loadinginstace = Loading.service({fullscreen: true});
+    return config
 }, error => {
-  Message({
-    message:'加载超时',
-    type:'warning'
-  });
-  loadinginstace.close();
-  return Promise.reject(error);
+    Message({
+        message: '加载超时',
+        type: 'warning'
+    });
+    // loadinginstace.close();
+    return Promise.reject(error);
 })
 // http响应拦截器
 axios.interceptors.response.use(data => {// 响应成功关闭loading
-  loadinginstace.close();
-  if(data.data.status != 200){
-    Vue.prototype.$message.error(data.data.message);
-  }
-  return data;
+    // loadinginstace.close();
+    if (data.data.status != 200) {
+        Vue.prototype.$message.error(data.data.message);
+    }
+    return data;
 }, error => {
-  Message({
-    message:'请求失败',
-    type:'warning'
-  });
-  loadinginstace.close();
-  return Promise.reject(error);
+    Message({
+        message: '请求失败',
+        type: 'warning'
+    });
+    // loadinginstace.close();
+    return Promise.reject(error);
 })
-
-
-
 
 
 Vue.config.productionTip = false
 import store from './vuex'
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
-  router,
-  store,
-  components: { App },
-  template: '<App/>'
+    el: '#app',
+    router,
+    store,
+    components: {App},
+    template: '<App/>'
 });

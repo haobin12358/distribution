@@ -71,27 +71,18 @@
                             //清空Cookie
                             this.clearCookie();
                         }
-
-                        this.$router.push('/profile');
-                        return
-
-                        axios.post(api.login, {
-                            username: this.ruleForm.MAname,
-                            password: this.ruleForm.MApassword
-                        })
-                            .then(res => {
-                                if (res.data.status == 200) {
-                                    this.$store.state.username = this.ruleForm.MAname;
-                                    sessionStorage.setItem('token', res.data.data.token);
-                                    this.$router.push({path: '/profile'});
-                                } else {
-                                    this.$message.error(res.data.message);
+                        this.$http.post(this.$api.login, {
+                            adnum: this.ruleForm.MAname,
+                            adpassword: this.ruleForm.MApassword,
+                        }).then(
+                            res => {
+                                if(res.data.status == 200){
+                                    this.$common.setStore('token', res.data.data.token);
+                                    this.$router.push('/profile');
                                 }
-                            }, res => {
-                                this.$message.error(res.data.message);
-                            });
+                            }
+                        )
                     } else {
-                        console.log('error submit!!');
                         return false;
                     }
                 });
@@ -125,6 +116,12 @@
             },
             forgetPwd() {
                 this.$router.push('/forgetPwd');
+            }
+        },
+
+        created(){
+            if(this.$common.getStore('token')){
+                this.$router.push('/profile');
             }
         }
     }

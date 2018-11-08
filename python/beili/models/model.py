@@ -375,5 +375,16 @@ class AlreadyRead(Base):
     ARmessageid = Column(String(64))  # 消息id
     USid = Column(String(64))  # 已读消息用户id
 
+class SowingMap(Base):
+    """
+    轮播图列表
+    """
+    __tablename__ = 'sowingmap'
+    SMid = Column(String(64),primary_key=True) 
+    mallUrls = Column(String(255), nullable=False) #商城图片链接
+    personUrls = Column(String(255), nullable=False) #个人图片链接
+    SMstatus = Column(Boolean, default=False) #True表示被获取了，False表示未被获取
+
+
 
 # Base.metadata.create_all(mysql_engine)

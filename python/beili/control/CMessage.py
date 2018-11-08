@@ -180,3 +180,6 @@ class CMessage():
             return PARAMS_ERROR
         self.smessage.update_status(IRIid)
 
+    @verify_token_decorator
+    def message(self):
+        pass

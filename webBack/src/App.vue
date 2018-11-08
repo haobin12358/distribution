@@ -6,7 +6,11 @@
 
 <script type="text/ecmascript-6">
     export default {
-        name: 'App'
+        name: 'App',
+
+        created(){
+            document.title = '蓓莉云仓后台管理系统'
+        }
     }
 </script>
 

@@ -7,25 +7,318 @@
 
 <template>
     <div class="container">
+        <el-breadcrumb style="margin-bottom: .2rem;" separator="/">
+            <el-breadcrumb-item>所有订单</el-breadcrumb-item>
+        </el-breadcrumb>
+        <!--查询栏-->
+        <section class="tool-tip-wrap">
+            <el-form :inline="true" size="small" :model="formInline" class="demo-form-inline">
+                <el-form-item label="订单号">
+                    <el-input v-model.trim="formInline.oisn" :clearable="true" placeholder="订单号"></el-input>
+                </el-form-item>
+                <el-form-item label="下单时间">
+                    <el-col :span="11">
+                        <el-date-picker type="date" v-model="formInline.starttime" placeholder="起始日期"
+                                        style="width: 100%;"></el-date-picker>
+                    </el-col>
+                    <el-col class="middle-line" :span="2">-</el-col>
+                    <el-col :span="11">
+                        <el-date-picker type="date" v-model="formInline.endtime" placeholder="结束日期"
+                                        style="width: 100%;"></el-date-picker>
+                    </el-col>
+                </el-form-item>
+                <el-form-item label="收件人">
+                    <el-input v-model.trim="formInline.username" :clearable="true" placeholder="用户名"></el-input>
+                </el-form-item>
+                <el-form-item label="手机号">
+                    <el-input v-model.trim="formInline.userphonenum" :clearable="true" placeholder="手机号"></el-input>
+                </el-form-item>
+                <el-form-item label="商品名">
+                    <el-input v-model.trim="formInline.productname" :clearable="true" placeholder="商品名"></el-input>
+                </el-form-item>
 
+                <el-form-item label="状态">
+                    <el-select v-model="formInline.status" @change="setOrderList">
+                        <el-option v-for="option in statusOptions" :label="option.label" :value="option.value"
+                                   :key="option.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+
+                <el-form-item>
+                    <el-button type="primary" icon="el-icon-search" @click="doSearch">查询</el-button>
+                    <el-button @click="doReset" icon="el-icon-refresh">重置</el-button>
+                </el-form-item>
+            </el-form>
+            <el-switch
+                v-model="expandAll"
+                active-text="展开"
+                inactive-text="不展开"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
+                @change="changeSwitch">
+            </el-switch>
+
+            <!--<el-button @click="changeSwitch">切换的展开状态</el-button>-->
+            <!--<el-button @click="changeSwitch">切换所有行的展开状态</el-button>-->
+        </section>
+
+
+        <!--订单-->
+        <el-table :data="tableData" v-loading="loading" ref="orderTable" size="small" stripe :default-expand-all="expandAll"
+                  style="width: 100%" @row-click="expandRow">
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <el-table :data="props.row.product_list" size="small" stripe style="width: 100%">
+                        <el-table-column prop="img" align="center" label="图片" width="180">
+                            <template slot-scope="scope">
+                                <img :src="scope.row.PRimage" class="table-pic" alt="">
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="PRname" align="center" label=" 商品名" width="220"></el-table-column>
+                        <el-table-column prop="PRprice" align="center" label="单价" width="150"></el-table-column>
+                        <el-table-column prop="PRnum" align="center" label="数量" width="150"></el-table-column>
+                    </el-table>
+                </template>
+            </el-table-column>
+            <el-table-column prop="OIsn" align="center" label="订单号" width="180"></el-table-column>
+            <el-table-column prop="username" align="center" label="收件人" width="180"></el-table-column>
+            <el-table-column prop="userphonenum" align="center" label="手机号" width="120"></el-table-column>
+            <el-table-column prop="OImount" label="总价" align="center"></el-table-column>
+            <el-table-column prop="OIcreatetime" label="下单时间" align="center" width="180"></el-table-column>
+            <el-table-column label="状态" align="center">
+                <template slot-scope="scope">
+                    {{statusToTxt(scope.row.OIstatus)}}
+                </template>
+            </el-table-column>
+            <el-table-column label="快递信息" width="180" align="center">
+                <template slot-scope="scope">
+                    {{`${scope.row.expressname || ''} ${scope.row.expressnum || ''}`}}
+                </template>
+            </el-table-column>
+
+            <!--操作-->
+            <el-table-column label="操作" width="120" fixed="right" align="center">
+                <template slot-scope="scope">
+                    <el-button v-if="scope.row.OIstatus == 1" type="text" size="small" @click.stop="gotoOrderDetail(scope.row)">去发货</el-button>
+                    <el-button v-if="scope.row.OIstatus == 2" type="text" size="small" @click.stop="gotoOrderDetail(scope.row)">查看</el-button>
+                    <el-button v-if="scope.row.OIstatus == 3" type="text" size="small" @click.stop="gotoOrderDetail(scope.row)">查看</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+
+        <section style="display: flex; justify-content: center">
+            <el-pagination
+                style="margin-top: .5rem"
+                :current-page="currentPage"
+                :page-sizes="[10, 20, 30, 40]"
+                :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total"
+                @size-change="sizeChange"
+                @current-change="pageChange">
+            </el-pagination>
+        </section>
     </div>
 </template>
 
 <script>
+    let tableData = [
+        {
+            date: '2016-05-02',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1518 弄'
+        }, {
+            date: '2016-05-04',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1517 弄'
+        }, {
+            date: '2016-05-01',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1519 弄'
+        }, {
+            date: '2016-05-03',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1516 弄'
+        }, {
+            date: '2016-05-04',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1517 弄'
+        }, {
+            date: '2016-05-01',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1519 弄'
+        }, {
+            date: '2016-05-03',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1516 弄'
+        }, {
+            date: '2016-05-01',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1519 弄'
+        }, {
+            date: '2016-05-03',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1516 弄'
+        }];
+
     export default {
         name: "index",
 
         data() {
-            return {}
+            return {
+                statusOptions:[
+                    {
+                        value: 0,
+                        label: '全部',
+                    },{
+                        value: 1,
+                        label: '待发货',
+                    },{
+                        value: 2,
+                        label: '已发货',
+                    },{
+                        value: 3,
+                        label: '已完成',
+                    },
+                ],
+                formInline: {
+                    user: '',
+                    oisn: "",
+                    status: 0,
+                    username: "",
+                    userphonenum: "",
+                    productname: "",
+                    starttime: '',
+                    endtime: '',
+                },
+
+                expandAll: true,
+                loading: false,
+                total: 0,
+                currentPage: 1,
+                pageSize: 10,
+                tableData: [],
+                tableData2: [
+                    {
+                        img: '/static/images/test_img.png',
+                        name: '纸尿裤',
+                        price: 123,
+                        num: 1,
+                    }, {
+                        img: '/static/images/test_img.png',
+                        name: '纸尿裤',
+                        price: 123,
+                        num: 1,
+                    }, {
+                        img: '/static/images/test_img.png',
+                        name: '纸尿裤',
+                        price: 123,
+                        num: 1,
+                    }, {
+                        img: '/static/images/test_img.png',
+                        name: '纸尿裤',
+                        price: 123,
+                        num: 1,
+                    }, {
+                        img: '/static/images/test_img.png',
+                        name: '纸尿裤',
+                        price: 123,
+                        num: 1,
+                    },
+                ],
+                dialogTableVisible: false
+            }
         },
 
         components: {},
 
         computed: {},
 
-        methods: {},
+        methods: {
+            expandRow(row) {
+                this.$refs.orderTable.toggleRowExpansion(row);
+            },
+            gotoOrderDetail(order) {
+                this.$router.push({
+                    path: 'orderDetail',
+                    query: order
+                })
+            },
+
+            doSearch() {
+                this.setOrderList();
+            },
+            doReset() {
+                this.formInline = {
+                    user: '',
+                    oisn: "",
+                    status: 0,
+                    username: "",
+                    userphonenum: "",
+                    productname: "",
+                    starttime: '',
+                    endtime: '',
+                }
+
+                this.setOrderList();
+            },
+            changeSwitch() {
+                for (let i = 0; i < this.tableData.length; i++) {
+                    this.$refs.orderTable.toggleRowExpansion(this.tableData[i], this.expandAll);
+                }
+            },
+
+            sizeChange(pageSize) {
+                this.pageSize = pageSize;
+                this.currentPage = 1;
+
+                this.setOrderList();
+            },
+            pageChange(page) {
+                this.currentPage = page;
+                this.setOrderList();
+            },
+
+            setOrderList() {
+                this.loading = true;
+                this.$http.post(this.$api.getAllOrder,
+                    {
+                        "page_size": this.pageSize,
+                        "page_num": this.currentPage,
+                        "oisn": this.formInline.oisn,
+                        "starttime":this.$common.dateFormat( this.formInline.starttime),
+                        "endtime": this.$common.dateFormat(this.formInline.endtime),
+                        "status": this.formInline.status,
+                        "username": this.formInline.username,
+                        "userphonenum": this.formInline.userphonenum,
+                        "productname": this.formInline.productname,
+                    }, {
+                        params: {
+                            token: this.$common.getStore('token')
+                        }
+                    }).then(
+                    res => {
+                        this.loading = false;
+
+                        if (res.data.status == 200) {
+                            let resData = res.data,
+                                data = res.data.data;
+
+                            this.tableData = data;
+                            this.total = resData.mount;
+                        }
+                    }
+                )
+            },
+
+            statusToTxt(status){
+                return this.statusOptions.find(item => item.value == status).label;
+            }
+        },
 
         created() {
+            this.setOrderList();
         },
     }
 </script>
