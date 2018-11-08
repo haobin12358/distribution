@@ -118,7 +118,7 @@ class SAccount(SBase):
                                   , MoneyRecord.MRtype, MoneyRecord.MRtradenum).filter(MoneyRecord.USid == id).all()
 
     @close_session
-    def get_reward_by_nextid(self):
+    def get_reward_by_nextid(self, id):
         return self.session.query(Reward.REmount, Reward.REmonth).filter(Reward.REnextuserid == id).all()
 
     @close_session
