@@ -64,8 +64,8 @@ class CMessage():
         if is_admin():
             comMessage_list = get_model_return_list(self.smessage.get_comMessage_list(page, count))  # 分页查询出的公司消息列表
             comMessage_num = self.smessage.get_commessage_num()  # 公司消息总条数
-            data['mount'] = int(comMessage_num)
             data = import_status('get_commessage_list_success', 'OK')
+            data['mount'] = int(comMessage_num)
             data['data'] = comMessage_list
             return data
         else:
