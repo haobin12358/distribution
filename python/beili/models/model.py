@@ -275,7 +275,7 @@ class DrawMoney(Base):
     银行卡线下提现记录表
     """
     __tablename__ = 'drawmoney'
-    DMDid = Column(String(64), primary_key=True)
+    DMid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户id
     DMamount = Column(Float)  # 提现金额
     DMbankname = Column(String(64), nullable=False)     # 银行名称

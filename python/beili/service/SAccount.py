@@ -59,6 +59,45 @@ class SAccount(SBase):
             .filter(DrawMoney.USid == id).order_by(DrawMoney.DMcreatetime.desc()).all()
 
     @close_session
+    def get_alluser_drawmoney_list(self, status):
+        result = self.session.query(DrawMoney.DMstatus, DrawMoney.DMcreatetime, DrawMoney.DMamount, DrawMoney.DMtradenum
+                                  , DrawMoney.DMbankname, DrawMoney.DMbranchname, DrawMoney.DMaccountname, DrawMoney.DMid
+                                  , DrawMoney.DMcardnum).order_by(DrawMoney.DMcreatetime.desc())
+        if status > 0:
+            result = result.filter(DrawMoney.DMstatus == status)
+        result = result.all()
+        return result
+
+    @close_session
+    def update_by_dmid(self, id, update2):
+        self.session.query(DrawMoney).filter(DrawMoney.DMid == id).update(update2)
+        return True
+
+    @close_session
+    def get_drawmoney_info(self, id):
+        return self.session.query(DrawMoney.USid).filter(DrawMoney.DMid).first()
+
+    @close_session
+    def get_alluser_chargemoney(self, status):
+        result = self.session.query(ChargeMoney.USid, ChargeMoney.CMpaytime, ChargeMoney.CMstatus, ChargeMoney.CMamount
+                                  , ChargeMoney.CMtradenum, ChargeMoney.CMcreatetime, ChargeMoney.CMpaytime, ChargeMoney.CMremark
+                                  , ChargeMoney.CMcardnum, ChargeMoney.CMaccountname, ChargeMoney.CMbankname, ChargeMoney.CMalipaynum
+                                  , ChargeMoney.CMstatus, ChargeMoney.CMid).order_by(ChargeMoney.CMcreatetime.desc())
+        if status > 0:
+            result = result.filter(ChargeMoney.CMstatus == status)
+        result = result.all()
+        return result
+
+    @close_session
+    def get_chargemoney_info(self, cmid):
+        return self.session.query(ChargeMoney.USid).filter(ChargeMoney.CMid == cmid).first()
+
+    @close_session
+    def update_by_cmid(self, id, update2):
+        self.session.query(ChargeMoney).filter(ChargeMoney.CMid == id).update(update2)
+        return True
+
+    @close_session
     def get_all_chargemoney_list(self, id):
         return self.session.query(ChargeMoney.CMstatus, ChargeMoney.CMcreatetime, ChargeMoney.CMtradenum,
                                   ChargeMoney.CMamount, ChargeMoney.CMpaytime).filter(ChargeMoney.USid == id).all()

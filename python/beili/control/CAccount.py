@@ -7,7 +7,7 @@ import random
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR, STOCK_NOT_ENOUGH,\
-        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_USER, NOT_FOUND_OPENID
+        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_USER, NOT_FOUND_OPENID, NOT_FOUND_RECORD
 from config.setting import QRCODEHOSTNAME, DRAWBANK, BAIL, APP_ID, MCH_ID, MCH_KEY, notify_url
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
@@ -235,9 +235,9 @@ class CAccount():
         if float(user['USmount']) < float(amount):
             return NO_ENOUGH_MOUNT
         time_now = datetime.strftime(datetime.now(), format_for_db)
-        tradenum = datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
+        tradenum = 'tx' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
         result = self.saccount.add_drawmoney(str(uuid.uuid4()), request.user.id, bankname, branchbank, accountname, cardnum,\
-                                    amount, time_now, tradenum)
+                                    float(amount), time_now, tradenum)
         if result:
             update = {}
             update['USmount'] = float(user['USmount']) - float(amount)
@@ -574,6 +574,96 @@ class CAccount():
         response = import_status("get_performancelist_success", "OK")
         response['data'] = new_list
         return response
+
+    @verify_token_decorator
+    def get_alluser_drawmoney_list(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            status = data.get("status")
+        except:
+            return PARAMS_ERROR
+        list = get_model_return_list(self.saccount.get_alluser_drawmoney_list(status)) if\
+                self.saccount.get_alluser_drawmoney_list(status) else None
+        if not list:
+            response = import_status("get_drawmoneylist_success", "OK")
+            response['data'] = []
+            return response
+        for record in list:
+            from common.timeformat import get_web_time_str
+            record['DMcreatetime'] = get_web_time_str(record['DMcreatetime'])
+        response = import_status("get_drawmoneylist_success", "OK")
+        response['data'] = list
+        return response
+
+    @verify_token_decorator
+    def deal_drawmoney(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            willstatus = int(data.get("willstatus"))
+            dmid = data.get("dmid")
+        except:
+            return PARAMS_ERROR
+        result = get_model_return_dict(self.saccount.get_drawmoney_info(dmid)) if self.saccount.get_drawmoney_info(dmid) else None
+        if not result:
+            return NOT_FOUND_RECORD
+        update = {}
+        update['DMstatus'] = willstatus
+        update_result = self.saccount.update_by_dmid(dmid, update)
+        if not update_result:
+            return SYSTEM_ERROR
+        response = import_status("update_record_success", "OK")
+        return response
+
+    @verify_token_decorator
+    def get_all_chargemoney(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            status = int(data.get('status'))
+        except:
+            return PARAMS_ERROR
+        result = get_model_return_list(self.saccount.get_alluser_chargemoney(status)) if self.saccount\
+                .get_alluser_chargemoney(status) else None
+        if not result:
+            response = import_status("get_chargemoneylist_success", "OK")
+            response['data'] = []
+            return response
+        for record in result:
+            from common.timeformat import get_web_time_str, format_forweb_no_HMS
+            record['CMcreatetime'] = get_web_time_str(record['CMcreatetime'])
+            record['CMpaytime'] = get_web_time_str(record['CMpaytime'], format_forweb_no_HMS)
+        response = import_status("get_chargemoneylist_success", "OK")
+        response['data'] = result
+        return response
+
+    @verify_token_decorator
+    def deal_chargemoney(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            willstatus = int(data.get("willstatus"))
+            cmid = data.get("cmid")
+        except:
+            return PARAMS_ERROR
+        result = get_model_return_dict(self.saccount.get_chargemoney_info(cmid)) if self.saccount.get_chargemoney_info(
+            cmid) else None
+        if not result:
+            return NOT_FOUND_RECORD
+        update = {}
+        update['CMstatus'] = willstatus
+        update_result = self.saccount.update_by_cmid(cmid, update)
+        if not update_result:
+            return SYSTEM_ERROR
+        response = import_status("update_record_success", "OK")
+        return response
+
+
 
 
     @verify_token_decorator
