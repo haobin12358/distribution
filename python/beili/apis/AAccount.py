@@ -22,7 +22,8 @@ class AAccount(Resource):
             'get_chargemoney_list': 'self.caccount.get_chargemoney_list()',
             'charge_draw_bail': 'self.caccount.charge_draw_bail()',
             'get_alluser_account': 'self.caccount.get_alluser_account()',
-            'get_directagent_performance': "self.caccount.get_directagent_performance()"
+            'get_directagent_performance': "self.caccount.get_directagent_performance()",
+            "get_all_performance": "self.caccount.get_all_performance()"
         }
         res = eval(apis[account])
         return jsonify(res)

@@ -130,7 +130,7 @@ class CAccount():
         return response
 
 
-    def get_teamperformance_list(self, id, month):
+    def get_teamperformance_list(self, id, month):  # 获取包含自己的团队所有人业绩
         performance_list = []
         self_performance = self.saccount.get_user_performance(id, month)
         if self_performance:
@@ -553,6 +553,25 @@ class CAccount():
             record['MRcreatetime'] = get_web_time_str(record['MRcreatetime'])
         response = import_status("get_moneyrecord_success", "OK")
         response['data'] = records
+        return response
+
+    @verify_token_decorator
+    def get_all_performance(self):  # 获取业绩列表
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            month = str(data.get('month'))
+        except:
+            return PARAMS_ERROR
+        performance_list = self.get_teamperformance_list(request.user.id, month)
+        if not performance_list:
+            response = import_status("get_performancelist_success", "OK")
+            response['data'] = []
+            return response
+        new_list = sorted(performance_list, key=lambda performance: performance['performance'], reverse=True)
+        response = import_status("get_performancelist_success", "OK")
+        response['data'] = new_list
         return response
 
 
