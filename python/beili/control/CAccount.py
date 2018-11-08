@@ -526,7 +526,7 @@ class CAccount():
                 direct['teamperformance'] = teamperformance
                 reward = self.saccount.get_reward_by_nextid(direct['USid'])
                 if reward:
-                    direct['reward'] = get_model_return_list(self.saccount.get_reward_by_nextid(direct['USid']))['REmount'] if \
+                    direct['reward'] = get_model_return_dict(self.saccount.get_reward_by_nextid(direct['USid']))['REmount'] if \
                         self.saccount.get_reward_by_nextid(direct['USid']) else None
             all_direct_num = int(len(direct_list))
             response = import_status("get_directagent_and_performance_list_success", "OK")

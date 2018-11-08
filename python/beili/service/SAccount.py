@@ -119,7 +119,7 @@ class SAccount(SBase):
 
     @close_session
     def get_reward_by_nextid(self, id):
-        return self.session.query(Reward.REmount, Reward.REmonth).filter(Reward.REnextuserid == id).all()
+        return self.session.query(Reward.REmount, Reward.REmonth).filter(Reward.REnextuserid == id).first()
 
     @close_session
     def create_weixin_charge(self, id, openid, wcsn, amount):
