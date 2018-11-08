@@ -29,7 +29,8 @@ class AAccount(Resource):
             'get_all_chargemoney': 'self.caccount.get_all_chargemoney()',
             'deal_chargemoney': 'self.caccount.deal_chargemoney()',
             'get_alluser_bailrecord': 'self.caccount.get_alluser_bailrecord()',
-            'deal_bailrecord': 'self.caccount.deal_bailrecord()'
+            'deal_bailrecord': 'self.caccount.deal_bailrecord()',
+            'deal_reward_discount': 'self.caccount.deal_reward_discount()'
         }
         res = eval(apis[account])
         return jsonify(res)

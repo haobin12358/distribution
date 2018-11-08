@@ -15,8 +15,13 @@ class SAccount(SBase):
 
     @close_session
     def get_account_by_month(self, usid, month):  # 获取用户直推奖励和个人业绩数
-        return self.session.query(Amount.reward, Amount.performance)\
+        return self.session.query(Amount.reward, Amount.performance, Amount.AMid, Amount.AMstatus)\
             .filter(Amount.USid == usid).filter(Amount.AMmonth == month).first()
+
+    @close_session
+    def update_account(self, amid, update):
+        self.session.query(Amount).filter(Amount.AMid == amid).update(update)
+        return True
 
     @close_session
     def get_discount_ruler(self):
@@ -79,7 +84,7 @@ class SAccount(SBase):
 
     @close_session
     def get_alluser_chargemoney(self, status):
-        result = self.session.query(ChargeMoney.USid, ChargeMoney.CMpaytime, ChargeMoney.CMstatus, ChargeMoney.CMamount
+        result = self.session.query(ChargeMoney.USid, ChargeMoney.CMpaytime, ChargeMoney.CMstatus, ChargeMoney.CMamount, ChargeMoney.CMproof
                                   , ChargeMoney.CMtradenum, ChargeMoney.CMcreatetime, ChargeMoney.CMpaytime, ChargeMoney.CMremark
                                   , ChargeMoney.CMcardnum, ChargeMoney.CMaccountname, ChargeMoney.CMbankname, ChargeMoney.CMalipaynum
                                   , ChargeMoney.CMstatus, ChargeMoney.CMid).order_by(ChargeMoney.CMcreatetime.desc())
@@ -183,6 +188,11 @@ class SAccount(SBase):
             list = list.filter(Amount.AMstatus == status)
         list = list.all()
         return list
+
+    @close_session
+    def getstatus_by_admidandmonth(self, amid, usid, month):
+        return self.session.query(Amount.AMstatus, Amount).filter(Amount.AMid == amid).filter(Amount.USid == usid)\
+                .filter(Amount.AMmonth == month).first()
 
     @close_session
     def get_moneyrecord(self, id):

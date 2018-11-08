@@ -7,7 +7,7 @@ import random
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR, STOCK_NOT_ENOUGH,\
-        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_USER, NOT_FOUND_OPENID, NOT_FOUND_RECORD
+        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_USER, NOT_FOUND_OPENID, NOT_FOUND_RECORD, MONEY_ERROR
 from config.setting import QRCODEHOSTNAME, DRAWBANK, BAIL, APP_ID, MCH_ID, MCH_KEY, notify_url
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
@@ -517,6 +517,46 @@ class CAccount():
         return response
 
     @verify_token_decorator
+    def deal_reward_discount(self):
+        if not is_admin():
+            return AUTHORITY_ERROR
+        try:
+            data = request.json
+            amid = data.get('amid')
+            usid = data.get('usid')
+            month = str(data.get('month'))
+            profit = data.get('profit')
+        except:
+            return PARAMS_ERROR
+        account = get_model_return_dict(
+            self.saccount.get_account_by_month(usid, month)) if self.saccount.get_account_by_month(id, month) else None
+        if not account or account['AMid'] != amid or account['AMstatus'] != 1:
+            return NOT_FOUND_RECORD
+        mydiscount = self.get_mydiscount(id, month)
+        reward = account['reward']
+        if profit != mydiscount + reward:
+            return MONEY_ERROR
+        update = {}
+        update["AMstatus"] = 2
+        result = self.saccount.update_account(amid)
+        if not result:
+            return SYSTEM_ERROR
+        tradenum = get_random_str(5) + datetime.strftime(datetime.now(), format_for_db)
+        time_now = datetime.strftime(datetime.now(), format_for_db)
+        result2 = self.saccount.add_moneyrecord(usid, profit, 5, time_now
+                                                , tradenum=tradenum, oiid=None)
+        if not result2:
+            return SYSTEM_ERROR
+        user = get_model_return_dict(self.smycenter.get_user_basicinfo(usid)) if \
+            self.smycenter.get_user_basicinfo(usid) else None
+        update = {}
+        update['USmount'] = user['USmount'] + profit
+        self.smycenter.update_user_by_uid(usid, update)
+        response = import_status("deal_profit_success", "OK")
+        return response
+
+
+    @verify_token_decorator
     def get_directagent_performance(self):
         if not is_admin():
             return AUTHORITY_ERROR
@@ -652,6 +692,7 @@ class CAccount():
             return response
         for record in result:
             from common.timeformat import get_web_time_str, format_forweb_no_HMS
+            record['CMproof'] = record['CMproof'].split(',')
             record['CMcreatetime'] = get_web_time_str(record['CMcreatetime'])
             record['CMpaytime'] = get_web_time_str(record['CMpaytime'], format_forweb_no_HMS)
         response = import_status("get_chargemoneylist_success", "OK")

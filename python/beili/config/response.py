@@ -156,6 +156,11 @@ NOT_FOUND_RECORD = {
     "status_code": 405031,
     "message": "未找到记录"
 }
+MONEY_ERROR = {
+    "status": 405,
+    "status_code": 405032,
+    "message": "金额核对出错"
+}
 ADMINNUM_ERROR = {
     "status": 405,
     "status_code": 405100,
@@ -177,5 +182,4 @@ PRODUCE_CATEGORY_NOT_EXIST = {
     "status_code": 405103,
     "message": "该商品分类不存在"   
 }
-
 
