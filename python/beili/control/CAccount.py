@@ -562,9 +562,10 @@ class CAccount():
         try:
             data = request.json
             month = str(data.get('month'))
+            usid = data.get('usid')
         except:
             return PARAMS_ERROR
-        performance_list = self.get_teamperformance_list(request.user.id, month)
+        performance_list = self.get_teamperformance_list(usid, month)
         if not performance_list:
             response = import_status("get_performancelist_success", "OK")
             response['data'] = []
