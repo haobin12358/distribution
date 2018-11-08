@@ -35,7 +35,7 @@ class SAccount(SBase):
     @close_session
     def add_drawmoney(self, id, usid, bankname, branchbank, accountname, cardnum, amount, time_now, tradenum):
         draw = DrawMoney()
-        draw.DMDid = id
+        draw.DMid = id
         draw.USid = usid
         draw.DMbankname = bankname
         draw.DMbranchname = branchbank
@@ -75,7 +75,7 @@ class SAccount(SBase):
 
     @close_session
     def get_drawmoney_info(self, id):
-        return self.session.query(DrawMoney.USid).filter(DrawMoney.DMid).first()
+        return self.session.query(DrawMoney.USid, DrawMoney.DMstatus, DrawMoney.DMamount, DrawMoney.DMtradenum).filter(DrawMoney.DMid).first()
 
     @close_session
     def get_alluser_chargemoney(self, status):
@@ -89,8 +89,22 @@ class SAccount(SBase):
         return result
 
     @close_session
+    def add_moneyrecord(self, usid,  amount, type, createtime, tradenum=None, oiid=None):
+        record = MoneyRecord()
+        record.MRid = str(uuid.uuid4())
+        record.USid = usid
+        record.MRamount = amount
+        record.MRtype = type
+        record.MRcreatetime = createtime
+        record.MRtradenum = tradenum
+        record.OIid = oiid
+        self.session.add(record)
+        return True
+
+
+    @close_session
     def get_chargemoney_info(self, cmid):
-        return self.session.query(ChargeMoney.USid).filter(ChargeMoney.CMid == cmid).first()
+        return self.session.query(ChargeMoney.USid, ChargeMoney.CMamount, ChargeMoney.CMtradenum).filter(ChargeMoney.CMid == cmid).first()
 
     @close_session
     def update_by_cmid(self, id, update2):
@@ -154,7 +168,8 @@ class SAccount(SBase):
     @close_session
     def get_moneyrecord(self, id):
         return self.session.query(MoneyRecord.MRid, MoneyRecord.MRcreatetime, MoneyRecord.MRamount, MoneyRecord.OIid
-                                  , MoneyRecord.MRtype, MoneyRecord.MRtradenum).filter(MoneyRecord.USid == id).all()
+                                  , MoneyRecord.MRtype, MoneyRecord.MRtradenum).filter(MoneyRecord.USid == id)\
+                                  .order_by(MoneyRecord.MRcreatetime.desc()).all()
 
     @close_session
     def get_reward_by_nextid(self, id):

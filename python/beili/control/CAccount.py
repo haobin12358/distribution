@@ -226,7 +226,7 @@ class CAccount():
             branchbank = str(data.get('branchbank'))
             accountname = str(data.get('accountname'))
             cardnum = str(data.get('cardnum'))
-            amount = str(data.get('amount'))
+            amount = int(data.get('amount'))
         except:
             return PARAMS_ERROR
         user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
@@ -238,6 +238,7 @@ class CAccount():
         tradenum = 'tx' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
         result = self.saccount.add_drawmoney(str(uuid.uuid4()), request.user.id, bankname, branchbank, accountname, cardnum,\
                                     float(amount), time_now, tradenum)
+        result2 = self.saccount.add_moneyrecord(request.user.id, -amount, 2, time_now, tradenum=tradenum, oiid=None)
         if result:
             update = {}
             update['USmount'] = float(user['USmount']) - float(amount)
@@ -598,7 +599,7 @@ class CAccount():
         return response
 
     @verify_token_decorator
-    def deal_drawmoney(self):
+    def deal_drawmoney(self):   # 处理提现操作
         if not is_admin():
             return TOKEN_ERROR
         try:
@@ -615,6 +616,15 @@ class CAccount():
         update_result = self.saccount.update_by_dmid(dmid, update)
         if not update_result:
             return SYSTEM_ERROR
+        if willstatus == 4:
+            time_now = datetime.strftime(datetime.now(), format_for_db)
+            result2 = self.saccount.add_moneyrecord(result['USid'], result['DMamount'], 7, time_now
+                                                   , tradenum=result['DMtradenum'], oiid=None)
+            user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
+                self.smycenter.get_user_basicinfo(result['USid']) else None
+            update = {}
+            update['USmount'] = user['USmount'] + result['DMamount']
+            self.smycenter.update_user_by_uid(result['USid'], update)
         response = import_status("update_record_success", "OK")
         return response
 
@@ -660,6 +670,15 @@ class CAccount():
         update_result = self.saccount.update_by_cmid(cmid, update)
         if not update_result:
             return SYSTEM_ERROR
+        if willstatus == 2:
+            time_now = datetime.strftime(datetime.now(), format_for_db)
+            self.saccount.add_moneyrecord(result['USid'], result['CMamount'], 4, time_now
+                                                    , tradenum=result['CMtradenum'], oiid=None)
+            user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
+                self.smycenter.get_user_basicinfo(result['USid']) else None
+            update = {}
+            update['USmount'] = user['USmount'] + result['CMamount']
+            self.smycenter.update_user_by_uid(result['USid'], update)
         response = import_status("update_record_success", "OK")
         return response
 
