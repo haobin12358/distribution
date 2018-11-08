@@ -485,7 +485,7 @@ class CMyCenter():
         else:
             return NOT_FOUND_ADDRESS
     @verify_token_decorator
-    def add_comment(self):
+    def add_comments(self):
         if is_tourist():
             return TOKEN_ERROR
         try:

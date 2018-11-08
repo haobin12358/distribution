@@ -22,7 +22,15 @@ class AAccount(Resource):
             'get_chargemoney_list': 'self.caccount.get_chargemoney_list()',
             'charge_draw_bail': 'self.caccount.charge_draw_bail()',
             'get_alluser_account': 'self.caccount.get_alluser_account()',
-            'get_directagent_performance': "self.caccount.get_directagent_performance()"
+            'get_directagent_performance': "self.caccount.get_directagent_performance()",
+            "get_all_performance": "self.caccount.get_all_performance()",
+            'get_alluser_drawmoney_list': 'self.caccount.get_alluser_drawmoney_list()',
+            'deal_drawmoney': 'self.caccount.deal_drawmoney()',
+            'get_all_chargemoney': 'self.caccount.get_all_chargemoney()',
+            'deal_chargemoney': 'self.caccount.deal_chargemoney()',
+            'get_alluser_bailrecord': 'self.caccount.get_alluser_bailrecord()',
+            'deal_bailrecord': 'self.caccount.deal_bailrecord()',
+            'deal_reward_discount': 'self.caccount.deal_reward_discount()'
         }
         res = eval(apis[account])
         return jsonify(res)
@@ -33,7 +41,8 @@ class AAccount(Resource):
             'get_directagent': 'self.caccount.get_directagent()',
             'get_distribute': 'self.caccount.get_distribute()',
             'get_draw_info': 'self.caccount.get_draw_info()',
-            'check_bail': 'self.caccount.check_bail()'
+            'check_bail': 'self.caccount.check_bail()',
+            'get_moneyrecord': 'self.caccount.get_moneyrecord()'
 
         }
         res = eval(apis[account])

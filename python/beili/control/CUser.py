@@ -12,7 +12,7 @@ from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, 
     NOT_FOUND_QRCODE, HAS_REGISTER, NO_BAIL, BAD_ADDRESS
 from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM, MONEY, BAIL, \
     WECHATSERVICE, REWARD, REDIRECT_URI, APP_ID, APP_SECRET, SERVER
-from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser, is_temp
+from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser, is_temp, is_admin
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
 from common.timeformat import get_db_time_str, get_random_str
@@ -125,7 +125,7 @@ class CUser():
 
     @verify_token_decorator
     def upload_file(self):
-        if is_ordirnaryuser():
+        if is_ordirnaryuser() or is_admin:
             try:
                 files = request.files.get("file")
             except:
@@ -179,7 +179,7 @@ class CUser():
 
     @verify_token_decorator
     def remove_file(self):
-        if is_ordirnaryuser():
+        if is_ordirnaryuser() or is_admin():
             try:
                 data = request.json
                 url = str(data.get('url'))

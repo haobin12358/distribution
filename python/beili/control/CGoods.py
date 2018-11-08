@@ -10,7 +10,8 @@ import copy
 # import logging
 
 
-from config.response import PARAMS_MISS, NO_THIS_CATEGORY, PARAMS_ERROR, PRODUCE_CATEGORY_EXIST, PRODUCE_CATEGORY_NOT_EXIST, AUTHORITY_ERROR, SYSTEM_ERROR
+from config.response import PARAMS_MISS, NO_THIS_CATEGORY, PARAMS_ERROR, PRODUCE_CATEGORY_EXIST, PRODUCE_CATEGORY_NOT_EXIST\
+    , AUTHORITY_ERROR, SYSTEM_ERROR, TOKEN_ERROR
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin, is_ordirnaryuser,is_superadmin
 from common.import_status import import_status
@@ -55,8 +56,11 @@ class CGoods():
                 product_list = product_list + get_model_return_list(
                     self.sgoods.admin_get_product(PRstatus, PRname, PAid))
         for product in product_list:
-            categoryname = get_model_return_dict(self.sgoods.get_category_byid(product['PAid']))['PAname']
-            product['categoryname'] = categoryname
+            category = get_model_return_dict(self.sgoods.get_category_byid(product['PAid']))
+            product['firstpaid'] = category['Parentid']
+            parent_category = get_model_return_dict(self.sgoods.get_category_byid(category['Parentid']))
+            product['firstpaname'] = parent_category['PAname']
+            product['categoryname'] = category['PAname']
             product['PRcreatetime'] = get_web_time_str(product['PRcreatetime'])
 
         mount = len(product_list)
@@ -282,6 +286,24 @@ class CGoods():
                 return SYSTEM_ERROR
             response = import_status("create_product_success", "OK")
             return response
+
+    @verify_token_decorator
+    def withdraw_product(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            prid = data.get('prid')
+        except:
+            return PARAMS_ERROR
+        if not prid:
+            return PARAMS_ERROR
+        result = self.sgoods.withdraw_product(prid)
+        if not result:
+            return SYSTEM_ERROR
+        response = import_status("withdraw_product_success", "OK")
+        return response
+
 
     @verify_token_decorator
     def sowing_map(self):

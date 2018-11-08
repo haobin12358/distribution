@@ -87,14 +87,14 @@ class Product(Base):
 
 class BailRecord(Base):
     """
-    保证操作记录表金
+    保证金操作记录表
     """
     __tablename__ = 'bailrecord'
     BRid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户id
     BRtype = Column(Integer)  # 记录类型 1充值 2退还
     BRmount = Column(Float)  # 交易金额
-    BRstatus = Column(Integer)  # 状态，1，已充值 2，退还中 3，已退还
+    BRstatus = Column(Integer)  # 状态，1，已充值 2，退还中 3，已退还 4,退还失败
     BRtradenum = Column(String(30))  # 流水号
     BRcreatetime = Column(String(14))  # 创建日期
 
@@ -138,6 +138,21 @@ class Qrcode(Base):
     QRovertime = Column(String(64))  # 过期时间
     QRnumber = Column(String(64))  # 使用次数
     QRstatus = Column(Integer, default=1)  #1 可用
+
+class MoneyRecord(Base):
+    """
+    收支记录表
+    """
+    __tablename__ = 'moneyrecord'
+    MRid = Column(String(64), primary_key=True)
+    USid = Column(String(64))
+    MRtype = Column(Integer)  # {1,订单支出 2,提现 3,充值保证金 4,余额充值 5,奖金发放 6,保证金退还 7，提现失败}
+    MRamount = Column(Float)  # 金额
+    OIid = Column(String(30))  # 订单号
+    MRtradenum = Column(String(30))  # 流水号
+    MRcreatetime = Column(String(14))  # 创建日期
+
+
 
 class OrderInfo(Base):
     """订单信息"""
@@ -243,25 +258,25 @@ class DiscountRuler(Base):
     DRnumber = Column(Float)  # 数量
     DRratio = Column(Float)  # 折扣比例
 
-class OnlineCharge(Base):
+class WeixinCharge(Base):
     """
     微信线上充值记录表(如果需要)
     """
-    __tablename__ = 'onlinecharge'
-    ONRid = Column(String(64), primary_key=True)
+    __tablename__ = 'weixincharge'
+    WCid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户
-    ONRamount = Column(Float)  # 充值金额
-    ONRwechatnum = Column(String(125))  # 充值微信账户
-    ONRstatus = Column(Integer)  # 记录状态: {0: 全部, 1: 充值中, 2: 充值成功, 3: 充值失败}
-    ONDcreatetime = Column(String(14))  # 创建时间
-    ONDtradenum = Column(String(125))  # 交易号, (如果有)
+    WCamount = Column(Float)  # 充值金额
+    WCopenid = Column(String(125))  # 充值微信账户
+    WCstatus = Column(Integer)  # 记录状态: {0: 全部, 1:未支付 2: 充值成功, 3: 充值失败}
+    WCpaytime = Column(String(14))  # 充值时间
+    WCsn = Column(String(125))  # 交易号
 
 class DrawMoney(Base):
     """
     银行卡线下提现记录表
     """
     __tablename__ = 'drawmoney'
-    DMDid = Column(String(64), primary_key=True)
+    DMid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户id
     DMamount = Column(Float)  # 提现金额
     DMbankname = Column(String(64), nullable=False)     # 银行名称

@@ -25,7 +25,7 @@ import platform
 from common.beili_error import stockerror, dberror
 from datetime import datetime
 from common.timeformat import format_for_db
-from models.model import User, AgentMessage, Performance, Amount, Reward
+from models.model import User, AgentMessage, Performance, Amount, Reward, MoneyRecord
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -62,6 +62,8 @@ class COrder():
             real_PRlogisticsfee = 0
         else:
             real_PRlogisticsfee = get_model_return_dict(self.sgoods.get_product(product_list[0]['PRid']))['PRlogisticsfee']
+            if not real_PRlogisticsfee:
+                real_PRlogisticsfee = 0
         user_info = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
         if not user_info:
             return SYSTEM_ERROR
@@ -185,6 +187,14 @@ class COrder():
                 amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
                 amount.AMmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
                 session.add(amount)
+            moneyrecord = MoneyRecord()
+            moneyrecord.MRid = str(uuid.uuid4())
+            moneyrecord.MRtype = 1
+            moneyrecord.OIid = OIsn
+            moneyrecord.MRamount = -(mount + real_PRlogisticsfee)
+            moneyrecord.MRcreatetime = datetime.strftime(datetime.now(), format_for_db)
+            moneyrecord.USid = request.user.id
+            session.add(moneyrecord)
             session.commit()
         except stockerror as e:
             session.rollback()
