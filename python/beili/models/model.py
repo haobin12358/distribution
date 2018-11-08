@@ -145,7 +145,7 @@ class MoneyRecord(Base):
     __tablename__ = 'moneyrecord'
     MRid = Column(String(64), primary_key=True)
     USid = Column(String(64))
-    MRtype = Column(Integer)  # {1,订单支出 2,提现 3,充值 4,奖金发放}
+    MRtype = Column(Integer)  # {1,订单支出 2,提现 3,充值保证金 4,余额充值 5,奖金发放 6,保证金退还}
     MRamount = Column(Float)  # 金额
     OIid = Column(String(30))  # 订单号
     MRtradenum = Column(String(30))  # 流水号

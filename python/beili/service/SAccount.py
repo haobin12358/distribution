@@ -4,7 +4,7 @@ import os
 import uuid
 from werkzeug.security import check_password_hash
 from service.SBase import SBase, close_session
-from models.model import User,DrawMoney, Amount, DiscountRuler, ChargeMoney, BailRecord, WeixinCharge, MoneyRecord
+from models.model import User,DrawMoney, Amount, DiscountRuler, ChargeMoney, BailRecord, WeixinCharge, MoneyRecord, Reward
 from sqlalchemy import func
 from common.beili_error import dberror, stockerror
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
@@ -100,7 +100,7 @@ class SAccount(SBase):
     @close_session
     def get_alluser_account(self, name, month, agentid, status):
         list = self.session.query(Amount.USid, Amount.reward, Amount.USagentid, Amount.USname, Amount.AMmonth, Amount.AMstatus
-                                  , Amount.AMid, Amount.performance)
+                                  , Amount.AMid, Amount.performance, Amount.AMtradenum)
         if name:
             list = list.filter(Amount.USname.like('%{0}%'.format(name)))
         if month:
@@ -116,6 +116,10 @@ class SAccount(SBase):
     def get_moneyrecord(self, id):
         return self.session.query(MoneyRecord.MRid, MoneyRecord.MRcreatetime, MoneyRecord.MRamount, MoneyRecord.OIid
                                   , MoneyRecord.MRtype, MoneyRecord.MRtradenum).filter(MoneyRecord.USid == id).all()
+
+    @close_session
+    def get_reward_by_nextid(self):
+        return self.session.query(Reward.REmount, Reward.REmonth).filter(Reward.REnextuserid == id).all()
 
     @close_session
     def create_weixin_charge(self, id, openid, wcsn, amount):
