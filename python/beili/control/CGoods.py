@@ -105,7 +105,7 @@ class CGoods():
                 if pastatus == False:
                     continue
                 product_category_list['PAid'] = parnetid
-                product_category_list['Parentname'] = parentname
+                product_category_list['PAname'] = parentname
                 child_category = get_model_return_list(self.sgoods.get_first_product_category(parnetid))
                 product_category_list['child_category'] = child_category
                 test = product_category_list.copy()
