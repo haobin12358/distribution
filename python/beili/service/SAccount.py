@@ -4,7 +4,7 @@ import os
 import uuid
 from werkzeug.security import check_password_hash
 from service.SBase import SBase, close_session
-from models.model import User,DrawMoney, Amount, DiscountRuler, ChargeMoney, BailRecord
+from models.model import User,DrawMoney, Amount, DiscountRuler, ChargeMoney, BailRecord, WeixinCharge, MoneyRecord
 from sqlalchemy import func
 from common.beili_error import dberror, stockerror
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
@@ -111,6 +111,27 @@ class SAccount(SBase):
             list = list.filter(Amount.AMstatus == status)
         list = list.all()
         return list
+
+    @close_session
+    def get_moneyrecord(self, id):
+        return self.session.query(MoneyRecord.MRid, MoneyRecord.MRcreatetime, MoneyRecord.MRamount, MoneyRecord.OIid
+                                  , MoneyRecord.MRtype, MoneyRecord.MRtradenum).filter(MoneyRecord.USid == id).all()
+
+    @close_session
+    def create_weixin_charge(self, id, openid, wcsn, amount):
+        charge = WeixinCharge()
+        charge.WCid = str(uuid.uuid4())
+        charge.USid = id
+        charge.WCamount = amount
+        charge.WCopenid = openid
+        charge.WCstatus = 1
+        charge.WCsn = wcsn
+        self.session.add(charge)
+        return True
+
+    @close_session
+    def get_record_by_wcsn(self, wcsn):
+        return self.session.query(WeixinCharge.WCstatus).filter(WeixinCharge.WCsn == wcsn).first()
 
 
 

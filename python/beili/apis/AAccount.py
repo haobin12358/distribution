@@ -33,7 +33,8 @@ class AAccount(Resource):
             'get_directagent': 'self.caccount.get_directagent()',
             'get_distribute': 'self.caccount.get_distribute()',
             'get_draw_info': 'self.caccount.get_draw_info()',
-            'check_bail': 'self.caccount.check_bail()'
+            'check_bail': 'self.caccount.check_bail()',
+            'get_moneyrecord': 'self.caccount.get_moneyrecord()'
 
         }
         res = eval(apis[account])

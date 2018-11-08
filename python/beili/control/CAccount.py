@@ -7,8 +7,8 @@ import random
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR, STOCK_NOT_ENOUGH,\
-        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_USER
-from config.setting import QRCODEHOSTNAME, DRAWBANK, BAIL
+        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_USER, NOT_FOUND_OPENID
+from config.setting import QRCODEHOSTNAME, DRAWBANK, BAIL, APP_ID, MCH_ID, MCH_KEY, notify_url
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
 from common.timeformat import get_db_time_str
@@ -24,6 +24,9 @@ from config.urlconfig import get_code
 import platform
 from common.beili_error import stockerror, dberror
 from datetime import datetime
+from weixin import WeixinError
+from weixin.login import WeixinLoginError, WeixinLogin
+from weixin.pay import WeixinPay, WeixinPayError
 from common.timeformat import format_for_db, get_random_str
 from models.model import User, AgentMessage, BailRecord
 sys.path.append(os.path.dirname(os.getcwd()))
@@ -38,6 +41,7 @@ class CAccount():
         self.smycenter = SMyCenter()
         self.smessage = SMessage()
         self.saccount = SAccount()
+        self.pay = WeixinPay(APP_ID, MCH_ID, MCH_KEY, notify_url)
         self.rulerlist = get_model_return_list(self.saccount.get_discount_ruler())
 
     @verify_token_decorator
@@ -530,7 +534,78 @@ class CAccount():
             response['data'] = []
             return response
 
+    @verify_token_decorator
+    def get_moneyrecord(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        usid = request.user.id
+        records = get_model_return_list(self.saccount.get_moneyrecord(usid)) if self.saccount.get_moneyrecord(usid) else None
+        if not records:
+            response = import_status("get_moneyrecord_success", "OK")
+            response['data'] = []
+            return response
+        for record in records:
+            from common.timeformat import get_web_time_str
+            record['MRcreatetime'] = get_web_time_str(record['MRcreatetime'])
+        response = import_status("get_moneyrecord_success", "OK")
+        response['data'] = records
+        return response
 
 
+    @verify_token_decorator
+    def weixin_pay(self):
+        if is_tourist():
+            raise TOKEN_ERROR()
+        try:
+            data = request.json
+            amount = data.get('amount')
+        except:
+            return PARAMS_ERROR
+        wcsn = 'cz' + datetime.strftime(datetime.now(), format_for_db)  # 充值号
+        user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
+        if not user:
+            return NOT_FOUND_USER
+        openid = user['openid']
+        if not openid:
+            return NOT_FOUND_OPENID
+        result = self.saccount.create_weixin_charge(request.user.id, openid, wcsn, amount)
+        if not result:
+            return SYSTEM_ERROR
+        total_fee = 1
+        raw = self.pay.jsapi(trade_type="JSAPI", openid=openid,
+                             out_trade_no=wcsn,
+                             total_fee=int(total_fee),
+                             spbill_create_ip=request.remote_addr,
+                             body='1234')
+        res = dict(raw)
+        print res
+        res['paySign'] = res.get('sign')
+        data = import_status('get_prepay_message_ok', 'OK')
+        data['data'] = res
+        return data
 
-
+    @verify_token_decorator
+    def pay_callback(self):
+        data = self.pay.to_dict(request.data)
+        if not self.pay.check(data):
+            return self.pay.reply(u"签名验证失败", False)
+        print data
+        result = data.get('return_code')
+        if str(result) != 'SUCCESS':
+            update = {}
+            update
+        wcsn = data.get('out_trade_no')
+        record = get_model_return_dict(self.saccount.get_record_by_wcsn(wcsn)) if self.saccount.get_record_by_wcsn(wcsn) else None
+        if not record or record['WCstatus'] != 1:
+            # 无效请求
+            return self.pay.reply("OK", True)
+        # 修改记录状态
+        update = {}
+        update['WCstatus'] = 1
+        paytime = data.get('time_end')
+        update_dict = {
+            'OIpaystatus': 5,  # 待发货
+            'OIpaytime': paytime,
+            'OIpaytype': 1,  # 统一微信支付
+        }
+        # 如果存在上一级

@@ -39,8 +39,4 @@ MCH_ID = '1516500191'
 MCH_KEY = 'hiuhef98y3198dg928dhhsdGHHUY8y98'
 APP_SECRET= '3befb44903c957180ddad2d18d1677c5'
 REDIRECT_URI = 'https://beili.daaiti.cn:443/user/get_code'
-
-# weidian
-APP_ID = 'wx8206635590c9cc0e'
-APP_SECRET_KEY = 'ba8c532bfd8e7390e3cfc91ac17c0472'
-wximg = 'https://daaiti.cn/imgs/WeiDian/qrcode/wx.jpg'
+notify_url = 'https://beiliserver.daaiti.cn/account/pay_callback'
