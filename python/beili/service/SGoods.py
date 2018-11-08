@@ -29,6 +29,12 @@ class SGoods(SBase):
     def get_category_byid(self, id):
         return self.session.query(ProductCategory.PAname, ProductCategory.Parentid).filter(ProductCategory.PAid == id).first()
 
+    @close_session
+    def withdraw_product(self, prid):
+        update = {}
+        update['PRstatus'] = 3
+        self.session.query(Product.PRid == prid).update(update)
+        return True
 
     @close_session
     def get_product_list(self, page_size, page_num, PAid=None, PRstatus=None):

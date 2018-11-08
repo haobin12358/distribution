@@ -10,7 +10,8 @@ import copy
 # import logging
 
 
-from config.response import PARAMS_MISS, NO_THIS_CATEGORY, PARAMS_ERROR, PRODUCE_CATEGORY_EXIST, PRODUCE_CATEGORY_NOT_EXIST, AUTHORITY_ERROR, SYSTEM_ERROR
+from config.response import PARAMS_MISS, NO_THIS_CATEGORY, PARAMS_ERROR, PRODUCE_CATEGORY_EXIST, PRODUCE_CATEGORY_NOT_EXIST\
+    , AUTHORITY_ERROR, SYSTEM_ERROR, TOKEN_ERROR
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin, is_ordirnaryuser,is_superadmin
 from common.import_status import import_status
@@ -285,6 +286,22 @@ class CGoods():
                 return SYSTEM_ERROR
             response = import_status("create_product_success", "OK")
             return response
+
+    @verify_token_decorator
+    def withdraw_product(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            prid = data.get('prid')
+        except:
+            return PARAMS_ERROR
+        result = self.sgoods.withdraw_product(prid)
+        if not result:
+            return SYSTEM_ERROR
+        response = import_status("withdraw_product_success", "OK")
+        return response
+
 
     @verify_token_decorator
     def sowing_map(self):
