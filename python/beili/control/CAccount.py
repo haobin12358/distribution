@@ -769,6 +769,8 @@ class CAccount():
         try:
             data = request.json
             status = int(data.get('status'))
+            page_size = data.get('page_size')
+            page_num = data.get('page_num')
         except:
             return PARAMS_ERROR
         result = get_model_return_list(self.saccount.get_alluser_bailrecord(status)) if self.saccount\
@@ -782,8 +784,19 @@ class CAccount():
         for record in result:
             from common.timeformat import get_web_time_str
             record['BRcreatetime'] = get_web_time_str(record['BRcreatetime'])
+        mount = len(result)
+        page = mount / page_size
+        if page == 0 or page == 1 and mount % page_size == 0:
+            real_return_list = result[0:]
+        else:
+            if ((mount - (page_num - 1) * page_size) / page_size) >= 1 and \
+                    (mount - (page_num * page_size)) > 0:
+                real_return_list = result[((page_num - 1) * page_size):(page_num * page_size)]
+            else:
+                real_return_list = result[((page_num - 1) * page_size):]
         response = import_status("get_bailrecordlist_success", "OK")
-        response['data'] = result
+        response['data'] = real_return_list
+        response['mount'] = mount
         return response
 
 
