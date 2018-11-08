@@ -296,6 +296,8 @@ class CGoods():
             prid = data.get('prid')
         except:
             return PARAMS_ERROR
+        if not prid:
+            return PARAMS_ERROR
         result = self.sgoods.withdraw_product(prid)
         if not result:
             return SYSTEM_ERROR

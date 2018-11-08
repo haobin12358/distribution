@@ -33,7 +33,7 @@ class SGoods(SBase):
     def withdraw_product(self, prid):
         update = {}
         update['PRstatus'] = 3
-        self.session.query(Product.PRid == prid).update(update)
+        self.session.query(Product).filter(Product.PRid == prid).update(update)
         return True
 
     @close_session
