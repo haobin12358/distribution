@@ -732,7 +732,7 @@ class CAccount():
         return response
 
     @verify_token_decorator
-    def deal_chargemoney(self):
+    def deal_chargemoney(self):  # 处理充值申请
         if not is_admin():
             return TOKEN_ERROR
         try:
@@ -763,7 +763,7 @@ class CAccount():
         return response
 
     @verify_token_decorator
-    def get_alluser_bailrecord(self):
+    def get_alluser_bailrecord(self):  # 获取所有保证金列表
         if not is_admin():
             return TOKEN_ERROR
         try:
@@ -799,9 +799,8 @@ class CAccount():
         response['mount'] = mount
         return response
 
-
     @verify_token_decorator
-    def deal_bailrecord(self):
+    def deal_bailrecord(self):  # 处理保证金申请
         if not is_admin():
             return TOKEN_ERROR
         try:
