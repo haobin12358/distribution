@@ -517,7 +517,7 @@ class CAccount():
         return response
 
     @verify_token_decorator
-    def deal_reward_discount(self):
+    def deal_reward_discount(self):  # 发放奖金
         if not is_admin():
             return AUTHORITY_ERROR
         try:
@@ -658,9 +658,6 @@ class CAccount():
         response['mount'] = mount
         response['data'] = real_return_list
         return response
-
-
-
 
     @verify_token_decorator
     def deal_drawmoney(self):   # 处理提现操作
