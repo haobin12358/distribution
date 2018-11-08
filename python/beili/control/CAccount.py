@@ -479,9 +479,8 @@ class CAccount():
             return response
         all_list = get_model_return_list(self.saccount.get_alluser_account(username, month, agentid, status))
         if not all_list:
-            response = {}
+            response = import_status("get_alluser_account_success", "OK")
             response['data'] = []
-            response['message'] = import_status("get_alluser_account_success", "OK")
             return response
         real_list = []
         if userphonenum:
