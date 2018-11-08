@@ -557,7 +557,7 @@ class CAccount():
 
     @verify_token_decorator
     def get_all_performance(self):  # 获取业绩列表
-        if is_tourist():
+        if not is_admin():
             return TOKEN_ERROR
         try:
             data = request.json
