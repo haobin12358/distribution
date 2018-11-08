@@ -630,6 +630,8 @@ class CAccount():
         try:
             data = request.json
             status = data.get("status")
+            page_size = data.get('page_size')
+            page_num = data.get('page_num')
         except:
             return PARAMS_ERROR
         list = get_model_return_list(self.saccount.get_alluser_drawmoney_list(status)) if\
@@ -641,9 +643,24 @@ class CAccount():
         for record in list:
             from common.timeformat import get_web_time_str
             record['DMcreatetime'] = get_web_time_str(record['DMcreatetime'])
+
+        mount = len(list)
+        page = mount / page_size
+        if page == 0 or page == 1 and mount % page_size == 0:
+            real_return_list = list[0:]
+        else:
+            if ((mount - (page_num - 1) * page_size) / page_size) >= 1 and \
+                    (mount - (page_num * page_size)) > 0:
+                real_return_list = list[((page_num - 1) * page_size):(page_num * page_size)]
+            else:
+                real_return_list = list[((page_num - 1) * page_size):]
         response = import_status("get_drawmoneylist_success", "OK")
-        response['data'] = list
+        response['mount'] = mount
+        response['data'] = real_return_list
         return response
+
+
+
 
     @verify_token_decorator
     def deal_drawmoney(self):   # 处理提现操作
@@ -682,6 +699,8 @@ class CAccount():
         try:
             data = request.json
             status = int(data.get('status'))
+            page_size = data.get('page_size')
+            page_num = data.get('page_num')
         except:
             return PARAMS_ERROR
         result = get_model_return_list(self.saccount.get_alluser_chargemoney(status)) if self.saccount\
@@ -695,8 +714,21 @@ class CAccount():
             record['CMproof'] = record['CMproof'].split(',')
             record['CMcreatetime'] = get_web_time_str(record['CMcreatetime'])
             record['CMpaytime'] = get_web_time_str(record['CMpaytime'], format_forweb_no_HMS)
+
+        mount = len(result)
+        page = mount / page_size
+        if page == 0 or page == 1 and mount % page_size == 0:
+            real_return_list = result[0:]
+        else:
+            if ((mount - (page_num - 1) * page_size) / page_size) >= 1 and \
+                    (mount - (page_num * page_size)) > 0:
+                real_return_list = result[((page_num - 1) * page_size):(page_num * page_size)]
+            else:
+                real_return_list = result[((page_num - 1) * page_size):]
+
         response = import_status("get_chargemoneylist_success", "OK")
-        response['data'] = result
+        response['data'] = real_return_list
+        response['mount'] = mount
         return response
 
     @verify_token_decorator

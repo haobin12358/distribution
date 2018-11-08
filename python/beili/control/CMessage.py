@@ -63,6 +63,9 @@ class CMessage():
             return PARAMS_ERROR
         if is_admin():
             comMessage_list = get_model_return_list(self.smessage.get_comMessage_list(page, count))  # 分页查询出的公司消息列表
+            from common.timeformat import get_web_time_str
+            for message in comMessage_list:
+                message['CMdate'] = get_web_time_str(message['CMdate'])
             comMessage_num = self.smessage.get_commessage_num()  # 公司消息总条数
             data = import_status('get_commessage_list_success', 'OK')
             data['mount'] = int(comMessage_num)
