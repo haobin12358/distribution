@@ -20,6 +20,7 @@ class SMyCenter(SBase):
         self.session.query(User).filter_by(USid=uid).update(users)
         return True
 
+
     @close_session
     def get_inforcode_by_usphonenum(self, phonenum):
         return self.session.query(IdentifyingCode.ICcode).filter_by(ICphonenum=phonenum).order_by( \

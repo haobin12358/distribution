@@ -151,6 +151,25 @@ class SAccount(SBase):
         return self.session.query(BailRecord).filter(BailRecord.USid == id).filter(BailRecord.BRstatus == status).first()
 
     @close_session
+    def get_alluser_bailrecord(self, status):
+        list = self.session.query(BailRecord.BRtradenum, BailRecord.USid, BailRecord.BRstatus, BailRecord.BRcreatetime
+                    , BailRecord.BRtype, BailRecord.BRmount, BailRecord.BRid).order_by(BailRecord.BRcreatetime.desc())
+        if status > 0:
+            list = list.filter(BailRecord.BRstatus)
+        list = list.all()
+        return list
+
+    @close_session
+    def get_bailrecord_info(self, id):
+        return self.session.query(BailRecord.USid, BailRecord.BRtradenum, BailRecord.BRmount)\
+            .filter(BailRecord.BRid == id).first()
+
+    @close_session
+    def update_bailrecord(self, id, update):
+        self.session.query(BailRecord).filter(BailRecord.BRid == id).update(update)
+        return True
+
+    @close_session
     def get_alluser_account(self, name, month, agentid, status):
         list = self.session.query(Amount.USid, Amount.reward, Amount.USagentid, Amount.USname, Amount.AMmonth, Amount.AMstatus
                                   , Amount.AMid, Amount.performance, Amount.AMtradenum)

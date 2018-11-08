@@ -388,7 +388,7 @@ class CAccount():
 
 
     @verify_token_decorator
-    def charge_draw_bail(self):
+    def charge_draw_bail(self):  # 充值和提取保证金
         if is_tourist():
             return TOKEN_ERROR
         try:
@@ -414,14 +414,22 @@ class CAccount():
                 update_bail['USbail'] = bail_now + mount
                 session.query(User).filter(User.USid == request.user.id).update(update_bail)
 
+
                 record = BailRecord()
+                tradenum = 'bz' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
                 record.BRid = str(uuid.uuid4())
                 record.USid = request.user.id
                 record.BRmount = mount
                 record.BRtype = 1
                 record.BRstatus = 1
+                record.BRtradenum = tradenum
                 record.BRcreatetime = datetime.strftime(datetime.now(), format_for_db)
                 session.add(record)
+
+                time_now = datetime.strftime(datetime.now(), format_for_db)
+                result2 = self.saccount.add_moneyrecord(request.user.id, -mount, 3, time_now
+                                                        , tradenum=tradenum, oiid=None)
+
                 session.commit()
                 response = import_status("charge_bail_success", "OK")
                 return response
@@ -435,7 +443,7 @@ class CAccount():
                 record.BRmount = mount
                 record.BRtype = 2
                 record.BRstatus = 2
-                record.BRtradenum = datetime.strftime(datetime.now(), format_for_db) + get_random_str(5)
+                record.BRtradenum = 'bz' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
                 record.BRcreatetime = datetime.strftime(datetime.now(), format_for_db)
                 session.add(record)
                 session.commit()
@@ -681,6 +689,69 @@ class CAccount():
             self.smycenter.update_user_by_uid(result['USid'], update)
         response = import_status("update_record_success", "OK")
         return response
+
+    @verify_token_decorator
+    def get_alluser_bailrecord(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            status = int(data.get('status'))
+        except:
+            return PARAMS_ERROR
+        result = get_model_return_list(self.saccount.get_alluser_bailrecord(status)) if self.saccount\
+            .get_alluser_bailrecord(status) else None
+        if not result:
+            return NOT_FOUND_RECORD
+        if not result:
+            response = import_status("get_bailrecordlist_success", "OK")
+            response['data'] = []
+            return response
+        for record in result:
+            from common.timeformat import get_web_time_str
+            record['BRcreatetime'] = get_web_time_str(record['BRcreatetime'])
+        response = import_status("get_bailrecordlist_success", "OK")
+        response['data'] = result
+        return response
+
+
+    @verify_token_decorator
+    def deal_bailrecord(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            willstatus = int(data.get("willstatus"))
+            brid = data.get("brid")
+        except:
+            return PARAMS_ERROR
+        result = get_model_return_dict(self.saccount.get_bailrecord_info(brid)) if self.saccount.get_bailrecord_info(
+            brid) else None
+        if not result:
+            return NOT_FOUND_RECORD
+        update = {}
+        update['BRstatus'] = willstatus
+        result2 = self.saccount.update_bailrecord(brid, update)
+        if not result2:
+            return SYSTEM_ERROR
+        if willstatus == 3:
+            time_now = datetime.strftime(datetime.now(), format_for_db)
+            self.saccount.add_moneyrecord(result['USid'], result['BRmount'], 6, time_now
+                                          , tradenum=result['BRtradenum'], oiid=None)
+            user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
+                self.smycenter.get_user_basicinfo(result['USid']) else None
+            update = {}
+            update['USmount'] = user['USmount'] + result['BRmount']
+            self.smycenter.update_user_by_uid(result['USid'], update)
+        if willstatus == 4:
+            user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
+                self.smycenter.get_user_basicinfo(result['USid']) else None
+            update_bail = {}
+            update_bail['USbail'] = user['USbail'] + result['BRmount']
+            self.smycenter.update_user_by_uid(result['USid'], update_bail)
+        response = import_status("update_record_success", "OK")
+        return response
+
 
 
 
