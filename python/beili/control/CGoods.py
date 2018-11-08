@@ -55,8 +55,11 @@ class CGoods():
                 product_list = product_list + get_model_return_list(
                     self.sgoods.admin_get_product(PRstatus, PRname, PAid))
         for product in product_list:
-            categoryname = get_model_return_dict(self.sgoods.get_category_byid(product['PAid']))['PAname']
-            product['categoryname'] = categoryname
+            category = get_model_return_dict(self.sgoods.get_category_byid(product['PAid']))
+            product['firstpaid'] = category['Parentid']
+            parent_category = get_model_return_dict(self.sgoods.get_category_byid(category['Parentid']))
+            product['firstpaname'] = parent_category['PAname']
+            product['categoryname'] = category['PAname']
             product['PRcreatetime'] = get_web_time_str(product['PRcreatetime'])
 
         mount = len(product_list)

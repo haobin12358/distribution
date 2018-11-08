@@ -27,7 +27,7 @@ class SGoods(SBase):
 
     @close_session
     def get_category_byid(self, id):
-        return self.session.query(ProductCategory.PAname).filter(ProductCategory.PAid == id).first()
+        return self.session.query(ProductCategory.PAname, ProductCategory.Parentid).filter(ProductCategory.PAid == id).first()
 
 
     @close_session
