@@ -66,7 +66,7 @@ class SMessage(SBase):
 
     @close_session
     def delete_alreadyread(self, messageid):
-        all = self.session.query(AlreadyRead).filter_by(ARid=messageid).all()
+        all = self.session.query(AlreadyRead).filter_by(ARmessageid=messageid).all()
         self.session.delete(all)
 
     @close_session
