@@ -129,6 +129,10 @@ class SGoods(SBase):
         #删除商品分类
         return self.session.query(ProductCategory).filter_by(PAid=PAid).update(delete_category)
 
+    @close_session
+    def get_product_by_paid(self, paid):
+        return self.session.query(Product.PRid).filter(Product.PAid == paid).all()
+
 class SSowing(SBase):
     def __init__(self):
         super(SSowing, self).__init__()

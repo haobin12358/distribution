@@ -834,10 +834,6 @@ class CAccount():
         response = import_status("update_record_success", "OK")
         return response
 
-
-
-
-
     @verify_token_decorator
     def weixin_pay(self):
         if is_tourist():
@@ -847,13 +843,17 @@ class CAccount():
             amount = data.get('amount')
         except:
             return PARAMS_ERROR
+        print 'start wxcz'
         wcsn = 'cz' + datetime.strftime(datetime.now(), format_for_db)  # 充值号
         user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
         if not user:
             return NOT_FOUND_USER
+
         openid = user['openid']
+        print 'get openid', openid
         if not openid:
             return NOT_FOUND_OPENID
+        print 'add wxcz log'
         result = self.saccount.create_weixin_charge(request.user.id, openid, wcsn, amount)
         if not result:
             return SYSTEM_ERROR
@@ -870,28 +870,41 @@ class CAccount():
         data['data'] = res
         return data
 
-    @verify_token_decorator
     def pay_callback(self):
         data = self.pay.to_dict(request.data)
+        print data
         if not self.pay.check(data):
             return self.pay.reply(u"签名验证失败", False)
-        print data
-        result = data.get('return_code')
-        if str(result) != 'SUCCESS':
-            update = {}
-            update
-        wcsn = data.get('out_trade_no')
-        record = get_model_return_dict(self.saccount.get_record_by_wcsn(wcsn)) if self.saccount.get_record_by_wcsn(wcsn) else None
-        if not record or record['WCstatus'] != 1:
-            # 无效请求
-            return self.pay.reply("OK", True)
-        # 修改记录状态
-        update = {}
-        update['WCstatus'] = 1
-        paytime = data.get('time_end')
-        update_dict = {
-            'OIpaystatus': 5,  # 待发货
-            'OIpaytime': paytime,
-            'OIpaytype': 1,  # 统一微信支付
-        }
-        # 如果存在上一级
+        user = self.suser.get_qrcode_by_openid(data.get("openid"))
+        if not user:
+            return SYSTEM_ERROR
+        USmount = float(user.USmount) + float(data.get('total_fee'))
+        print 'to add usmount :', USmount
+        self.suser.update_user_by_uid(user.USid, {'USmount': USmount})
+        # 修改微信充值状态
+        wxcz = self.saccount.update_weixin_charge(str(data.get("out_trade_no")))
+        # todo 收支记录
+        tradenum = 'tx' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
+        self.saccount.add_moneyrecord(user.USid, float(data.get('total_fee')),
+                                      4,  datetime.strftime(datetime.now(), format_for_db), tradenum, wxcz.WCid)
+        return self.pay.reply(u'OK', True)
+
+        # result = data.get('return_code')
+        # if str(result) != 'SUCCESS':
+        #     update = {}
+        #
+        # wcsn = data.get('out_trade_no')
+        # record = get_model_return_dict(self.saccount.get_record_by_wcsn(wcsn)) if self.saccount.get_record_by_wcsn(wcsn) else None
+        # if not record or record['WCstatus'] != 1:
+        #     # 无效请求
+        #     return self.pay.reply("OK", True)
+        # # 修改记录状态
+        # update = {}
+        # update['WCstatus'] = 1
+        # paytime = data.get('time_end')
+        # update_dict = {
+        #     'OIpaystatus': 5,  # 待发货
+        #     'OIpaytime': paytime,
+        #     'OIpaytype': 1,  # 统一微信支付
+        # }
+        # # 如果存在上一级

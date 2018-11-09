@@ -154,3 +154,7 @@ class SUser(SBase):
     @close_session
     def get_qrcode_by_qrid(self, id):
         return self.session.query(Qrcode.QRovertime, Qrcode.QRnumber).filter(Qrcode.QRid == id).first()
+
+    @close_session
+    def get_qrcode_by_openid(self, id):
+        return self.session.query(User).filter(User.openid == id).first()
