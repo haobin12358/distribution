@@ -157,4 +157,4 @@ class SUser(SBase):
 
     @close_session
     def get_qrcode_by_openid(self, id):
-        return self.session.query(User).filter(User.openid == id).first()
+        return self.session.query(User.USmount, User.USid).filter(User.openid == id).first()

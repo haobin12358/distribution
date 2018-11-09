@@ -857,7 +857,8 @@ class CAccount():
         result = self.saccount.create_weixin_charge(request.user.id, openid, wcsn, amount)
         if not result:
             return SYSTEM_ERROR
-        total_fee = 1
+        total_fee = float(amount) * 100
+        print total_fee
         raw = self.pay.jsapi(trade_type="JSAPI", openid=openid,
                              out_trade_no=wcsn,
                              total_fee=int(total_fee),
@@ -875,18 +876,23 @@ class CAccount():
         print data
         if not self.pay.check(data):
             return self.pay.reply(u"签名验证失败", False)
-        user = self.suser.get_qrcode_by_openid(data.get("openid"))
+        user = get_model_return_dict(self.suser.get_qrcode_by_openid(data.get("openid")))
         if not user:
             return SYSTEM_ERROR
-        USmount = float(user.USmount) + float(data.get('total_fee'))
+        sn = str(data.get("out_trade_no"))
+        if not self.saccount.get_record_by_wcsn(sn):
+            return self.pay.reply(u'OK', True)
+
+        USmount = float(user.get('USmount')) + (float(data.get('total_fee')) / 100)
         print 'to add usmount :', USmount
-        self.suser.update_user_by_uid(user.USid, {'USmount': USmount})
+        self.suser.update_user_by_uid(user.get("USid"), {'USmount': USmount})
         # 修改微信充值状态
-        wxcz = self.saccount.update_weixin_charge(str(data.get("out_trade_no")))
+        self.saccount.update_weixin_charge(str(data.get("out_trade_no")))
         # todo 收支记录
-        tradenum = 'tx' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
-        self.saccount.add_moneyrecord(user.USid, float(data.get('total_fee')),
-                                      4,  datetime.strftime(datetime.now(), format_for_db), tradenum, wxcz.WCid)
+        tradenum = 'cz' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
+        self.saccount.add_moneyrecord(
+            user.get("USid"), float(data.get('total_fee')) / 100, 4,
+            datetime.strftime(datetime.now(), format_for_db), tradenum, str(data.get("out_trade_no")))
         return self.pay.reply(u'OK', True)
 
         # result = data.get('return_code')
