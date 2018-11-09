@@ -139,6 +139,21 @@ class Qrcode(Base):
     QRnumber = Column(String(64))  # 使用次数
     QRstatus = Column(Integer, default=1)  #1 可用
 
+class MoneyRecord(Base):
+    """
+    收支记录表
+    """
+    __tablename__ = 'moneyrecord'
+    MRid = Column(String(64), primary_key=True)
+    USid = Column(String(64))
+    MRtype = Column(Integer)  # {1,订单支出 2,提现 3,充值保证金 4,余额充值 5,奖金发放 6,保证金退还}
+    MRamount = Column(Float)  # 金额
+    OIid = Column(String(30))  # 订单号
+    MRtradenum = Column(String(30))  # 流水号
+    MRcreatetime = Column(String(14))  # 创建日期
+
+
+
 class OrderInfo(Base):
     """订单信息"""
     __tablename__ = 'orderinfo'
@@ -243,25 +258,25 @@ class DiscountRuler(Base):
     DRnumber = Column(Float)  # 数量
     DRratio = Column(Float)  # 折扣比例
 
-class OnlineCharge(Base):
+class WeixinCharge(Base):
     """
     微信线上充值记录表(如果需要)
     """
-    __tablename__ = 'onlinecharge'
-    ONRid = Column(String(64), primary_key=True)
+    __tablename__ = 'weixincharge'
+    WCid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户
-    ONRamount = Column(Float)  # 充值金额
-    ONRwechatnum = Column(String(125))  # 充值微信账户
-    ONRstatus = Column(Integer)  # 记录状态: {0: 全部, 1: 充值中, 2: 充值成功, 3: 充值失败}
-    ONDcreatetime = Column(String(14))  # 创建时间
-    ONDtradenum = Column(String(125))  # 交易号, (如果有)
+    WCamount = Column(Float)  # 充值金额
+    WCopenid = Column(String(125))  # 充值微信账户
+    WCstatus = Column(Integer)  # 记录状态: {0: 全部, 1:未支付 2: 充值成功, 3: 充值失败}
+    WCpaytime = Column(String(14))  # 充值时间
+    WCsn = Column(String(125))  # 交易号
 
 class DrawMoney(Base):
     """
     银行卡线下提现记录表
     """
     __tablename__ = 'drawmoney'
-    DMDid = Column(String(64), primary_key=True)
+    DMid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户id
     DMamount = Column(Float)  # 提现金额
     DMbankname = Column(String(64), nullable=False)     # 银行名称
@@ -376,7 +391,7 @@ class Comments(Base):
     """
     评论
     """
-    __tablename__ = 'comment'
+    __tablename__ = 'comments'
     USid = Column(String(64), primary_key=True)
     USname = Column(String(64), nullable=False)  # 用户名
     CMcontent = Column(String(255))  # 用户评论内容

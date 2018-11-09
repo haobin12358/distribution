@@ -151,6 +151,11 @@ NOT_FOUND_ORDER = {
     "message": "未找到该订单"
 
 }
+NOT_FOUND_RECORD = {
+    "status": 405,
+    "status_code": 405031,
+    "message": "未找到记录"
+}
 ADMINNUM_ERROR = {
     "status": 405,
     "status_code": 405100,

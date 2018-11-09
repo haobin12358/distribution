@@ -7,8 +7,8 @@ import random
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR, STOCK_NOT_ENOUGH,\
-        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_USER
-from config.setting import QRCODEHOSTNAME, DRAWBANK, BAIL
+        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_USER, NOT_FOUND_OPENID, NOT_FOUND_RECORD
+from config.setting import QRCODEHOSTNAME, DRAWBANK, BAIL, APP_ID, MCH_ID, MCH_KEY, notify_url
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
 from common.timeformat import get_db_time_str
@@ -24,6 +24,9 @@ from config.urlconfig import get_code
 import platform
 from common.beili_error import stockerror, dberror
 from datetime import datetime
+from weixin import WeixinError
+from weixin.login import WeixinLoginError, WeixinLogin
+from weixin.pay import WeixinPay, WeixinPayError
 from common.timeformat import format_for_db, get_random_str
 from models.model import User, AgentMessage, BailRecord
 sys.path.append(os.path.dirname(os.getcwd()))
@@ -38,6 +41,7 @@ class CAccount():
         self.smycenter = SMyCenter()
         self.smessage = SMessage()
         self.saccount = SAccount()
+        self.pay = WeixinPay(APP_ID, MCH_ID, MCH_KEY, notify_url)
         self.rulerlist = get_model_return_list(self.saccount.get_discount_ruler())
 
     @verify_token_decorator
@@ -126,7 +130,7 @@ class CAccount():
         return response
 
 
-    def get_teamperformance_list(self, id, month):
+    def get_teamperformance_list(self, id, month):  # 获取包含自己的团队所有人业绩
         performance_list = []
         self_performance = self.saccount.get_user_performance(id, month)
         if self_performance:
@@ -231,9 +235,9 @@ class CAccount():
         if float(user['USmount']) < float(amount):
             return NO_ENOUGH_MOUNT
         time_now = datetime.strftime(datetime.now(), format_for_db)
-        tradenum = datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
+        tradenum = 'tx' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
         result = self.saccount.add_drawmoney(str(uuid.uuid4()), request.user.id, bankname, branchbank, accountname, cardnum,\
-                                    amount, time_now, tradenum)
+                                    float(amount), time_now, tradenum)
         if result:
             update = {}
             update['USmount'] = float(user['USmount']) - float(amount)
@@ -520,6 +524,10 @@ class CAccount():
             for direct in direct_list:
                 teamperformance = self.get_myteamsalenum(direct['USid'], month)
                 direct['teamperformance'] = teamperformance
+                reward = self.saccount.get_reward_by_nextid(direct['USid'])
+                if reward:
+                    direct['reward'] = get_model_return_dict(self.saccount.get_reward_by_nextid(direct['USid']))['REmount'] if \
+                        self.saccount.get_reward_by_nextid(direct['USid']) else None
             all_direct_num = int(len(direct_list))
             response = import_status("get_directagent_and_performance_list_success", "OK")
             response['data'] = direct_list
@@ -530,7 +538,188 @@ class CAccount():
             response['data'] = []
             return response
 
+    @verify_token_decorator
+    def get_moneyrecord(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        usid = request.user.id
+        records = get_model_return_list(self.saccount.get_moneyrecord(usid)) if self.saccount.get_moneyrecord(usid) else None
+        if not records:
+            response = import_status("get_moneyrecord_success", "OK")
+            response['data'] = []
+            return response
+        for record in records:
+            from common.timeformat import get_web_time_str
+            record['MRcreatetime'] = get_web_time_str(record['MRcreatetime'])
+        response = import_status("get_moneyrecord_success", "OK")
+        response['data'] = records
+        return response
+
+    @verify_token_decorator
+    def get_all_performance(self):  # 获取业绩列表
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            month = str(data.get('month'))
+            usid = data.get('usid')
+        except:
+            return PARAMS_ERROR
+        performance_list = self.get_teamperformance_list(usid, month)
+        if not performance_list:
+            response = import_status("get_performancelist_success", "OK")
+            response['data'] = []
+            return response
+        new_list = sorted(performance_list, key=lambda performance: performance['performance'], reverse=True)
+        response = import_status("get_performancelist_success", "OK")
+        response['data'] = new_list
+        return response
+
+    @verify_token_decorator
+    def get_alluser_drawmoney_list(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            status = data.get("status")
+        except:
+            return PARAMS_ERROR
+        list = get_model_return_list(self.saccount.get_alluser_drawmoney_list(status)) if\
+                self.saccount.get_alluser_drawmoney_list(status) else None
+        if not list:
+            response = import_status("get_drawmoneylist_success", "OK")
+            response['data'] = []
+            return response
+        for record in list:
+            from common.timeformat import get_web_time_str
+            record['DMcreatetime'] = get_web_time_str(record['DMcreatetime'])
+        response = import_status("get_drawmoneylist_success", "OK")
+        response['data'] = list
+        return response
+
+    @verify_token_decorator
+    def deal_drawmoney(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            willstatus = int(data.get("willstatus"))
+            dmid = data.get("dmid")
+        except:
+            return PARAMS_ERROR
+        result = get_model_return_dict(self.saccount.get_drawmoney_info(dmid)) if self.saccount.get_drawmoney_info(dmid) else None
+        if not result:
+            return NOT_FOUND_RECORD
+        update = {}
+        update['DMstatus'] = willstatus
+        update_result = self.saccount.update_by_dmid(dmid, update)
+        if not update_result:
+            return SYSTEM_ERROR
+        response = import_status("update_record_success", "OK")
+        return response
+
+    @verify_token_decorator
+    def get_all_chargemoney(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            status = int(data.get('status'))
+        except:
+            return PARAMS_ERROR
+        result = get_model_return_list(self.saccount.get_alluser_chargemoney(status)) if self.saccount\
+                .get_alluser_chargemoney(status) else None
+        if not result:
+            response = import_status("get_chargemoneylist_success", "OK")
+            response['data'] = []
+            return response
+        for record in result:
+            from common.timeformat import get_web_time_str, format_forweb_no_HMS
+            record['CMcreatetime'] = get_web_time_str(record['CMcreatetime'])
+            record['CMpaytime'] = get_web_time_str(record['CMpaytime'], format_forweb_no_HMS)
+        response = import_status("get_chargemoneylist_success", "OK")
+        response['data'] = result
+        return response
+
+    @verify_token_decorator
+    def deal_chargemoney(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            willstatus = int(data.get("willstatus"))
+            cmid = data.get("cmid")
+        except:
+            return PARAMS_ERROR
+        result = get_model_return_dict(self.saccount.get_chargemoney_info(cmid)) if self.saccount.get_chargemoney_info(
+            cmid) else None
+        if not result:
+            return NOT_FOUND_RECORD
+        update = {}
+        update['CMstatus'] = willstatus
+        update_result = self.saccount.update_by_cmid(cmid, update)
+        if not update_result:
+            return SYSTEM_ERROR
+        response = import_status("update_record_success", "OK")
+        return response
 
 
 
 
+    @verify_token_decorator
+    def weixin_pay(self):
+        if is_tourist():
+            raise TOKEN_ERROR()
+        try:
+            data = request.json
+            amount = data.get('amount')
+        except:
+            return PARAMS_ERROR
+        wcsn = 'cz' + datetime.strftime(datetime.now(), format_for_db)  # 充值号
+        user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
+        if not user:
+            return NOT_FOUND_USER
+        openid = user['openid']
+        if not openid:
+            return NOT_FOUND_OPENID
+        result = self.saccount.create_weixin_charge(request.user.id, openid, wcsn, amount)
+        if not result:
+            return SYSTEM_ERROR
+        total_fee = 1
+        raw = self.pay.jsapi(trade_type="JSAPI", openid=openid,
+                             out_trade_no=wcsn,
+                             total_fee=int(total_fee),
+                             spbill_create_ip=request.remote_addr,
+                             body='1234')
+        res = dict(raw)
+        print res
+        res['paySign'] = res.get('sign')
+        data = import_status('get_prepay_message_ok', 'OK')
+        data['data'] = res
+        return data
+
+    @verify_token_decorator
+    def pay_callback(self):
+        data = self.pay.to_dict(request.data)
+        if not self.pay.check(data):
+            return self.pay.reply(u"签名验证失败", False)
+        print data
+        result = data.get('return_code')
+        if str(result) != 'SUCCESS':
+            update = {}
+            update
+        wcsn = data.get('out_trade_no')
+        record = get_model_return_dict(self.saccount.get_record_by_wcsn(wcsn)) if self.saccount.get_record_by_wcsn(wcsn) else None
+        if not record or record['WCstatus'] != 1:
+            # 无效请求
+            return self.pay.reply("OK", True)
+        # 修改记录状态
+        update = {}
+        update['WCstatus'] = 1
+        paytime = data.get('time_end')
+        update_dict = {
+            'OIpaystatus': 5,  # 待发货
+            'OIpaytime': paytime,
+            'OIpaytype': 1,  # 统一微信支付
+        }
+        # 如果存在上一级

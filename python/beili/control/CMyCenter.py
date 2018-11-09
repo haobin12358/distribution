@@ -16,7 +16,7 @@ from service.SMyCenter import SMyCenter
 from config.setting import QRCODEHOSTNAME
 from common.timeformat import get_db_time_str
 from service.SUser import SUser
-from models.model import UserAddress
+from models.model import UserAddress,Comments
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -485,24 +485,24 @@ class CMyCenter():
         else:
             return NOT_FOUND_ADDRESS
     @verify_token_decorator
-    def add_comment(self):
-        if is_tourist():
-            return TOKEN_ERROR
+    def add_comments(self):
+        #if is_tourist():
+           # return TOKEN_ERROR
         try:
             data = request.json
-            USname = data.get('USname')
-            CMcontent = data.get('CMcontent')
+            USname = data['USname']
+            CMcontent = data['CMcontent']
         except:
             return PARAMS_ERROR
         try:
             import datetime
             from common.timeformat import format_for_db
             time_time = datetime.datetime.now()
-            time_str = datetime.datetime.strftime(time_time, format_for_db)
+            CMcreatetime = datetime.datetime.strftime(time_time, format_for_db)
             USid = str(uuid.uuid1())
-            self.smycenter.add_comment(USid, USname, CMcontent, time_str)
+            self.smycenter.add_comment(USid, USname, CMcontent, CMcreatetime)
             response = import_status("add_comment_success", "OK")
-            return response
+            return 'response'
         except Exception as e:
             print e
             return SYSTEM_ERROR
@@ -518,12 +518,15 @@ class CMyCenter():
             return PARAMS_ERROR
         try:
             comment_list = get_model_return_list(self.smycenter.get_comments(USname))
+            print comment_list
             USid = comment_list[0]['USid']
+            print USid
             comment = comment_list[0]['CMcontent']
-            response['comment'] = comment
+            
             read = {'CMisread':True}
             self.smycenter.update_CMisread(USid, read)
             response = import_status('update_comments_success', 'OK')
+            response['comment'] = comment
             return response
         except Exception as e:
             print e
