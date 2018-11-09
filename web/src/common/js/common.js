@@ -66,6 +66,10 @@ const common = {
     },
 
     dateFormat(tempDate) {
+        if(!tempDate || isNaN(new Date(tempDate).valueOf())){
+            return ''
+        }
+
         let year = tempDate.getFullYear().toString(),
             month = (tempDate.getMonth() + 1).toString(),
             date = tempDate.getDate().toString(),

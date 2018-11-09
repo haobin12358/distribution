@@ -190,7 +190,7 @@
                 if (this.haveToken) {
                     removeFile(removeImgUrl, getStore(TOKEN)).then();
                 } else {
-                    // removeFile(removeImgUrl, removeImgToken).then(); todo
+                    // removeFile(removeImgUrl, removeImgToken).then();
                 }
             },
             uploadFile() {

@@ -33,14 +33,13 @@ const myAxios = async (url, {params, data, method = 'get', showIndicator = true}
 
     if (res && res.status == 200) {
         if (res.data.status == 200) {
-            this.$router.push('/login');
-            setStore(TOKEN, '');
             return res.data;
         } else {
             Toast(res.data.message);
             if(res.data.status == 405 && res.data.status_code == 405003){
-                this.$router.push('/login');
+                location.href=location.origin
                 setStore(TOKEN, '');
+                console.log(res.data);
             }
             return
         }
@@ -460,6 +459,7 @@ export const deleteQrcode = (qrcodeid) => myAxios('/user/delete_qrcode', {
 });
 
 export const removeFile = (url, token) => myAxios('/user/remove_file', {
+    showIndicator: false,
     method: 'post',
     params: {
         token,
@@ -586,6 +586,30 @@ export const chargeDrawBail = (type, mount) => myAxios('/account/charge_draw_bai
         mount
     }
 });
+
+export const getMoneyRecord = () => myAxios('/account/get_moneyrecord', {
+    params:{
+        token: getStore(TOKEN)
+    },
+});
+
+export const checkOpenid = () => myAxios('/user/check_openid', {
+    params:{
+        token: getStore(TOKEN)
+    },
+});
+
+export const weixinPay = (amount) => myAxios('/account/weixin_pay', {
+    method: 'post',
+    data: {
+        amount
+    },
+    params:{
+        token: getStore(TOKEN)
+    },
+});
+
+
 
 
 

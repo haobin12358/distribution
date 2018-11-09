@@ -18,6 +18,8 @@ class SMyCenter(SBase):
     @close_session
     def update_user_by_uid(self, uid, users):
         self.session.query(User).filter_by(USid=uid).update(users)
+        return True
+
 
     @close_session
     def get_inforcode_by_usphonenum(self, phonenum):

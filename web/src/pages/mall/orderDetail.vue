@@ -62,7 +62,7 @@
                 .delivery-no {
                     // .fj();
                     // align-items: center;
-                    span    {
+                    span {
                         line-height: 26px;
                     }
 
@@ -91,11 +91,15 @@
             </li>
             <li class="detail-item">
                 <span class="detail-item-label">状态：</span>
-                <span class="detail-item-value">{{details.OIstatus}}</span>
+                <span class="detail-item-value">{{details.OIstatusZh}}</span>
             </li>
             <li class="detail-item">
                 <span class="detail-item-label">商品件数：</span>
-                <span class="detail-item-value">{{details.OIcreatetime}} 件</span>
+                <span class="detail-item-value"> {{details.pdCount}}件</span>
+            </li>
+            <li class="detail-item">
+                <span class="detail-item-label">邮费：</span>
+                <span class="detail-item-value">￥{{details.OIlogisticsfee}}</span>
             </li>
             <li class="detail-item">
                 <span class="detail-item-label">订单金额：</span>
@@ -134,26 +138,48 @@
                 </li>
             </ul>
 
-            <li class="detail-item">
-                <span class="detail-item-label">快递单号：</span>
-            </li>
+            <template v-if="details.expressnum">
+                <li class="detail-item">
+                    <span class="detail-item-label">快递单号：</span>
+                </li>
 
-            <section class="details-delivery" @click="gotoKuaidi100">
-                <span class="delivery-company">
-                    申通
-                </span>
-                <span class="delivery-no">
-                   <span>3381965843958</span>
-                    <img class="arrow" src="/static/images/arrow.png" alt="">
-                </span>
-            </section>
-
+                <section class="details-delivery" @click="gotoKuaidi100">
+                    <span class="delivery-company">
+                        {{details.expressname}}
+                    </span>
+                    <section class="delivery-no">
+                        <span>{{details.expressnum}}</span>
+                        <img class="arrow" src="/static/images/arrow.png" alt=""/>
+                    </section>
+                </section>
+            </template>
         </ul>
     </div>
 </template>
 
 <script>
     import {getOrderDetails} from "src/api/api"
+
+    let orderType = [
+        {
+            label: '全部',
+            value: 0,
+            num: 0
+        }, {
+            label: '待发货',
+            value: 1,
+            num: 0
+
+        }, {
+            label: '已发货',
+            value: 2,
+            num: 0
+        }, {
+            label: '已完成',
+            value: 3,
+            num: 0
+        },
+    ];
 
     export default {
         name: "orderDetail",
@@ -166,18 +192,31 @@
 
         components: {},
 
-        computed: {},
+        computed: {
+
+        },
 
         methods: {
+            //  订单状态翻译
+            statusZh(status) {
+                return orderType.find(item => item.value == status).label;
+            },
+
             setDetail(OIsn) {
                 getOrderDetails(OIsn).then(
                     ({data}) => {
                         this.details = data;
+                        this.details.OIstatusZh = this.statusZh(this.details.OIstatus);
+                        let count = 0;
+                        for (let i = 0; i < this.details.product_list.length; i++) {
+                            count +=  this.details.product_list[i].PRnum;
+                        }
+                        this.details.pdCount = count;
                     }
                 )
             },
-            gotoKuaidi100(){
-                location.href = 'https://m.kuaidi100.com/index_all.html?postid=3381965843958#result';
+            gotoKuaidi100() {
+                location.href = `https://m.kuaidi100.com/index_all.html?postid=${this.details.expressnum}#result`;
             },
         },
 

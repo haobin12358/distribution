@@ -7,7 +7,7 @@ import random
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR, STOCK_NOT_ENOUGH,\
-        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_USER, NOT_FOUND_OPENID, NOT_FOUND_RECORD
+        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_USER, NOT_FOUND_OPENID, NOT_FOUND_RECORD, MONEY_ERROR
 from config.setting import QRCODEHOSTNAME, DRAWBANK, BAIL, APP_ID, MCH_ID, MCH_KEY, notify_url
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
@@ -27,7 +27,7 @@ from datetime import datetime
 from weixin import WeixinError
 from weixin.login import WeixinLoginError, WeixinLogin
 from weixin.pay import WeixinPay, WeixinPayError
-from common.timeformat import format_for_db, get_random_str
+from common.timeformat import format_for_db, get_random_str, format_for_db_no_HMS
 from models.model import User, AgentMessage, BailRecord
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -226,7 +226,7 @@ class CAccount():
             branchbank = str(data.get('branchbank'))
             accountname = str(data.get('accountname'))
             cardnum = str(data.get('cardnum'))
-            amount = str(data.get('amount'))
+            amount = int(data.get('amount'))
         except:
             return PARAMS_ERROR
         user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
@@ -238,6 +238,7 @@ class CAccount():
         tradenum = 'tx' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
         result = self.saccount.add_drawmoney(str(uuid.uuid4()), request.user.id, bankname, branchbank, accountname, cardnum,\
                                     float(amount), time_now, tradenum)
+        result2 = self.saccount.add_moneyrecord(request.user.id, -amount, 2, time_now, tradenum=tradenum, oiid=None)
         if result:
             update = {}
             update['USmount'] = float(user['USmount']) - float(amount)
@@ -387,7 +388,7 @@ class CAccount():
 
 
     @verify_token_decorator
-    def charge_draw_bail(self):
+    def charge_draw_bail(self):  # 充值和提取保证金
         if is_tourist():
             return TOKEN_ERROR
         try:
@@ -413,14 +414,22 @@ class CAccount():
                 update_bail['USbail'] = bail_now + mount
                 session.query(User).filter(User.USid == request.user.id).update(update_bail)
 
+
                 record = BailRecord()
+                tradenum = 'bz' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
                 record.BRid = str(uuid.uuid4())
                 record.USid = request.user.id
                 record.BRmount = mount
                 record.BRtype = 1
                 record.BRstatus = 1
+                record.BRtradenum = tradenum
                 record.BRcreatetime = datetime.strftime(datetime.now(), format_for_db)
                 session.add(record)
+
+                time_now = datetime.strftime(datetime.now(), format_for_db)
+                result2 = self.saccount.add_moneyrecord(request.user.id, -mount, 3, time_now
+                                                        , tradenum=tradenum, oiid=None)
+
                 session.commit()
                 response = import_status("charge_bail_success", "OK")
                 return response
@@ -434,7 +443,7 @@ class CAccount():
                 record.BRmount = mount
                 record.BRtype = 2
                 record.BRstatus = 2
-                record.BRtradenum = datetime.strftime(datetime.now(), format_for_db) + get_random_str(5)
+                record.BRtradenum = 'bz' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
                 record.BRcreatetime = datetime.strftime(datetime.now(), format_for_db)
                 session.add(record)
                 session.commit()
@@ -470,9 +479,8 @@ class CAccount():
             return response
         all_list = get_model_return_list(self.saccount.get_alluser_account(username, month, agentid, status))
         if not all_list:
-            response = {}
+            response = import_status("get_alluser_account_success", "OK")
             response['data'] = []
-            response['message'] = import_status("get_alluser_account_success", "OK")
             return response
         real_list = []
         if userphonenum:
@@ -507,6 +515,47 @@ class CAccount():
         response['data'] = real_return_list
         response['mount'] = mount
         return response
+
+    @verify_token_decorator
+    def deal_reward_discount(self):  # 发放奖金
+        if not is_admin():
+            return AUTHORITY_ERROR
+        try:
+            data = request.json
+            amid = data.get('amid')
+            usid = data.get('usid')
+            month = data.get('month')
+            profit = int(data.get('profit'))
+        except:
+            return PARAMS_ERROR
+        account = get_model_return_dict(
+            self.saccount.get_account_by_month(usid, month)) if self.saccount.get_account_by_month(usid, month) else None
+        if not account or account['AMid'] != str(amid) or account['AMstatus'] != 1:
+            return NOT_FOUND_RECORD
+        mydiscount = self.get_mydiscount(usid, month)
+        reward = account['reward']
+        if profit != mydiscount + reward:
+            return MONEY_ERROR
+        tradenum =  datetime.strftime(datetime.now(), format_for_db_no_HMS) + get_random_str(8)
+        time_now = datetime.strftime(datetime.now(), format_for_db)
+        result2 = self.saccount.add_moneyrecord(usid, profit, 5, time_now
+                                                , tradenum=tradenum, oiid=None)
+        if not result2:
+            return SYSTEM_ERROR
+        update = {}
+        update["AMstatus"] = 2
+        update['AMtradenum'] = tradenum
+        result = self.saccount.update_account(amid, update)
+        if not result:
+            return SYSTEM_ERROR
+        user = get_model_return_dict(self.smycenter.get_user_basicinfo(usid)) if \
+            self.smycenter.get_user_basicinfo(usid) else None
+        update = {}
+        update['USmount'] = user['USmount'] + profit
+        self.smycenter.update_user_by_uid(usid, update)
+        response = import_status("deal_profit_success", "OK")
+        return response
+
 
     @verify_token_decorator
     def get_directagent_performance(self):
@@ -582,6 +631,8 @@ class CAccount():
         try:
             data = request.json
             status = data.get("status")
+            page_size = data.get('page_size')
+            page_num = data.get('page_num')
         except:
             return PARAMS_ERROR
         list = get_model_return_list(self.saccount.get_alluser_drawmoney_list(status)) if\
@@ -593,12 +644,24 @@ class CAccount():
         for record in list:
             from common.timeformat import get_web_time_str
             record['DMcreatetime'] = get_web_time_str(record['DMcreatetime'])
+
+        mount = len(list)
+        page = mount / page_size
+        if page == 0 or page == 1 and mount % page_size == 0:
+            real_return_list = list[0:]
+        else:
+            if ((mount - (page_num - 1) * page_size) / page_size) >= 1 and \
+                    (mount - (page_num * page_size)) > 0:
+                real_return_list = list[((page_num - 1) * page_size):(page_num * page_size)]
+            else:
+                real_return_list = list[((page_num - 1) * page_size):]
         response = import_status("get_drawmoneylist_success", "OK")
-        response['data'] = list
+        response['mount'] = mount
+        response['data'] = real_return_list
         return response
 
     @verify_token_decorator
-    def deal_drawmoney(self):
+    def deal_drawmoney(self):   # 处理提现操作
         if not is_admin():
             return TOKEN_ERROR
         try:
@@ -615,6 +678,15 @@ class CAccount():
         update_result = self.saccount.update_by_dmid(dmid, update)
         if not update_result:
             return SYSTEM_ERROR
+        if willstatus == 4:
+            time_now = datetime.strftime(datetime.now(), format_for_db)
+            result2 = self.saccount.add_moneyrecord(result['USid'], result['DMamount'], 7, time_now
+                                                   , tradenum=result['DMtradenum'], oiid=None)
+            user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
+                self.smycenter.get_user_basicinfo(result['USid']) else None
+            update = {}
+            update['USmount'] = user['USmount'] + result['DMamount']
+            self.smycenter.update_user_by_uid(result['USid'], update)
         response = import_status("update_record_success", "OK")
         return response
 
@@ -625,6 +697,8 @@ class CAccount():
         try:
             data = request.json
             status = int(data.get('status'))
+            page_size = data.get('page_size')
+            page_num = data.get('page_num')
         except:
             return PARAMS_ERROR
         result = get_model_return_list(self.saccount.get_alluser_chargemoney(status)) if self.saccount\
@@ -635,14 +709,28 @@ class CAccount():
             return response
         for record in result:
             from common.timeformat import get_web_time_str, format_forweb_no_HMS
+            record['CMproof'] = record['CMproof'].split(',')
             record['CMcreatetime'] = get_web_time_str(record['CMcreatetime'])
             record['CMpaytime'] = get_web_time_str(record['CMpaytime'], format_forweb_no_HMS)
+
+        mount = len(result)
+        page = mount / page_size
+        if page == 0 or page == 1 and mount % page_size == 0:
+            real_return_list = result[0:]
+        else:
+            if ((mount - (page_num - 1) * page_size) / page_size) >= 1 and \
+                    (mount - (page_num * page_size)) > 0:
+                real_return_list = result[((page_num - 1) * page_size):(page_num * page_size)]
+            else:
+                real_return_list = result[((page_num - 1) * page_size):]
+
         response = import_status("get_chargemoneylist_success", "OK")
-        response['data'] = result
+        response['data'] = real_return_list
+        response['mount'] = mount
         return response
 
     @verify_token_decorator
-    def deal_chargemoney(self):
+    def deal_chargemoney(self):  # 处理充值申请
         if not is_admin():
             return TOKEN_ERROR
         try:
@@ -660,11 +748,91 @@ class CAccount():
         update_result = self.saccount.update_by_cmid(cmid, update)
         if not update_result:
             return SYSTEM_ERROR
+        if willstatus == 2:
+            time_now = datetime.strftime(datetime.now(), format_for_db)
+            self.saccount.add_moneyrecord(result['USid'], result['CMamount'], 4, time_now
+                                                    , tradenum=result['CMtradenum'], oiid=None)
+            user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
+                self.smycenter.get_user_basicinfo(result['USid']) else None
+            update = {}
+            update['USmount'] = user['USmount'] + result['CMamount']
+            self.smycenter.update_user_by_uid(result['USid'], update)
         response = import_status("update_record_success", "OK")
         return response
 
+    @verify_token_decorator
+    def get_alluser_bailrecord(self):  # 获取所有保证金列表
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            status = int(data.get('status'))
+            page_size = data.get('page_size')
+            page_num = data.get('page_num')
+        except:
+            return PARAMS_ERROR
+        result = get_model_return_list(self.saccount.get_alluser_bailrecord(status)) if self.saccount\
+            .get_alluser_bailrecord(status) else None
+        if not result:
+            return NOT_FOUND_RECORD
+        if not result:
+            response = import_status("get_bailrecordlist_success", "OK")
+            response['data'] = []
+            return response
+        for record in result:
+            from common.timeformat import get_web_time_str
+            record['BRcreatetime'] = get_web_time_str(record['BRcreatetime'])
+        mount = len(result)
+        page = mount / page_size
+        if page == 0 or page == 1 and mount % page_size == 0:
+            real_return_list = result[0:]
+        else:
+            if ((mount - (page_num - 1) * page_size) / page_size) >= 1 and \
+                    (mount - (page_num * page_size)) > 0:
+                real_return_list = result[((page_num - 1) * page_size):(page_num * page_size)]
+            else:
+                real_return_list = result[((page_num - 1) * page_size):]
+        response = import_status("get_bailrecordlist_success", "OK")
+        response['data'] = real_return_list
+        response['mount'] = mount
+        return response
 
-
+    @verify_token_decorator
+    def deal_bailrecord(self):  # 处理保证金申请
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            willstatus = int(data.get("willstatus"))
+            brid = data.get("brid")
+        except:
+            return PARAMS_ERROR
+        result = get_model_return_dict(self.saccount.get_bailrecord_info(brid)) if self.saccount.get_bailrecord_info(
+            brid) else None
+        if not result:
+            return NOT_FOUND_RECORD
+        update = {}
+        update['BRstatus'] = willstatus
+        result2 = self.saccount.update_bailrecord(brid, update)
+        if not result2:
+            return SYSTEM_ERROR
+        if willstatus == 3:
+            time_now = datetime.strftime(datetime.now(), format_for_db)
+            self.saccount.add_moneyrecord(result['USid'], result['BRmount'], 6, time_now
+                                          , tradenum=result['BRtradenum'], oiid=None)
+            user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
+                self.smycenter.get_user_basicinfo(result['USid']) else None
+            update = {}
+            update['USmount'] = user['USmount'] + result['BRmount']
+            self.smycenter.update_user_by_uid(result['USid'], update)
+        if willstatus == 4:
+            user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
+                self.smycenter.get_user_basicinfo(result['USid']) else None
+            update_bail = {}
+            update_bail['USbail'] = user['USbail'] + result['BRmount']
+            self.smycenter.update_user_by_uid(result['USid'], update_bail)
+        response = import_status("update_record_success", "OK")
+        return response
 
     @verify_token_decorator
     def weixin_pay(self):
@@ -675,17 +843,22 @@ class CAccount():
             amount = data.get('amount')
         except:
             return PARAMS_ERROR
+        print 'start wxcz'
         wcsn = 'cz' + datetime.strftime(datetime.now(), format_for_db)  # 充值号
         user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
         if not user:
             return NOT_FOUND_USER
+
         openid = user['openid']
+        print 'get openid', openid
         if not openid:
             return NOT_FOUND_OPENID
+        print 'add wxcz log'
         result = self.saccount.create_weixin_charge(request.user.id, openid, wcsn, amount)
         if not result:
             return SYSTEM_ERROR
-        total_fee = 1
+        total_fee = float(amount) * 100
+        print total_fee
         raw = self.pay.jsapi(trade_type="JSAPI", openid=openid,
                              out_trade_no=wcsn,
                              total_fee=int(total_fee),
@@ -698,28 +871,46 @@ class CAccount():
         data['data'] = res
         return data
 
-    @verify_token_decorator
     def pay_callback(self):
         data = self.pay.to_dict(request.data)
+        print data
         if not self.pay.check(data):
             return self.pay.reply(u"签名验证失败", False)
-        print data
-        result = data.get('return_code')
-        if str(result) != 'SUCCESS':
-            update = {}
-            update
-        wcsn = data.get('out_trade_no')
-        record = get_model_return_dict(self.saccount.get_record_by_wcsn(wcsn)) if self.saccount.get_record_by_wcsn(wcsn) else None
-        if not record or record['WCstatus'] != 1:
-            # 无效请求
-            return self.pay.reply("OK", True)
-        # 修改记录状态
-        update = {}
-        update['WCstatus'] = 1
-        paytime = data.get('time_end')
-        update_dict = {
-            'OIpaystatus': 5,  # 待发货
-            'OIpaytime': paytime,
-            'OIpaytype': 1,  # 统一微信支付
-        }
-        # 如果存在上一级
+        user = get_model_return_dict(self.suser.get_qrcode_by_openid(data.get("openid")))
+        if not user:
+            return SYSTEM_ERROR
+        sn = str(data.get("out_trade_no"))
+        if not self.saccount.get_record_by_wcsn(sn):
+            return self.pay.reply(u'OK', True)
+
+        USmount = float(user.get('USmount')) + (float(data.get('total_fee')) / 100)
+        print 'to add usmount :', USmount
+        self.suser.update_user_by_uid(user.get("USid"), {'USmount': USmount})
+        # 修改微信充值状态
+        self.saccount.update_weixin_charge(str(data.get("out_trade_no")))
+        # todo 收支记录
+        tradenum = 'cz' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
+        self.saccount.add_moneyrecord(
+            user.get("USid"), float(data.get('total_fee')) / 100, 4,
+            datetime.strftime(datetime.now(), format_for_db), tradenum, str(data.get("out_trade_no")))
+        return self.pay.reply(u'OK', True)
+
+        # result = data.get('return_code')
+        # if str(result) != 'SUCCESS':
+        #     update = {}
+        #
+        # wcsn = data.get('out_trade_no')
+        # record = get_model_return_dict(self.saccount.get_record_by_wcsn(wcsn)) if self.saccount.get_record_by_wcsn(wcsn) else None
+        # if not record or record['WCstatus'] != 1:
+        #     # 无效请求
+        #     return self.pay.reply("OK", True)
+        # # 修改记录状态
+        # update = {}
+        # update['WCstatus'] = 1
+        # paytime = data.get('time_end')
+        # update_dict = {
+        #     'OIpaystatus': 5,  # 待发货
+        #     'OIpaytime': paytime,
+        #     'OIpaytype': 1,  # 统一微信支付
+        # }
+        # # 如果存在上一级

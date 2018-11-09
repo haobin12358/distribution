@@ -15,8 +15,13 @@ class SAccount(SBase):
 
     @close_session
     def get_account_by_month(self, usid, month):  # 获取用户直推奖励和个人业绩数
-        return self.session.query(Amount.reward, Amount.performance)\
+        return self.session.query(Amount.reward, Amount.performance, Amount.AMid, Amount.AMstatus)\
             .filter(Amount.USid == usid).filter(Amount.AMmonth == month).first()
+
+    @close_session
+    def update_account(self, amid, update):
+        self.session.query(Amount).filter(Amount.AMid == amid).update(update)
+        return True
 
     @close_session
     def get_discount_ruler(self):
@@ -35,7 +40,7 @@ class SAccount(SBase):
     @close_session
     def add_drawmoney(self, id, usid, bankname, branchbank, accountname, cardnum, amount, time_now, tradenum):
         draw = DrawMoney()
-        draw.DMDid = id
+        draw.DMid = id
         draw.USid = usid
         draw.DMbankname = bankname
         draw.DMbranchname = branchbank
@@ -75,11 +80,11 @@ class SAccount(SBase):
 
     @close_session
     def get_drawmoney_info(self, id):
-        return self.session.query(DrawMoney.USid).filter(DrawMoney.DMid).first()
+        return self.session.query(DrawMoney.USid, DrawMoney.DMstatus, DrawMoney.DMamount, DrawMoney.DMtradenum).filter(DrawMoney.DMid).first()
 
     @close_session
     def get_alluser_chargemoney(self, status):
-        result = self.session.query(ChargeMoney.USid, ChargeMoney.CMpaytime, ChargeMoney.CMstatus, ChargeMoney.CMamount
+        result = self.session.query(ChargeMoney.USid, ChargeMoney.CMpaytime, ChargeMoney.CMstatus, ChargeMoney.CMamount, ChargeMoney.CMproof
                                   , ChargeMoney.CMtradenum, ChargeMoney.CMcreatetime, ChargeMoney.CMpaytime, ChargeMoney.CMremark
                                   , ChargeMoney.CMcardnum, ChargeMoney.CMaccountname, ChargeMoney.CMbankname, ChargeMoney.CMalipaynum
                                   , ChargeMoney.CMstatus, ChargeMoney.CMid).order_by(ChargeMoney.CMcreatetime.desc())
@@ -89,8 +94,22 @@ class SAccount(SBase):
         return result
 
     @close_session
+    def add_moneyrecord(self, usid,  amount, type, createtime, tradenum=None, oiid=None):
+        record = MoneyRecord()
+        record.MRid = str(uuid.uuid4())
+        record.USid = usid
+        record.MRamount = amount
+        record.MRtype = type
+        record.MRcreatetime = createtime
+        record.MRtradenum = tradenum
+        record.OIid = oiid
+        self.session.add(record)
+        return True
+
+
+    @close_session
     def get_chargemoney_info(self, cmid):
-        return self.session.query(ChargeMoney.USid).filter(ChargeMoney.CMid == cmid).first()
+        return self.session.query(ChargeMoney.USid, ChargeMoney.CMamount, ChargeMoney.CMtradenum).filter(ChargeMoney.CMid == cmid).first()
 
     @close_session
     def update_by_cmid(self, id, update2):
@@ -137,6 +156,25 @@ class SAccount(SBase):
         return self.session.query(BailRecord).filter(BailRecord.USid == id).filter(BailRecord.BRstatus == status).first()
 
     @close_session
+    def get_alluser_bailrecord(self, status):
+        list = self.session.query(BailRecord.BRtradenum, BailRecord.USid, BailRecord.BRstatus, BailRecord.BRcreatetime
+                    , BailRecord.BRtype, BailRecord.BRmount, BailRecord.BRid).order_by(BailRecord.BRcreatetime.desc())
+        if status > 0:
+            list = list.filter(BailRecord.BRstatus)
+        list = list.all()
+        return list
+
+    @close_session
+    def get_bailrecord_info(self, id):
+        return self.session.query(BailRecord.USid, BailRecord.BRtradenum, BailRecord.BRmount)\
+            .filter(BailRecord.BRid == id).first()
+
+    @close_session
+    def update_bailrecord(self, id, update):
+        self.session.query(BailRecord).filter(BailRecord.BRid == id).update(update)
+        return True
+
+    @close_session
     def get_alluser_account(self, name, month, agentid, status):
         list = self.session.query(Amount.USid, Amount.reward, Amount.USagentid, Amount.USname, Amount.AMmonth, Amount.AMstatus
                                   , Amount.AMid, Amount.performance, Amount.AMtradenum)
@@ -152,9 +190,15 @@ class SAccount(SBase):
         return list
 
     @close_session
+    def getstatus_by_admidandmonth(self, amid, usid, month):
+        return self.session.query(Amount.AMstatus, Amount).filter(Amount.AMid == amid).filter(Amount.USid == usid)\
+                .filter(Amount.AMmonth == month).first()
+
+    @close_session
     def get_moneyrecord(self, id):
         return self.session.query(MoneyRecord.MRid, MoneyRecord.MRcreatetime, MoneyRecord.MRamount, MoneyRecord.OIid
-                                  , MoneyRecord.MRtype, MoneyRecord.MRtradenum).filter(MoneyRecord.USid == id).all()
+                                  , MoneyRecord.MRtype, MoneyRecord.MRtradenum).filter(MoneyRecord.USid == id)\
+                                  .order_by(MoneyRecord.MRcreatetime.desc()).all()
 
     @close_session
     def get_reward_by_nextid(self, id):
@@ -174,7 +218,9 @@ class SAccount(SBase):
 
     @close_session
     def get_record_by_wcsn(self, wcsn):
-        return self.session.query(WeixinCharge.WCstatus).filter(WeixinCharge.WCsn == wcsn).first()
+        return self.session.query(WeixinCharge.WCstatus).filter(WeixinCharge.WCsn == wcsn, WeixinCharge.WCstatus < 2).first()
 
-
-
+    @close_session
+    def update_weixin_charge(self, wcsn):
+        return self.session.query(WeixinCharge.WCid).filter(WeixinCharge.WCsn == wcsn).update(
+            {"WCstatus": 2}, synchronize_session=False)

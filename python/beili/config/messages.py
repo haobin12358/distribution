@@ -70,4 +70,6 @@ add_comment_success = "添加评论成功"
 update_comments_success = "评论已读"
 update_record_success = "更新记录成功"
 get_chargemoneylist_success = "获取充值记录成功"
-
+get_bailrecordlist_success = "获取保证金列表成功"
+withdraw_product_success = "下架商品成功"
+deal_profit_success = "发放奖励成功"

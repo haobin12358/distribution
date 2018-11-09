@@ -27,8 +27,14 @@ class SGoods(SBase):
 
     @close_session
     def get_category_byid(self, id):
-        return self.session.query(ProductCategory.PAname).filter(ProductCategory.PAid == id).first()
+        return self.session.query(ProductCategory.PAname, ProductCategory.Parentid).filter(ProductCategory.PAid == id).first()
 
+    @close_session
+    def withdraw_product(self, prid):
+        update = {}
+        update['PRstatus'] = 3
+        self.session.query(Product).filter(Product.PRid == prid).update(update)
+        return True
 
     @close_session
     def get_product_list(self, page_size, page_num, PAid=None, PRstatus=None):
@@ -91,19 +97,19 @@ class SGoods(SBase):
         return True
     @close_session
     def get_product_category_list(self, Parentid):
-        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAstatus).filter_by(Parentid=Parentid).all()
+        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAstatus).filter_by(Parentid=Parentid).filter_by(PAstatus=True).all()
     @close_session
     def get_first_product_category_status(self, Parentid):
-        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAstatus).filter_by(Parentid=Parentid).all()
+        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAstatus).filter_by(Parentid=Parentid).filter_by(PAstatus=True).all()
     @close_session
     def get_first_product_category(self, Parentid):
-        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAtype).filter_by(Parentid=Parentid).all()
+        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAtype).filter_by(Parentid=Parentid).filter_by(PAstatus=True).all()
     @close_session
     def get_child_product_category(self, Parentid):
-        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.Parentid).filter_by(Parentid=Parentid).all()
+        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.Parentid).filter_by(Parentid=Parentid).filter_by(PAstatus=True).all()
     @close_session
     def get_product_category(self, PAid):
-        return self.session.query(ProductCategory.PAstatus).filter_by(PAid=PAid).all()
+        return self.session.query(ProductCategory.PAstatus).filter_by(PAid=PAid).filter_by(PAstatus=True).all()
     @close_session
     def add_product_category(self, PAid, PAname, PAtype, Parentid=0):
         #添加商品分类
@@ -122,6 +128,10 @@ class SGoods(SBase):
     def delete_category(self, PAid, delete_category):
         #删除商品分类
         return self.session.query(ProductCategory).filter_by(PAid=PAid).update(delete_category)
+
+    @close_session
+    def get_product_by_paid(self, paid):
+        return self.session.query(Product.PRid).filter(Product.PAid == paid).all()
 
 class SSowing(SBase):
     def __init__(self):

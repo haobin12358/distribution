@@ -27,9 +27,17 @@ class AAccount(Resource):
             'get_alluser_drawmoney_list': 'self.caccount.get_alluser_drawmoney_list()',
             'deal_drawmoney': 'self.caccount.deal_drawmoney()',
             'get_all_chargemoney': 'self.caccount.get_all_chargemoney()',
-            'deal_chargemoney': 'self.caccount.deal_chargemoney()'
+            'deal_chargemoney': 'self.caccount.deal_chargemoney()',
+            'get_alluser_bailrecord': 'self.caccount.get_alluser_bailrecord()',
+            'deal_bailrecord': 'self.caccount.deal_bailrecord()',
+            'deal_reward_discount': 'self.caccount.deal_reward_discount()',
+            'weixin_pay': 'self.caccount.weixin_pay()',
+            'pay_callback': 'self.caccount.pay_callback()'
         }
         res = eval(apis[account])
+        if account == 'pay_callback':
+            print " pay_callback response" , res
+            return res
         return jsonify(res)
 
     def get(self, account):

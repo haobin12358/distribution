@@ -486,8 +486,8 @@ class CMyCenter():
             return NOT_FOUND_ADDRESS
     @verify_token_decorator
     def add_comments(self):
-        #if is_tourist():
-           # return TOKEN_ERROR
+        if is_tourist():
+            return TOKEN_ERROR
         try:
             data = request.json
             USname = data['USname']

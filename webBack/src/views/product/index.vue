@@ -13,22 +13,22 @@
                 <el-form-item type="index"></el-form-item>
 
                 <el-form-item label="名称">
-                    <el-input v-model.trim="formInline.PRname" placeholder="商品名"></el-input>
+                    <el-input v-model.trim="formInline.PRname" :clearable="true" placeholder="商品名"></el-input>
                 </el-form-item>
 
                 <el-form-item label="分类">
                     <el-cascader
                         :options="options"
                         :props="cascaderProps"
-                        v-model="formInline.CAselect">
+                        v-model="formInline.CAselect"
+                    @change="setProductList">
                     </el-cascader>
                 </el-form-item>
                 <el-form-item label="状态">
-                    <el-select v-model="formInline.PRstatus">
-                        <el-option label="全部" value="0"></el-option>
-                        <el-option label="出售中" value="1"></el-option>
-                        <el-option label="已售罄" value="2"></el-option>
-                        <el-option label="已下架" value="3"></el-option>
+                    <el-select v-model="formInline.PRstatus" @change="setProductList">
+                        <el-option v-for="option in statusOptions" :label="option.label" :value="option.value"
+                                   :key="option.value">
+                        </el-option>
                     </el-select>
                 </el-form-item>
 
@@ -46,17 +46,27 @@
                 </template>
             </el-table-column>
             <el-table-column prop="PRname" label="商品名" width="180" align="center"></el-table-column>
-            <el-table-column prop="categoryname" label="所属分类" width="180" align="center"></el-table-column>
+            <el-table-column label="所属分类" width="180" align="center">
+                <template slot-scope="scope">
+                    {{`${scope.row.firstpaname} /${scope.row.categoryname}`}}
+                </template>
+            </el-table-column>
             <el-table-column prop="PRoldprice" label="原价格" align="center"></el-table-column>
             <el-table-column prop="PRprice" label="折后价格" align="center"></el-table-column>
+            <el-table-column prop="PRstatus" label="状态" align="center">
+                <template slot-scope="scope">
+                    {{statusToTxt(scope.row.PRstatus)}}
+                </template>
+            </el-table-column>
             <el-table-column prop="PRlogisticsfee" label="邮费" align="center"></el-table-column>
             <el-table-column prop="PAdiscountnum" label="返点件数" align="center"></el-table-column>
             <el-table-column prop="PRstock" label="库存" align="center"></el-table-column>
             <el-table-column prop="PRcreatetime" label="创建时间" width="180" align="center"></el-table-column>
 
-            <el-table-column label="操作" width="120" fixed="right" align="center" :render-header="renderHeader">
+            <el-table-column label="操作" width="120" fixed="right" align="left" :render-header="renderHeader">
                 <template slot-scope="scope">
-                    <el-button type="text" size="small">编辑</el-button>
+                    <el-button type="text" size="small" @click="handleEdit(scope.row)">编辑</el-button>
+                    <el-button v-if="scope.row.PRstatus == 1" @click="handleDelete(scope.row)" style="color: red;" type="text" size="small">下架</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -85,11 +95,26 @@
 
         data() {
             return {
+                statusOptions:[
+                    {
+                        value: 0,
+                        label: '全部',
+                    },{
+                        value: 1,
+                        label: '出售中',
+                    },{
+                        value: 2,
+                        label: '已售罄',
+                    },{
+                        value: 3,
+                        label: '已上架',
+                    },
+                ],
                 //  查询表单
                 formInline: {
                     PRname: '',
                     CAselect: [],
-                    PRstatus: '0',
+                    PRstatus: 0,
                 },
                 //  商品分类选项
                 options: [
@@ -97,7 +122,7 @@
                 ],
                 cascaderProps: {
                     value: 'PAid',
-                    label: 'Parentname',
+                    label: 'PAname',
                     children: 'child_category',
                 },
 
@@ -126,13 +151,48 @@
 
                 )
             },
-            handleEdit() {
+            handleEdit(pd) {
+                this.$router.push({
+                    path: 'productEdit',
+                    query: {
+                        pd
+                    }
+                })
             },
-            handleDelete() {
+            handleDelete(pd) {
+                this.$confirm(`确定要下架商品:${pd.PRname}?`, '提示',{
+                    type: 'warning'
+                }).then(
+                    () => {
+                        this.$http.post(this.$api.withdrawProduct,{
+                            prid: pd.PRid,
+                        },{
+                            params: {
+                                token: this.$common.getStore('token')
+                            }
+                        }).then(
+                            res => {
+                                if (res.data.status == 200) {
+                                    let resData = res.data,
+                                        data = res.data.data;
+
+                                    this.setProductList();
+                                    this.$notify({
+                                        title: '商品下架成功',
+                                        message: `商品名:${pd.PRname}`,
+                                        type: 'success'
+                                    });
+                                }
+                            }
+                        )
+                    }
+                )
             },
 
             setCategoryList() {
-                this.$http.get(this.$api.getProductCategoryList).then(
+                this.$http.get(this.$api.getProductCategoryList,{
+                    noLoading: true
+                }).then(
                     res => {
                         if (res.data.status == 200) {
                             let resData = res.data,
@@ -145,10 +205,13 @@
             },
 
             doSearch() {
+                this.currentPage = 1;
                 this.setProductList();
             },
 
             doReset() {
+                this.currentPage = 1;
+
                 this.formInline.PRname = '';
                 this.formInline.CAselect = [];
                 this.formInline.PRstatus = '0';
@@ -170,12 +233,14 @@
             setProductList() {
                 this.loading = true;
                 this.$http.get(this.$api.getProductList, {
+                    noLoading: true,
+
                     params: {
                         page_size: this.pageSize,
                         page_num: this.currentPage,
                         PRstatus: this.formInline.PRstatus,
-                        PAid: 0,
-                        PAtype: '1',
+                        PAid: this.formInline.CAselect.length?this.formInline.CAselect[1]: 0,
+                        PAtype:this.formInline.CAselect.length?'2': '1',
                         PRname: this.formInline.PRname
                     }
                 }).then(
@@ -187,6 +252,10 @@
                         }
                     }
                 )
+            },
+
+            statusToTxt(status){
+                return this.statusOptions.find(item => item.value == status).label;
             }
 
         },

@@ -10,7 +10,8 @@ import copy
 # import logging
 
 
-from config.response import PARAMS_MISS, NO_THIS_CATEGORY, PARAMS_ERROR, PRODUCE_CATEGORY_EXIST, PRODUCE_CATEGORY_NOT_EXIST, AUTHORITY_ERROR, SYSTEM_ERROR
+from config.response import PARAMS_MISS, NO_THIS_CATEGORY, PARAMS_ERROR, PRODUCE_CATEGORY_EXIST, PRODUCE_CATEGORY_NOT_EXIST\
+    , AUTHORITY_ERROR, SYSTEM_ERROR, TOKEN_ERROR, PRODUCE_CATEGORY_HAS_PRODUCT
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin, is_ordirnaryuser,is_superadmin
 from common.import_status import import_status
@@ -55,8 +56,11 @@ class CGoods():
                 product_list = product_list + get_model_return_list(
                     self.sgoods.admin_get_product(PRstatus, PRname, PAid))
         for product in product_list:
-            categoryname = get_model_return_dict(self.sgoods.get_category_byid(product['PAid']))['PAname']
-            product['categoryname'] = categoryname
+            category = get_model_return_dict(self.sgoods.get_category_byid(product['PAid']))
+            product['firstpaid'] = category['Parentid']
+            parent_category = get_model_return_dict(self.sgoods.get_category_byid(category['Parentid']))
+            product['firstpaname'] = parent_category['PAname']
+            product['categoryname'] = category['PAname']
             product['PRcreatetime'] = get_web_time_str(product['PRcreatetime'])
 
         mount = len(product_list)
@@ -126,23 +130,29 @@ class CGoods():
             return AUTHORITY_ERROR
         try:
             data = request.json
+            print data, type(data)
             PAid = data.get('PAid')
             PAname = data.get('PAname')
             PAtype = data.get('PAtype')
             Parentid = data.get('Parentid')
-        except:
+        except Exception as e:
+            print e.message
             return PARAMS_ERROR
         try:
             get_PAstatus = get_model_return_list(self.sgoods.get_product_category(PAid))
             if get_PAstatus:
-                return PRODUCE_CATEGORY_EXIST
-            # elif get_Parentid == 0:
-            #     self.sgoods.add_product_category(PAid, PAname, PAtype)
+                update_category = {
+                    "PAname": PAname,
+                    "PAtype": PAtype,
+                    "Parentid": Parentid
+                }
+                self.sgoods.update_product_category(PAid, update_category)
             else:
+                PAid = str(uuid.uuid1())
                 self.sgoods.add_product_category(PAid, PAname, PAtype, Parentid)
 
-        except Exception as e :
-            print Exception
+        except Exception as e:
+            print e.message
             return PARAMS_MISS
         response = import_status("add_product_category_success", "OK")
         #response["data"] = product_category
@@ -170,7 +180,6 @@ class CGoods():
             #     self.sgoods.add_product_category(PAid, PAname, PAtype)
             else:
                 update_category = {}
-
                 update_category['PAname'] = PAname
                 update_category['PAtype'] = PAtype
                 update_category['Parentid'] = Parentid
@@ -198,6 +207,9 @@ class CGoods():
             return PARAMS_ERROR
         try:
             get_PAstatus = get_model_return_list(self.sgoods.get_product_category(PAid))
+            product_list = get_model_return_list(self.sgoods.get_product_by_paid(paid=PAid))
+            if product_list:
+                return PRODUCE_CATEGORY_HAS_PRODUCT
             if not get_PAstatus:
                 return PRODUCE_CATEGORY_NOT_EXIST
             # elif get_Parentid == 0:
@@ -207,8 +219,8 @@ class CGoods():
                 delete_category['PAstatus'] = False
                 self.sgoods.delete_category(PAid, delete_category)
 
-        except Exception as e :
-            print Exception
+        except Exception as e:
+            print e.message
             return PARAMS_MISS
         response = import_status("delete_product_category_success", "OK")
         #response["data"] = product_category
@@ -282,6 +294,24 @@ class CGoods():
                 return SYSTEM_ERROR
             response = import_status("create_product_success", "OK")
             return response
+
+    @verify_token_decorator
+    def withdraw_product(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            prid = data.get('prid')
+        except:
+            return PARAMS_ERROR
+        if not prid:
+            return PARAMS_ERROR
+        result = self.sgoods.withdraw_product(prid)
+        if not result:
+            return SYSTEM_ERROR
+        response = import_status("withdraw_product_success", "OK")
+        return response
+
 
     @verify_token_decorator
     def sowing_map(self):

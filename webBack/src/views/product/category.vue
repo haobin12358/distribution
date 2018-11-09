@@ -16,42 +16,60 @@
 <template>
     <div class="container">
         <div class="block">
-            <!--<el-tree :data="data5" show-checkbox node-key="id" default-expand-all :expand-on-click-node="false">-->
-                      <!--<span class="custom-tree-node" slot-scope="{ node, data }">-->
-                        <!--<span>{{ node.label }}</span>-->
-                        <!--<span>-->
-                          <!--<el-button type="text" size="mini" @click="() => append(data)">-->
-                            <!--Append-->
-                          <!--</el-button>-->
-                          <!--<el-button type="text" size="mini" @click="() => remove(node, data)">-->
-                            <!--Delete-->
-                          <!--</el-button>-->
-                        <!--</span>-->
-                      <!--</span>-->
-            <!--</el-tree>-->
 
+            <section class="tool-tip-wrap">
+                <el-form :inline="true" size="small" :model="formInline" class="demo-form-inline">
+                    <el-form-item label="分类名">
+                        <el-input v-model.trim="formInline.PAname" :clearable="true" placeholder="分类名"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="分类类型">
+                        <el-switch
+                            v-model="isFirstLevel"
+                            active-text="一级分类"
+                            inactive-text="二级分类"
+                            active-color="#13ce66"
+                            inactive-color="#ff4949"
+                        >
+                        </el-switch>
+                    </el-form-item>
+
+
+                    <el-form-item label="所属分类" v-if="!isFirstLevel">
+                        <el-cascader
+                            :options="options"
+                            :props="cascaderProps"
+                            v-model="secondPAid"
+                        >
+                        </el-cascader>
+                    </el-form-item>
+
+                    <el-form-item>
+                        <el-button v-if="!formInline.PAid" type="primary" icon="el-icon-plus" @click="doAdd">新 增
+                        </el-button>
+                        <el-button v-else type="primary" icon="el-icon-edit" @click="doEdit">编 辑</el-button>
+                        <el-button type="primary" icon="el-icon-refresh" @click="doReset">重 置</el-button>
+                    </el-form-item>
+                </el-form>
+            </section>
             <el-col :span="14">
-
-                <el-tree :data="treeData" :props="treeProps" node-key="PAid" default-expand-all>
+                <!--<el-button type="primary"  style="margin-bottom: .3rem;" @click="addFirstCategory">添加一级分类</el-button>-->
+                <el-tree :data="treeData" :props="treeProps" node-key="PAid" default-expand-all
+                         :expand-on-click-node="false">
 
                  <span class="custom-tree-node" slot-scope="{ node, data }">
                      <span>{{ node.label}}</span>
-                     <span v-if="node.label">
-                          <el-button type="text" size="mini">
-                                添加同级
-                          </el-button>
-                          <el-button type="text" size="mini">
-                                添加子级
-                          </el-button>
-                         <el-button type="text" size="mini">
-                                删除
-                          </el-button>
-                     </span>
-                     <span v-else>
-                         <el-button type="text" size="mini">
-                                删除
-                          </el-button>
-                     </span>
+                     <!--<span v-if="node.level == 1">-->
+                     <!--<el-button type="text" size="mini" @click="addTwoLevelCategory(node,data)">-->
+                     <!--添加二级分类-->
+                     <!--</el-button>-->
+                     <!--</span>-->
+                     <el-button type="text" size="mini" @click="editCategory(node,data)">
+                         编辑
+                      </el-button>
+                     <el-button type="text" class="danger-text" size="mini" @click="removeCategory(node,data)">
+                         删除
+                      </el-button>
                  </span>
                 </el-tree>
             </el-col>
@@ -60,54 +78,33 @@
 </template>
 
 <script>
-    let id = 1000;
-    const data = [
-        {
-            id: 1,
-            label: '一级 1',
-            children: [{
-                id: 4,
-                label: '二级 1-1',
-                children: [{
-                    id: 9,
-                    label: '三级 1-1-1'
-                }, {
-                    id: 10,
-                    label: '三级 1-1-2'
-                }]
-            }]
-        }, {
-            id: 2,
-            label: '一级 2',
-            children: [{
-                id: 5,
-                label: '二级 2-1'
-            }, {
-                id: 6,
-                label: '二级 2-2'
-            }]
-        }, {
-            id: 3,
-            label: '一级 3',
-            children: [{
-                id: 7,
-                label: '二级 3-1'
-            }, {
-                id: 8,
-                label: '二级 3-2'
-            }]
-        }];
     export default {
         name: "category",
 
         data() {
             return {
-                data5: data,
+                isFirstLevel: true,
+                secondPAid: [],
+
+                //  商品分类选项
+                options: [],
+                cascaderProps: {
+                    value: 'PAid',
+                    label: 'PAname',
+                    children: 'child_category',
+                },
+
+                formInline: {
+                    PAid: '',
+                    PAname: '',
+                    PAtype: '1',
+                    Parentid: '',
+                },
 
                 treeData: [],
                 treeProps: {
                     value: 'PAid',
-                    label: 'Parentname',
+                    label: 'PAname',
                     children: 'child_category',
                 },
 
@@ -119,20 +116,107 @@
         computed: {},
 
         methods: {
-            append(data) {
-                const newChild = {id: id++, label: 'testtest', children: []};
-                if (!data.children) {
-                    this.$set(data, 'children', []);
+            doAdd() {
+                console.log(this.formInline);
+                if (this.isFirstLevel) {
+                    this.formInline.PAtype = 1;
+                    this.formInline.Parentid = 0;
+                } else {
+                    this.formInline.PAtype = 2;
+                    this.formInline.Parentid = this.secondPAid[0];
                 }
-                data.children.push(newChild);
+
+                this.addCategory(this.formInline.PAname, this.formInline.PAtype, this.formInline.Parentid);
             },
 
-            remove(node, data) {
-                const parent = node.parent;
-                const children = parent.data.children || parent.data;
-                const index = children.findIndex(d => d.id === data.id);
-                children.splice(index, 1);
+            doEdit() {
+                console.log(this.formInline);
+                this.addCategory(this.formInline.PAname, this.formInline.PAtype, this.formInline.Parentid, this.formInline.PAid);
             },
+
+            doReset() {
+                this.formInline = {
+                    PAname: '',
+                    PAtype: '1',
+                    Parentid: '',
+                };
+            },
+
+
+            addCategory(PAname, PAtype, Parentid = 0, PAid = '') {
+                this.$http.post(this.$api.addProductCategory, {
+                    PAid,
+                    PAname,
+                    PAtype,
+                    Parentid
+                }, {
+                    params: {
+                        token: this.$common.getStore('token')
+                    }
+                }).then(
+                    res => {
+                        if (res.data.status == 200) {
+                            let resData = res.data,
+                                data = res.data.data;
+
+                            this.setCategoryList();
+                            this.$notify({
+                                title: `商品分类${PAid ? '修改': '新增'}成功`,
+                                message: `分类名:${PAname}`,
+                                type: 'success'
+                            });
+                        }
+                    }
+                )
+            },
+            addFirstCategory() {
+
+            },
+            addTwoLevelCategory(node, data) {
+                console.log('添加分类', node, data);
+            },
+
+            editCategory(node, data) {
+                this.isFirstLevel = node.level == 1;
+
+                this.formInline.PAid = data.PAid;
+                this.formInline.PAname = data.PAname;
+                this.formInline.PAtype = node.level;
+
+                this.formInline.Parentid = node.parent.data.PAid ? node.parent.data.PAid : '';
+                this.secondPAid = [this.formInline.Parentid.toString()];
+            },
+            removeCategory(node, data) {
+                let PAname = data.PAname;
+
+                if(node.childNodes.length){
+                    this.$message.error(`请先删除"${data.PAname}"下面的分类!`);
+                }else{
+                    this.$http.post(this.$api.deleteCategory,{
+                        PAid: data.PAid
+                    },{
+                        params: {
+                            token: this.$common.getStore('token')
+
+                        }
+                    }).then(
+                        res => {
+                            if (res.data.status == 200) {
+                                let resData = res.data,
+                                    data = res.data.data;
+
+                                this.setCategoryList();
+                                this.$notify({
+                                    title: `商品分类删除成功`,
+                                    message: `分类名:${PAname}`,
+                                    type: 'success'
+                                });
+                            }
+                        }
+                    )
+                }
+            },
+
 
             setCategoryList() {
                 this.$http.get(this.$api.getProductCategoryList).then(
@@ -146,10 +230,29 @@
                     }
                 )
             },
+            setCategorySelect() {
+                this.$http.get(this.$api.getProductCategory, {
+                    params: {
+                        PAtype: 1,
+                        PAid: 0,
+                    }
+                }).then(
+                    res => {
+                        if (res.data.status == 200) {
+                            let resData = res.data,
+                                data = res.data.data;
+
+                            this.options = data;
+                        }
+                    }
+                )
+            },
+
         },
 
         created() {
             this.setCategoryList();
+            this.setCategorySelect();
         },
     }
 </script>

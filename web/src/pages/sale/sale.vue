@@ -56,6 +56,10 @@
 
                     .sale-num-title, .sale-num-value {
                         line-height: 44px;
+                        color: #F56C6C;
+
+                    }
+                    .sale-num-value{
                     }
                 }
             }
@@ -92,6 +96,8 @@
                     .wl(80px, 80px);
                     border-radius: 50%;
                     margin-right: 30px;
+                    border: 5px solid @mainColor;
+                    box-sizing: border-box;
                 }
 
                 .customer-name{

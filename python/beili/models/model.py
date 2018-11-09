@@ -87,14 +87,14 @@ class Product(Base):
 
 class BailRecord(Base):
     """
-    保证操作记录表金
+    保证金操作记录表
     """
     __tablename__ = 'bailrecord'
     BRid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户id
     BRtype = Column(Integer)  # 记录类型 1充值 2退还
     BRmount = Column(Float)  # 交易金额
-    BRstatus = Column(Integer)  # 状态，1，已充值 2，退还中 3，已退还
+    BRstatus = Column(Integer)  # 状态，1，已充值 2，退还中 3，已退还 4,退还失败
     BRtradenum = Column(String(30))  # 流水号
     BRcreatetime = Column(String(14))  # 创建日期
 
@@ -108,7 +108,7 @@ class InvitaRecord(Base):
     IRIid = Column(String(64), primary_key=True)
     IRIprename = Column(String(64))  # 邀请人姓名
     IRIprephonenum = Column(String(64))  # 邀请人电话号码
-    IRIname = Column(String(64))  # 邀请人姓名
+    IRIname = Column(String(64))  # 被邀请人姓名
     IRIphonenum = Column(String(64))  # 被邀请人电话号码
     IRIpassword = Column(String(64))  # 被邀请人密码
     IRIidcardnum = Column(String(64))  # 被邀请人身份证号码
@@ -146,7 +146,7 @@ class MoneyRecord(Base):
     __tablename__ = 'moneyrecord'
     MRid = Column(String(64), primary_key=True)
     USid = Column(String(64))
-    MRtype = Column(Integer)  # {1,订单支出 2,提现 3,充值保证金 4,余额充值 5,奖金发放 6,保证金退还}
+    MRtype = Column(Integer)  # {1,订单支出 2,提现 3,充值保证金 4,余额充值 5,奖金发放 6,保证金退还 7，提现失败}
     MRamount = Column(Float)  # 金额
     OIid = Column(String(30))  # 订单号
     MRtradenum = Column(String(30))  # 流水号
