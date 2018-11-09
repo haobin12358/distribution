@@ -42,6 +42,36 @@ class SUser(SBase):
         return self.session.query(User.USname, User.USid, User.USagentid, User.USheadimg).filter(User.USpre == preid).all()
 
     @close_session
+    def get_register_record(self, status):
+        list = self.session.query(InvitaRecord.IRIid, InvitaRecord.IRIproof, InvitaRecord.IRIstatus, InvitaRecord.IRIcreatetime
+                                  , InvitaRecord.IRIcardnum, InvitaRecord.IRIaccountname, InvitaRecord.IRIbankname
+                                  , InvitaRecord.IRIalipaynum, InvitaRecord.IRIpaytime, InvitaRecord.IRIpayamount
+                                  , InvitaRecord.IRIpaytype, InvitaRecord.IRIaddress, InvitaRecord.IRIarea, InvitaRecord.IRIcity
+                                  , InvitaRecord.IRIwechat, InvitaRecord.IRIidcardnum, InvitaRecord.IRIname
+                                  , InvitaRecord.IRIphonenum, InvitaRecord.IRIprephonenum, InvitaRecord.IRIprename
+                                  ).order_by(InvitaRecord.IRIcreatetime.desc())
+        if status > 0:
+            list = list.filter(InvitaRecord.IRIstatus == status)
+        list = list.all()
+        return list
+
+    @close_session
+    def get_registerrecord_by_IRIid(self, id):
+        list = self.session.query(InvitaRecord.IRIid, InvitaRecord.IRIproof, InvitaRecord.IRIstatus, InvitaRecord.IRIcreatetime
+                                  , InvitaRecord.IRIcardnum, InvitaRecord.IRIaccountname, InvitaRecord.IRIbankname
+                                  , InvitaRecord.IRIalipaynum, InvitaRecord.IRIpaytime, InvitaRecord.IRIpayamount
+                                  , InvitaRecord.IRIpaytype, InvitaRecord.IRIaddress, InvitaRecord.IRIarea, InvitaRecord.IRIcity
+                                  , InvitaRecord.IRIwechat, InvitaRecord.IRIidcardnum, InvitaRecord.IRIname, InvitaRecord.IRIpic
+                                  , InvitaRecord.IRIphonenum, InvitaRecord.IRIpassword, InvitaRecord.IRIprephonenum, InvitaRecord.IRIprename
+                                  ).filter(InvitaRecord.IRIid == id).order_by(InvitaRecord.IRIcreatetime.desc()).first()
+        return list
+
+    @close_session
+    def update_register_record(self, id, update):
+        self.session.query(InvitaRecord).filter(InvitaRecord.IRIid == id).update(update)
+        return True
+
+    @close_session
     def getusername_and_id_by_preid(self, preid):
         return self.session.query(User.USname, User.USid).filter(User.USpre == preid).all()
 
@@ -124,3 +154,7 @@ class SUser(SBase):
     @close_session
     def get_qrcode_by_qrid(self, id):
         return self.session.query(Qrcode.QRovertime, Qrcode.QRnumber).filter(Qrcode.QRid == id).first()
+
+    @close_session
+    def get_qrcode_by_openid(self, id):
+        return self.session.query(User).filter(User.openid == id).first()

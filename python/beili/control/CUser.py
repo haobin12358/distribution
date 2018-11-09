@@ -5,6 +5,7 @@ import json
 import uuid
 reload(sys)
 sys.setdefaultencoding("utf8")
+import flask
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
@@ -12,7 +13,7 @@ from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, 
     NOT_FOUND_QRCODE, HAS_REGISTER, NO_BAIL, BAD_ADDRESS
 from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM, MONEY, BAIL, \
     WECHATSERVICE, REWARD, REDIRECT_URI, APP_ID, APP_SECRET, SERVER
-from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser, is_temp
+from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser, is_temp, is_admin
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
 from common.timeformat import get_db_time_str, get_random_str
@@ -125,7 +126,7 @@ class CUser():
 
     @verify_token_decorator
     def upload_file(self):
-        if is_ordirnaryuser():
+        if is_ordirnaryuser() or is_admin:
             try:
                 files = request.files.get("file")
             except:
@@ -179,7 +180,7 @@ class CUser():
 
     @verify_token_decorator
     def remove_file(self):
-        if is_ordirnaryuser():
+        if is_ordirnaryuser() or is_admin():
             try:
                 data = request.json
                 url = str(data.get('url'))
@@ -472,88 +473,6 @@ class CUser():
             result = self.suser.insertInvitate(session, data)
             if not result:
                 raise dberror
-            user = self.smycenter.get_user_basicinfo_byphone(prephonenum)  # 插入销售表，有数据就更新
-            if not user:
-                raise dberror
-            user = get_model_return_dict(user)
-            monthnow = datetime.strftime(datetime.now(), format_for_db)[0:6]
-            amount_data = self.saccount.get_user_date(user['USid'], monthnow)
-            if amount_data:
-                amount_data = get_model_return_dict(amount_data)
-                new_data = {}
-                new_data['reward'] = amount_data['reward'] + REWARD
-                try:
-                    session.query(Amount).filter(Amount.USid == user['USid']).update(new_data)
-                except:
-                    raise dberror
-            else:
-                amount = Amount()
-                amount.USid = user['USid']
-                amount.AMid = str(uuid.uuid4())
-                amount.USagentid = user['USagentid']
-                amount.USname = user['USname']
-                amount.reward = REWARD
-                amount.USheadimg = user['USheadimg']
-                amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
-                amount.AMmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
-                session.add(amount)
-
-            new_userid = str(uuid.uuid4())  # 插入新用户
-            new_user = User()
-            new_user.USid = new_userid
-            new_user.USname = username
-            new_user.USpre = user['USid']
-            new_user.USheadimg = headimg if headimg else 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_100' \
-                                                         '00&sec=1540919391&di=91c' \
-                                 '1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommun' \
-                                 'ity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
-            new_user.USphonenum = phonenum
-            new_user.USmount = 10000
-            new_user.USbail = 0
-            new_user.USpassword = password
-            new_user.USagentid = random.randint(1000, 1000000)
-            session.add(new_user)
-
-            reward = Reward()  # 插入直推奖励表
-            reward.REid = str(uuid.uuid4())
-            reward.RElastuserid = user['USid']
-            reward.REnextuserid = new_userid
-            reward.REmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
-            reward.REmount = REWARD
-            reward.REcreatetime = datetime.strftime(datetime.now(), format_for_db)
-            session.add(reward)
-
-            USname = username  # 插入默认收货地址
-            USphonenum = phonenum
-            USdatails = details
-            if areaid:
-                all_areaid = get_model_return_list(self.smycenter.get_all_areaid())
-                area_list = []
-                for area in all_areaid:
-                    area_list.append(area['areaid'])
-                if areaid not in area_list:
-                    return BAD_ADDRESS
-                time_time = datetime.now()
-                time_str = datetime.strftime(time_time, format_for_db)
-                uaid = str(uuid.uuid1())
-                exist_default = self.smycenter.get_default_address_by_usid(new_userid)
-                uadefault = True if not exist_default else False
-                self.smycenter.add_address_selfsession(session, uaid, new_userid, USname, USphonenum, USdatails, \
-                                                       areaid, uadefault, time_str, None)
-            else:
-                all_cityid = get_model_return_list(self.smycenter.get_all_cityid())
-                cityid_list = []
-                for city in all_cityid:
-                    cityid_list.append(city['cityid'])
-                if cityid not in cityid_list:
-                    return BAD_ADDRESS
-                time_time = datetime.now()
-                time_str = datetime.strftime(time_time, format_for_db)
-                uaid = str(uuid.uuid1())
-                exist_default = self.smycenter.get_default_address_by_usid(new_userid)
-                uadefault = True if not exist_default else False
-                self.smycenter.add_address_selfsession(session, uaid, new_userid, USname, USphonenum, USdatails,  \
-                                                       None, uadefault, time_str, cityid)
             session.commit()
         except Exception as e:
             print e
@@ -564,12 +483,174 @@ class CUser():
         response = import_status("register_success", "OK")
         return response
 
+    @verify_token_decorator
+    def get_register_record(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            status = int(data.get('status'))
+            page_size = data.get('page_size')
+            page_num = data.get('page_num')
+        except:
+            return PARAMS_ERROR
+        list = get_model_return_list(self.suser.get_register_record(status))
+        if not list:
+            response = import_status("get_registerinfo_success", "OK")
+            response['data'] = []
+            return response
+        from common.timeformat import get_web_time_str
+        for record in list:
+            record['IRIcreatetime'] = get_web_time_str(record['IRIcreatetime'])
+            record['IRIpaytime'] = get_web_time_str(record['IRIpaytime'])
+            record['IRIproof'] = record['IRIproof'].split(',')
 
+            if record['IRIarea']:
+                area = get_model_return_dict(self.smycenter.get_area_by_areaid(record['IRIarea']))
+                city = get_model_return_dict(self.smycenter.get_city_by_cityid(area['cityid']))
+                province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city['provinceid']))
+                record['address'] = province['provincename'] + city['cityname'] + area['areaname']
+            else:
+                city = get_model_return_dict(self.smycenter.get_city_by_cityid(record['IRIcity']))
+                province = get_model_return_dict(self.smycenter.get_province_by_provinceid(city['provinceid']))
+                record['address'] = province['provincename'] + city['cityname']
+
+        mount = len(list)
+        page = mount / page_size
+        if page == 0 or page == 1 and mount % page_size == 0:
+            real_return_list = list[0:]
+        else:
+            if ((mount - (page_num - 1) * page_size) / page_size) >= 1 and \
+                    (mount - (page_num * page_size)) > 0:
+                real_return_list = list[((page_num - 1) * page_size):(page_num * page_size)]
+            else:
+                real_return_list = list[((page_num - 1) * page_size):]
+        response = import_status("get_registerinfo_success", "OK")
+        response['data'] = real_return_list
+        response['mount'] = mount
+        return response
+
+    @verify_token_decorator
+    def deal_register_record(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            IRIid = data.get('IRIid')
+            willstatus = data.get('willstatus')
+        except:
+            return PARAMS_ERROR
+        info = get_model_return_dict(self.suser.get_registerrecord_by_IRIid(IRIid))
+        if not info:
+            return NOT_FOUND_USER
+        update = {}
+        update['IRIstatus'] = int(willstatus)
+        result = self.suser.update_register_record(IRIid, update)
+        if not result:
+            return SYSTEM_ERROR
+        if willstatus == 2:
+            session = db_session()
+            try:
+                user = self.smycenter.get_user_basicinfo_byphone(info['IRIprephonenum'])  # 插入销售表，有数据就更新
+                if not user:
+                    raise dberror
+                user = get_model_return_dict(user)
+                monthnow = datetime.strftime(datetime.now(), format_for_db)[0:6]
+                amount_data = self.saccount.get_user_date(user['USid'], monthnow)
+                if amount_data:
+                    amount_data = get_model_return_dict(amount_data)
+                    new_data = {}
+                    new_data['reward'] = amount_data['reward'] + REWARD
+                    try:
+                        session.query(Amount).filter(Amount.USid == user['USid']).update(new_data)
+                    except:
+                        raise dberror
+                else:
+                    amount = Amount()
+                    amount.USid = user['USid']
+                    amount.AMid = str(uuid.uuid4())
+                    amount.USagentid = user['USagentid']
+                    amount.USname = user['USname']
+                    amount.reward = REWARD
+                    amount.AMstatus = 1
+                    amount.USheadimg = user['USheadimg']
+                    amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
+                    amount.AMmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
+                    session.add(amount)
+
+                new_userid = str(uuid.uuid4())  # 插入新用户
+                new_user = User()
+                new_user.USid = new_userid
+                new_user.USname = info['IRIname']
+                new_user.USpre = user['USid']
+                new_user.USheadimg = info['IRIpic'] if info['IRIpic'] else 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_100' \
+                                                             '00&sec=1540919391&di=91c' \
+                                                             '1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommun' \
+                                                             'ity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
+                new_user.USphonenum = info['IRIphonenum']
+                new_user.USmount = 0
+                new_user.USbail = 0
+                new_user.USpassword = info['IRIpassword']
+                new_user.USagentid = random.randint(1000, 1000000)
+                session.add(new_user)
+
+                reward = Reward()  # 插入直推奖励表
+                reward.REid = str(uuid.uuid4())
+                reward.RElastuserid = user['USid']
+                reward.REnextuserid = new_userid
+                reward.REmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
+                reward.REmount = REWARD
+                reward.REcreatetime = datetime.strftime(datetime.now(), format_for_db)
+                session.add(reward)
+
+                USname = info['IRIname']  # 插入默认收货地址
+                USphonenum = info['IRIphonenum']
+                USdatails = info['IRIaddress']
+                areaid = info['IRIarea']
+                cityid = info['IRIcity']
+                if areaid:
+                    all_areaid = get_model_return_list(self.smycenter.get_all_areaid())
+                    area_list = []
+                    for area in all_areaid:
+                        area_list.append(area['areaid'])
+                    if areaid not in area_list:
+                        return BAD_ADDRESS
+                    time_time = datetime.now()
+                    time_str = datetime.strftime(time_time, format_for_db)
+                    uaid = str(uuid.uuid1())
+                    exist_default = self.smycenter.get_default_address_by_usid(new_userid)
+                    uadefault = True if not exist_default else False
+                    self.smycenter.add_address_selfsession(session, uaid, new_userid, USname, USphonenum, USdatails, \
+                                                           areaid, uadefault, time_str, None)
+                else:
+                    all_cityid = get_model_return_list(self.smycenter.get_all_cityid())
+                    cityid_list = []
+                    for city in all_cityid:
+                        cityid_list.append(city['cityid'])
+                    if cityid not in cityid_list:
+                        return BAD_ADDRESS
+                    time_time = datetime.now()
+                    time_str = datetime.strftime(time_time, format_for_db)
+                    uaid = str(uuid.uuid1())
+                    exist_default = self.smycenter.get_default_address_by_usid(new_userid)
+                    uadefault = True if not exist_default else False
+                    self.smycenter.add_address_selfsession(session, uaid, new_userid, USname, USphonenum, USdatails, \
+                                                           None, uadefault, time_str, cityid)
+                session.commit()
+            except Exception as e:
+                print e
+                session.rollback()
+                return SYSTEM_ERROR
+            finally:
+                session.close()
+        response = import_status("register_success", "OK")
+        return response
 
     @verify_token_decorator
     def check_openid(self):
         if is_tourist():
             return TOKEN_ERROR
+        state = request.args.to_dict().get('state')
         usid = request.user.id
         openid = get_model_return_dict(self.saccount.check_openid(usid))
         if not openid['openid']:
@@ -577,19 +658,19 @@ class CUser():
             response['message'] = u'执行跳转'
             response['status'] = 302
             data = {}
-            state = get_random_str(10)
             update = {}
-            update['state'] = state
+            state2 = get_random_str(10)
+            update['state'] = state2
             result = self.suser.update_user_by_uid(usid, update)
             if not result:
                 return SYSTEM_ERROR
             login = WeixinLogin(APP_ID, APP_SECRET)
+            state = state2 + "$$$" + state
             data['url'] = login.authorize(SERVER + "/user/get_code", 'snsapi_base', state=state)
             response['data'] = data
             return response
         response = import_status("has_opid", "OK")
         return response
-
 
     def get_code(self):
         args = request.args.to_dict()
@@ -602,6 +683,8 @@ class CUser():
         openid = data.openid
         update = {}
         update['openid'] = openid
-        self.suser.update_user_by_state(state, update)
-        response = import_status("get_openid_success", "OK")
-        return response
+        state_list = str(state).split('$$$')
+
+        self.suser.update_user_by_state(state_list[0], update)
+        # response = import_status("get_openid_success", "OK")
+        return flask.redirect(state_list[1])

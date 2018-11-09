@@ -4,7 +4,7 @@ import os
 import uuid
 from werkzeug.security import check_password_hash
 from service.SBase import SBase, close_session
-from models.model import User, IdentifyingCode, Province, City, Area, UserAddress
+from models.model import User, IdentifyingCode, Province, City, Area, UserAddress, Comments
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -18,6 +18,8 @@ class SMyCenter(SBase):
     @close_session
     def update_user_by_uid(self, uid, users):
         self.session.query(User).filter_by(USid=uid).update(users)
+        return True
+
 
     @close_session
     def get_inforcode_by_usphonenum(self, phonenum):
@@ -39,7 +41,7 @@ class SMyCenter(SBase):
     @close_session
     def get_user_basicinfo(self, usid):
         return self.session.query(User.USphonenum, User.USmount, User.USbail, User.USheadimg, User.USname, User.USagentid,\
-                                  User.subscribe, User.USpre).filter_by(USid=usid).first()
+                                  User.subscribe, User.USpre, User.openid).filter_by(USid=usid).first()
 
     @close_session
     def get_user_basicinfo_byphone(self, num):
@@ -178,3 +180,19 @@ class SMyCenter(SBase):
     @close_session
     def get_province_by_provinceid(self, provinceid):
         return self.session.query(Province.provincename, Province.provinceid).filter(Province.provinceid == provinceid).first()
+
+    @close_session
+    def add_comment(self, USid, USname, CMcontent, CMcreatetime):
+        """添加评论"""
+        comments = Comments()
+        comments.USid = USid
+        comments.USname = USname
+        comments.CMcontent = CMcontent
+        comments.CMcreatetime = CMcreatetime
+        session.add(comments)
+    @close_session
+    def get_comments(self, USname):
+        return self.session.query(Comments.CMcontent, Comments.USid).filter_by(USname=USname).all()
+    @close_session
+    def update_CMisread(self, USid, read):
+        self.session.query(Comments).filter_by(USid=USid).update(read)

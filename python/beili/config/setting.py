@@ -1,6 +1,6 @@
 # -*- coding:utf8 -*-
 SECRET_KEY = '4C2tAoH6fhI17OdNk0u2343fdBIJVBU93ez5DswvGVyprlFWa8PBjqQmRTxJUMKXYb'
-TOKEN_EXPIRATION = 3600 * 222220  # token过期时间(秒)
+TOKEN_EXPIRATION = 3600 * 2  # token过期时间(秒)
 # # test
 # APP_ID = 'wxe8e8f6b9351d3587'
 # APP_SECRET_KEY = 'b89e22f046d33b39c7a4afa485e661dc'
@@ -39,8 +39,4 @@ MCH_ID = '1516500191'
 MCH_KEY = 'hiuhef98y3198dg928dhhsdGHHUY8y98'
 APP_SECRET= '3befb44903c957180ddad2d18d1677c5'
 REDIRECT_URI = 'https://beili.daaiti.cn:443/user/get_code'
-
-# weidian
-APP_ID = 'wx8206635590c9cc0e'
-APP_SECRET_KEY = 'ba8c532bfd8e7390e3cfc91ac17c0472'
-wximg = 'https://daaiti.cn/imgs/WeiDian/qrcode/wx.jpg'
+notify_url = 'https://beiliserver.daaiti.cn/account/pay_callback'

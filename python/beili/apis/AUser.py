@@ -3,6 +3,8 @@ import sys
 import os
 from flask import jsonify
 from flask_restful import Resource
+from werkzeug.wrappers import Response
+
 from control.CUser import CUser
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -24,7 +26,9 @@ class AUser(Resource):
             'delete_qrcode': 'self.cuser.delete_qrcode()',
             'add_qrcode': 'self.cuser.add_qrcode()',
             'get_registerinfo': 'self.cuser.get_registerinfo()',
-            'check_qrcode': 'self.cuser.check_qrcode()'
+            'check_qrcode': 'self.cuser.check_qrcode()',
+            'get_register_record': 'self.cuser.get_register_record()',
+            'deal_register_record': 'self.cuser.deal_register_record()'
         }
         res = eval(apis[user])
         return jsonify(res)
@@ -38,4 +42,6 @@ class AUser(Resource):
             'get_code': 'self.cuser.get_code()'
         }
         res = eval(apis[user])
+        if isinstance(res, Response):
+            return res
         return jsonify(res)

@@ -8,16 +8,16 @@ from common.timeformat import format_for_db, get_random_str
 from flask import request
 import copy
 # import logging
-from config.response import PARAMS_MISS, NO_THIS_CATEGORY, PARAMS_ERROR, AUTHORITY_ERROR, SYSTEM_ERROR
+
+
+from config.response import PARAMS_MISS, NO_THIS_CATEGORY, PARAMS_ERROR, PRODUCE_CATEGORY_EXIST, PRODUCE_CATEGORY_NOT_EXIST\
+    , AUTHORITY_ERROR, SYSTEM_ERROR, TOKEN_ERROR, PRODUCE_CATEGORY_HAS_PRODUCT
 from config.setting import QRCODEHOSTNAME
-from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
-from config.response import PARAMS_MISS, NO_THIS_CATEGORY, PARAMS_ERROR, PRODUCE_CATEGORY_EXIST, PRODUCE_CATEGORY_NOT_EXIST
-from config.setting import QRCODEHOSTNAME
-from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser,is_superadmin, is_admin
+from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin, is_ordirnaryuser,is_superadmin
 from common.import_status import import_status
 from common.timeformat import get_db_time_str
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
-from service.SGoods import SGoods
+from service.SGoods import SGoods, SSowing
 from common.timeformat import get_web_time_str
 import platform
 
@@ -28,6 +28,7 @@ class CGoods():
 
     def __init__(self):
         self.sgoods = SGoods()
+        self.ssowing = SSowing()
 
     #@verify_token_decorator
     def get_product_list(self):
@@ -55,8 +56,11 @@ class CGoods():
                 product_list = product_list + get_model_return_list(
                     self.sgoods.admin_get_product(PRstatus, PRname, PAid))
         for product in product_list:
-            categoryname = get_model_return_dict(self.sgoods.get_category_byid(product['PAid']))['PAname']
-            product['categoryname'] = categoryname
+            category = get_model_return_dict(self.sgoods.get_category_byid(product['PAid']))
+            product['firstpaid'] = category['Parentid']
+            parent_category = get_model_return_dict(self.sgoods.get_category_byid(category['Parentid']))
+            product['firstpaname'] = parent_category['PAname']
+            product['categoryname'] = category['PAname']
             product['PRcreatetime'] = get_web_time_str(product['PRcreatetime'])
 
         mount = len(product_list)
@@ -90,7 +94,7 @@ class CGoods():
         response = import_status("get_product_success", "OK")
         response["data"] = product
         return response
-
+    @verify_token_decorator
     def get_product_category_list(self):
         #商品分类列表
         try:
@@ -105,7 +109,7 @@ class CGoods():
                 if pastatus == False:
                     continue
                 product_category_list['PAid'] = parnetid
-                product_category_list['Parentname'] = parentname
+                product_category_list['PAname'] = parentname
                 child_category = get_model_return_list(self.sgoods.get_first_product_category(parnetid))
                 product_category_list['child_category'] = child_category
                 test = product_category_list.copy()
@@ -126,23 +130,29 @@ class CGoods():
             return AUTHORITY_ERROR
         try:
             data = request.json
+            print data, type(data)
             PAid = data.get('PAid')
             PAname = data.get('PAname')
             PAtype = data.get('PAtype')
             Parentid = data.get('Parentid')
-        except:
+        except Exception as e:
+            print e.message
             return PARAMS_ERROR
         try:
             get_PAstatus = get_model_return_list(self.sgoods.get_product_category(PAid))
             if get_PAstatus:
-                return PRODUCE_CATEGORY_EXIST
-            # elif get_Parentid == 0:
-            #     self.sgoods.add_product_category(PAid, PAname, PAtype)
+                update_category = {
+                    "PAname": PAname,
+                    "PAtype": PAtype,
+                    "Parentid": Parentid
+                }
+                self.sgoods.update_product_category(PAid, update_category)
             else:
+                PAid = str(uuid.uuid1())
                 self.sgoods.add_product_category(PAid, PAname, PAtype, Parentid)
 
-        except Exception as e :
-            print Exception
+        except Exception as e:
+            print e.message
             return PARAMS_MISS
         response = import_status("add_product_category_success", "OK")
         #response["data"] = product_category
@@ -170,7 +180,6 @@ class CGoods():
             #     self.sgoods.add_product_category(PAid, PAname, PAtype)
             else:
                 update_category = {}
-
                 update_category['PAname'] = PAname
                 update_category['PAtype'] = PAtype
                 update_category['Parentid'] = Parentid
@@ -198,6 +207,9 @@ class CGoods():
             return PARAMS_ERROR
         try:
             get_PAstatus = get_model_return_list(self.sgoods.get_product_category(PAid))
+            product_list = get_model_return_list(self.sgoods.get_product_by_paid(paid=PAid))
+            if product_list:
+                return PRODUCE_CATEGORY_HAS_PRODUCT
             if not get_PAstatus:
                 return PRODUCE_CATEGORY_NOT_EXIST
             # elif get_Parentid == 0:
@@ -207,8 +219,8 @@ class CGoods():
                 delete_category['PAstatus'] = False
                 self.sgoods.delete_category(PAid, delete_category)
 
-        except Exception as e :
-            print Exception
+        except Exception as e:
+            print e.message
             return PARAMS_MISS
         response = import_status("delete_product_category_success", "OK")
         #response["data"] = product_category
@@ -282,6 +294,69 @@ class CGoods():
                 return SYSTEM_ERROR
             response = import_status("create_product_success", "OK")
             return response
+
+    @verify_token_decorator
+    def withdraw_product(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            prid = data.get('prid')
+        except:
+            return PARAMS_ERROR
+        if not prid:
+            return PARAMS_ERROR
+        result = self.sgoods.withdraw_product(prid)
+        if not result:
+            return SYSTEM_ERROR
+        response = import_status("withdraw_product_success", "OK")
+        return response
+
+
+    @verify_token_decorator
+    def sowing_map(self):
+        try:
+            data = request.json
+            sowing_type = data['type']
+            urls = data['urls']
+        except:
+            return PARAMS_ERROR 
+        try:
+            urls_dict = {}
+            
+            if sowing_type == 1:
+                another_urls = []
+                for url in urls:
+                    get_urls = get_model_return_list(self.ssowing.get_url_by_mall(url))
+                    person_url =  get_urls[0]['personUrls']
+                    another_urls.append(person_url)
+                    status = {}
+                    status['SMstatus'] = True
+                    self.ssowing.update_sowingmap_status(url, status)
+                urls_dict['mallUrls'] = urls
+                urls_dict['personUrls'] = another_urls
+            if sowing_type == 2:
+                another_urls = []
+                for url in urls:
+                    get_urls = get_model_return_list(self.ssowing.get_url_by_person(url))
+                    mall_url = get_urls[0]['mallUrls']
+                    another_urls.append(mall_url)
+                    status = {}
+                    status['SMstatus'] = True
+                    self.ssowing.update_sowingmap_status(url, status)
+                urls_dict['mallUrls'] = another_urls
+                urls_dict['personUrls'] = urls
+
+
+
+        except Exception as e :
+            print Exception
+            return PARAMS_MISS
+        response = import_status("get_sowing_map_success", "OK")
+        response["data"] =urls_dict
+        return response
+
+
 
     def json_param_miss(self, type):
         if is_tourist():

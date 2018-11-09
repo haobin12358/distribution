@@ -8,8 +8,8 @@ import platform
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, NOT_FOUND_PHONENUM, NOT_FOUND_IMAGE, \
-    NO_ADDRESS, NOT_FOUND_ADDRESS, BAD_ADDRESS, UPDATE_ADDRESS_FAIL, CHANGE_ADDRESS_FAIL
-from common.token_required import verify_token_decorator, usid_to_token, is_tourist
+    NO_ADDRESS, NOT_FOUND_ADDRESS, BAD_ADDRESS, UPDATE_ADDRESS_FAIL, CHANGE_ADDRESS_FAIL, AUTHORITY_ERROR
+from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
 from service.SMyCenter import SMyCenter
@@ -224,10 +224,6 @@ class CMyCenter():
         try:
             if areaid:
                 all_areaid = get_model_return_list(self.smycenter.get_all_areaid())
-                print self.smycenter.get_all_areaid()
-                #print all_areaid
-                print 'sheng'
-                print all_areaid
                 area_list = []
                 for area in all_areaid:
                     area_list.append(area['areaid'])
@@ -488,3 +484,49 @@ class CMyCenter():
             return response
         else:
             return NOT_FOUND_ADDRESS
+    @verify_token_decorator
+    def add_comments(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            USname = data.get('USname')
+            CMcontent = data.get('CMcontent')
+        except:
+            return PARAMS_ERROR
+        try:
+            import datetime
+            from common.timeformat import format_for_db
+            time_time = datetime.datetime.now()
+            time_str = datetime.datetime.strftime(time_time, format_for_db)
+            USid = str(uuid.uuid1())
+            self.smycenter.add_comment(USid, USname, CMcontent, time_str)
+            response = import_status("add_comment_success", "OK")
+            return response
+        except Exception as e:
+            print e
+            return SYSTEM_ERROR
+
+    @verify_token_decorator
+    def review_comment(self):
+        if not is_admin():
+            return AUTHORITY_ERROR
+        try:
+            data = request.json
+            USname = data['USname']
+        except:
+            return PARAMS_ERROR
+        try:
+            comment_list = get_model_return_list(self.smycenter.get_comments(USname))
+            USid = comment_list[0]['USid']
+            comment = comment_list[0]['CMcontent']
+            response['comment'] = comment
+            read = {'CMisread':True}
+            self.smycenter.update_CMisread(USid, read)
+            response = import_status('update_comments_success', 'OK')
+            return response
+        except Exception as e:
+            print e
+            return SYSTEM_ERROR
+
+ 

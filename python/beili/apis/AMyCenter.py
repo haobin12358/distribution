@@ -19,7 +19,9 @@ class AMyCenter(Resource):
             'get_useraddress': 'self.cmycenter.get_useraddress()',
             'delete_useraddress': 'self.cmycenter.delete_useraddress()',
             'update_useraddress': 'self.cmycenter.update_useraddress()',
-            'change_default': 'self.cmycenter.change_default()'
+            'change_default': 'self.cmycenter.change_default()',
+            'add_comments':'self.cmycenter.add_comments()',
+            'review_comment':'self.cmycenter.review_comment()'
         }
         res = eval(apis[mycenter])
         return jsonify(res)
