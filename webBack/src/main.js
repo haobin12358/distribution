@@ -25,15 +25,19 @@ filter(Vue);
 
 //图表
 import echarts from 'echarts';
+
 Vue.prototype.echarts = echarts;
 
 import axios from 'axios';
+
 Vue.prototype.$http = axios;
 
 import api from './api/api';
+
 Vue.prototype.$api = api;
 
 import common from './common/js/common';
+
 Vue.prototype.$common = common;
 
 
@@ -42,23 +46,25 @@ import {Loading, Message, MessageBox} from 'element-ui'
 // 超时时间
 axios.defaults.timeout = 60000
 // http请求拦截器
-var loadinginstace
+let loadinginstace;
 axios.interceptors.request.use(config => {
-    // config.baseURL = '/api'
-
-    // loadinginstace = Loading.service({fullscreen: true});
+    if (!config.noLoading) {
+        loadinginstace = Loading.service({fullscreen: true});
+    }
     return config
 }, error => {
     Message({
         message: '加载超时',
         type: 'warning'
     });
-    // loadinginstace.close();
+
     return Promise.reject(error);
 })
 // http响应拦截器
 axios.interceptors.response.use(data => {// 响应成功关闭loading
-    // loadinginstace.close();
+    if (loadinginstace) {
+        loadinginstace.close();
+    }
     if (data.data.status != 200) {
         Vue.prototype.$message.error(data.data.message);
     }
@@ -68,8 +74,11 @@ axios.interceptors.response.use(data => {// 响应成功关闭loading
         message: '请求失败',
         type: 'warning'
     });
-    // loadinginstace.close();
+    if (loadinginstace) {
+        loadinginstace.close();
+    }
     return Promise.reject(error);
+
 })
 
 

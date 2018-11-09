@@ -33,7 +33,7 @@
         <el-dialog title="消息编辑" :visible.sync="dialogFormVisible" label-position="top">
             <el-form :model="form">
                 <el-form-item label="标题">
-                    <el-input v-model="form.name" autocomplete="off"></el-input>
+                    <el-input v-model="form.name" auto-complete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="消息类型" :label-width="formLabelWidth">
                     <el-select v-model="form.region" placeholder="请选择活动区域">

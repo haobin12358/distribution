@@ -44,7 +44,7 @@
     }
 
     .router-fade-enter-active {
-        transition: opacity .2s;
+        transition: opacity .1s;
     }
 
     .router-fade-enter {

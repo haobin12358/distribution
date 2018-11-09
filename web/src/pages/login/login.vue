@@ -143,6 +143,22 @@
                                 this.$router.push('/mall');
                                 this.setNotReadMsgNum();
                                 this.getUserInfo();
+
+                                this.$http.get(title+'/user/check_openid',{
+                                    params: {
+                                        token: getStore(TOKEN),
+                                        state: location.href,
+                                    }
+                                }).then(
+                                    res => {
+                                        if (res.data.status == 302) {
+                                            let resData = res.data,
+                                                data = res.data.data;
+
+                                            location.href = data.url;
+                                        }
+                                    }
+                                )
                             }
                         }
                     )
@@ -156,7 +172,7 @@
         created() {
             if (getStore(TOKEN)) {
                 this.setNotReadMsgNum();
-                this.$router.push('/personal');
+                this.$router.push('/mall');
                 this.$toast('已登录');
             }
         }

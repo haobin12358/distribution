@@ -8,7 +8,7 @@
 <template>
     <div class="container">
         <el-breadcrumb style="margin-bottom: .2rem;" separator-class="el-icon-arrow-right">
-            <el-breadcrumb-item>公司消息</el-breadcrumb-item>
+            <el-breadcrumb-item>开发中...</el-breadcrumb-item>
         </el-breadcrumb>
         <!--商品表格-->
         <el-table :data="tableData" stripe style="width: 100%">
@@ -36,9 +36,9 @@
         <el-dialog title="消息编辑" :visible.sync="dialogFormVisible" label-position="top">
             <el-form :model="form">
                 <el-form-item label="标题">
-                    <el-input v-model="form.name" autocomplete="off"></el-input>
+                    <el-input v-model="form.name" auto-complete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="消息类型" :label-width="formLabelWidth">
+                <el-form-item label="消息类型">
                     <el-select v-model="form.region" placeholder="请选择活动区域">
                         <el-option label="公告" value="shanghai"></el-option>
                         <!--<el-option label="区域二" value="beijing"></el-option>-->

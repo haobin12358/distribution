@@ -121,6 +121,16 @@
         components: {
         },
 
+        watch:{
+            cityPopupVisible(val){
+                if(val) {
+                    this.closeTouch()
+                } else {
+                    this.openTouch()
+                }
+            }
+        },
+
         computed: {},
 
         methods: {
@@ -189,6 +199,18 @@
                     this.cityPopupVisible = true
                 }, 300)
             },
+
+            /*解决页面层级相互影响滑动的问题*/
+            handler: function(e){
+                e.preventDefault()
+            },
+            closeTouch () {
+                document.getElementsByTagName('body')[0].addEventListener('touchmove', this.handler, {passive:false})//阻止默认事件
+            },
+            openTouch () {
+                document.getElementsByTagName('body')[0].removeEventListener('touchmove', this.handler, {passive:false})//打开默认事件
+            },
+
             formDataCheck() {
                 if (!this.formData.USname) {
                     return '请输入收件人';

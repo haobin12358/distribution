@@ -123,45 +123,6 @@
 </template>
 
 <script>
-    let tableData = [
-        {
-            date: '2016-05-02',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-            date: '2016-05-04',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1517 弄'
-        }, {
-            date: '2016-05-01',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1519 弄'
-        }, {
-            date: '2016-05-03',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1516 弄'
-        }, {
-            date: '2016-05-04',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1517 弄'
-        }, {
-            date: '2016-05-01',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1519 弄'
-        }, {
-            date: '2016-05-03',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1516 弄'
-        }, {
-            date: '2016-05-01',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1519 弄'
-        }, {
-            date: '2016-05-03',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1516 弄'
-        }];
-
     export default {
         name: "index",
 
@@ -185,7 +146,7 @@
                 formInline: {
                     user: '',
                     oisn: "",
-                    status: 0,
+                    status: 1,
                     username: "",
                     userphonenum: "",
                     productname: "",
@@ -199,34 +160,7 @@
                 currentPage: 1,
                 pageSize: 10,
                 tableData: [],
-                tableData2: [
-                    {
-                        img: '/static/images/test_img.png',
-                        name: '纸尿裤',
-                        price: 123,
-                        num: 1,
-                    }, {
-                        img: '/static/images/test_img.png',
-                        name: '纸尿裤',
-                        price: 123,
-                        num: 1,
-                    }, {
-                        img: '/static/images/test_img.png',
-                        name: '纸尿裤',
-                        price: 123,
-                        num: 1,
-                    }, {
-                        img: '/static/images/test_img.png',
-                        name: '纸尿裤',
-                        price: 123,
-                        num: 1,
-                    }, {
-                        img: '/static/images/test_img.png',
-                        name: '纸尿裤',
-                        price: 123,
-                        num: 1,
-                    },
-                ],
+
                 dialogTableVisible: false
             }
         },
@@ -282,6 +216,7 @@
 
             setOrderList() {
                 this.loading = true;
+                this.expandAll = true;
                 this.$http.post(this.$api.getAllOrder,
                     {
                         "page_size": this.pageSize,
@@ -294,6 +229,7 @@
                         "userphonenum": this.formInline.userphonenum,
                         "productname": this.formInline.productname,
                     }, {
+                        noLoading: true,
                         params: {
                             token: this.$common.getStore('token')
                         }

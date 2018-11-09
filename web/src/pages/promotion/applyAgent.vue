@@ -105,7 +105,7 @@
 
 
             <mt-field class="form-item" label="打款日期" placeholder="请选择打款日期" :readonly="true" :disableClear="true"
-                      v-model="date" @click.native="$refs.picker.open()"></mt-field>
+                      v-model="date" @click.native="openDatePicker"></mt-field>
             <head-img-field label="新头像" :readOnly="false" @update="updateNewHeadImg" @isUploading="listenHdUpload"
                             :upload-limit="1"></head-img-field>
             <evidence-field label="打款凭证(1-2张)" :readOnly="false" @update="updateEvdImg" @isUploading="listenEvdUpload"
@@ -162,6 +162,8 @@
             type="datetime"
             v-model="datetime"
             :startDate = "startDate"
+            :closeOnClickModal="false"
+            @cancel="closeDatePicker"
             @confirm="dateTimeConfirm"
         >
         </mt-datetime-picker>
@@ -271,6 +273,16 @@
             evidenceField: UploadField,
         },
 
+        watch:{
+            cityPopupVisible(val ){
+                if(val) {
+                    this.closeTouch()
+                } else {
+                    this.openTouch()
+                }
+            },
+        },
+
         computed: {},
 
         methods: {
@@ -304,9 +316,9 @@
             },
             //  显示选择打款方式
             showTransferWay() {
-                setTimeout(() => {
+                // setTimeout(() => {
                     this.twSheetVisible = true
-                }, 300)
+                // }, 300)
             },
             //  选择付款方式
             selectTransferWay(evt) {
@@ -314,18 +326,29 @@
                 this.formData.paytype = evt.type;
             },
 
+            openDatePicker(){
+                this.closeTouch();
+
+                this.$refs.picker.open();
+            },
             //  确定打款日期
             dateTimeConfirm(evt) {
+                this.openTouch();
+
                 this.date = evt.toLocaleString('zh-CN', {hour12: false});
+            },
+            closeDatePicker(){
+                this.openTouch();
+
             },
 
             showCityPopup() {
                 if (!this.allArea.length) {
                     if (getStore(ALL_AREA)) {
                         this.initCityPicker();
-                        setTimeout(() => {
+                        // setTimeout(() => {
                             this.cityPopupVisible = true
-                        }, 300)
+                        // }, 300)
                     } else {
                         getAllArea().then(
                             ({data}) => {
@@ -334,9 +357,9 @@
                         )
                     }
                 } else {
-                    setTimeout(() => {
+                    // setTimeout(() => {
                         this.cityPopupVisible = true
-                    }, 300)
+                    // }, 300)
                 }
             },
             onValuesChange(picker, values) {
@@ -398,6 +421,17 @@
                     }
                 });
                 this.slots[4].values = this.allArea[0].city[0].area;
+            },
+
+            /*解决页面层级相互影响滑动的问题*/
+            handler: function(e){
+                e.preventDefault()
+            },
+            closeTouch () {
+                document.getElementsByTagName('body')[0].addEventListener('touchmove', this.handler, {passive:false})//阻止默认事件
+            },
+            openTouch () {
+                document.getElementsByTagName('body')[0].removeEventListener('touchmove', this.handler, {passive:false})//打开默认事件
             },
 
             updateNewHeadImg(imgs) {
