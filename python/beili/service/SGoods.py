@@ -97,19 +97,19 @@ class SGoods(SBase):
         return True
     @close_session
     def get_product_category_list(self, Parentid):
-        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAstatus).filter_by(Parentid=Parentid).all()
+        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAstatus).filter_by(Parentid=Parentid).filter_by(PAstatus=True).all()
     @close_session
     def get_first_product_category_status(self, Parentid):
-        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAstatus).filter_by(Parentid=Parentid).all()
+        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAstatus).filter_by(Parentid=Parentid).filter_by(PAstatus=True).all()
     @close_session
     def get_first_product_category(self, Parentid):
-        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAtype).filter_by(Parentid=Parentid).all()
+        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAtype).filter_by(Parentid=Parentid).filter_by(PAstatus=True).all()
     @close_session
     def get_child_product_category(self, Parentid):
-        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.Parentid).filter_by(Parentid=Parentid).all()
+        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.Parentid).filter_by(Parentid=Parentid).filter_by(PAstatus=True).all()
     @close_session
     def get_product_category(self, PAid):
-        return self.session.query(ProductCategory.PAstatus).filter_by(PAid=PAid).all()
+        return self.session.query(ProductCategory.PAstatus).filter_by(PAid=PAid).filter_by(PAstatus=True).all()
     @close_session
     def add_product_category(self, PAid, PAname, PAtype, Parentid=0):
         #添加商品分类
