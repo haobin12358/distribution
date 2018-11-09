@@ -143,7 +143,7 @@ HAS_REGISTER = {
 NOT_FOUND_OPENID = {
     "status": 405,
     "status_code": 405029,
-    "message": "该商品分类不存在"
+    "message": "该用户没有获取到openid"
 }
 NOT_FOUND_ORDER = {
     "status": 405,
@@ -183,3 +183,8 @@ PRODUCE_CATEGORY_NOT_EXIST = {
     "message": "该商品分类不存在"   
 }
 
+PRODUCE_CATEGORY_HAS_PRODUCT = {
+    'status': 405,
+    'status_code': 405104,
+    'message': '该商品分类下有商品'
+}

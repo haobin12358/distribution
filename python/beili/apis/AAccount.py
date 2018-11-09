@@ -30,7 +30,9 @@ class AAccount(Resource):
             'deal_chargemoney': 'self.caccount.deal_chargemoney()',
             'get_alluser_bailrecord': 'self.caccount.get_alluser_bailrecord()',
             'deal_bailrecord': 'self.caccount.deal_bailrecord()',
-            'deal_reward_discount': 'self.caccount.deal_reward_discount()'
+            'deal_reward_discount': 'self.caccount.deal_reward_discount()',
+            'weixin_pay': 'self.caccount.weixin_pay()',
+            'pay_callback': 'self.caccount.pay_callback()'
         }
         res = eval(apis[account])
         return jsonify(res)

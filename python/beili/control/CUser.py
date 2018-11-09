@@ -5,6 +5,7 @@ import json
 import uuid
 reload(sys)
 sys.setdefaultencoding("utf8")
+import flask
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
@@ -649,6 +650,7 @@ class CUser():
     def check_openid(self):
         if is_tourist():
             return TOKEN_ERROR
+        state = request.args.to_dict().get('state')
         usid = request.user.id
         openid = get_model_return_dict(self.saccount.check_openid(usid))
         if not openid['openid']:
@@ -656,19 +658,19 @@ class CUser():
             response['message'] = u'执行跳转'
             response['status'] = 302
             data = {}
-            state = get_random_str(10)
             update = {}
-            update['state'] = state
+            state2 = get_random_str(10)
+            update['state'] = state2
             result = self.suser.update_user_by_uid(usid, update)
             if not result:
                 return SYSTEM_ERROR
             login = WeixinLogin(APP_ID, APP_SECRET)
+            state = state2 + "$$$" + state
             data['url'] = login.authorize(SERVER + "/user/get_code", 'snsapi_base', state=state)
             response['data'] = data
             return response
         response = import_status("has_opid", "OK")
         return response
-
 
     def get_code(self):
         args = request.args.to_dict()
@@ -681,6 +683,8 @@ class CUser():
         openid = data.openid
         update = {}
         update['openid'] = openid
-        self.suser.update_user_by_state(state, update)
-        response = import_status("get_openid_success", "OK")
-        return response
+        state_list = str(state).split('$$$')
+
+        self.suser.update_user_by_state(state_list[0], update)
+        # response = import_status("get_openid_success", "OK")
+        return flask.redirect(state_list[1])

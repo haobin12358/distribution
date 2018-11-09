@@ -220,5 +220,7 @@ class SAccount(SBase):
     def get_record_by_wcsn(self, wcsn):
         return self.session.query(WeixinCharge.WCstatus).filter(WeixinCharge.WCsn == wcsn).first()
 
-
-
+    @close_session
+    def update_weixin_charge(self, wcsn):
+        self.session.query(WeixinCharge).filter(WeixinCharge.WCsn == wcsn).update({"WCstatus": 2})
+        return self.session.query(WeixinCharge).filter(WeixinCharge.WCsn == wcsn).first()

@@ -3,6 +3,8 @@ import sys
 import os
 from flask import jsonify
 from flask_restful import Resource
+from werkzeug.wrappers import Response
+
 from control.CUser import CUser
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -40,4 +42,6 @@ class AUser(Resource):
             'get_code': 'self.cuser.get_code()'
         }
         res = eval(apis[user])
+        if isinstance(res, Response):
+            return res
         return jsonify(res)
