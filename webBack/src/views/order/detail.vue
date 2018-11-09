@@ -77,14 +77,15 @@
                 </p>
                 <p class="detail-item">
                     <span class="label">收货地址:</span>
-                    <span class="value">{{`${order.provincename} ${order.cityname} ${order.areaname} ${order.details}`}}</span>
+                    <span
+                        class="value">{{`${order.provincename} ${order.cityname} ${order.areaname} ${order.details}`}}</span>
                 </p>
 
             </section>
             <section class="order-action-block">
                 <el-form ref="formExpress" :rules="rules" :model="formExpress" label-position="left" size="medium">
                     <el-form-item prop="expressname" label="快递公司">
-                        <el-select v-model="formExpress.expressname"  placeholder="请选择">
+                        <el-select v-model="formExpress.expressname" placeholder="请选择">
                             <el-option
                                 v-for="item in options"
                                 :key="item.value"
@@ -217,27 +218,33 @@
                 this.$refs.formExpress.validate(
                     vaild => {
                         if (vaild) {
-                            this.$http.post(this.$api.updateOrder, {
-                                    "oisn": this.order.OIsn,
-                                    "expressname": this.formExpress.expressname,
-                                    "expressnum": this.formExpress.expressnum
-                                }, {
-                                    params: {
-                                        token: this.$common.getStore('token')
-                                    }
-                                }
-                            ).then(
-                                res => {
-                                    if (res.data.status == 200) {
-                                        let resData = res.data,
-                                            data = res.data.data;
+                            this.$confirm(`快递公司:${ this.formExpress.expressname} 快递单号:${this.formExpress.expressnum}`
+                                , '确认').then(
+                                ()=>{
+                                    this.$http.post(this.$api.updateOrder, {
+                                            "oisn": this.order.OIsn,
+                                            "expressname": this.formExpress.expressname,
+                                            "expressnum": this.formExpress.expressnum
+                                        }, {
+                                            params: {
+                                                token: this.$common.getStore('token')
+                                            }
+                                        }
+                                    ).then(
+                                        res => {
+                                            if (res.data.status == 200) {
+                                                let resData = res.data,
+                                                    data = res.data.data;
 
-                                        this.$notify({
-                                            title: '发货成功',
-                                            message: `订单号:${this.order.OIsn}`,
-                                            type: 'success'
-                                        });
-                                    }
+                                                this.order = data;
+                                                this.$notify({
+                                                    title: '发货成功',
+                                                    message: `订单号:${this.order.OIsn}`,
+                                                    type: 'success'
+                                                });
+                                            }
+                                        }
+                                    )
                                 }
                             )
                         } else {
@@ -251,7 +258,7 @@
 
         created() {
             this.order = this.$route.query;
-            if(this.order.OIstatus != 1){
+            if (this.order.OIstatus != 1) {
                 this.formExpress.expressname = this.order.expressname
                 this.formExpress.expressnum = this.order.expressnum
             }

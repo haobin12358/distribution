@@ -16,7 +16,9 @@
         }
 
         .small-proof-img {
-            .wl(1rem, 1rem)
+            .wl(1rem, 1rem);
+            border: 1px solid black;
+            margin-right: .3rem;
         }
         .proof-img {
             max-width: 100%;
@@ -30,77 +32,48 @@
         <!--查询-->
         <section class="tool-tip-wrap">
             <el-form :inline="true" size="small" :model="form">
-                <el-form-item label="用户名">
-                    <el-input v-model="form.user" placeholder="用户名"></el-input>
-                </el-form-item>
-                <el-form-item label="手机号">
-                    <el-input v-model="form.user" placeholder="手机号"></el-input>
-                </el-form-item>
-
-                <el-form-item label="提交时间">
-                    <el-col :span="11">
-                        <el-date-picker type="date" v-model="form.dateStart" placeholder="起始日期"
-                                        style="width: 100%;"></el-date-picker>
-                    </el-col>
-                    <el-col class="middle-line" :span="2">-</el-col>
-                    <el-col :span="11">
-                        <el-date-picker type="date" v-model="form.dateEnd" placeholder="结束日期"
-                                        style="width: 100%;"></el-date-picker>
-                    </el-col>
-                </el-form-item>
-
                 <el-form-item label="状态">
-                    <el-select v-model="form.region">
-                        <el-option label="全部" value="all"></el-option>
-                        <el-option label="待审核" value="shanghai"></el-option>
-                        <el-option label="已充值" value="beijing1"></el-option>
-                        <el-option label="未通过" value="beijing2"></el-option>
+                    <el-select v-model="form.status" @change="setData">
+                        <el-option v-for="option in statusOptions" :label="option.label" :value="option.value"
+                                   :key="option.value">
+                        </el-option>
                     </el-select>
                 </el-form-item>
-
-
                 <el-form-item>
-                    <el-button type="primary">查询</el-button>
+                    <el-button type="primary" @click="setData">查询</el-button>
                 </el-form-item>
             </el-form>
         </section>
 
         <!--商品表格-->
-        <el-table :data="tableData" size="mini" stripe style="width: 100%">
-            <!--<el-table-column type="expand">-->
-            <!--<template slot-scope="props">-->
-            <!--<el-form label-position="left" inline class="demo-table-expand">-->
-            <!--<el-form-item label="用户打款方式">-->
-            <!--<span>{{ props.row.type }}</span>-->
-            <!--</el-form-item>-->
-            <!--<el-form-item label="支付宝账号">-->
-            <!--<span>{{ props.row.name }}</span>-->
-            <!--</el-form-item>-->
-            <!--<el-form-item label="打款凭证">-->
-            <!--<img style="width: 2rem;height: 2rem;" src="/static/images/test_img.png" alt="">-->
-            <!--<img style="width: 2rem;height: 2rem;" src="/static/images/test_img.png" alt="">-->
-
-            <!--</el-form-item>-->
-            <!--</el-form>-->
-            <!--</template>-->
-            <!--</el-table-column>-->
-            <el-table-column prop="name" label="用户名"></el-table-column>
-            <el-table-column prop="name" label="手机号" width="120"></el-table-column>
-            <el-table-column prop="name" label="日期" width="120"></el-table-column>
-            <el-table-column prop="type" label="用户打款方式" width="120"></el-table-column>
-            <el-table-column prop="info" label="账号信息" width="180"></el-table-column>
-            <el-table-column prop="name" label="金额" width="120"></el-table-column>
-            <el-table-column prop="name" label="凭证" width="200">
+        <el-table :data="tableData" v-loading="loading" size="mini" stripe style="width: 100%">
+            <el-table-column prop="CMaccountname" align="center" label="用户名"></el-table-column>
+            <el-table-column prop="CMamount" align="center" label="金额" width="120"></el-table-column>
+            <el-table-column prop="CMpaytime" align="center" label="充值日期" width="120"></el-table-column>
+            <el-table-column prop="type" align="center" label="用户打款方式" width="120">
                 <template slot-scope="scope">
-                    <img class="small-proof-img" src="/static/images/test2.png"  @click="dialogTableVisible = true" alt="">
-                    <img class="small-proof-img" src="/static/images/test2.png"  @click="dialogTableVisible = true" alt="">
+                    {{scope.row.CMalipaynum ? '支付宝' : '银行转账'}}
                 </template>
             </el-table-column>
+            <el-table-column prop="info" align="center" label="账号信息" width="200">
+                <template slot-scope="scope">
+                    {{scope.row.CMalipaynum ? scope.row.CMalipaynum : `${scope.row.CMbankname} ${scope.row.CMaccountname} ${scope.row.CMcardnum}`}}
+                </template>
+            </el-table-column>
+            <el-table-column prop="name" align="center" label="凭证" width="200">
+                <template slot-scope="scope">
+                    <img v-for="item in scope.row.CMproof" class="small-proof-img" :src="item"  @click="showBigImg(item)" alt="">
+                </template>
+            </el-table-column>
+            <el-table-column prop="CMremark" align="center" label="备注" width="120"></el-table-column>
 
             <el-table-column label="操作" width="220" fixed="right">
                 <template slot-scope="scope">
-                    <el-button type="text" size="small">审核通过</el-button>
-                    <el-button type="text" size="small">审核不通过</el-button>
+                    <template v-if="scope.row.CMstatus == 1">
+                        <el-button type="text" size="small" @click="pass(scope.row)">审核通过</el-button>
+                        <el-button type="text" class="danger-text" size="small" @click="noPass(scope.row)">审核不通过</el-button>
+                    </template>
+
                 </template>
             </el-table-column>
         </el-table>
@@ -108,17 +81,19 @@
         <section style="display: flex; justify-content: center">
             <el-pagination
                 style="margin-top: .5rem"
-                :current-page="1"
-                :page-sizes="[100, 200, 300, 400]"
-                :page-size="100"
+                :current-page="currentPage"
+                :page-sizes="[10, 20, 30, 40]"
+                :page-size="pageSize"
                 layout="total, sizes, prev, pager, next, jumper"
-                :total="400">
+                :total="total"
+                @size-change="sizeChange"
+                @current-change="pageChange">
             </el-pagination>
         </section>
 
         <el-dialog title="打款凭证" :visible.sync="dialogTableVisible">
 
-            <img class="proof-img" src="/static/images/test2.png" alt="">
+            <img class="proof-img" :src="bigImgUrl" alt="">
 
         </el-dialog>
     </div>
@@ -130,47 +105,34 @@
 
         data() {
             return {
-                tableData: [{
-                    date: '2016-05-02',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄',
-                    type: '支付宝',
-                    info: '王富贵 15988888888',
-                    // proof: '/static'
-                }, {
-                    date: '2016-05-02',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄',
-                    type: '支付宝',
-                    info: '王富贵 15988888888'
-                }, {
-                    date: '2016-05-02',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄',
-                    type: '支付宝',
-                    info: '王富贵 15988888888'
-                }, {
-                    date: '2016-05-02',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄',
-                    type: '支付宝',
-                    info: '王富贵 15988888888'
-                }, {
-                    date: '2016-05-02',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄',
-                    type: '支付宝',
-                    info: '王富贵 15988888888'
-                }, {
-                    date: '2016-05-02',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄',
-                    type: '支付宝',
-                    info: '王富贵 15988888888'
-                },],
+                statusOptions: [
+                    {
+                        value: 0,
+                        label: '全部',
+                    }, {
+                        value: 1,
+                        label: '待审核',
+                    }, {
+                        value: 2,
+                        label: '已充值',
+                    }, {
+                        value: 3,
+                        label: '未通过',
+                    },
+                ],
+                form: {
+                    status: 1
+                },
 
+                loading: false,
+                total: 0,
+                currentPage: 1,
+                pageSize: 10,
+                tableData: [],
+
+                bigImgUrl: '',
                 dialogTableVisible: false,
-                form: {}
+
             }
         },
 
@@ -179,24 +141,106 @@
         computed: {},
 
         methods: {
-            renderHeader(h) {
-                return h('el-button', {
-                    props: {
-                        type: 'primary',
-                        // size: 'small'
-                    },
-                    on: {
-                        click: () => {
-                            this.doSim();
+            showBigImg(url){
+                this.bigImgUrl = url;
+                this.dialogTableVisible = true;
+            },
+
+            sizeChange(pageSize) {
+                this.pageSize = pageSize;
+                this.currentPage = 1;
+
+                this.setData();
+            },
+            pageChange(page) {
+                this.currentPage = page;
+                this.setData();
+            },
+
+            setData(){
+                this.loading = true;
+
+                this.$http.post(this.$api.getAllChargemoney,
+                    {
+                        status: this.form.status,
+                        "page_size": this.pageSize,
+                        "page_num": this.currentPage,
+                    }, {
+                        noLoading: true,
+                        params: {
+                            token: this.$common.getStore('token')
+
+                        }
+                    }).then(
+                    res => {
+                        this.loading = false;
+
+                        if (res.data.status == 200) {
+                            let resData = res.data,
+                                data = res.data.data;
+
+                            this.total = resData.mount;
+                            this.tableData = data;
                         }
                     }
-                }, '新增')
-
-            },
-            doSim() {
-                this.dialogFormVisible = true;
+                )
             },
 
+            async dealWidthDraw(cmid, willstatus) {
+                let res = await this.$http.post(this.$api.dealChargemoney, {
+                    cmid,
+                    willstatus
+                }, {
+                    params: {
+                        token: this.$common.getStore('token')
+
+                    }
+                });
+
+                if (res.data.status == 200) {
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+            async pass(row) {
+                let confirm = await  this.$confirm(`确定通过该审核(用户名:${row.CMaccountname})?`, '提示', {
+                    type: 'info'
+                });
+
+                if (confirm) {
+                    let result = await this.dealWidthDraw(row.CMid, 2);
+
+                    this.setData()
+                    if(result){
+                        this.$notify({
+                            title: '充值审核已通过',
+                            message: `用户名:${row.CMaccountname}余额冲入${row.CMamount}元`,
+                            type: 'success'
+                        });
+                    }
+                }
+
+
+            },
+            async noPass(row) {
+                let confirm = await  this.$confirm(`确定不通过该审核(用户名:${row.CMaccountname})?`, '提示', {
+                    type: 'warning'
+                });
+
+                if (confirm) {
+                    let result = await this.dealWidthDraw(row.CMid, 3);
+
+                    this.setData()
+                    if(result){
+                        this.$notify({
+                            title: '充值审核已拒绝',
+                            message: `用户名:${row.CMaccountname}`,
+                            type: 'success'
+                        });
+                    }
+                }
+            },
             handleRemove(file, fileList) {
                 console.log(file, fileList);
             },
@@ -207,6 +251,7 @@
         },
 
         created() {
+            this.setData();
         },
     }
 </script>
