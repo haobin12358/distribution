@@ -1,6 +1,6 @@
 import {
     getUserBasicInfo,
-    getCompanyMessage,
+    getCompanyMessage, getUserTotalInfo,
 } from 'src/api/api'
 import {
     SET_USER_INFO,
@@ -9,7 +9,7 @@ import {
 
 export default {
     async getUserInfo({commit, state}) {
-        let {data} = await getUserBasicInfo();
+        let {data} = await getUserTotalInfo();
 
         if (data) {
             commit(SET_USER_INFO, data);

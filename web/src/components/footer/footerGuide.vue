@@ -8,18 +8,18 @@
         left: 0;
         bottom: 0;
         border-top: 1px solid #c1c1c1;
-        padding: 21px 0 10px;
         box-sizing: border-box;
-        .wl(100%, 110px);
+        .wl(100%, 100px);
         .fj();
 
         .footer-item {
             flex: 1;
             .fjc(center);
             align-items: center;
+            padding-top: 10px;
 
             &:nth-child(1) {
-                position: relative;
+                /*position: relative;*/
 
                 .tab-icon {
                     .wl(59px, 43px);
@@ -39,7 +39,7 @@
             .tab-red-dot {
                 position: absolute;
                 right: 0;
-                top: 0;
+                top: 5px;
                 transform: translate(50%, -50%);
                 .wl(31px, 31px);
                 background: red;
@@ -68,7 +68,7 @@
 <template>
     <div class="footer">
         <section class="footer-item" @click="gotoAddress('/message')">
-            <section style="position: relative;">
+            <section style="position: relative">
                 <img class="tab-icon"
                      :src="$route.path.indexOf('message')!=-1?'/static/images/tabbar_message_active.png':'/static/images/tabbar_message.png'"
                      alt="">

@@ -158,7 +158,7 @@
             chooseDeliveryAddress(address){
                 let defaultAddress  = this.addressList.find(item => item.isdefault);
 
-                if(defaultAddress){
+                if(defaultAddress && defaultAddress.uaid != address.uaid){
                     changeDefaultAddress(defaultAddress.uaid, address.uaid).then(
                         (data)=>{
                             if(data) {

@@ -102,8 +102,8 @@
             <load-more :type="loadingType"></load-more>
         </template>
         <template v-else>
-            <place-holder title="暂时没有该类消息"></place-holder>
-        </template>
+'            <place-holder title="暂时没有该类消息"></place-holder>
+'        </template>
 
         <footer-guide></footer-guide>
     </div>

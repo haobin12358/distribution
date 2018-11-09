@@ -117,14 +117,22 @@
                 <mt-field class="form-item" v-model="formData.cardnum" type="number" label="银行账号"
                           placeholder="请输入银行账号"></mt-field>
             </template>
+
+            <!--<mt-field style="background: white;" label="打款日期" placeholder="请选择打款日期" v-model="date" :readonly="false" type="date" ></mt-field>-->
+
             <mt-field class="form-item" label="金额" v-model.trim="formData.amount" type="number"
                       placeholder="请输入打款金额"></mt-field>
-            <!--<mt-field style="background: white;" label="打款日期" placeholder="请选择打款日期" v-model="date" :readonly="false" type="date" ></mt-field>-->
-            <mt-field class="form-item" label="打款日期" placeholder="请选择打款日期" :readonly="true" :disableClear="true"
-                      v-model="date" @click.native="$refs.picker.open()"></mt-field>
-            <mt-field class="form-item" label="备注" v-model.trim="formData.remark" placeholder="如有说明可填写备注"></mt-field>
-            <evidence-field label="打款凭证(1-2张)" :readOnly="false" @update="updateEvdImg" @isUploading="listenEvdUpload"
-                            :upload-limit="2"></evidence-field>
+
+            <template v-if="formData.paytype == 1 ||formData.paytype == 2 ">
+
+                <mt-field class="form-item" label="打款日期" placeholder="请选择打款日期" :readonly="true" :disableClear="true"
+                          v-model="date" @click.native="openDatePicker"></mt-field>
+                <mt-field class="form-item" label="备注" v-model.trim="formData.remark"
+                          placeholder="如有说明可填写备注"></mt-field>
+                <evidence-field label="打款凭证(1-2张)" :readOnly="false" @update="updateEvdImg"
+                                @isUploading="listenEvdUpload"
+                                :upload-limit="2"></evidence-field>
+            </template>
         </section>
 
 
@@ -143,9 +151,15 @@
             <p>如有问题可联系微信客服：{{registerInfo.service}}</p>
         </section>
 
-        <section class="my-confirm-btn-wrap" style="margin-top: 50px">
+        <section v-if="formData.paytype == 1 || formData.paytype == 2" class="my-confirm-btn-wrap"
+                 style="margin-top: 50px">
             <button v-if="isEvdImgUploading" class="my-confirm-btn disabled">凭 证 上 传 中...</button>
             <button v-else class="my-confirm-btn" @click="doConfirm">确 认 充 值</button>
+        </section>
+
+        <section v-if="formData.paytype == 3" class="my-confirm-btn-wrap" style="margin-top: 50px">
+            <button class="my-confirm-btn" style="background: #26b83a;" @click="doWeChatPay">微 信 充 值</button>
+
         </section>
 
         <mt-actionsheet
@@ -157,7 +171,9 @@
             ref="picker"
             type="date"
             v-model="datetime"
-            :startDate = "startDate"
+            :closeOnClickModal="false"
+            @cancel="close"
+            :startDate="startDate"
             @confirm="dateTimeConfirm"
         >
         </mt-datetime-picker>
@@ -165,9 +181,12 @@
 </template>
 
 <script>
-    import {getRegisterInfo, chargeMonney} from "src/api/api"
+    import {getRegisterInfo, chargeMonney, checkOpenid, title, weixinPay} from "src/api/api"
     import UploadField from "src/components/common/uploadField"
     import common from "src/common/js/common"
+    import {mapState} from "vuex"
+    import {setStore, getStore} from "src/common/js/mUtils"
+    import {TOKEN} from "src/common/js/const"
 
     export default {
         name: "marginMoney",
@@ -185,7 +204,7 @@
                 date: '',
 
                 formData: {
-                    "paytype": 1,
+                    "paytype": 3,
                     "alipaynum": "",
                     "bankname": "",
                     "accountname": "",
@@ -207,6 +226,10 @@
 
         watch: {},
 
+        computed: {
+            ...mapState(['userInfo'])
+        },
+
 
         components: {
             evidenceField: UploadField,
@@ -217,8 +240,29 @@
                 this.transferWay = evt.name;
                 this.formData.paytype = evt.value;
             },
+
+            openDatePicker() {
+                this.closeTouch();
+                this.$refs.picker.open();
+            },
             dateTimeConfirm(evt) {
+                this.openTouch();
                 this.date = evt.toLocaleString('zh-CN', {hour12: false});
+            },
+
+            close() {
+                this.openTouch();
+            },
+
+            /*解决页面层级相互影响滑动的问题*/
+            handler: function (e) {
+                e.preventDefault()
+            },
+            closeTouch() {
+                document.getElementsByTagName('body')[0].addEventListener('touchmove', this.handler, {passive: false})//阻止默认事件
+            },
+            openTouch() {
+                document.getElementsByTagName('body')[0].removeEventListener('touchmove', this.handler, {passive: false})//打开默认事件
             },
 
             updateEvdImg(imgs) {
@@ -231,11 +275,15 @@
             formDataCheck() {
                 //  支付宝
                 if (this.formData.paytype == 1) {
+                    this.formData.bankname = ''
+                    this.formData.accountname = ''
+                    this.formData.cardnum = ''
                     if (!this.formData.alipaynum) {
                         return '请输入支付宝账号'
                     }
                 }
                 if (this.formData.paytype == 2) {
+                    this.formData.alipaynum = ''
                     if (!this.formData.bankname) {
                         return '请输入开户银行'
                     }
@@ -249,7 +297,7 @@
 
                 if (!this.formData.amount) {
                     return '请输入打款金额'
-                }else if(!(this.formData.amount >0 && /^[0-9]+([.]{1}[0-9]+){0,1}$/.test(this.formData.amount))){
+                } else if (!(this.formData.amount > 0 && /^[0-9]+([.]{1}[0-9]+){0,1}$/.test(this.formData.amount))) {
                     return '请输入合理的打款金额数字'
                 }
 
@@ -270,9 +318,9 @@
             doConfirm() {
                 let checkMsg = this.formDataCheck();
 
-                if(checkMsg){
+                if (checkMsg) {
                     this.$toast(checkMsg);
-                }else {
+                } else {
                     chargeMonney(this.formData).then(
                         resData => {
                             if (resData) {
@@ -282,7 +330,113 @@
                         }
                     )
                 }
+            },
 
+            doWeChatPay() {
+                let that = this;
+
+                weixinPay(this.formData.amount).then(
+                    resData => {
+                        if (resData.status == 200) {
+                            let data = resData.data;
+                            // let resData = res.data,
+                            //     data = res.data.data;
+                            // console.log(res);
+
+                            function onBridgeReady() {      // 微信支付接口
+                                WeixinJSBridge.invoke(
+                                    'getBrandWCPayRequest', {
+                                        "appId": data.appId,                 // 公众号名称，由商户传入
+                                        "timeStamp": data.timeStamp,         // 时间戳，自1970年以来的秒数
+                                        "nonceStr": data.nonceStr,           // 随机串
+                                        "package": data.package,             // 统一下单接口返回的prepay_id参数值
+                                        "signType": data.signType,           // 微信签名方式：
+                                        "paySign": data.paySign              // 微信签名
+                                    },
+                                    function (res) {
+                                        console.log(res);
+                                        if (res.err_msg == "get_brand_wcpay_request:ok") {             // 支付成功
+                                            that.$toast('充值成功!');
+                                            that.$router.back();
+                                            // 支付成功进入支付成功页
+                                            // that.$router.push({
+                                            //     path: "/orderPayOK",
+                                            //     query: {oiid: oiid, price: that.totalPrice}
+                                            // });
+                                        } else if (res.err_msg == "get_brand_wcpay_request:cancel") {   // 支付过程中用户取消
+                                            that.$toast('支付取消!');
+
+                                            // Toast({message: "支付已取消", className: 'm-toast-warning'});
+                                            // that.$router.push({path: "/orderStatus", query: {oiid}});
+                                        } else if (res.err_msg == "get_brand_wcpay_request:fail") {     // 支付失败
+                                            that.$toast('支付失败!');
+
+                                            // Toast({message: "支付失败", className: 'm-toast-fail'});
+                                            // that.$router.push({path: "/orderStatus", query: {oiid}});
+                                        }
+                                    });
+                            }   //  onBridgeReady
+
+                            if (typeof WeixinJSBridge == "undefined") {
+                                if (document.addEventListener) {
+                                    document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+                                } else if (document.attachEvent) {
+                                    document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
+                                    document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+                                }
+                            } else {
+                                onBridgeReady();
+                            }
+                        }
+                    }
+                )
+
+                return
+                // this.$http.post(this.$api.weixinPay).then()
+                axios.post(api.pay_order + '?token=' + localStorage.getItem('token'), params).then(res => {
+                    if (res.data.status == 200) {
+                        function onBridgeReady() {      // 微信支付接口
+                            WeixinJSBridge.invoke(
+                                'getBrandWCPayRequest', {
+                                    "appId": res.data.data.appId,                 // 公众号名称，由商户传入
+                                    "timeStamp": res.data.data.timeStamp,         // 时间戳，自1970年以来的秒数
+                                    "nonceStr": res.data.data.nonceStr,           // 随机串
+                                    "package": res.data.data.package,             // 统一下单接口返回的prepay_id参数值
+                                    "signType": res.data.data.signType,           // 微信签名方式：
+                                    "paySign": res.data.data.paySign              // 微信签名
+                                },
+                                function (res) {
+                                    console.log(res);
+                                    if (res.err_msg == "get_brand_wcpay_request:ok") {             // 支付成功
+                                        // 支付成功进入支付成功页
+                                        that.$router.push({
+                                            path: "/orderPayOK",
+                                            query: {oiid: oiid, price: that.totalPrice}
+                                        });
+                                    } else if (res.err_msg == "get_brand_wcpay_request:cancel") {   // 支付过程中用户取消
+                                        Toast({message: "支付已取消", className: 'm-toast-warning'});
+                                        that.$router.push({path: "/orderStatus", query: {oiid}});
+                                    } else if (res.err_msg == "get_brand_wcpay_request:fail") {     // 支付失败
+                                        Toast({message: "支付失败", className: 'm-toast-fail'});
+                                        that.$router.push({path: "/orderStatus", query: {oiid}});
+                                    }
+                                });
+                        }
+
+                        if (typeof WeixinJSBridge == "undefined") {
+                            if (document.addEventListener) {
+                                document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+                            } else if (document.attachEvent) {
+                                document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
+                                document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+                            }
+                        } else {
+                            onBridgeReady();
+                        }
+                    } else {
+                        Toast({message: res.data.message, className: 'm-toast-warning'});
+                    }
+                });
             }
         },
 

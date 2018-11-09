@@ -84,19 +84,19 @@
                 <img src="/static/images/arrow.png" alt="" class="cell-ft">
             </router-link>
 
-            <router-link tag="li" to="/linkWechat" class="cell">
+            <li @click="$toast('功能开发中,敬请期待!')" class="cell">
                 <img src="/static/images/wechat.png" alt="" class="cell-icon">
 
                 <span class="cell-title">绑定微信</span>
                 <img src="/static/images/arrow.png" alt="" class="cell-ft">
-            </router-link>
+            </li>
 
-            <router-link tag="li" to="/feedback" class="cell">
+            <li @click="$toast('功能开发中,敬请期待!')" class="cell">
                 <img src="/static/images/feedback.png" alt="" class="cell-icon">
 
                 <span class="cell-title">问题反馈</span>
                 <img src="/static/images/arrow.png" alt="" class="cell-ft">
-            </router-link>
+            </li>
         </ul>
 
         <section class="my-confirm-btn-wrap">

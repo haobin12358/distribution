@@ -16,7 +16,7 @@
         .bank-balance {
             background: white;
             padding: 48px 20px 16px;
-            .bs(10px,3px, 6px);
+            .bs(10px, 3px, 6px);
 
             .bank-balance-hd {
                 padding: 0 20px 26px;
@@ -26,8 +26,8 @@
                     .fj();
                     align-items: center;
 
-                    .margin-money{
-                        .margin-money-num{
+                    .margin-money {
+                        .margin-money-num {
                             color: @moneyColor;
                         }
                     }
@@ -54,13 +54,13 @@
                 }
             }
 
-            .bank-balance-ft{
+            .bank-balance-ft {
                 .fj(flex-end);
                 padding-top: 22px;
 
-                .go-balance-record{
+                .go-balance-record {
                     .sc(21px, @mainColor);
-                    .wl(120px,40px);
+                    .wl(120px, 40px);
                     .fontc(28px);
                     background: white;
                     .bd(@mainColor, 30px);
@@ -71,35 +71,36 @@
         .balance-record-list {
             .balance-record-item {
                 .bgw();
-                .bs(10px,3px, 6px);
+                .bs(10px, 3px, 6px);
                 padding: 0 20px;
 
-                .record-hd{
+                .record-hd {
                     padding: 22px 6px 16px;
                     border-bottom: 1px solid @grayBorderColor;
                     .fj();
 
-                    .type{
+                    .type {
                         .fz(28px);
                     }
 
-                    .date{
+                    .date {
                         .sc(18px, @lightFontColor);
                     }
                 }
 
-                .record-bd{
+                .record-bd {
                     padding: 19px 6px 41px;
                     color: @lightFontColor;
 
-                    .price{
+                    .price {
                         margin-bottom: 15px;
                     }
-                    .order-no{}
+                    .order-no {
+                    }
 
                 }
 
-                &:last-of-type{
+                &:last-of-type {
                     margin-bottom: 144px;
                 }
             }
@@ -121,7 +122,7 @@
                     <span>
                         账户余额（元）
                     </span>
-                    <router-link to="/marginMoney" tag="section"  class="margin-money">
+                    <router-link to="/marginMoney" tag="section" class="margin-money">
                         <span class="">保证金</span>
                         <span class="margin-money-num">￥0.00</span>
                     </router-link>
@@ -134,25 +135,26 @@
                 <img src="/static/images/arrow.png" class="right" alt="">
             </router-link>
 
-            <footer class="bank-balance-ft" >
-                <router-link to="/balanceRecord" tag="button" class="go-balance-record" >收支记录</router-link>
+            <footer class="bank-balance-ft">
+                <router-link to="/balanceRecord" tag="button" class="go-balance-record">收支记录</router-link>
             </footer>
         </section>
 
         <ul class="balance-record-list">
-            <li class="balance-record-item" v-for="item in 3">
+            <li class="balance-record-item" v-for="item in moneyRecord">
                 <header class="record-hd">
                     <span class="type">
-                        类型：订单支出
+                        类型：{{statusToTxt(item.MRtype)}}
                     </span>
                     <span class="date">
-                        2017-08-19 15：15：23
+                        {{item.MRcreatetime}}
                     </span>
                 </header>
 
                 <section class="record-bd">
-                    <p class="price">金额：0.00</p>
-                    <p>订单号：154857468451253456123132135</p>
+                    <p class="price">金额：{{item.MRamount}}</p>
+                    <p v-if="item.MRtype == 1">订单号：{{item.MRtradenum}}</p>
+                    <p v-else>流水号：{{item.MRtradenum}}</p>
                 </section>
             </li>
         </ul>
@@ -162,18 +164,46 @@
 </template>
 
 <script>
-    import {mapState,mapActions,mapMutations} from "vuex"
+    import {mapState, mapActions, mapMutations} from "vuex"
+    import {getMoneyRecord} from "src/api/api"
+
 
     export default {
         name: "wallet",
 
         data() {
-            return {}
+            return {
+                recordType: [
+                    {
+                        value: 1,
+                        label: '订单支出'
+                    }, {
+                        value: 2,
+                        label: '提现'
+                    }, {
+                        value: 3,
+                        label: '充值保证金'
+                    }, {
+                        value: 4,
+                        label: '余额充值'
+                    }, {
+                        value: 5,
+                        label: '奖金发放'
+                    }, {
+                        value: 6,
+                        label: '保证金退还'
+                    }, {
+                        value: 7,
+                        label: '提现失败'
+                    },
+                ],
+                moneyRecord: []
+            }
         },
 
         components: {},
 
-        computed:{
+        computed: {
             ...mapState(['userInfo']),
 
         },
@@ -181,10 +211,24 @@
         methods: {
             ...mapActions(['getUserInfo']),
 
+            setMoneyRecord() {
+                getMoneyRecord().then(
+                    resData => {
+                        if (resData) {
+                            this.moneyRecord = resData.data;
+                        }
+                    }
+                )
+            },
+
+            statusToTxt(status){
+                return this.recordType.find(item => item.value == status).label;
+            }
         },
 
-        created(){
+        created() {
             this.getUserInfo();
+            this.setMoneyRecord();
         }
     }
 </script>
