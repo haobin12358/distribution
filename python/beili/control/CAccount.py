@@ -27,7 +27,7 @@ from datetime import datetime
 from weixin import WeixinError
 from weixin.login import WeixinLoginError, WeixinLogin
 from weixin.pay import WeixinPay, WeixinPayError
-from common.timeformat import format_for_db, get_random_str
+from common.timeformat import format_for_db, get_random_str, format_for_db_no_HMS
 from models.model import User, AgentMessage, BailRecord
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -524,28 +524,29 @@ class CAccount():
             data = request.json
             amid = data.get('amid')
             usid = data.get('usid')
-            month = str(data.get('month'))
-            profit = data.get('profit')
+            month = data.get('month')
+            profit = int(data.get('profit'))
         except:
             return PARAMS_ERROR
         account = get_model_return_dict(
-            self.saccount.get_account_by_month(usid, month)) if self.saccount.get_account_by_month(id, month) else None
-        if not account or account['AMid'] != amid or account['AMstatus'] != 1:
+            self.saccount.get_account_by_month(usid, month)) if self.saccount.get_account_by_month(usid, month) else None
+        if not account or account['AMid'] != str(amid) or account['AMstatus'] != 1:
             return NOT_FOUND_RECORD
-        mydiscount = self.get_mydiscount(id, month)
+        mydiscount = self.get_mydiscount(usid, month)
         reward = account['reward']
         if profit != mydiscount + reward:
             return MONEY_ERROR
-        update = {}
-        update["AMstatus"] = 2
-        result = self.saccount.update_account(amid)
-        if not result:
-            return SYSTEM_ERROR
-        tradenum = get_random_str(5) + datetime.strftime(datetime.now(), format_for_db)
+        tradenum =  datetime.strftime(datetime.now(), format_for_db_no_HMS) + get_random_str(8)
         time_now = datetime.strftime(datetime.now(), format_for_db)
         result2 = self.saccount.add_moneyrecord(usid, profit, 5, time_now
                                                 , tradenum=tradenum, oiid=None)
         if not result2:
+            return SYSTEM_ERROR
+        update = {}
+        update["AMstatus"] = 2
+        update['AMtradenum'] = tradenum
+        result = self.saccount.update_account(amid, update)
+        if not result:
             return SYSTEM_ERROR
         user = get_model_return_dict(self.smycenter.get_user_basicinfo(usid)) if \
             self.smycenter.get_user_basicinfo(usid) else None
