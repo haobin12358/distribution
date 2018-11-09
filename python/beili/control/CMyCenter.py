@@ -518,9 +518,7 @@ class CMyCenter():
             return PARAMS_ERROR
         try:
             comment_list = get_model_return_list(self.smycenter.get_comments(USname))
-            print comment_list
             USid = comment_list[0]['USid']
-            print USid
             comment = comment_list[0]['CMcontent']
             
             read = {'CMisread':True}
