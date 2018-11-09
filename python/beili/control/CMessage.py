@@ -171,8 +171,8 @@ class CMessage():
             return PARAMS_ERROR
         upate_message = {}
         upate_message['CMstatus'] = 0
-        self.smessage.delete_commessage(messageid, upate_message)
-        self.smessage.delete_alreadyread(messageid)
+        result = self.smessage.delete_commessage(messageid, upate_message)
+        result2 = self.smessage.delete_alreadyread(messageid)
         response = import_status("delete_message_success", "OK")
         return response
 
