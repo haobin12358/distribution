@@ -108,7 +108,7 @@ class InvitaRecord(Base):
     IRIid = Column(String(64), primary_key=True)
     IRIprename = Column(String(64))  # 邀请人姓名
     IRIprephonenum = Column(String(64))  # 邀请人电话号码
-    IRIname = Column(String(64))  # 邀请人姓名
+    IRIname = Column(String(64))  # 被邀请人姓名
     IRIphonenum = Column(String(64))  # 被邀请人电话号码
     IRIpassword = Column(String(64))  # 被邀请人密码
     IRIidcardnum = Column(String(64))  # 被邀请人身份证号码
