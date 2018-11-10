@@ -391,7 +391,7 @@ class Comments(Base):
     """
     评论
     """
-    __tablename__ = 'comment'
+    __tablename__ = 'comments'
     USid = Column(String(64), primary_key=True)
     USname = Column(String(64), nullable=False)  # 用户名
     CMcontent = Column(String(255))  # 用户评论内容
