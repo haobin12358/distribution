@@ -23,11 +23,11 @@ class User(Base):
     普通用户
     """
     __tablename__ = 'user'
-    USid = Column(String(64), primary_key=True)
+    USid = Column(String(64))
     USname = Column(String(64), nullable=False)  # 用户名
     USpassword = Column(String(255))             # 密码
     USphonenum = Column(String(16), nullable=False)  # 手机号
-    USagentid = Column(Integer)                  # 代理编号
+    USagentid = Column(Integer, primary_key=True, autoincrement=True) # 代理编号
     USheadimg = Column(String(255))              # 头像
     USbail = Column(Float)                       # 保证金余额
     USmount = Column(DECIMAL)                      # 账户余额
@@ -397,4 +397,13 @@ class Comments(Base):
     CMcontent = Column(String(255))  # 用户评论内容
     CMcreatetime = Column(String(14))  # 评论创建创建时间
     CMisread = Column(Boolean, default=False)  # 是否被阅读
+
+class test(Base):
+    """
+    测试
+    """
+    __tablename__ = "test"
+    id1 = Column(Integer, primary_key=True, autoincrement=True)
+    id2 = Column(Integer)
+
 # Base.metadata.create_all(mysql_engine)

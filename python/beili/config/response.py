@@ -28,7 +28,7 @@ NOT_FOUND_PHONENUM = {
 PHONE_OR_PASSWORD_WRONG = {
     "status": 405,
     "status_code": 405006,
-    "message": "手机或密码错误"
+    "message": "手机号或密码错误"
 }
 NOT_FOUND_IMAGE = {
     "status": 405,

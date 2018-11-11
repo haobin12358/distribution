@@ -63,7 +63,22 @@ class SUser(SBase):
                                   , InvitaRecord.IRIpaytype, InvitaRecord.IRIaddress, InvitaRecord.IRIarea, InvitaRecord.IRIcity
                                   , InvitaRecord.IRIwechat, InvitaRecord.IRIidcardnum, InvitaRecord.IRIname, InvitaRecord.IRIpic
                                   , InvitaRecord.IRIphonenum, InvitaRecord.IRIpassword, InvitaRecord.IRIprephonenum, InvitaRecord.IRIprename
-                                  ).filter(InvitaRecord.IRIid == id).order_by(InvitaRecord.IRIcreatetime.desc()).first()
+                                  ).filter(InvitaRecord.IRIid == id).first()
+        return list
+
+    @close_session
+    def get_registerrecord_by_phonenum(self, phonenum):
+        list = self.session.query(InvitaRecord.IRIid, InvitaRecord.IRIproof, InvitaRecord.IRIstatus,
+                                  InvitaRecord.IRIcreatetime
+                                  , InvitaRecord.IRIcardnum, InvitaRecord.IRIaccountname, InvitaRecord.IRIbankname
+                                  , InvitaRecord.IRIalipaynum, InvitaRecord.IRIpaytime, InvitaRecord.IRIpayamount
+                                  , InvitaRecord.IRIpaytype, InvitaRecord.IRIaddress, InvitaRecord.IRIarea,
+                                  InvitaRecord.IRIcity
+                                  , InvitaRecord.IRIwechat, InvitaRecord.IRIidcardnum, InvitaRecord.IRIname,
+                                  InvitaRecord.IRIpic
+                                  , InvitaRecord.IRIphonenum, InvitaRecord.IRIpassword, InvitaRecord.IRIprephonenum,
+                                  InvitaRecord.IRIprename
+                                  ).filter(InvitaRecord.IRIphonenum == phonenum).first()
         return list
 
     @close_session

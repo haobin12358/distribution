@@ -27,7 +27,7 @@ from datetime import datetime
 from weixin import WeixinError
 from weixin.login import WeixinLoginError, WeixinLogin
 from weixin.pay import WeixinPay, WeixinPayError
-from common.timeformat import format_for_db, get_random_str, format_for_db_no_HMS
+from common.timeformat import format_for_db, get_random_str, format_for_db_no_HMS, get_random_int
 from models.model import User, AgentMessage, BailRecord
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -542,6 +542,11 @@ class CAccount():
                                                 , tradenum=tradenum, oiid=None)
         if not result2:
             return SYSTEM_ERROR
+        # 写入代理消息
+        content = u'您' + month + u'月的奖金已发放，流水号为' + ' ' + str(tradenum)
+        agent_result = self.smessage.create_agentmessage(usid, time_now, content, 1)
+        if not agent_result:
+            return SYSTEM_ERROR
         update = {}
         update["AMstatus"] = 2
         update['AMtradenum'] = tradenum
@@ -678,8 +683,13 @@ class CAccount():
         update_result = self.saccount.update_by_dmid(dmid, update)
         if not update_result:
             return SYSTEM_ERROR
+        # 写入代理消息
+        time_now = datetime.strftime(datetime.now(), format_for_db)
+        content = u'您已提现成功，流水号为' + ' ' + str(result['DMtradenum'])
+        agent_result = self.smessage.create_agentmessage(result['USid'], time_now, content, 1)
+        if not agent_result:
+            return SYSTEM_ERROR
         if willstatus == 4:
-            time_now = datetime.strftime(datetime.now(), format_for_db)
             result2 = self.saccount.add_moneyrecord(result['USid'], result['DMamount'], 7, time_now
                                                    , tradenum=result['DMtradenum'], oiid=None)
             user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
@@ -749,9 +759,16 @@ class CAccount():
         if not update_result:
             return SYSTEM_ERROR
         if willstatus == 2:
+            # 写入收支记录
             time_now = datetime.strftime(datetime.now(), format_for_db)
             self.saccount.add_moneyrecord(result['USid'], result['CMamount'], 4, time_now
                                                     , tradenum=result['CMtradenum'], oiid=None)
+            # 写入代理消息
+            content = u'您已充值成功，流水号为' + ' ' + str(result['CMtradenum'])
+            agent_result = self.smessage.create_agentmessage(result['USid'], time_now, content, 1)
+            if not agent_result:
+                return SYSTEM_ERROR
+            # 加余额
             user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
                 self.smycenter.get_user_basicinfo(result['USid']) else None
             update = {}
@@ -844,7 +861,7 @@ class CAccount():
         except:
             return PARAMS_ERROR
         print 'start wxcz'
-        wcsn = 'cz' + datetime.strftime(datetime.now(), format_for_db)  # 充值号
+        wcsn = 'cz' + datetime.strftime(datetime.now(), format_for_db_no_HMS) + get_random_int(8) # 充值号
         user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
         if not user:
             return NOT_FOUND_USER
@@ -889,10 +906,15 @@ class CAccount():
         # 修改微信充值状态
         self.saccount.update_weixin_charge(str(data.get("out_trade_no")))
         # todo 收支记录
-        tradenum = 'cz' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
         self.saccount.add_moneyrecord(
             user.get("USid"), float(data.get('total_fee')) / 100, 4,
-            datetime.strftime(datetime.now(), format_for_db), tradenum, str(data.get("out_trade_no")))
+            datetime.strftime(datetime.now(), format_for_db), sn, str(data.get("out_trade_no")))
+        # 写入代理消息
+        time_now = datetime.strftime(datetime.now(), format_for_db)
+        content = u'您已通过微信充值成功，流水号为' + ' ' + str(sn)
+        agent_result = self.smessage.create_agentmessage(user.get("USid"), time_now, content, 1)
+        if not agent_result:
+            return SYSTEM_ERROR
         return self.pay.reply(u'OK', True)
 
         # result = data.get('return_code')

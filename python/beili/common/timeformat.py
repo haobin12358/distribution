@@ -32,9 +32,14 @@ def get_web_time_str(time_str, formattype=format_for_web_second):
 
 def get_random_str(length=6):
     str = ''
-    result = random.sample('zyxwvutsrqponmlkjihgfedcba0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', length)
-    for i in result:
-        str = str + i
+    for i in range(length):
+        str = str + random.sample('zyxwvutsrqponmlkjihgfedcba0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 1)
+    return str
+
+def get_random_int(length=6):
+    str = ''
+    for i in range(length):
+        str = str + random.sample('0123456789', 1)
     return str
 
 
