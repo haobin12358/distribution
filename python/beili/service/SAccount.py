@@ -80,7 +80,7 @@ class SAccount(SBase):
 
     @close_session
     def get_drawmoney_info(self, id):
-        return self.session.query(DrawMoney.USid, DrawMoney.DMstatus, DrawMoney.DMamount, DrawMoney.DMtradenum).filter(DrawMoney.DMid).first()
+        return self.session.query(DrawMoney.USid, DrawMoney.DMstatus, DrawMoney.DMamount, DrawMoney.DMtradenum).filter(DrawMoney.DMid == id).first()
 
     @close_session
     def get_alluser_chargemoney(self, status):
