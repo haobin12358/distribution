@@ -31,6 +31,11 @@
             <el-table-column prop="DMbranchname" align="center" label="支行" width="120"></el-table-column>
             <el-table-column prop="DMcardnum" align="center" label="卡号"></el-table-column>
             <el-table-column prop="DMcreatetime" align="center" label="申请时间"></el-table-column>
+            <el-table-column prop="DMstatus" align="center" label="状态" width="120">
+                <template slot-scope="scope">
+                    {{statusToTxt(scope.row.DMstatus)}}
+                </template>
+            </el-table-column>
             <el-table-column label="操作" width="220" fixed="right">
                 <template slot-scope="scope">
                     <template v-if="scope.row.DMstatus == 1">
@@ -168,6 +173,11 @@
                     }
                 )
             },
+
+            statusToTxt(status){
+                return this.statusOptions.find(item => item.value == status).label;
+            },
+
             async dealWidthDraw(dmid, willstatus) {
                 let res = await this.$http.post(this.$api.dealDrawmoney, {
                     dmid,

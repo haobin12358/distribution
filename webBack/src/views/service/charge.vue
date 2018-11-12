@@ -2,6 +2,7 @@
     @import "../../common/css/index";
 
     .container {
+
         .demo-table-expand {
             font-size: 0;
         }
@@ -46,10 +47,10 @@
         </section>
 
         <!--商品表格-->
-        <el-table :data="tableData" v-loading="loading" size="medium" stripe style="width: 100%">
+        <el-table :data="tableData" v-loading="loading" size="medium" :cell-class-name="cellFunction" stripe
+                  style="width: 100%">
             <el-table-column prop="CMaccountname" align="center" label="用户名"></el-table-column>
             <el-table-column prop="CMamount" align="center" label="金额" width="120"></el-table-column>
-            <el-table-column prop="CMpaytime" align="center" label="充值日期" width="120"></el-table-column>
             <el-table-column prop="type" align="center" label="用户打款方式" width="120">
                 <template slot-scope="scope">
                     {{scope.row.CMalipaynum ? '支付宝' : '银行转账'}}
@@ -60,19 +61,27 @@
                     {{scope.row.CMalipaynum ? scope.row.CMalipaynum : `${scope.row.CMbankname} ${scope.row.CMaccountname} ${scope.row.CMcardnum}`}}
                 </template>
             </el-table-column>
+            <el-table-column prop="CMpaytime" align="center" label="充值日期" width="120"></el-table-column>
             <el-table-column prop="name" align="center" label="凭证" width="200">
                 <template slot-scope="scope">
-                    <img v-for="item in scope.row.CMproof" class="small-proof-img" v-lazy="item"  @click="showBigImg(item)" alt="">
+                    <img v-for="item in scope.row.CMproof" class="small-proof-img" v-lazy="item"
+                         @click="showBigImg(item)" alt="">
                 </template>
             </el-table-column>
-            <el-table-column prop="CMcreatetime" align="center" label="申请日期" width="120"></el-table-column>
+            <el-table-column prop="CMcreatetime" align="center" label="申请日期" width="180"></el-table-column>
+            <el-table-column prop="CMstatus" align="center" label="状态" width="120">
+                <template slot-scope="scope">
+                    {{statusToTxt(scope.row.CMstatus)}}
+                </template>
+            </el-table-column>
             <el-table-column prop="CMremark" align="center" label="备注" width="120"></el-table-column>
 
             <el-table-column label="操作" width="220" fixed="right">
                 <template slot-scope="scope">
                     <template v-if="scope.row.CMstatus == 1">
                         <el-button type="text" size="small" @click="pass(scope.row)">审核通过</el-button>
-                        <el-button type="text" class="danger-text" size="small" @click="noPass(scope.row)">审核不通过</el-button>
+                        <el-button type="text" class="danger-text" size="small" @click="noPass(scope.row)">审核不通过
+                        </el-button>
                     </template>
 
                 </template>
@@ -140,16 +149,27 @@
         computed: {},
 
         methods: {
-            showBigImg(url){
+            showBigImg(url) {
                 this.bigImgUrl = url;
                 this.dialogTableVisible = true;
             },
 
-            doSearch(){
+            doSearch() {
                 this.currentPage = 1;
                 this.setData();
             },
 
+
+            cellFunction({row, column}) {
+                if (column.property == 'CMamount') {
+                    return 'money-cell'
+                }
+                else if (column.property == 'info') {
+                    return 'primary-cell'
+
+                }
+
+            },
 
             sizeChange(pageSize) {
                 this.pageSize = pageSize;
@@ -162,7 +182,7 @@
                 this.setData();
             },
 
-            setData(){
+            setData() {
                 this.loading = true;
 
                 this.$http.post(this.$api.getAllChargemoney,
@@ -191,6 +211,10 @@
                 )
             },
 
+            statusToTxt(status){
+                return this.statusOptions.find(item => item.value == status).label;
+            },
+
             async dealWidthDraw(cmid, willstatus) {
                 let res = await this.$http.post(this.$api.dealChargemoney, {
                     cmid,
@@ -217,7 +241,7 @@
                     let result = await this.dealWidthDraw(row.CMid, 2);
 
                     this.setData()
-                    if(result){
+                    if (result) {
                         this.$notify({
                             title: '充值审核已通过',
                             message: `用户名:${row.CMaccountname}余额冲入${row.CMamount}元`,
@@ -237,7 +261,7 @@
                     let result = await this.dealWidthDraw(row.CMid, 3);
 
                     this.setData()
-                    if(result){
+                    if (result) {
                         this.$notify({
                             title: '充值审核已拒绝',
                             message: `用户名:${row.CMaccountname}`,
