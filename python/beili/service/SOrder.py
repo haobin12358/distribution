@@ -42,7 +42,7 @@ class SOrder(SBase):
         return True
 
     def add_order(self, session, OIid, OIsn, USid, OInote, OImount, UAid, OIcreatetime, logisticsfee,
-                  provincename, cityname, areaname, details, username, userphonenum):
+                  provincename, cityname, areaname, details, username, userphonenum, product_num):
         order = OrderInfo()
         order.OIid = OIid
         order.OIsn = OIsn
@@ -58,6 +58,7 @@ class SOrder(SBase):
         order.details = details
         order.username = username
         order.userphonenum = userphonenum
+        order.productnum = product_num
         session.add(order)
         return True
 
@@ -76,6 +77,10 @@ class SOrder(SBase):
     @close_session
     def get_total_order_num(self, usid):
         return self.session.query(func.count(OrderInfo.OIid)).filter(OrderInfo.USid == usid).scalar()
+
+    @close_session
+    def get_all_order_num(self):
+        return self.session.query(func.count(OrderInfo.OIid)).scalar()
 
     @close_session
     def get_order_num(self, usid, state):
@@ -120,3 +125,16 @@ class SOrder(SBase):
     def update_order(self, oisn, update):
         self.session.query(OrderInfo).filter(OrderInfo.OIsn == oisn).update(update)
         return True
+
+    @close_session
+    def get_order_by_day(self, this_day, next_day):
+        return self.session.query(OrderInfo.OImount).filter(OrderInfo.OIcreatetime >= this_day).filter(OrderInfo\
+                    .OIcreatetime < next_day).all()
+
+    @close_session
+    def admin_get_all_order(self):
+        return self.session.query(OrderInfo.productnum, OrderInfo.OImount).all()
+
+    @close_session
+    def get_order_user_num(self):
+        return self.session.query(OrderInfo.USid).group_by(OrderInfo.USid)

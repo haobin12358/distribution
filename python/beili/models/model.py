@@ -32,6 +32,7 @@ class User(Base):
     USbail = Column(Float)                       # 保证金余额
     USmount = Column(DECIMAL)                      # 账户余额
     USpre = Column(String(64))                   # 上级代理id
+    UScreatetime = Column(String(14))            # 创建时间
     USwechat = Column(String(64))                # 用户微信号,暂时不用
     openid = Column(String(64))                  # 微信唯一值
     state = Column(String(128))                  # 用于获取openid
@@ -177,6 +178,7 @@ class OrderInfo(Base):
     details = Column(String(255))  # 详细地址
     expressname = Column(String(64))  # 快递名称
     expressnum = Column(String(64))  # 快递单号
+    productnum = Column(Integer, default=0)  # 商品数量
 
 class OrderProductInfo(Base):
     """订单商品详情, 多个订单商品详情对应一个订单"""

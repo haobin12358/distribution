@@ -606,6 +606,7 @@ class CUser():
                 new_user.USphonenum = info['IRIphonenum']
                 new_user.USmount = 0
                 new_user.USbail = 0
+                new_user.UScreatetime = datetime.strftime(datetime.now(), format_for_db)
                 new_user.USpassword = generate_password_hash(info['IRIpassword'])
                 session.add(new_user)
 

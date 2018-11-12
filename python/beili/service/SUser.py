@@ -173,3 +173,12 @@ class SUser(SBase):
     @close_session
     def get_qrcode_by_openid(self, id):
         return self.session.query(User.USmount, User.USid).filter(User.openid == id).first()
+
+    @close_session
+    def get_user_num(self):
+        return self.session.query(func.count(User.USid)).scalar()
+
+    @close_session
+    def get_thismonth_agentnum(self, starttime, endtime):
+        return self.session.query(func.count(User.USid)).filter(User.UScreatetime >= starttime).filter(User
+                                                        .UScreatetime < endtime).scalar()

@@ -47,7 +47,11 @@ class AAccount(Resource):
             'get_distribute': 'self.caccount.get_distribute()',
             'get_draw_info': 'self.caccount.get_draw_info()',
             'check_bail': 'self.caccount.check_bail()',
-            'get_moneyrecord': 'self.caccount.get_moneyrecord()'
+            'get_moneyrecord': 'self.caccount.get_moneyrecord()',
+            'get_sevendays_data': 'self.caccount.get_sevendays_data()',
+            'get_thisyear_date': 'self.caccount.get_thisyear_date()',
+            'get_count_data': 'self.caccount.get_count_data()',
+            'get_thismonth_agentnum': 'self.caccount.get_thismonth_agentnum()'
 
         }
         res = eval(apis[account])
