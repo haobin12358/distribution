@@ -392,11 +392,12 @@ class Comments(Base):
     评论
     """
     __tablename__ = 'comments'
-    USid = Column(String(64), primary_key=True)
+    CMid = Column(String(64), primary_key=True)
+    USid = Column(String(64))
     USname = Column(String(64), nullable=False)  # 用户名
-    CMcontent = Column(String(255))  # 用户评论内容
+    USphonenum = Column(String(11))  # 用户手机号
+    CMcontent = Column(String(512))  # 用户评论内容
     CMcreatetime = Column(String(14))  # 评论创建创建时间
-    CMisread = Column(Boolean, default=False)  # 是否被阅读
 
 class test(Base):
     """
