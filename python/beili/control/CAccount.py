@@ -861,7 +861,7 @@ class CAccount():
         except:
             return PARAMS_ERROR
         print 'start wxcz'
-        wcsn = 'cz' + datetime.strftime(datetime.now(), format_for_db_no_HMS) + get_random_int(8) # 充值号
+        wcsn = 'cz' + datetime.strftime(datetime.now(), format_for_db) + get_random_int(5)  # 充值号
         user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
         if not user:
             return NOT_FOUND_USER

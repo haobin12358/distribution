@@ -382,9 +382,9 @@ class SowingMap(Base):
     """
     __tablename__ = 'sowingmap'
     SMid = Column(String(64),primary_key=True) 
-    mallUrls = Column(String(255), nullable=False) #商城图片链接
-    personUrls = Column(String(255), nullable=False) #个人图片链接
-    SMstatus = Column(Boolean, default=False) #True表示被获取了，False表示未被获取
+    SMurl = Column(String(512))  # url
+    SMtype = Column(Integer)  # 轮播图类型 1，个人中心  2，商城
+    SMstatus = Column(Boolean, default=False)  # True表示被获取了，False表示未被获取
 
 
 class Comments(Base):

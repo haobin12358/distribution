@@ -463,11 +463,12 @@ if __name__ == "__main__":
     if "drop" in action:
         drop()
 
+
     else:
         #databse_deal().create_database()
         create()
-        data = MakeData()
-        data.add_test()
+        # data = MakeData()
+        # data.add_test()
         # print "OK!"
         # print('start add data')
         # data.add_superuser()
