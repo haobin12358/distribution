@@ -5,7 +5,7 @@ const api = {
     login: title + '/admin/login',                              //  登录
     updatePwd: title + '/admin/update_pwd',                     //  修改密码
 
-    uploadFile: title + '/user/upload_file?token=' + localStorage.getItem('token'),                     //  修改密码
+    uploadFile: `${title}/user/upload_file?token=${localStorage.getItem('token')}`,                     //  修改密码
     removeFile: title + '/user/remove_file',                     //  删除文件
 
 

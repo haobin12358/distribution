@@ -12,17 +12,19 @@
         </el-breadcrumb>
         <!--商品表格-->
         <el-table :data="tableData" v-loading="loading" stripe style="width: 100%">
-            <el-table-column prop="CMtitle" label="标题" width="180"></el-table-column>
-            <el-table-column prop="CMtype" label="类型" width="180">
+            <el-table-column prop="CMtitle" label="标题" align="center" width="180"></el-table-column>
+            <el-table-column prop="CMtype" label="类型" align="center" width="180">
                 <template slot-scope="scope">
                     公告
                 </template>
             </el-table-column>
             <el-table-column prop="CMfile" label="文件">
                 <template slot-scope="scope">
-                    <a :href="scope.row.CMfile" target="_blank">查看文件</a>
+                    <a :href="scope.row.CMfile" target="_blank">查看文件({{scope.row.CMfile | fileType}})</a>
                 </template>
             </el-table-column>
+            <el-table-column prop="CMdate" label="发布日期" align="center"></el-table-column>
+
             <el-table-column label="操作" width="120" fixed="right" :render-header="renderHeader">
                 <template slot-scope="scope">
                     <!--<el-button type="text" size="small">编辑</el-button>-->
@@ -105,6 +107,16 @@
                         {required: true, message: '标题必填', trigger: 'blur'}
                     ]
                 }
+            }
+        },
+
+        filters: {
+            fileType: function (value) {
+                if (!value) return ''
+
+                let dotIndex = value.lastIndexOf('.');
+
+                return value.substr(dotIndex+1);
             }
         },
 

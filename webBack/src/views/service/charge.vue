@@ -33,20 +33,20 @@
         <section class="tool-tip-wrap">
             <el-form :inline="true" size="small" :model="form">
                 <el-form-item label="状态">
-                    <el-select v-model="form.status" @change="setData">
+                    <el-select v-model="form.status" @change="doSearch">
                         <el-option v-for="option in statusOptions" :label="option.label" :value="option.value"
                                    :key="option.value">
                         </el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="setData">查询</el-button>
+                    <el-button type="primary" @click="doSearch">查询</el-button>
                 </el-form-item>
             </el-form>
         </section>
 
         <!--商品表格-->
-        <el-table :data="tableData" v-loading="loading" size="mini" stripe style="width: 100%">
+        <el-table :data="tableData" v-loading="loading" size="medium" stripe style="width: 100%">
             <el-table-column prop="CMaccountname" align="center" label="用户名"></el-table-column>
             <el-table-column prop="CMamount" align="center" label="金额" width="120"></el-table-column>
             <el-table-column prop="CMpaytime" align="center" label="充值日期" width="120"></el-table-column>
@@ -62,9 +62,10 @@
             </el-table-column>
             <el-table-column prop="name" align="center" label="凭证" width="200">
                 <template slot-scope="scope">
-                    <img v-for="item in scope.row.CMproof" class="small-proof-img" :src="item"  @click="showBigImg(item)" alt="">
+                    <img v-for="item in scope.row.CMproof" class="small-proof-img" v-lazy="item"  @click="showBigImg(item)" alt="">
                 </template>
             </el-table-column>
+            <el-table-column prop="CMcreatetime" align="center" label="申请日期" width="120"></el-table-column>
             <el-table-column prop="CMremark" align="center" label="备注" width="120"></el-table-column>
 
             <el-table-column label="操作" width="220" fixed="right">
@@ -92,9 +93,7 @@
         </section>
 
         <el-dialog title="打款凭证" :visible.sync="dialogTableVisible">
-
-            <img class="proof-img" :src="bigImgUrl" alt="">
-
+            <img class="proof-img" v-lazy="bigImgUrl" alt="">
         </el-dialog>
     </div>
 </template>
@@ -145,6 +144,12 @@
                 this.bigImgUrl = url;
                 this.dialogTableVisible = true;
             },
+
+            doSearch(){
+                this.currentPage = 1;
+                this.setData();
+            },
+
 
             sizeChange(pageSize) {
                 this.pageSize = pageSize;

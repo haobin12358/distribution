@@ -19,6 +19,7 @@
             <el-breadcrumb-item>商品编辑</el-breadcrumb-item>
         </el-breadcrumb>
 
+
         <el-row style="margin-top: .3rem;">
             <el-col :span="14">
                 <el-form :model="formData" :rules="rules" label-position="left" ref="ruleForm" size="medium"
@@ -39,13 +40,13 @@
                         <!--</el-upload>-->
                         <el-upload
                             class="avatar-uploader"
-                            :action="$api.uploadFile"
+                            action="xxx"
                             :show-file-list="false"
                             accept="image/*"
                             :on-success="handleAvatarSuccess"
                             :before-upload="beforeAvatarUpload"
                         >
-                            <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                            <img v-if="imageUrl"  v-lazy="imageUrl" class="avatar">
                             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
 
                             <span class="upload-tip" slot="tip">
@@ -87,6 +88,8 @@
 </template>
 
 <script>
+    import lrz from "lrz"
+
     export default {
         name: "productEdit",
 
@@ -148,30 +151,6 @@
                         {required: true, message: '库存必填', trigger: 'blur'}
                     ],
                 },
-                // rules: {
-                //     name: [
-                //         { required: true, message: '请输入活动名称', trigger: 'blur' },
-                //         { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
-                //     ],
-                //     region: [
-                //         { required: true, message: '请选择活动区域', trigger: 'change' }
-                //     ],
-                //     date1: [
-                //         { type: 'date', required: true, message: '请选择日期', trigger: 'change' }
-                //     ],
-                //     date2: [
-                //         { type: 'date', required: true, message: '请选择时间', trigger: 'change' }
-                //     ],
-                //     type: [
-                //         { type: 'array', required: true, message: '请至少选择一个活动性质', trigger: 'change' }
-                //     ],
-                //     resource: [
-                //         { required: true, message: '请选择活动资源', trigger: 'change' }
-                //     ],
-                //     desc: [
-                //         { required: true, message: '请填写活动形式', trigger: 'blur' }
-                //     ]
-                // }
             }
         },
 
@@ -188,12 +167,21 @@
                 this.dialogImageUrl = file.url;
                 this.dialogVisible = true;
             },
-
+            handleAvatarChange(file, fileList){
+                // console.log('[change]', file, fileList);
+            },
             handleAvatarSuccess(res, file) {
                 this.formData.prpic = res.data;
                 this.imageUrl = URL.createObjectURL(file.raw);
             },
             beforeAvatarUpload(file) {
+                console.log(file);
+                // console.log('before', file.size);
+                // lrz(file).then(
+                //     res=>{
+                //         console.log('after', file.size);
+                //     }
+                // )
                 const isLt15M = file.size / 1024 / 1024 < 10;
 
                 if (!isLt15M) {
@@ -209,7 +197,7 @@
             },
 
             clearUploadedImg(){
-                  if(this.formData.prpic && !this.keepImg){
+                  if(this.formData.prpic){
                       this.$http.post(this.$api.removeFile, {
                           url: this.formData.prpic.split('file/')[1]
                       }, {

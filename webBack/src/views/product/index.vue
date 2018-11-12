@@ -20,6 +20,7 @@
                     <el-cascader
                         :options="options"
                         :props="cascaderProps"
+                        :clearable="true"
                         v-model="formInline.CAselect"
                     @change="setProductList">
                     </el-cascader>
@@ -42,7 +43,7 @@
         <el-table :data="tableData" v-loading="loading" stripe style="width: 100%">
             <el-table-column prop="img" align="center" label="图片" width="120">
                 <template slot-scope="scope">
-                    <img :src="scope.row.PRpic" class="table-pic"/>
+                    <img v-lazy="scope.row.PRpic" class="table-pic"/>
                 </template>
             </el-table-column>
             <el-table-column prop="PRname" label="商品名" width="180" align="center"></el-table-column>
@@ -107,14 +108,14 @@
                         label: '已售罄',
                     },{
                         value: 3,
-                        label: '已上架',
+                        label: '已下架',
                     },
                 ],
                 //  查询表单
                 formInline: {
                     PRname: '',
                     CAselect: [],
-                    PRstatus: 0,
+                    PRstatus: 1,
                 },
                 //  商品分类选项
                 options: [
@@ -144,13 +145,22 @@
 
         methods: {
             renderHeader(h) {
-                return (
-                    <router-link tag="el-button" to="productEdit" type="primary">
-                        新增
-                    </router-link>
-
-                )
+                return h('el-button', {
+                    props: {
+                        type: 'primary',
+                    },
+                    on: {
+                        click: () => {
+                            this.doAddPd();
+                        }
+                    }
+                }, '新增');
             },
+
+            doAddPd(){
+                this.$router.push('/productEdit');
+            },
+
             handleEdit(pd) {
                 this.$router.push({
                     path: 'productEdit',

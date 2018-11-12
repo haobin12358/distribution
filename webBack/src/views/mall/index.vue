@@ -3,7 +3,7 @@
 
     .container {
         .swiper-uploader {
-            .el-upload{
+            .el-upload {
                 .wl(4.7rem, 1.1rem);
             }
         }
@@ -25,6 +25,7 @@
                 class="swiper-uploader"
                 action="https://jsonplaceholder.typicode.com/posts/"
                 list-type="picture-card"
+                :file-list="mallImgList"
                 :on-preview="handlePictureCardPreview"
                 :on-remove="handleRemove"
                 :limit="1">
@@ -44,6 +45,7 @@
                 class="avatar-uploader"
                 action="https://jsonplaceholder.typicode.com/posts/"
                 list-type="picture-card"
+                :file-list="personImgList"
                 :on-preview="handlePictureCardPreview"
                 :on-remove="handleRemove">
                 <i class="el-icon-plus"></i>
@@ -63,6 +65,19 @@
 
         data() {
             return {
+                mallImgList: [{
+                    name: 'food.jpeg',
+                    url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'
+                }],
+                // mallImgList: ['https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'],
+                personImgList: [{
+                    name: 'food.jpeg',
+                    url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'
+                }, {
+                    name: 'food2.jpeg',
+                    url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'
+                }],
+
                 dialogImageUrl: '',
                 dialogVisible: false
             }
@@ -77,6 +92,7 @@
                 console.log(file, fileList);
             },
             handlePictureCardPreview(file) {
+                console.log('[preview]',file);
                 this.dialogImageUrl = file.url;
                 this.dialogVisible = true;
             }

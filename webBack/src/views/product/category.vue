@@ -159,9 +159,10 @@
                             let resData = res.data,
                                 data = res.data.data;
 
+                            this.setCategorySelect();
                             this.setCategoryList();
                             this.$notify({
-                                title: `商品分类${PAid ? '修改': '新增'}成功`,
+                                title: `商品分类${PAid ? '修改' : '新增'}成功`,
                                 message: `分类名:${PAname}`,
                                 type: 'success'
                             });
@@ -189,31 +190,39 @@
             removeCategory(node, data) {
                 let PAname = data.PAname;
 
-                if(node.childNodes.length){
+                if (node.childNodes.length) {
                     this.$message.error(`请先删除"${data.PAname}"下面的分类!`);
-                }else{
-                    this.$http.post(this.$api.deleteCategory,{
-                        PAid: data.PAid
-                    },{
-                        params: {
-                            token: this.$common.getStore('token')
-
-                        }
+                } else {
+                    this.$confirm(`确定要删除分类:${PAname}?`, '提示', {
+                        type: 'warning'
                     }).then(
-                        res => {
-                            if (res.data.status == 200) {
-                                let resData = res.data,
-                                    data = res.data.data;
+                        () => {
+                            this.$http.post(this.$api.deleteCategory, {
+                                PAid: data.PAid
+                            }, {
+                                params: {
+                                    token: this.$common.getStore('token')
 
-                                this.setCategoryList();
-                                this.$notify({
-                                    title: `商品分类删除成功`,
-                                    message: `分类名:${PAname}`,
-                                    type: 'success'
-                                });
-                            }
+                                }
+                            }).then(
+                                res => {
+                                    if (res.data.status == 200) {
+                                        let resData = res.data,
+                                            data = res.data.data;
+
+                                        this.setCategorySelect();
+                                        this.setCategoryList();
+                                        this.$notify({
+                                            title: `商品分类删除成功`,
+                                            message: `分类名:${PAname}`,
+                                            type: 'success'
+                                        });
+                                    }
+                                }
+                            )
                         }
                     )
+
                 }
             },
 

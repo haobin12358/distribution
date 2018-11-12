@@ -97,7 +97,7 @@
             </el-table-column>
             <el-table-column  align="left" label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" size="mini" v-if="scope.row.AMstatus == 2 || scope.row.AMstatus == 3">
+                    <el-button type="text" size="mini" v-if="scope.row.AMstatus == 1">
                         发放奖励
                     </el-button>
                 </template>
@@ -110,7 +110,7 @@
             <el-table :data="rewardData" size="mini" style="width: 100%">
                 <el-table-column prop="img" align="center" label="头像" width="120">
                     <template slot-scope="scope">
-                        <img :src="scope.row.USheadimg" class="table-pic"/>
+                        <img v-lazy="scope.row.USheadimg" class="table-pic"/>
                     </template>
                 </el-table-column>
                 <el-table-column property="USagentid" align="center" label="代理号" width="150"></el-table-column>
@@ -121,7 +121,7 @@
             <el-table :data="discountData" size="mini" style="width: 100%">
                 <el-table-column prop="img"  align="center" label="头像" width="120">
                     <template slot-scope="scope">
-                        <img :src="scope.row.USheadimg" class="table-pic"/>
+                        <img v-lazy="scope.row.USheadimg" class="table-pic"/>
                     </template>
                 </el-table-column>
                 <el-table-column property="USagentid" align="center" label="代理号" width="150"></el-table-column>

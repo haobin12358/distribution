@@ -12,6 +12,11 @@
 
             .tac {
             }
+
+
+            .menu-title{
+                .fz(1rem);
+            }
         }
 
         .right-content {
@@ -53,8 +58,8 @@
         <aside class="left-aside">
             <el-row class="tac">
                 <el-col :span="24">
-                    <el-menu :default-active="defaultPage.path" class="el-menu-vertical-demo" background-color="#545c64"
-                             text-color="#fff"
+                    <el-menu class="m-sidebar" :default-active="defaultPage.path" background-color="#545c64"
+                             text-color="#fff" popper-class="menu-title"
                              active-text-color="#ffd04b" :router="true">
                         <el-menu-item v-for="item,index in menu" :index="item.path" :key="index">
                             <i class="el-icon-menu"></i>

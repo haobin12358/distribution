@@ -32,6 +32,10 @@ import axios from 'axios';
 
 Vue.prototype.$http = axios;
 
+import VueLazyload from 'vue-lazyload'
+
+Vue.use(VueLazyload, {loading:"/static/images/spinner.svg" })
+
 import api from './api/api';
 
 Vue.prototype.$api = api;
@@ -68,6 +72,13 @@ axios.interceptors.response.use(data => {// 响应成功关闭loading
     if (data.data.status != 200) {
         Vue.prototype.$message.error(data.data.message);
     }
+    console.log(data.data.status == 405 && data.data.status_code == 405004);
+    if (data.data.status == 405 && data.data.status_code == 405004) {
+        location.href = location.origin;
+        localStorage.setItem('token', '');
+        this.$notify()
+    }
+
     return data;
 }, error => {
     Message({

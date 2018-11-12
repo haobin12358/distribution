@@ -27,7 +27,7 @@
         <section class="tool-tip-wrap">
             <el-form :inline="true" size="small" :model="formInline" class="demo-form-inline">
                 <el-form-item label="状态">
-                    <el-select v-model="formInline.status" @change="setData">
+                    <el-select v-model="formInline.status" @change="doSearch">
                         <el-option v-for="option in statusOptions" :label="option.label" :value="option.value"
                                    :key="option.value">
                         </el-option>
@@ -73,7 +73,7 @@
                             <span>{{ props.row.IRIwechat }}</span>
                         </el-form-item>
                         <el-form-item label="地址">
-                            <span>{{ props.row.address }}</span>
+                            <span>{{ props.row.address }} {{ props.row.IRIaddress }}</span>
                         </el-form-item>
                         <el-form-item label="打款时间">
                             <span>{{ props.row.IRIpaytime }}</span>
@@ -86,7 +86,7 @@
                         </el-form-item>
                         <el-form-item label="打款信息">
                             <span>{{ props.row.IRIpaytype == 1
-                                ? props.row.IRIpayamount
+                                ? props.row.IRIalipaynum
                                 : `${props.row.IRIbankname} ${props.row.IRIaccountname} ${props.row.IRIcardnum}`}}</span>
                         </el-form-item>
 
@@ -106,14 +106,14 @@
             </el-table-column>
             <el-table-column prop="name" align="center" label="凭证" width="200">
                 <template slot-scope="scope">
-                    <img v-for="item in scope.row.IRIproof" class="table-pic" style="margin-right: .2rem;" :src="item"  @click="showBigImg(item)" alt="">
+                    <img v-for="item in scope.row.IRIproof" class="table-pic" style="margin-right: .2rem;" v-lazy="item"  @click="showBigImg(item)" alt="">
                 </template>
             </el-table-column>
             <el-table-column label="操作" width="180" align="center" fixed="right">
                 <template slot-scope="scope">
                     <template v-if="scope.row.IRIstatus == 1">
-                        <el-button type="text" size="small" @click="pass(scope.row)">审核通过</el-button>
-                        <el-button type="text" class="danger-text" size="small" @click="noPass(scope.row)">审核不通过</el-button>
+                        <el-button type="text" size="small" @click.stop="pass(scope.row)">审核通过</el-button>
+                        <el-button type="text" class="danger-text" size="small" @click.stop="noPass(scope.row)">审核不通过</el-button>
 
                     </template>
                 </template>
@@ -165,7 +165,7 @@
                     },
                 ],
                 formInline: {
-                    status: 0,
+                    status: 1,
                 },
 
                 loading: false,
@@ -220,6 +220,7 @@
             },
 
             doSearch(){
+                this.currentPage = 1;
                 this.setData();
             },
 
@@ -291,7 +292,7 @@
                     if(result){
                         this.$notify({
                             title: '注册审核已通过',
-                            message: `用户名:${row.CMaccountname}余额冲入${row.IRIname}元`,
+                            message: `用户名:${row.IRIname}`,
                             type: 'success'
                         });
                     }
