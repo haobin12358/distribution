@@ -143,10 +143,12 @@ class COrder():
                 result = self.sorder.add_orderproductinfo(session, OPIid, OIid, PRid, PRname, PRprice, PRnum, PRimage)
                 if not result:
                     raise dberror
+
+            # 插入代理消息
             user = {}
             user['USmount'] = user_info['USmount'] - mount - real_PRlogisticsfee
             session.query(User).filter_by(USid=request.user.id).update(user)
-            agentmessage = AgentMessage()  # 插入代理消息
+            agentmessage = AgentMessage()
             agentmessage.AMid = str(uuid.uuid4())
             agentmessage.USid = request.user.id
             agentmessage.AMdate = OIcreatetime
@@ -183,6 +185,7 @@ class COrder():
                 amount.USagentid = user['USagentid']
                 amount.performance = discountnum
                 amount.USname = user['USname']
+                amount.AMstatus = 1
                 amount.USheadimg = user['USheadimg']
                 amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
                 amount.AMmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]

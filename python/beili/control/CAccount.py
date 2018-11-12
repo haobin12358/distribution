@@ -683,13 +683,15 @@ class CAccount():
         update_result = self.saccount.update_by_dmid(dmid, update)
         if not update_result:
             return SYSTEM_ERROR
-        # 写入代理消息
-        time_now = datetime.strftime(datetime.now(), format_for_db)
-        content = u'您已提现成功，流水号为' + ' ' + str(result['DMtradenum'])
-        agent_result = self.smessage.create_agentmessage(result['USid'], time_now, content, 1)
-        if not agent_result:
-            return SYSTEM_ERROR
+        if willstatus == 3:
+            # 写入代理消息
+            time_now = datetime.strftime(datetime.now(), format_for_db)
+            content = u'您已提现成功，流水号为' + ' ' + str(result['DMtradenum'])
+            agent_result = self.smessage.create_agentmessage(result['USid'], time_now, content, 1)
+            if not agent_result:
+                return SYSTEM_ERROR
         if willstatus == 4:
+            time_now = datetime.strftime(datetime.now(), format_for_db)
             result2 = self.saccount.add_moneyrecord(result['USid'], result['DMamount'], 7, time_now
                                                    , tradenum=result['DMtradenum'], oiid=None)
             user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
@@ -758,9 +760,9 @@ class CAccount():
         update_result = self.saccount.update_by_cmid(cmid, update)
         if not update_result:
             return SYSTEM_ERROR
+        time_now = datetime.strftime(datetime.now(), format_for_db)
         if willstatus == 2:
             # 写入收支记录
-            time_now = datetime.strftime(datetime.now(), format_for_db)
             self.saccount.add_moneyrecord(result['USid'], result['CMamount'], 4, time_now
                                                     , tradenum=result['CMtradenum'], oiid=None)
             # 写入代理消息
@@ -774,6 +776,12 @@ class CAccount():
             update = {}
             update['USmount'] = user['USmount'] + result['CMamount']
             self.smycenter.update_user_by_uid(result['USid'], update)
+        if willstatus == 3:
+            # 写入代理消息
+            content = u'您充值失败，请联系客服处理，流水号为' + result['CMtradenum']
+            agent_result = self.smessage.create_agentmessage(result['USid'], time_now, content, 1)
+            if not agent_result:
+                return SYSTEM_ERROR
         response = import_status("update_record_success", "OK")
         return response
 

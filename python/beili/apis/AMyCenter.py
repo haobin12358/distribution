@@ -20,8 +20,7 @@ class AMyCenter(Resource):
             'delete_useraddress': 'self.cmycenter.delete_useraddress()',
             'update_useraddress': 'self.cmycenter.update_useraddress()',
             'change_default': 'self.cmycenter.change_default()',
-            'add_comments':'self.cmycenter.add_comments()',
-            'review_comment':'self.cmycenter.review_comment()'
+            'add_comments':'self.cmycenter.add_comments()'
         }
         res = eval(apis[mycenter])
         return jsonify(res)
@@ -35,7 +34,8 @@ class AMyCenter(Resource):
             'get_area_by_city': 'self.cmycenter.get_area_by_city()',
             'get_all_area': 'self.cmycenter.get_all_area()',
             'get_user_basicinfo': 'self.cmycenter.get_user_basicinfo()',
-            'get_user_totalinfo': 'self.cmycenter.get_user_totalinfo()'
+            'get_user_totalinfo': 'self.cmycenter.get_user_totalinfo()',
+            'get_comment_list': 'self.cmycenter.get_comment_list()'
         }
         res = eval(apis[mycenter])
         return jsonify(res)

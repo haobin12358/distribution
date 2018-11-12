@@ -8,13 +8,13 @@ import platform
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, NOT_FOUND_PHONENUM, NOT_FOUND_IMAGE, \
-    NO_ADDRESS, NOT_FOUND_ADDRESS, BAD_ADDRESS, UPDATE_ADDRESS_FAIL, CHANGE_ADDRESS_FAIL, AUTHORITY_ERROR
+    NO_ADDRESS, NOT_FOUND_ADDRESS, BAD_ADDRESS, UPDATE_ADDRESS_FAIL, CHANGE_ADDRESS_FAIL, AUTHORITY_ERROR, NOT_FOUND_USER
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
 from service.SMyCenter import SMyCenter
 from config.setting import QRCODEHOSTNAME
-from common.timeformat import get_db_time_str
+from common.timeformat import get_db_time_str, get_web_time_str
 from service.SUser import SUser
 from models.model import UserAddress,Comments
 sys.path.append(os.path.dirname(os.getcwd()))
@@ -490,7 +490,6 @@ class CMyCenter():
             return TOKEN_ERROR
         try:
             data = request.json
-            USname = data['USname']
             CMcontent = data['CMcontent']
         except:
             return PARAMS_ERROR
@@ -499,32 +498,50 @@ class CMyCenter():
             from common.timeformat import format_for_db
             time_time = datetime.datetime.now()
             CMcreatetime = datetime.datetime.strftime(time_time, format_for_db)
-            USid = str(uuid.uuid1())
-            self.smycenter.add_comment(USid, USname, CMcontent, CMcreatetime)
+            usid = request.user.id
+            user = get_model_return_dict(self.smycenter.get_user_basicinfo(usid))
+            if not user:
+                return NOT_FOUND_USER
+            result = self.smycenter.add_comment(usid, user['USname'], user['USphonenum'], CMcontent, CMcreatetime)
+            if not result:
+                return SYSTEM_ERROR
             response = import_status("add_comment_success", "OK")
-            return 'response'
+            return response
         except Exception as e:
             print e
             return SYSTEM_ERROR
 
     @verify_token_decorator
-    def review_comment(self):
+    def get_comment_list(self):
         if not is_admin():
-            return AUTHORITY_ERROR
+            return TOKEN_ERROR
         try:
-            data = request.json
-            USname = data['USname']
+            args = request.args.to_dict()
+            page_num = int(args.get("page_num"))
+            page_size = int(args.get("page_size"))
         except:
             return PARAMS_ERROR
         try:
-            comment_list = get_model_return_list(self.smycenter.get_comments(USname))
-            USid = comment_list[0]['USid']
-            comment = comment_list[0]['CMcontent']
-            
-            read = {'CMisread':True}
-            self.smycenter.update_CMisread(USid, read)
-            response = import_status('update_comments_success', 'OK')
-            response['comment'] = comment
+            comment_list = get_model_return_list(self.smycenter.get_comments())
+            if not comment_list:
+                response = import_status('get_commentslist_success', 'OK')
+                response['data'] = []
+                return response
+            for comment in comment_list:
+                comment['CMcreatetime'] = get_web_time_str(comment['CMcreatetime'])
+            mount = len(comment_list)
+            page = mount / page_size
+            if page == 0 or page == 1 and mount % page_size == 0:
+                return_list = comment_list[0:]
+            else:
+                if ((mount - (page_num - 1) * page_size) / page_size) >= 1 and \
+                        (mount - (page_num * page_size)) > 0:
+                    return_list = comment_list[((page_num - 1) * page_size):(page_num * page_size)]
+                else:
+                    return_list = comment_list[((page_num - 1) * page_size):]
+            response = import_status('get_commentslist_success', 'OK')
+            response['data'] = return_list
+            response['mount'] = mount
             return response
         except Exception as e:
             print e
