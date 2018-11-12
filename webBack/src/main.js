@@ -72,8 +72,7 @@ axios.interceptors.response.use(data => {// 响应成功关闭loading
     if (data.data.status != 200) {
         Vue.prototype.$message.error(data.data.message);
     }
-    console.log(data.data.status == 405 && data.data.status_code == 405004);
-    if (data.data.status == 405 && data.data.status_code == 405004) {
+    if (data.data.status == 405 && data.data.status_code == 405003) {
         location.href = location.origin;
         localStorage.setItem('token', '');
         this.$notify()

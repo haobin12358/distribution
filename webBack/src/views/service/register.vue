@@ -99,7 +99,7 @@
             <el-table-column prop="IRIphonenum" align="center" label="手机号" width="120"></el-table-column>
             <el-table-column prop="IRIwechat" align="center" label="微信" width="120"></el-table-column>
             <el-table-column prop="IRIpayamount" align="center" label="注册金" width="120"></el-table-column>
-            <el-table-column prop="IRIpayamount" align="center" label="状态" width="120">
+            <el-table-column align="center" label="状态" width="120">
                 <template slot-scope="scope">
                     {{statusToTxt(scope.row.IRIstatus)}}
                 </template>
