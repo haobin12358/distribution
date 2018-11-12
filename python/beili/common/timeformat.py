@@ -31,11 +31,17 @@ def get_web_time_str(time_str, formattype=format_for_web_second):
     return datetime.datetime.strptime(time_str, format_for_db).strftime(formattype)
 
 def get_random_str(length=6):
-    str = ''
-    result = random.sample('zyxwvutsrqponmlkjihgfedcba0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', length)
-    for i in result:
-        str = str + i
-    return str
+    str_result = ''
+    for i in range(length):
+        str_result = str_result + str(
+            random.sample('zyxwvutsrqponmlkjihgfedcba0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 1)[0])
+    return str_result
+
+def get_random_int(length=6):
+    str_result = ''
+    for i in range(length):
+        str_result = str_result + str(random.sample('0123456789', 1)[0])
+    return str_result
 
 
 if __name__ == "__main__":

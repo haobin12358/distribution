@@ -1,6 +1,7 @@
 # *- coding:utf8 *-
 import sys
 import os
+import uuid
 from service.SBase import SBase, close_session
 from models.model import Product, ProductCategory, SowingMap
 from sqlalchemy import func
@@ -97,19 +98,19 @@ class SGoods(SBase):
         return True
     @close_session
     def get_product_category_list(self, Parentid):
-        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAstatus).filter_by(Parentid=Parentid).all()
+        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAstatus).filter_by(Parentid=Parentid).filter_by(PAstatus=True).all()
     @close_session
     def get_first_product_category_status(self, Parentid):
-        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAstatus).filter_by(Parentid=Parentid).all()
+        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAstatus).filter_by(Parentid=Parentid).filter_by(PAstatus=True).all()
     @close_session
     def get_first_product_category(self, Parentid):
-        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAtype).filter_by(Parentid=Parentid).all()
+        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.PAtype).filter_by(Parentid=Parentid).filter_by(PAstatus=True).all()
     @close_session
     def get_child_product_category(self, Parentid):
-        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.Parentid).filter_by(Parentid=Parentid).all()
+        return self.session.query(ProductCategory.PAid, ProductCategory.PAname, ProductCategory.Parentid).filter_by(Parentid=Parentid).filter_by(PAstatus=True).all()
     @close_session
     def get_product_category(self, PAid):
-        return self.session.query(ProductCategory.PAstatus).filter_by(PAid=PAid).all()
+        return self.session.query(ProductCategory.PAstatus).filter_by(PAid=PAid).filter_by(PAstatus=True).all()
     @close_session
     def add_product_category(self, PAid, PAname, PAtype, Parentid=0):
         #添加商品分类
@@ -133,18 +134,23 @@ class SGoods(SBase):
     def get_product_by_paid(self, paid):
         return self.session.query(Product.PRid).filter(Product.PAid == paid).all()
 
-class SSowing(SBase):
-    def __init__(self):
-        super(SSowing, self).__init__()
     @close_session
-    def get_url_by_mall(self, url):
-        return self.session.query(SowingMap.personUrls).filter_by(mallUrls=url).all()
+    def add_sowingmap(self, type, list):
+        for i in list:
+            pic = SowingMap()
+            pic.SMid = str(uuid.uuid4())
+            pic.SMurl = str(i)
+            pic.SMstatus = True
+            pic.SMtype = type
+            self.session.add(pic)
+        return True
+
     @close_session
-    def get_url_by_person(self, url):
-        return self.session.query(SowingMap.mallUrls).filter_by(personUrls=url).all()
+    def get_sowingmap(self):
+        return self.session.query(SowingMap.SMid, SowingMap.SMtype, SowingMap.SMurl)\
+            .filter(SowingMap.SMstatus == 1).all()
+
     @close_session
-    def update_sowingmap_status(self, url, status):
-        return self.session.query(SowingMap).filter_by(mallUrls=url).update(status)
-    @close_session
-    def update_sowingmap_status(self, url, status):
-        return self.session.query(SowingMap).filter_by(personUrls=url).update(status)
+    def update_sowingmap(self, smid):
+        self.session.query(SowingMap).filter(SowingMap.SMid == smid).update({'SMstatus':False})
+        return True

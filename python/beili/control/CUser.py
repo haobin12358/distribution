@@ -22,12 +22,14 @@ from service.DBSession import db_session
 from service.SAccount import SAccount
 from common.beili_error import stockerror, dberror
 from service.SMyCenter import SMyCenter
+from service.SMessage import SMessage
 from datetime import datetime
 from config.urlconfig import get_code
 import random
 from models.model import Amount, User, Reward
 from common.timeformat import format_for_db
 import platform
+from werkzeug.security import generate_password_hash, check_password_hash
 from weixin import WeixinError
 from weixin.login import WeixinLoginError, WeixinLogin
 sys.path.append(os.path.dirname(os.getcwd()))
@@ -39,6 +41,7 @@ class CUser():
         self.suser = SUser()
         self.smycenter = SMyCenter()
         self.saccount = SAccount()
+        self.smessage = SMessage()
 
     def login(self):
         print "hello"
@@ -46,16 +49,29 @@ class CUser():
         if not json_data:
             return PARAMS_ERROR
         usphonenum = json_data.get('usphonenum')
-        uspassword = json_data.get('uspassword')
+        uspassword = str(json_data.get('uspassword'))
         if not usphonenum or not uspassword:
             return PARAMS_MISS
         print type(usphonenum)
         user = get_model_return_dict(self.suser.getuser_by_phonenum(usphonenum))
-        # print "aaaa" + user.USphone + ":" + user.USpassword
-        # print(dir(user))
-        # print user.USphonenum
-        # print type(user.USphonenum)
-        if not user or uspassword != user['USpassword']:
+        # 从注册申请表里查询信息
+        info = get_model_return_dict(self.suser.get_registerrecord_by_phonenum(usphonenum))
+        if info:
+            if int(info['IRIstatus']) == 1:
+                returnbody = {
+                    "status": 405,
+                    "status_code": 405006,
+                    "message": u"您的账户正在审核中，请稍后再试!"
+                }
+                return returnbody
+            if int(info['IRIstatus']) == 3:
+                returnbody = {
+                    "status": 405,
+                    "status_code": 405006,
+                    "message": u"您的账户未审核通过，请联系客服微信:" + WECHATSERVICE
+                }
+                return returnbody
+        if not user or not check_password_hash(user['USpassword'], uspassword):
             return PHONE_OR_PASSWORD_WRONG
         token = usid_to_token(user['USid'])
         data = import_status('generic_token_success', "OK")
@@ -67,17 +83,17 @@ class CUser():
     @verify_token_decorator
     def update_pwd(self):
         if is_tourist():
-            return TOKEN_ERROR(u"未登录")
+            return TOKEN_ERROR
         json_data = request.json
         if not json_data:
             return PARAMS_MISS
         oldpassword = json_data.get('oldpassword')
         newpassword = json_data.get('newpassword')
         user = get_model_return_list(self.suser.getuser_by_uid(request.user.id))
-        if not user or user[0]['USpassword'] != oldpassword:
+        if not user or not check_password_hash(user[0]['USpassword'], oldpassword):
             return PASSWORD_WRONG
         user_update = {}
-        user_update["USpassword"] = newpassword
+        user_update["USpassword"] = generate_password_hash(newpassword)
         self.suser.update_user_by_uid(request.user.id, user_update)
         data = import_status("update_password_success", "OK")
         return data
@@ -101,7 +117,7 @@ class CUser():
         if not user:
             return NOT_FOUND_USER
         user_update = {}
-        user_update["USpassword"] = newpassword
+        user_update["USpassword"] = generate_password_hash(newpassword)
         self.suser.update_user_by_uid(user['USid'], user_update)
         data = import_status("update_password_success", "OK")
         return data
@@ -126,7 +142,7 @@ class CUser():
 
     @verify_token_decorator
     def upload_file(self):
-        if is_ordirnaryuser() or is_admin:
+        if is_ordirnaryuser() or is_admin():
             try:
                 files = request.files.get("file")
             except:
@@ -590,8 +606,7 @@ class CUser():
                 new_user.USphonenum = info['IRIphonenum']
                 new_user.USmount = 0
                 new_user.USbail = 0
-                new_user.USpassword = info['IRIpassword']
-                new_user.USagentid = random.randint(1000, 1000000)
+                new_user.USpassword = generate_password_hash(info['IRIpassword'])
                 session.add(new_user)
 
                 reward = Reward()  # 插入直推奖励表
@@ -602,6 +617,13 @@ class CUser():
                 reward.REmount = REWARD
                 reward.REcreatetime = datetime.strftime(datetime.now(), format_for_db)
                 session.add(reward)
+
+                # 写入代理消息
+                content = u'您推荐的代理已审核通过，直推奖励已累加至当月奖励中'
+                agent_result = self.smessage.create_agentmessage(user['USid']
+                                                    , datetime.strftime(datetime.now(), format_for_db), content, 2)
+                if not agent_result:
+                    return SYSTEM_ERROR
 
                 USname = info['IRIname']  # 插入默认收货地址
                 USphonenum = info['IRIphonenum']

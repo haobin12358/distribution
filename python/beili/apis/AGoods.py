@@ -19,6 +19,7 @@ class AGoods(Resource):
             "get_product": "self.cgoods.get_product()",
             "get_product_category": "self.cgoods.get_product_category()",
             "get_product_category_list":"self.cgoods.get_product_category_list()",
+            'get_sowingmap': 'self.cgoods.get_sowingmap()'
         }
         res = eval(apis[product])
         return res
@@ -32,8 +33,9 @@ class AGoods(Resource):
             "update_category": "self.cgoods.update_category()",
             "delete_category": "self.cgoods.delete_category()",
             "create_update_product":"self.cgoods.create_update_product()",
-            "sowing_map":"self.cgoods.sowing_map()",
-            'withdraw_product': 'self.cgoods.withdraw_product()'
+            "add_sowingmap":"self.cgoods.add_sowingmap()",
+            'withdraw_product': 'self.cgoods.withdraw_product()',
+            'delete_sowingmap': 'self.cgoods.delete_sowingmap()'
         }
         res = eval(apis[product])
         return res

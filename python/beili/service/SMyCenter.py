@@ -182,14 +182,17 @@ class SMyCenter(SBase):
         return self.session.query(Province.provincename, Province.provinceid).filter(Province.provinceid == provinceid).first()
 
     @close_session
-    def add_comment(self, USid, USname, CMcontent, CMcreatetime):
+    def add_comment(self, USid, USname, CMcontent, CMcreatetime, CMisread=False):
         """添加评论"""
         comments = Comments()
         comments.USid = USid
         comments.USname = USname
         comments.CMcontent = CMcontent
         comments.CMcreatetime = CMcreatetime
-        session.add(comments)
+        comments.CMisread = CMisread
+        
+        self.session.add(comments)
+        return True
     @close_session
     def get_comments(self, USname):
         return self.session.query(Comments.CMcontent, Comments.USid).filter_by(USname=USname).all()

@@ -17,7 +17,7 @@ from common.token_required import verify_token_decorator, usid_to_token, is_tour
 from common.import_status import import_status
 from common.timeformat import get_db_time_str
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
-from service.SGoods import SGoods, SSowing
+from service.SGoods import SGoods
 from common.timeformat import get_web_time_str
 import platform
 
@@ -28,7 +28,6 @@ class CGoods():
 
     def __init__(self):
         self.sgoods = SGoods()
-        self.ssowing = SSowing()
 
     #@verify_token_decorator
     def get_product_list(self):
@@ -45,7 +44,7 @@ class CGoods():
         product_list = []
         if PAid == '':
             return PARAMS_ERROR
-        if int(PAid) == 0:
+        if PAid == str(0):
             product_list = get_model_return_list(self.sgoods.admin_get_product(PRstatus, PRname))
         elif int(PAtype) == 1:
             paid_list = get_model_return_list(self.sgoods.get_childid(str(PAid)))
@@ -314,48 +313,58 @@ class CGoods():
 
 
     @verify_token_decorator
-    def sowing_map(self):
+    def add_sowingmap(self):
+        if not is_admin():
+            return TOKEN_ERROR
         try:
             data = request.json
-            sowing_type = data['type']
+            type = data['type']
             urls = data['urls']
         except:
             return PARAMS_ERROR 
-        try:
-            urls_dict = {}
-            
-            if sowing_type == 1:
-                another_urls = []
-                for url in urls:
-                    get_urls = get_model_return_list(self.ssowing.get_url_by_mall(url))
-                    person_url =  get_urls[0]['personUrls']
-                    another_urls.append(person_url)
-                    status = {}
-                    status['SMstatus'] = True
-                    self.ssowing.update_sowingmap_status(url, status)
-                urls_dict['mallUrls'] = urls
-                urls_dict['personUrls'] = another_urls
-            if sowing_type == 2:
-                another_urls = []
-                for url in urls:
-                    get_urls = get_model_return_list(self.ssowing.get_url_by_person(url))
-                    mall_url = get_urls[0]['mallUrls']
-                    another_urls.append(mall_url)
-                    status = {}
-                    status['SMstatus'] = True
-                    self.ssowing.update_sowingmap_status(url, status)
-                urls_dict['mallUrls'] = another_urls
-                urls_dict['personUrls'] = urls
-
-
-
-        except Exception as e :
-            print Exception
-            return PARAMS_MISS
-        response = import_status("get_sowing_map_success", "OK")
-        response["data"] =urls_dict
+        if int(type) < 0:
+            return PARAMS_ERROR
+        result = self.sgoods.add_sowingmap(type, urls)
+        if not result:
+            return SYSTEM_ERROR
+        response = import_status("add_sowingmap_success", "OK")
         return response
 
+    @verify_token_decorator
+    def get_sowingmap(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        mallUrls = []
+        personUrls = []
+        list = get_model_return_list(self.sgoods.get_sowingmap())
+        for pic in list:
+            if pic['SMtype'] == 1:
+                personUrls.append(pic)
+            if pic['SMtype'] == 2:
+                mallUrls.append(pic)
+        data = {}
+        data['mallUrls'] = mallUrls
+        data['personUrls'] = personUrls
+        response = import_status("get_sowingmap_success", "OK")
+        response['data'] = data
+        return response
+
+    @verify_token_decorator
+    def delete_sowingmap(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            smid = data.get('smid')
+        except:
+            return PARAMS_ERROR
+        if not smid:
+            return PARAMS_MISS
+        result = self.sgoods.update_sowingmap(smid)
+        if not result:
+            return SYSTEM_ERROR
+        response = import_status("delete_sowingmap_success", "OK")
+        return response
 
 
     def json_param_miss(self, type):

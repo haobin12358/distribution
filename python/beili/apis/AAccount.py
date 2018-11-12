@@ -35,6 +35,9 @@ class AAccount(Resource):
             'pay_callback': 'self.caccount.pay_callback()'
         }
         res = eval(apis[account])
+        if account == 'pay_callback':
+            print " pay_callback response" , res
+            return res
         return jsonify(res)
 
     def get(self, account):

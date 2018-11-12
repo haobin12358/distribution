@@ -20,6 +20,18 @@ class SMessage(SBase):
         return list, mount
 
     @close_session
+    def create_agentmessage(self, usid, time, content, type):
+        agent = AgentMessage()
+        agent.AMid = str(uuid.uuid4())
+        agent.USid = usid
+        agent.AMdate = time
+        agent.AMcontent = content
+        agent.AMtype = type
+        self.session.add(agent)
+        return True
+
+
+    @close_session
     def get_alreadyMessage_by_usid(self, usid):
         return self.session.query(AlreadyRead.ARid, AlreadyRead.ARmessageid).filter(AlreadyRead.USid == usid).all()
 
