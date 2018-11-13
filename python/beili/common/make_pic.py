@@ -16,9 +16,9 @@ def make_pic(name, wechat, idcardnum):
     print(im.format, im.size, im.mode)
     draw = ImageDraw.Draw(im)  # 修改图片
     ttfont = ImageFont.truetype("/home/www/楷体GB2312.ttf", 50)
-    draw.text((630, 985), unicode(name,'utf-8'), fill=(0, 0, 0), font=ttfont, anchor=2)
-    draw.text((720, 1075), unicode(wechat, 'utf-8'), fill=(0, 0, 0), font=ttfont, anchor=2)
-    draw.text((720, 1170), unicode(idcardnum, 'utf-8'), fill=(0, 0, 0), font=ttfont, anchor=2)
+    draw.text((630, 985), name.encode("utf-8"), fill=(0, 0, 0), font=ttfont, anchor=2)
+    draw.text((720, 1075), wechat, fill=(0, 0, 0), font=ttfont, anchor=2)
+    draw.text((720, 1170), idcardnum, fill=(0, 0, 0), font=ttfont, anchor=2)
     draw.text((720, 1270), unicode(id, 'utf-8'), fill=(0, 0, 0), font=ttfont, anchor=2)
     ttfont = ImageFont.truetype("/home/www/楷体GB2312.ttf", 40)
     draw.text((900, 1760), unicode(starttime, 'utf-8'), fill=(0, 0, 0), font=ttfont, anchor=2)
