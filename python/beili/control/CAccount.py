@@ -22,6 +22,7 @@ from service.SGoods import SGoods
 from service.SMyCenter import SMyCenter
 from service.DBSession import db_session
 from service.SAccount import SAccount
+from configparser import ConfigParser
 from config.urlconfig import get_code
 import platform
 from common.beili_error import stockerror, dberror
@@ -1107,4 +1108,25 @@ class CAccount():
         finally:
             session.close()
         response = import_status("update_discountruler_success", "OK")
+        return response
+
+    @verify_token_decorator
+    def get_configure(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        conf = ConfigParser()
+        conf.read('config/setting.ini')
+        user_dict = {}
+        user_dict['alipaynum'] = conf.get('account', 'alipaynum')
+        user_dict['alipayname'] = conf.get('account', 'alipayname')
+        user_dict['bankname'] = conf.get('account', 'bankname')
+        user_dict['accountname'] = conf.get('account', 'accountname')
+        user_dict['cardnum'] = conf.get('account', 'cardnum')
+        user_dict['agentmoney'] = float(conf.get('account', 'money'))
+        user_dict['wechat'] = conf.get('account', 'service')
+        user_dict['drawbank'] = conf.get('account', 'drawbank')
+        user_dict['bail'] = float(conf.get('account', 'bail'))
+        user_dict['reward'] = float(conf.get('account', 'reward'))
+        response = import_status("get_registerinfo_success", "OK")
+        response['data'] = user_dict
         return response
