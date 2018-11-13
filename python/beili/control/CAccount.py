@@ -108,9 +108,9 @@ class CAccount():
             for i in range(0, len(ruler_list)):
                 if i < (len(ruler_list) - 1) :
                     if num >= ruler_list[i]['DRnumber'] and num < ruler_list[i+1]['DRnumber']:
-                        return ruler_list[i]['DRratio']
+                        return ruler_list[i]['DRmoney']
                 else:
-                    return ruler_list[len(ruler_list)-1]['DRratio']
+                    return ruler_list[len(ruler_list)-1]['DRmoney']
 
     @verify_token_decorator
     def get_rank_list(self):  # 获取业绩列表
