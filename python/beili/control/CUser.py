@@ -734,6 +734,8 @@ class CUser():
             if not user:
                 return SYSTEM_ERROR
             url = make_pic(user['USname'], user['USwechat'], user['idcardnum'])
+            update = {'authorization': url}
+            self.suser.update_user_by_uid(request.user.id, update)
             response = import_status("get_authorization_success", "OK")
             response['data'] = {
                 "url": url
