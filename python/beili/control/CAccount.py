@@ -7,7 +7,7 @@ import random
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR, STOCK_NOT_ENOUGH,\
-        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_USER, NOT_FOUND_OPENID, NOT_FOUND_RECORD, MONEY_ERROR
+        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_USER, NOT_FOUND_OPENID, NOT_FOUND_RECORD, MONEY_ERROR, REPERT_NUMBER
 from config.setting import QRCODEHOSTNAME, DRAWBANK, BAIL, APP_ID, MCH_ID, MCH_KEY, notify_url
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
@@ -1085,10 +1085,14 @@ class CAccount():
         except:
             return PARAMS_ERROR
         session = db_session()
+        all_number = []
         try:
             session.query(DiscountRuler).delete()
             for ruler in rulers:
                 number = float(ruler['number'])
+                if number in all_number:
+                    return REPERT_NUMBER
+                all_number.append(number)
                 money = float(ruler['money'])
                 discount = DiscountRuler()
                 discount.DRid = str(uuid.uuid4())

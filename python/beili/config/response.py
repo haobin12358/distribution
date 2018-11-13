@@ -161,6 +161,14 @@ MONEY_ERROR = {
     "status_code": 405032,
     "message": "金额核对出错"
 }
+REPERT_NUMBER = {
+    'status': 405,
+    'status_code': 405033,
+    'message': '达标件数重复，请检查数据！'
+}
+
+
+
 ADMINNUM_ERROR = {
     "status": 405,
     "status_code": 405100,
