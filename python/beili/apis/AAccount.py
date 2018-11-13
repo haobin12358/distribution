@@ -33,7 +33,7 @@ class AAccount(Resource):
             'deal_reward_discount': 'self.caccount.deal_reward_discount()',
             'weixin_pay': 'self.caccount.weixin_pay()',
             'pay_callback': 'self.caccount.pay_callback()',
-            'update_accounts': 'self.caccount.update_accounts()',
+            'update_configure': 'self.caccount.update_configure()',
             'update_discountruler': 'self.caccount.update_discountruler()'
         }
         res = eval(apis[account])

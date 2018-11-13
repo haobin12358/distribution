@@ -19,10 +19,10 @@ def make_pic(name, wechat, idcardnum):
     draw.text((630, 985), name, fill=(0, 0, 0), font=ttfont, anchor=2)
     draw.text((720, 1075), wechat, fill=(0, 0, 0), font=ttfont, anchor=2)
     draw.text((720, 1170), idcardnum, fill=(0, 0, 0), font=ttfont, anchor=2)
-    draw.text((720, 1270), unicode(id, 'utf-8'), fill=(0, 0, 0), font=ttfont, anchor=2)
+    draw.text((720, 1270), id, fill=(0, 0, 0), font=ttfont, anchor=2)
     ttfont = ImageFont.truetype("/home/www/楷体GB2312.ttf", 40)
-    draw.text((900, 1760), unicode(starttime, 'utf-8'), fill=(0, 0, 0), font=ttfont, anchor=2)
-    draw.text((1160, 1760), unicode(endtime, 'utf-8'), fill=(0, 0, 0), font=ttfont, anchor=2)
+    draw.text((900, 1760), starttime, fill=(0, 0, 0), font=ttfont, anchor=2)
+    draw.text((1160, 1760), endtime, fill=(0, 0, 0), font=ttfont, anchor=2)
     if platform.system() == "Windows":
         rootdir = "D:/task"
     else:

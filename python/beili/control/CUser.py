@@ -11,7 +11,7 @@ from flask import request
 from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
     NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR, NOT_FOUND_FILE, DELETE_CODE_FAIL, \
     NOT_FOUND_QRCODE, HAS_REGISTER, NO_BAIL, BAD_ADDRESS
-from config.setting import QRCODEHOSTNAME, BAIL, WECHATSERVICE, APP_ID, APP_SECRET, REWARD, SERVER
+from config.setting import QRCODEHOSTNAME, APP_ID, APP_SECRET, SERVER
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser, is_temp, is_admin
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
@@ -70,7 +70,7 @@ class CUser():
                 returnbody = {
                     "status": 405,
                     "status_code": 405006,
-                    "message": u"您的账户未审核通过，请联系客服微信:" + WECHATSERVICE
+                    "message": u"您的账户未审核通过，请联系客服微信:" + self.conf.get('account', 'service')
                 }
                 return returnbody
         if not user or not check_password_hash(user['USpassword'], uspassword):
@@ -245,7 +245,7 @@ class CUser():
             .get_user_basicinfo(result['USid']) else None
         if not user_info:
             return NOT_FOUND_USER
-        if user_info['USbail'] < BAIL:
+        if user_info['USbail'] < float(self.conf.get('account', 'bail')):
             return NO_BAIL
         else:
             response = {}
@@ -283,7 +283,7 @@ class CUser():
                 .get_user_basicinfo(request.user.id) else None
         if not user_info:
             return NOT_FOUND_USER
-        if user_info['USbail'] < BAIL:
+        if user_info['USbail'] < float(self.conf.get('account', 'bail')):
             return NO_BAIL
         result = self.suser.add_qrcode(str(uuid.uuid4()), request.user.id, date, number)
         if result:
@@ -350,7 +350,7 @@ class CUser():
             user_dict['bankname'] = self.conf.get('account', 'bankname')
             user_dict['accountname'] = self.conf.get('account', 'accountname')
             user_dict['cardnum'] = self.conf.get('account', 'cardnum')
-            user_dict['money'] = self.conf.get('account', 'money')
+            user_dict['money'] = float(self.conf.get('account', 'money'))
             user_dict['service'] = self.conf.get('account', 'service')
             user_dict['drawbank'] = self.conf.get('account', 'drawbank')
             response = import_status("get_registerinfo_success", "OK")
@@ -370,7 +370,7 @@ class CUser():
         user_dict['bankname'] = self.conf.get('account', 'bankname')
         user_dict['accountname'] = self.conf.get('account', 'accountname')
         user_dict['cardnum'] = self.conf.get('account', 'cardnum')
-        user_dict['money'] = self.conf.get('account', 'money')
+        user_dict['money'] = float(self.conf.get('account', 'money'))
         user_dict['service'] = self.conf.get('account', 'service')
         user_dict['drawbank'] = self.conf.get('account', 'drawbank')
         address = self.smycenter.get_user_default_details(usid['USid'])
@@ -579,7 +579,7 @@ class CUser():
                 if amount_data:
                     amount_data = get_model_return_dict(amount_data)
                     new_data = {}
-                    new_data['reward'] = amount_data['reward'] + REWARD
+                    new_data['reward'] = amount_data['reward'] + float(self.conf.get('account', 'reward'))
                     try:
                         session.query(Amount).filter(Amount.USid == user['USid']).update(new_data)
                     except:
@@ -590,7 +590,7 @@ class CUser():
                     amount.AMid = str(uuid.uuid4())
                     amount.USagentid = user['USagentid']
                     amount.USname = user['USname']
-                    amount.reward = REWARD
+                    amount.reward = float(self.conf.get('account', 'reward'))
                     amount.AMstatus = 1
                     amount.USheadimg = user['USheadimg']
                     amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
@@ -620,7 +620,7 @@ class CUser():
                 reward.RElastuserid = user['USid']
                 reward.REnextuserid = new_userid
                 reward.REmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
-                reward.REmount = REWARD
+                reward.REmount = float(self.conf.get('account', 'reward'))
                 reward.REcreatetime = datetime.strftime(datetime.now(), format_for_db)
                 session.add(reward)
 
