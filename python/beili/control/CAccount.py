@@ -1127,6 +1127,6 @@ class CAccount():
         user_dict['drawbank'] = conf.get('account', 'drawbank')
         user_dict['bail'] = float(conf.get('account', 'bail'))
         user_dict['reward'] = float(conf.get('account', 'reward'))
-        response = import_status("get_registerinfo_success", "OK")
+        response = import_status("get_configure_success", "OK")
         response['data'] = user_dict
         return response
