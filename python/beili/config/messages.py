@@ -82,4 +82,5 @@ get_thismonth_agentnum_success = "获取当月新增代理数成功"
 deal_comment_success = "处理评论成功"
 update_account_success = "修改账户信息成功"
 get_discountruler_success = "获取折扣规则成功"
+update_discountruler_success = "修改折扣规则成功"
 

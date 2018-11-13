@@ -31,7 +31,7 @@ from weixin.login import WeixinLoginError, WeixinLogin
 from weixin.pay import WeixinPay, WeixinPayError
 from common.timeformat import format_for_db, get_random_str, format_for_db_no_HMS, get_random_int\
     , format_forweb_no_HMS, format_for_dbmonth
-from models.model import User, AgentMessage, BailRecord
+from models.model import User, DiscountRuler, BailRecord
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -1073,4 +1073,34 @@ class CAccount():
         list = get_model_return_list(self.saccount.get_discountruler())
         response = import_status("get_discountruler_success", "OK")
         response['data'] = list
+        return response
+
+    @verify_token_decorator
+    def update_discountruler(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            rulers = data.get('ruler')
+        except:
+            return PARAMS_ERROR
+        session = db_session()
+        try:
+            session.query(DiscountRuler).delete()
+            for ruler in rulers:
+                number = float(ruler['number'])
+                money = float(ruler['money'])
+                discount = DiscountRuler()
+                discount.DRid = str(uuid.uuid4())
+                discount.DRnumber = number
+                discount.DRmoney = money
+                session.add(discount)
+            session.commit()
+        except Exception as e:
+            print e
+            session.rollback()
+            return SYSTEM_ERROR
+        finally:
+            session.close()
+        response = import_status("update_discountruler_success", "OK")
         return response
