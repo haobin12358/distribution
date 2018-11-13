@@ -182,3 +182,7 @@ class SUser(SBase):
     def get_thismonth_agentnum(self, starttime, endtime):
         return self.session.query(func.count(User.USid)).filter(User.UScreatetime >= starttime).filter(User
                                                         .UScreatetime < endtime).scalar()
+
+    @close_session
+    def get_authorization(self, id):
+        return self.session.query(User.authorization).filter(User.USid == id).first()

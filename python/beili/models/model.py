@@ -33,7 +33,9 @@ class User(Base):
     USmount = Column(DECIMAL)                      # 账户余额
     USpre = Column(String(64))                   # 上级代理id
     UScreatetime = Column(String(14))            # 创建时间
+    authorization = Column(String(512))          # 认证书url
     USwechat = Column(String(64))                # 用户微信号,暂时不用
+    idcardnum = Column(String(20))               # 身份证号
     openid = Column(String(64))                  # 微信唯一值
     state = Column(String(128))                  # 用于获取openid
     unionid = Column(String(255))                # 绑定公众号会出现,暂时不用
@@ -401,6 +403,7 @@ class Comments(Base):
     CMcontent = Column(String(512))  # 用户评论内容
     CMcreatetime = Column(String(14))  # 评论创建创建时间
     CMstatus = Column(Integer, default=1)  # 1未处理 2已处理
+
 
 class test(Base):
     """

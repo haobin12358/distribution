@@ -11,6 +11,7 @@ from flask import request
 from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
     NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR, NOT_FOUND_FILE, DELETE_CODE_FAIL, \
     NOT_FOUND_QRCODE, HAS_REGISTER, NO_BAIL, BAD_ADDRESS
+from config.setting import QRCODEHOSTNAME, BAIL, WECHATSERVICE, APP_ID, APP_SECRET, REWARD, SERVER
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser, is_temp, is_admin
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
@@ -364,15 +365,14 @@ class CUser():
             return NOT_FOUND_USER
         user = get_model_return_dict(user)
         user_dict = {}
-        user_dict['name'] = user['USname']
-        user_dict['USphonenum'] = user['USphonenum']
-        user_dict['alipaynum'] = ALIPAYNUM
-        user_dict['alipayname'] = ALIPAYNAME
-        user_dict['bankname'] = BANKNAME
-        user_dict['accountname'] = COUNTNAME
-        user_dict['cardnum'] = CARDNUM
-        user_dict['money'] = MONEY
-        user_dict['service'] = WECHATSERVICE
+        user_dict['alipaynum'] = self.conf.get('account', 'alipaynum')
+        user_dict['alipayname'] = self.conf.get('account', 'alipayname')
+        user_dict['bankname'] = self.conf.get('account', 'bankname')
+        user_dict['accountname'] = self.conf.get('account', 'accountname')
+        user_dict['cardnum'] = self.conf.get('account', 'cardnum')
+        user_dict['money'] = self.conf.get('account', 'money')
+        user_dict['service'] = self.conf.get('account', 'service')
+        user_dict['drawbank'] = self.conf.get('account', 'drawbank')
         address = self.smycenter.get_user_default_details(usid['USid'])
         if address:
             address = get_model_return_dict(address)
@@ -609,6 +609,8 @@ class CUser():
                 new_user.USphonenum = info['IRIphonenum']
                 new_user.USmount = 0
                 new_user.USbail = 0
+                new_user.USwechat = info['IRIwechat']
+                new_user.idcardnum = info['IRIidcardnum']
                 new_user.UScreatetime = datetime.strftime(datetime.now(), format_for_db)
                 new_user.USpassword = generate_password_hash(info['IRIpassword'])
                 session.add(new_user)
@@ -714,3 +716,27 @@ class CUser():
         self.suser.update_user_by_state(state_list[0], update)
         # response = import_status("get_openid_success", "OK")
         return flask.redirect(state_list[1])
+
+    @verify_token_decorator
+    def get_authorization(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        result = get_model_return_dict(self.suser.get_authorization(request.user.id)) if\
+                self.suser.get_authorization(request.user.id) else None
+        if result:
+            response = import_status("get_authorization_success", "OK")
+            response['data'] = {
+                "url": result['authorization']
+            }
+        else:
+            from common.make_pic import make_pic
+            user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
+            if not user:
+                return SYSTEM_ERROR
+            url = make_pic(user['USname'], user['USwechat'], user['idcardnum'])
+            response = import_status("get_authorization_success", "OK")
+            response['data'] = {
+                "url": url
+            }
+
+
