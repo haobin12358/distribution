@@ -723,7 +723,7 @@ class CUser():
             return TOKEN_ERROR
         result = get_model_return_dict(self.suser.get_authorization(request.user.id)) if\
                 self.suser.get_authorization(request.user.id) else None
-        if result:
+        if result['authorization']:
             response = import_status("get_authorization_success", "OK")
             response['data'] = {
                 "url": result['authorization']
