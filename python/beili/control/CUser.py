@@ -11,8 +11,6 @@ from flask import request
 from config.response import PARAMS_MISS, PHONE_OR_PASSWORD_WRONG, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR,\
     NOT_FOUND_IMAGE, PASSWORD_WRONG, NOT_FOUND_USER, INFORCODE_WRONG, SYSTEM_ERROR, NOT_FOUND_FILE, DELETE_CODE_FAIL, \
     NOT_FOUND_QRCODE, HAS_REGISTER, NO_BAIL, BAD_ADDRESS
-from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM, MONEY, BAIL, \
-    WECHATSERVICE, REWARD, REDIRECT_URI, APP_ID, APP_SECRET, SERVER
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_ordirnaryuser, is_temp, is_admin
 from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
@@ -27,6 +25,7 @@ from datetime import datetime
 from config.urlconfig import get_code
 import random
 from models.model import Amount, User, Reward
+from configparser import ConfigParser
 from common.timeformat import format_for_db
 import platform
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -42,6 +41,8 @@ class CUser():
         self.smycenter = SMyCenter()
         self.saccount = SAccount()
         self.smessage = SMessage()
+        self.conf = ConfigParser()
+        self.conf.read('config/setting.ini')
 
     def login(self):
         print "hello"
@@ -340,15 +341,17 @@ class CUser():
             qrcodeid = str(data.get('qrid'))
         except:
             return PARAMS_ERROR
+
         if not qrcodeid:
             user_dict = {}
-            user_dict['alipaynum'] = ALIPAYNUM
-            user_dict['alipayname'] = ALIPAYNAME
-            user_dict['bankname'] = BANKNAME
-            user_dict['accountname'] = COUNTNAME
-            user_dict['cardnum'] = CARDNUM
-            user_dict['money'] = MONEY
-            user_dict['service'] = WECHATSERVICE
+            user_dict['alipaynum'] = self.conf.get('account', 'alipaynum')
+            user_dict['alipayname'] = self.conf.get('account', 'alipayname')
+            user_dict['bankname'] = self.conf.get('account', 'bankname')
+            user_dict['accountname'] = self.conf.get('account', 'accountname')
+            user_dict['cardnum'] = self.conf.get('account', 'cardnum')
+            user_dict['money'] = self.conf.get('account', 'money')
+            user_dict['service'] = self.conf.get('account', 'service')
+            user_dict['drawbank'] = self.conf.get('account', 'drawbank')
             response = import_status("get_registerinfo_success", "OK")
             response['data'] = user_dict
             return response

@@ -11,6 +11,8 @@ from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR
 from config.setting import QRCODEHOSTNAME, DRAWBANK, BAIL, APP_ID, MCH_ID, MCH_KEY, notify_url
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
+#from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM, MONEY, BAIL, \
+ #   WECHATSERVICE, REWARD, REDIRECT_URI, APP_ID, APP_SECRET, SERVER, CHARGEBANKNAME
 from common.timeformat import get_db_time_str, get_web_time_str
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
 from service.SUser import SUser
@@ -295,7 +297,7 @@ class CAccount():
         try:
             data = request.json
             for param in params_list:
-                if param not in params_list:
+                if param not in data:
                     PARAMS_ERROR = {
                         "param": param,
                         "status": 405,
@@ -1026,4 +1028,49 @@ class CAccount():
             "num": num
         }
         response['data'] = data
+        return response
+
+    @verify_token_decorator
+    def update_accounts(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        params_list = ['alipaynum', 'alipayname', 'bankname', 'accountname', 'cardnum', 'agentmoney', 'wechat', 'drawbank'
+            , 'bail', 'reward']
+        try:
+            data = request.json
+            for param in params_list:
+                if param not in data:
+                    params_miss = {
+                        "param": param,
+                        "status": 405,
+                        "status_code": 405002,
+                        "message": u"参数错误"
+                    }
+                    return params_miss
+        except:
+            return PARAMS_ERROR
+        alipaynum = data.get('alipaynum')
+        alipayname = data.get('alipayname')
+        bankname = data.get('bankname')
+        accountname = data.get('accountname')
+        cardnum = data.get('cardnum')
+        money = data.get('agentmoney')
+        service = data.get('wechat')
+        drawbank = data.get('drawbank')
+        bail = data.get('bail')
+        reward = data.get('reward')
+        from config.modify_setting import modify
+        result = modify(alipaynum, alipayname, bankname, accountname, cardnum, money, service, drawbank, bail, reward)
+        if not result:
+            return SYSTEM_ERROR
+        response = import_status("update_account_success", "OK")
+        return response
+
+    @verify_token_decorator
+    def get_discountruler(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        list = get_model_return_list(self.saccount.get_discountruler())
+        response = import_status("get_discountruler_success", "OK")
+        response['data'] = list
         return response

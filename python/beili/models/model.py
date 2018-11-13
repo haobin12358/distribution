@@ -258,7 +258,7 @@ class DiscountRuler(Base):
     __tablename__ = 'discountruler'
     DRid = Column(String(64), primary_key=True)
     DRnumber = Column(Float)  # 数量
-    DRratio = Column(Float)  # 折扣比例
+    DRmoney = Column(Float)  # 折扣金额
 
 class WeixinCharge(Base):
     """
