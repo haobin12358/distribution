@@ -4,7 +4,7 @@
     .container {
         min-height: 100vh;
         padding-top: 20px;
-        padding-bottom: 100px;
+        padding-bottom: 120px;
 
         .container-hd {
             margin: 0 auto 20px;
@@ -38,7 +38,7 @@
                 .item-hd {
                     .fj();
                     padding-bottom: 11px;
-                    border-bottom: 1px solid #DBDBDB;
+                    border-bottom: 2px solid #DBDBDB;
 
                     .message-new {
                         .wl(38px, 38px);

@@ -3,21 +3,29 @@
 
     .container {
         .bgw();
+        .least-full-screen();
 
         .month-picker {
-            padding: 0 211px;
+            padding: 0 12px;
             margin-top: 22px;
             margin-bottom: 50px;
             .fj();
             align-items: center;
 
-            .arrow {
-                .wl(20px, 30px);
+            .arrow-wrap {
+                flex: 1;
+                .arrow {
+                    .wl(26px, 39px);
+                }
+
+                &:last-of-type{
+                    .fj(flex-end);
+                }
             }
 
             .date {
-                color: @mainColor;
-                .fontc(30px);
+                .sc(39px, @mainColor);
+                .fontc(39px);
 
             }
         }
@@ -25,42 +33,34 @@
         .sale-info-total {
             text-align: center;
             color: black;
-            /*margin-bottom: 54px;*/
+            margin-bottom: 24px;
             border-bottom: 1px solid @mainFontColor;
 
             .row-one {
-                .sc(80px, black);
-                font-weight: bold;
+                .sc(80px, #303133);
                 margin-bottom: 27px;
 
-                .unit {
-                    .fz(40px);
-                }
             }
 
             .row-two {
                 .fj();
-                padding: 0 115px;
-                margin-bottom: 33px;
+                /*margin-bottom: 33px;*/
 
-                .row-two-section {
-                    .title {
-                        margin-bottom: 14px;
-                    }
-                    .value {
-                        .fz(40px);
-                        font-weight: bold;
-                        margin-bottom: 33px;
+                .money-item{
+                    flex: 1;
+                    border: 1px solid #DCDFE6;
+                    padding: 10px 0;
+                    .fjc();
+                    .sc(32px, #303133);
 
-                    }
-
-                    .sale-num-title, .sale-num-value {
-                        line-height: 44px;
-                        color: #F56C6C;
+                    .label{
+                        margin-bottom: 10px;
 
                     }
-                    .sale-num-value{
+                    .value{
+
                     }
+
                 }
             }
 
@@ -92,7 +92,7 @@
                 color: black;
                 border-bottom: 1px solid @mainFontColor;
 
-                .customer-img{
+                .customer-img {
                     .wl(80px, 80px);
                     border-radius: 50%;
                     margin-right: 30px;
@@ -100,14 +100,20 @@
                     box-sizing: border-box;
                 }
 
-                .customer-name{
+                .customer-name {
                     flex: 1;
                 }
 
-                .sale-num{
+                .sale-num {
 
                 }
             }
+
+        }
+
+        .record-list-none-tip{
+            text-align: center;
+            .fz(28px);
 
         }
     }
@@ -118,31 +124,36 @@
         <header-top :show-back="true"></header-top>
 
         <section class="month-picker">
-            <img src="/static/images/datepicker-left.png" @click="prevMonth" alt="" class="arrow">
+            <section class="arrow-wrap" @click="prevMonth">
+                <img src="/static/images/datepicker-left.png"  alt="" class="arrow">
+            </section>
             <span class="date">{{pickerMonth}}</span>
-            <img src="/static/images/datepicker-right.png" @click="nextMonth" alt="" class="arrow">
+            <section class="arrow-wrap" @click="nextMonth">
+                <img src="/static/images/datepicker-right.png" alt="" class="arrow">
+            </section>
         </section>
 
         <section class="sale-info-total">
             <p class="row-one">
-                <span class="unit">￥</span>{{saleDetail.myprofit || 0}}
+                ￥{{saleDetail.myprofit || 0}}
             </p>
             <section class="row-two">
-                <section class="row-two-section">
-                    <p class="title">直推奖励</p>
-                    <p class="value">{{saleDetail.reward || 0}}</p>
-                    <p class="sale-num-title title">销售量</p>
-
+                <section class="money-item">
+                    <span class="label">直推奖励</span>
+                    <span class="value">￥{{saleDetail.reward || 0}}</span>
                 </section>
-                <section class="row-two-section">
-                    <p class="title">销售件数返点</p>
-                    <p class="value">{{saleDetail.discount || 0}}</p>
-                    <p class="sale-num-value value">{{saleDetail.performance || 0}}<span class="unit">件</span></p>
+                <section class="money-item">
+                    <span class="label">销售量</span>
+                    <span class="value">￥{{saleDetail.performance || 0}}</span>
+                </section>
+                <section class="money-item">
+                    <span class="label">销售件数返点</span>
+                    <span class="value">￥{{saleDetail.discount || 0}}</span>
                 </section>
             </section>
         </section>
 
-        <ul class="sale-record-list">
+        <ul class="sale-record-list" v-if="rankList.length">
             <li class="sale-record-item" v-for="item in rankList">
                 <img class="customer-img" :src="item.USheadimg" alt="">
 
@@ -152,6 +163,11 @@
                 <span class="sale-num">业绩:{{item.performance}}件</span>
             </li>
         </ul>
+
+        <p v-else class="record-list-none-tip">
+            当月没有销售排行数据
+        </p>
+
     </div>
 </template>
 
@@ -170,46 +186,46 @@
             }
         },
 
-        computed:{
-          pickerMonth(){
-              let nowDate = new Date(this.now);
-              let month = nowDate.getFullYear() + '-' ;
+        computed: {
+            pickerMonth() {
+                let nowDate = new Date(this.now);
+                let month = nowDate.getFullYear() + '-';
 
-              if(nowDate.getMonth()+1 < 10){
-                  month += '0'+ (nowDate.getMonth()+1);
-              }else{
-                  month += (nowDate.getMonth()+1);
-              }
+                if (nowDate.getMonth() + 1 < 10) {
+                    month += '0' + (nowDate.getMonth() + 1);
+                } else {
+                    month += (nowDate.getMonth() + 1);
+                }
 
-              return month;
-          }
+                return month;
+            }
         },
 
         components: {},
 
         methods: {
-            prevMonth(){
+            prevMonth() {
                 this.now = new Date(this.now).setDate(-1);
                 this.setData();
             },
 
-            nextMonth(){
+            nextMonth() {
                 this.now = new Date(this.now).setDate(32);
                 this.setData();
             },
-            setData(){
+            setData() {
                 let month = this.pickerMonth.replace('-', '');
 
                 getAccount(month).then(
                     resData => {
-                        if(resData){
+                        if (resData) {
                             this.saleDetail = resData.data;
                         }
                     }
                 );
                 getRankList(month).then(
                     resData => {
-                        if(resData){
+                        if (resData) {
                             this.rankList = resData.data;
                         }
                     }
@@ -217,7 +233,7 @@
             }
         },
 
-        created(){
+        created() {
             this.setData();
         }
     }

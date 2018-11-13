@@ -2,16 +2,7 @@
     @import "../../common/css/index";
 
     .container {
-
-        .go-withdraw-cash {
-            width: 129px;
-            height: 36px;
-            border: 1px solid rgba(255, 255, 255, 1);
-            border-radius: 20px;
-            .fontc(36px);
-            .sc(24px, white);
-            background: @mainColor;
-        }
+        .least-full-screen();
 
         .bank-balance {
             background: white;
@@ -25,10 +16,11 @@
                     margin-bottom: 41px;
                     .fj();
                     align-items: center;
+                    .fz(26px);
 
                     .margin-money {
                         .margin-money-num {
-                            color: @moneyColor;
+                            .sc(32px, @moneyColor)
                         }
                     }
                 }
@@ -41,10 +33,11 @@
 
             .bank-balance-charge {
                 padding: 20px 5px 20px 20px;
-                border-top: 1px solid @grayBorderColor;
-                border-bottom: 1px solid @grayBorderColor;
+                border-top: 2px solid @grayBorderColor;
+                border-bottom: 2px solid @grayBorderColor;
                 .fj();
                 align-items: center;
+                .fz(26px);
 
                 .left {
 
@@ -59,8 +52,8 @@
                 padding-top: 22px;
 
                 .go-balance-record {
-                    .sc(21px, @mainColor);
-                    .wl(120px, 40px);
+                    .sc(26px, @mainColor);
+                    .wl(140px, 40px);
                     .fontc(28px);
                     background: white;
                     .bd(@mainColor, 30px);
@@ -76,7 +69,7 @@
 
                 .record-hd {
                     padding: 22px 6px 16px;
-                    border-bottom: 1px solid @grayBorderColor;
+                    border-bottom: 2px solid @grayBorderColor;
                     .fj();
 
                     .type {
@@ -105,6 +98,11 @@
                 }
             }
         }
+
+        .record-list-none{
+            text-align: center;
+            .sc(26px, #cccccc);
+        }
     }
 </style>
 
@@ -112,7 +110,7 @@
     <div class="container">
         <header-top :title="$route.meta.title" :showBack="true">
             <section slot="right">
-                <router-link tag="button" to="/withdrawCash" class="go-withdraw-cash">提现</router-link>
+                <router-link tag="button" to="/withdrawCash" class="header-btn">提现</router-link>
             </section>
         </header-top>
 
@@ -140,26 +138,31 @@
             </footer>
         </section>
 
-        <ul class="balance-record-list">
-            <li class="balance-record-item" v-for="item in moneyRecord">
-                <header class="record-hd">
+        <template v-if="moneyRecord.length">
+
+            <ul class="balance-record-list">
+                <li class="balance-record-item" v-for="item in moneyRecord">
+                    <header class="record-hd">
                     <span class="type">
                         类型：{{statusToTxt(item.MRtype)}}
                     </span>
-                    <span class="date">
+                        <span class="date">
                         {{item.MRcreatetime}}
                     </span>
-                </header>
+                    </header>
 
-                <section class="record-bd">
-                    <p class="price">金额：{{item.MRamount}}</p>
-                    <p v-if="item.MRtype == 1">订单号：{{item.MRtradenum}}</p>
-                    <p v-else>流水号：{{item.MRtradenum}}</p>
-                </section>
-            </li>
-        </ul>
-
-        <load-more></load-more>
+                    <section class="record-bd">
+                        <p class="price">金额：{{item.MRamount}}</p>
+                        <p v-if="item.MRtype == 1">订单号：{{item.MRtradenum}}</p>
+                        <p v-else>流水号：{{item.MRtradenum}}</p>
+                    </section>
+                </li>
+            </ul>
+            <load-more></load-more>
+        </template>
+        <p v-else class="record-list-none">
+            有余额变动的收支记录会显示在这
+        </p>
     </div>
 </template>
 

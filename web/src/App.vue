@@ -21,12 +21,17 @@
         created(){
             this.$store.commit('INIT_CART');
             this.$store.commit('INIT_USER_INFO');
+            this.$store.commit('INIT_ADD_TEN_CART_TIP');
             if(!getStore(ALL_AREA)){
                 getAllArea().then(
                     ({data})=>{
                         setStore(ALL_AREA, data);
                     }
                 )
+            }
+
+            if(getStore(TOKEN)){
+                this.$store.dispatch('getSowingMap');
             }
         }
     }

@@ -13,7 +13,7 @@
 
                 .order-item-header {
                     padding-bottom: 16px;
-                    border-bottom: 1px solid @grayBorderColor;
+                    border-bottom: 2px solid @grayBorderColor;
 
                     .row-one {
                         margin-bottom: 4px;
@@ -34,7 +34,7 @@
                 }
 
                 .goods-list {
-                    border-bottom: 1px solid @grayBorderColor;
+                    border-bottom: 2px solid @grayBorderColor;
                     margin-bottom: 10px;
 
                     .goods-item {

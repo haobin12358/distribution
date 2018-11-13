@@ -49,7 +49,7 @@
                       placeholder="请输入开户姓名"></mt-field>
             <mt-field class="form-item" label="卡号" v-model="formData.cardnum" type="number"
                       placeholder="请输入卡号"></mt-field>
-            <mt-field class="form-item" label="金额" v-model="formData.amount" type="number"
+            <mt-field class="form-item" label="金额" v-model="formData.amount" type="number" :disableClear="false"
                       placeholder="请输入金额"></mt-field>
         </section>
 
@@ -93,7 +93,7 @@
                 }
                 if(!this.formData.amount){
                     return '请输入合理的打款金额数字';
-                }else if(!(this.formData.amount >0 && /^[0-9]+([.]{1}[0-9]+){0,1}$/.test(this.formData.amount))){
+                }else if(!(this.formData.amount >= 0.01 && /^[0-9]+([.]{1}[0-9]+){0,1}$/.test(this.formData.amount))){
                     return '请输入合理的打款金额数字'
                 }
 

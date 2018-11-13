@@ -14,6 +14,8 @@ const state = {
     notReadComMsg: 0, // 未读消息数
     cartList: [],   // 购物车数据
     chooseAddress: null,    // 下单时额外选的地址
+    addTenCartTip: true,    //  提示双击增加10个
+    banner: {},     //  轮播图
 
     agentMessages: [],  // 代理消息
     companyMessages: [],    // 公司消息

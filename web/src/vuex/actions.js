@@ -1,10 +1,13 @@
 import {
     getUserBasicInfo,
-    getCompanyMessage, getUserTotalInfo,
+    getCompanyMessage,
+    getUserTotalInfo,
+    getSowingMap,
 } from 'src/api/api'
 import {
     SET_USER_INFO,
     SET_NOT_READ_COM_MSG,
+    SET_BANNER_IMGS,
 } from "./mutation-types"
 
 export default {
@@ -20,4 +23,10 @@ export default {
 
         commit(SET_NOT_READ_COM_MSG, notread);
     },
+    async getSowingMap({commit, state}){
+        let {data} =await getSowingMap();
+
+        commit(SET_BANNER_IMGS, data);
+    },
+
 }

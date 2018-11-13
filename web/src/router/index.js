@@ -7,7 +7,7 @@ import {TOKEN} from "src/common/js/const"
 Vue.use(Router)
 
 const login = r => require.ensure([], () => r(require('../pages/login/login')), 'login')
-const forgetPassword = r => require.ensure([], () => r(require('../pages/login/children/forgetPassword')), 'forgetPassword')
+const forgetPassword = r => require.ensure([], () => r(require('../pages/login/forgetPassword')), 'forgetPassword')
 
 const message = r => require.ensure([], () => r(require('../pages/message/message')), 'message')
 const messageDetail = r => require.ensure([], () => r(require('../pages/message/messageDetail')), 'messageDetail')
@@ -68,13 +68,12 @@ export const constantRouterMap = [
             title: '登录',
 
         },
-        children: [{
-            path: 'forgetPassword',
-            component: forgetPassword,
-            meta: {
-                title: '忘记密码',
-            },
-        },]
+    }, {
+        path: '/forgetPassword',
+        component: forgetPassword,
+        meta: {
+            title: '忘记密码',
+        },
     }, {
         path: '/message',
         component: message,
@@ -100,7 +99,7 @@ export const constantRouterMap = [
             requiresAuth: true
 
         },
-    },{
+    }, {
         path: '/mallOrderDetail',
         component: mallOrderDetail,
         meta: {
@@ -202,7 +201,7 @@ export const constantRouterMap = [
             requiresAuth: true
 
         },
-    },{
+    }, {
         path: '/chargeRecord',
         component: chargeRecord,
         meta: {
@@ -321,7 +320,7 @@ export const constantRouterMap = [
             requiresAuth: false
 
         },
-    },{
+    }, {
         path: '/agentAgreement',
         component: agentAgreement,
         meta: {

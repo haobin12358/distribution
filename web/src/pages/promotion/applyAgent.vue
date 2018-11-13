@@ -68,22 +68,22 @@
         </section>
 
         <section class="main-form">
-            <mt-field label="姓名" v-model="formData.username" placeholder="请输入姓名"></mt-field>
-            <mt-field label="联系电话" v-model="formData.phonenum" type="tel" placeholder="请输入联系电话"></mt-field>
-            <mt-field label="验证码" v-model="formData.inforcode" placeholder="请输入验证码">
+            <mt-field label="姓名" v-model.trim="formData.username" placeholder="请输入姓名"></mt-field>
+            <mt-field label="联系电话" v-model.lazy.number="formData.phonenum" onkeyup="value=value.replace(/[^\d]/g,'')" type="tel" placeholder="请输入联系电话"></mt-field>
+            <mt-field label="验证码" v-model.trim="formData.inforcode" placeholder="请输入验证码">
                 <button class="get-qrcode-btn" :disabled="lastEnableCodeSecond>0" @click="getCode">
                     {{lastEnableCodeSecond>0 ?`剩余${lastEnableCodeSecond}s`: '获取'}}
                 </button>
             </mt-field>
             <mt-field label="密码" v-model="formData.password" type="password" placeholder="请输入登录密码"></mt-field>
             <mt-field label="密码确认" v-model="passwordConfirm" type="password" placeholder="请再次输入登录密码"></mt-field>
-            <mt-field label="微信号" v-model="formData.wechat" placeholder="请输入微信号"></mt-field>
-            <mt-field label="身份证号" v-model="formData.idcardnum" placeholder="请输入身份证号"></mt-field>
+            <mt-field label="微信号" v-model.trim="formData.wechat" placeholder="请输入微信号"></mt-field>
+            <mt-field label="身份证号" v-model.trim="formData.idcardnum" placeholder="请输入身份证号"></mt-field>
             <mt-field label="省市区" placeholder="请选择省市区" v-model="city" :readonly="true"
                       :disableClear="true" @click.native="showCityPopup">
                 <img src="/static/images/arrow_down.png" style="width: 16px;height: 14px;" alt="">
             </mt-field>
-            <mt-field label="详细地址" v-model="formData.details" placeholder="请输入详细地址"></mt-field>
+            <mt-field label="详细地址" v-model.trim="formData.details" placeholder="请输入详细地址"></mt-field>
 
             <mt-field class="form-item" label="打款方式" placeholder="请选择打款方式" v-model="transferWay " :readonly="true"
                       :disableClear="true" @click.native="showTransferWay">
@@ -93,13 +93,13 @@
                       placeholder="请输入打款金额"></mt-field>
 
             <template v-if="formData.paytype == 1">
-                <mt-field class="form-item" v-model="formData.alipaynum" label="支付宝" placeholder="请输入支付宝账号"></mt-field>
+                <mt-field class="form-item" v-model.trim="formData.alipaynum" label="支付宝" placeholder="请输入支付宝账号"></mt-field>
             </template>
             <template v-if="formData.paytype == 2">
-                <mt-field class="form-item" v-model="formData.bankname" label="开户银行" placeholder="请输入开户银行"></mt-field>
-                <mt-field class="form-item" v-model="formData.accountname" label="银行户名"
+                <mt-field class="form-item" v-model.trim="formData.bankname" label="开户银行" placeholder="请输入开户银行"></mt-field>
+                <mt-field class="form-item" v-model.trim="formData.accountname" label="银行户名"
                           placeholder="请输入银行户名"></mt-field>
-                <mt-field class="form-item" v-model="formData.cardnum" type="number" label="银行账号"
+                <mt-field class="form-item" v-model.trim="formData.cardnum" type="number" label="银行账号"
                           placeholder="请输入银行账号"></mt-field>
             </template>
 
@@ -133,7 +133,7 @@
                          :readonly="true"></my-cell>
             </template>
 
-            <my-cell title="客服微信" :value="registerInfo.service" :readonly="true"></my-cell>
+            <my-cell style="text-align: right" title="如有问题请联系微信客服" :value="registerInfo.service" :readonly="true"></my-cell>
         </section>
 
         <section class="my-confirm-btn-wrap" style="margin: 30px 0 60px;">
@@ -160,6 +160,10 @@
         <mt-datetime-picker
             ref="picker"
             type="datetime"
+            month-format="{value} 月"
+            date-format="{value} 日"
+            hour-format="{value} 时"
+            minute-format="{value} 分"
             v-model="datetime"
             :startDate = "startDate"
             :closeOnClickModal="false"
@@ -533,7 +537,9 @@
                                 resData => {
                                     if (resData) {
                                         this.$router.push('/login');
-                                        this.$toast('恭喜您成为蓓莉云仓代理的一员!!!');
+                                        this.$messagebox('您的注册已进入审核状态,我们会尽快处理您的申请,请耐心等待审核!')
+
+                                        // this.$mes('恭喜您成为蓓莉云仓代理的一员!!!');
                                     }
                                 }
                             )

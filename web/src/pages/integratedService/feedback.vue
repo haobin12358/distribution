@@ -25,29 +25,45 @@
             为了给您更好的用户体验，我们期待您的反馈，谢谢！
         </p>
 
-        <textarea class="textarea" placeholder="请填写您的建议和意见" id="" cols="30" rows="10"></textarea>
+        <textarea class="textarea" v-model.trim="comment" maxlength="150" placeholder="请填写您的建议和意见" id="" cols="30" rows="10"></textarea>
 
         <section class="my-confirm-btn-wrap" style="margin-top: 174px;">
-            <button class="my-confirm-btn">提 交 建 议</button>
+            <button class="my-confirm-btn" @click="addComments">提 交 建 议</button>
         </section>
     </div>
 </template>
 
 <script>
+    import {addComments} from "src/api/api"
+
     export default {
         name: "feedback",
 
         data() {
-            return {}
+            return {
+                comment: ''
+            }
         },
 
         components: {},
 
         computed: {},
 
-        methods: {},
+        methods: {
+            addComments(){
+                addComments(this.comment).then(
+                    resData => {
+                        if(resData){
+                            this.$toast('您的反馈已提交');
+                            this.$router.back();
+                        }
+                    }
+                )
+            }
+        },
 
         created() {
+
         },
     }
 </script>

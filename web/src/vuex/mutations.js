@@ -12,8 +12,11 @@ import {
     CLEAR_CART,
     SET_CART,
     SET_CHOOSE_ADDRESS,
+    INIT_ADD_TEN_CART_TIP,
+    SET_ADD_TEN_CART_TIP,
+    SET_BANNER_IMGS,
 } from './mutation-types'
-import {TOKEN, USER_INFO, NOT_READ_COM_MSGS, CART_LIST} from "src/common/js/const"
+import {TOKEN, USER_INFO, NOT_READ_COM_MSGS, CART_LIST, ADD_TEN_CART_TIP} from "src/common/js/const"
 import {setStore, getStore} from "src/common/js/mUtils"
 
 export default {
@@ -57,11 +60,11 @@ export default {
         let cart = state.cartList.concat();
         let reduceIndex = 0;
         let changeItem = state.cartList.find((item, index) => {
-                if (item.PRid == payload.PRid) {
-                    reduceIndex = index;
-                    return true;
-                }
-            });
+            if (item.PRid == payload.PRid) {
+                reduceIndex = index;
+                return true;
+            }
+        });
 
         if (changeItem) {
             if (changeItem.PRnum > 1) {
@@ -95,6 +98,29 @@ export default {
     [SET_CHOOSE_ADDRESS](state, payload) {
         state.chooseAddress = payload || null;
     },
+
+    [SET_ADD_TEN_CART_TIP](state, payload) {
+        state.addTenCartTip = payload;
+
+        // console.log(state.addTenCartTip);
+
+        setStore(ADD_TEN_CART_TIP, state.addTenCartTip);
+
+        // console.log(getStore(ADD_TEN_CART_TIP));
+    },
+    [INIT_ADD_TEN_CART_TIP](state, payload) {
+        let addTenCartTip = getStore(ADD_TEN_CART_TIP);
+
+        if (addTenCartTip === null) {
+            state.addTenCartTip = true;
+        }else{
+            state.addTenCartTip = JSON.parse(addTenCartTip) ? true : false;
+        }
+    },
+
+    [SET_BANNER_IMGS](state, payload){
+        state.banner = payload;
+    }
 
 
 }
