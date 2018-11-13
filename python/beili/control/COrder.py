@@ -72,6 +72,7 @@ class COrder():
         mount = 0
         new_list = []
         discountnum = 0
+        product_num = 0
         try:
             for product in product_list:
                 num = product['PRnum']
@@ -80,6 +81,7 @@ class COrder():
                 check_product = get_model_return_dict(self.sgoods.get_product(product['PRid']))
                 mount = mount + num * check_product['PRprice']
                 product['PRprice'] = check_product['PRprice']
+                product_num = product_num + num
                 discountnum = discountnum + num * check_product['PAdiscountnum']
                 new_list.append(product)
             if totalprice != mount + real_PRlogisticsfee or real_PRlogisticsfee != PRlogisticsfee:
@@ -130,7 +132,7 @@ class COrder():
 
 
             result = self.sorder.add_order(session, OIid, OIsn, request.user.id, OInote, mount, UAid, OIcreatetime,
-                                           PRlogisticsfee, provincename, cityname, areaname, details, username, userphonenum)
+                                           PRlogisticsfee, provincename, cityname, areaname, details, username, userphonenum, product_num)
             if not result:
                 raise dberror
             for product in new_list:

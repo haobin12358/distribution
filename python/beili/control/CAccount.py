@@ -11,7 +11,9 @@ from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR
 from config.setting import QRCODEHOSTNAME, DRAWBANK, BAIL, APP_ID, MCH_ID, MCH_KEY, notify_url
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
-from common.timeformat import get_db_time_str
+#from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM, MONEY, BAIL, \
+ #   WECHATSERVICE, REWARD, REDIRECT_URI, APP_ID, APP_SECRET, SERVER, CHARGEBANKNAME
+from common.timeformat import get_db_time_str, get_web_time_str
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
 from service.SUser import SUser
 from service.SMessage import SMessage
@@ -23,12 +25,13 @@ from service.SAccount import SAccount
 from config.urlconfig import get_code
 import platform
 from common.beili_error import stockerror, dberror
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from weixin import WeixinError
 from weixin.login import WeixinLoginError, WeixinLogin
 from weixin.pay import WeixinPay, WeixinPayError
-from common.timeformat import format_for_db, get_random_str, format_for_db_no_HMS, get_random_int
-from models.model import User, AgentMessage, BailRecord
+from common.timeformat import format_for_db, get_random_str, format_for_db_no_HMS, get_random_int\
+    , format_forweb_no_HMS, format_for_dbmonth
+from models.model import User, DiscountRuler, BailRecord
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -105,9 +108,9 @@ class CAccount():
             for i in range(0, len(ruler_list)):
                 if i < (len(ruler_list) - 1) :
                     if num >= ruler_list[i]['DRnumber'] and num < ruler_list[i+1]['DRnumber']:
-                        return ruler_list[i]['DRratio']
+                        return ruler_list[i]['DRmoney']
                 else:
-                    return ruler_list[len(ruler_list)-1]['DRratio']
+                    return ruler_list[len(ruler_list)-1]['DRmoney']
 
     @verify_token_decorator
     def get_rank_list(self):  # 获取业绩列表
@@ -294,7 +297,7 @@ class CAccount():
         try:
             data = request.json
             for param in params_list:
-                if param not in params_list:
+                if param not in data:
                     PARAMS_ERROR = {
                         "param": param,
                         "status": 405,
@@ -925,22 +928,179 @@ class CAccount():
             return SYSTEM_ERROR
         return self.pay.reply(u'OK', True)
 
-        # result = data.get('return_code')
-        # if str(result) != 'SUCCESS':
-        #     update = {}
-        #
-        # wcsn = data.get('out_trade_no')
-        # record = get_model_return_dict(self.saccount.get_record_by_wcsn(wcsn)) if self.saccount.get_record_by_wcsn(wcsn) else None
-        # if not record or record['WCstatus'] != 1:
-        #     # 无效请求
-        #     return self.pay.reply("OK", True)
-        # # 修改记录状态
-        # update = {}
-        # update['WCstatus'] = 1
-        # paytime = data.get('time_end')
-        # update_dict = {
-        #     'OIpaystatus': 5,  # 待发货
-        #     'OIpaytime': paytime,
-        #     'OIpaytype': 1,  # 统一微信支付
-        # }
-        # # 如果存在上一级
+    def get_data_by_day(self, day):  # 获取当日的订单数以及销售额
+        # 获取订单
+        money = 0
+        this_day = day + '000000'
+        next_day = day + '240000'
+        list = get_model_return_list(self.sorder.get_order_by_day(this_day, next_day))
+        count = len(list)
+        if list:
+            for order in list:
+                money = money + order['OImount']
+        response = {}
+        response['date'] = get_web_time_str(this_day, formattype=format_forweb_no_HMS)
+        response['count'] = count
+        response['money'] = money
+        return response
+
+    def get_data_by_month(self, month):  # 获取当月的订单数以及销售额
+        # 获取订单
+        money = 0
+        this_month = month + '01000000'
+        next_month = month + '32000000'
+        list = get_model_return_list(self.sorder.get_order_by_day(this_month, next_month))
+        count = len(list)
+        if list:
+            for order in list:
+                money = money + order['OImount']
+        response = {}
+        response['date'] = get_web_time_str(this_month, formattype='%Y-%m')
+        response['count'] = count
+        response['money'] = money
+        return response
+
+    @verify_token_decorator
+    def get_sevendays_data(self):  # 获取最近七天的销售数据
+        if not is_admin():
+            return TOKEN_ERROR
+        today = date.today()
+        days_list = []
+        days_list.append(self.get_data_by_day(today.strftime("%Y%m%d")))
+        for i in range(6):
+            days_list.append(self.get_data_by_day((today + timedelta(days=-(i+1))).strftime("%Y%m%d")))
+        response = import_status("get_sevendays_data_success", "OK")
+        response['data'] = days_list
+        return response
+
+    @verify_token_decorator
+    def get_thisyear_date(self):  # 获取当年销售数据
+        if not is_admin():
+            return TOKEN_ERROR
+        today = date.today()
+        year = today.year
+        month = today.month
+        year_month = str(year) + str(month)
+        date_list = []
+        date_list.append(self.get_data_by_month(year_month))
+        for i in range(month-1):
+            last_month = str((int(month) - (i+1))) if ((int(month) - (i+1))) >= 10 else '0'+str((int(month) - (i+1)))
+            last_yearmonth = str(year) + last_month
+            date_list.append(self.get_data_by_month(last_yearmonth))
+        response = import_status("get_year_data_success", "OK")
+        response['date'] = date_list
+        return response
+
+    @verify_token_decorator
+    def get_count_data(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        total_sale_num = 0
+        total_sale_money = 0
+        order_list = get_model_return_list(self.sorder.admin_get_all_order())
+        total_order_num = len(order_list)
+        if order_list:
+            for order in order_list:
+                total_sale_num = total_sale_num + order['productnum']
+                total_sale_money = total_sale_money + order['OImount']
+        order_user = get_model_return_list(self.sorder.get_order_user_num())
+        unit_price = float(total_sale_money) / float(len(order_user)) if float(len(order_user)) >0 else 0
+        total_agent_num = int(self.suser.get_user_num())
+        response = import_status("get_count_data_success", "OK")
+        data = {}
+        data['total_sale_num'] = total_sale_num
+        data['total_sale_money'] = total_sale_money
+        data['total_agent_num'] = total_agent_num
+        data['total_order_num'] = total_order_num
+        data['unit_price'] = unit_price
+        response['data'] = data
+        return response
+
+    @verify_token_decorator
+    def get_thismonth_agentnum(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        starttime = datetime.strftime(datetime.now(), format_for_db)[6] + '01000000'
+        endtime = datetime.strftime(datetime.now(), format_for_db)
+        num = int(self.suser.get_thismonth_agentnum(starttime, endtime))
+        response = import_status("get_thismonth_agentnum_success", "OK")
+        data = {
+            "num": num
+        }
+        response['data'] = data
+        return response
+
+    @verify_token_decorator
+    def update_accounts(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        params_list = ['alipaynum', 'alipayname', 'bankname', 'accountname', 'cardnum', 'agentmoney', 'wechat', 'drawbank'
+            , 'bail', 'reward']
+        try:
+            data = request.json
+            for param in params_list:
+                if param not in data:
+                    params_miss = {
+                        "param": param,
+                        "status": 405,
+                        "status_code": 405002,
+                        "message": u"参数错误"
+                    }
+                    return params_miss
+        except:
+            return PARAMS_ERROR
+        alipaynum = data.get('alipaynum')
+        alipayname = data.get('alipayname')
+        bankname = data.get('bankname')
+        accountname = data.get('accountname')
+        cardnum = data.get('cardnum')
+        money = data.get('agentmoney')
+        service = data.get('wechat')
+        drawbank = data.get('drawbank')
+        bail = data.get('bail')
+        reward = data.get('reward')
+        from config.modify_setting import modify
+        result = modify(alipaynum, alipayname, bankname, accountname, cardnum, money, service, drawbank, bail, reward)
+        if not result:
+            return SYSTEM_ERROR
+        response = import_status("update_account_success", "OK")
+        return response
+
+    @verify_token_decorator
+    def get_discountruler(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        list = get_model_return_list(self.saccount.get_discountruler())
+        response = import_status("get_discountruler_success", "OK")
+        response['data'] = list
+        return response
+
+    @verify_token_decorator
+    def update_discountruler(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            rulers = data.get('ruler')
+        except:
+            return PARAMS_ERROR
+        session = db_session()
+        try:
+            session.query(DiscountRuler).delete()
+            for ruler in rulers:
+                number = float(ruler['number'])
+                money = float(ruler['money'])
+                discount = DiscountRuler()
+                discount.DRid = str(uuid.uuid4())
+                discount.DRnumber = number
+                discount.DRmoney = money
+                session.add(discount)
+            session.commit()
+        except Exception as e:
+            print e
+            session.rollback()
+            return SYSTEM_ERROR
+        finally:
+            session.close()
+        response = import_status("update_discountruler_success", "OK")
+        return response

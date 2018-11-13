@@ -32,7 +32,9 @@ class AAccount(Resource):
             'deal_bailrecord': 'self.caccount.deal_bailrecord()',
             'deal_reward_discount': 'self.caccount.deal_reward_discount()',
             'weixin_pay': 'self.caccount.weixin_pay()',
-            'pay_callback': 'self.caccount.pay_callback()'
+            'pay_callback': 'self.caccount.pay_callback()',
+            'update_accounts': 'self.caccount.update_accounts()',
+            'update_discountruler': 'self.caccount.update_discountruler()'
         }
         res = eval(apis[account])
         if account == 'pay_callback':
@@ -47,7 +49,12 @@ class AAccount(Resource):
             'get_distribute': 'self.caccount.get_distribute()',
             'get_draw_info': 'self.caccount.get_draw_info()',
             'check_bail': 'self.caccount.check_bail()',
-            'get_moneyrecord': 'self.caccount.get_moneyrecord()'
+            'get_moneyrecord': 'self.caccount.get_moneyrecord()',
+            'get_sevendays_data': 'self.caccount.get_sevendays_data()',
+            'get_thisyear_date': 'self.caccount.get_thisyear_date()',
+            'get_count_data': 'self.caccount.get_count_data()',
+            'get_thismonth_agentnum': 'self.caccount.get_thismonth_agentnum()',
+            'get_discountruler': 'self.caccount.get_discountruler()'
 
         }
         res = eval(apis[account])

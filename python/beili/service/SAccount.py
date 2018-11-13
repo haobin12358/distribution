@@ -25,7 +25,7 @@ class SAccount(SBase):
 
     @close_session
     def get_discount_ruler(self):
-        return self.session.query(DiscountRuler.DRnumber, DiscountRuler.DRratio).order_by(DiscountRuler.DRnumber).all()
+        return self.session.query(DiscountRuler.DRnumber, DiscountRuler.DRmoney).order_by(DiscountRuler.DRnumber).all()
 
     @close_session
     def get_user_performance(self, usid, month):
@@ -224,3 +224,8 @@ class SAccount(SBase):
     def update_weixin_charge(self, wcsn):
         return self.session.query(WeixinCharge.WCid).filter(WeixinCharge.WCsn == wcsn).update(
             {"WCstatus": 2}, synchronize_session=False)
+
+    @close_session
+    def get_discountruler(self):
+        return self.session.query(DiscountRuler.DRid, DiscountRuler.DRnumber, DiscountRuler.DRmoney)\
+            .order_by(DiscountRuler.DRnumber).all()
