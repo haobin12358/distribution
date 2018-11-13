@@ -230,7 +230,7 @@ class CAccount():
             branchbank = str(data.get('branchbank'))
             accountname = str(data.get('accountname'))
             cardnum = str(data.get('cardnum'))
-            amount = int(data.get('amount'))
+            amount = float(data.get('amount'))
         except:
             return PARAMS_ERROR
         user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
@@ -311,7 +311,7 @@ class CAccount():
             bankname = str(data.get('bankname'))
             accountname = str(data.get('accountname'))
             cardnum = data.get('cardnum')
-            amount = int(data.get('amount'))
+            amount = float(data.get('amount'))
             remark = str(data.get('remark'))
             proof = str(data.get('proof'))
             paytime = str(data.get('paytime'))
@@ -398,7 +398,7 @@ class CAccount():
         try:
             data = request.json
             type = int(data.get('type'))
-            mount = int(data.get('mount'))
+            mount = float(data.get('mount'))
         except:
             return PARAMS_ERROR
         user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
