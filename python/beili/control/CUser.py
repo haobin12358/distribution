@@ -740,5 +740,5 @@ class CUser():
             response['data'] = {
                 "url": url
             }
-
+            return response
 
