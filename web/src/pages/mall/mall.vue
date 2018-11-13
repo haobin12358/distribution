@@ -2,7 +2,7 @@
     @import "../../common/css/index";
 
     .container {
-        padding-bottom: 100px;
+        padding-bottom: 120px;
         .least-full-screen();
 
         #go-order-img {
@@ -12,10 +12,10 @@
         .pay-order {
             width: 129px;
             height: 46px;
-            border: 1px solid rgba(255, 255, 255, 1);
+            border: 2px solid rgba(255, 255, 255, 1);
             border-radius: 20px;
             .fontc(46px);
-            .sc(24px, white);
+            .sc(26px, white);
             background: @mainColor;
         }
 
@@ -34,6 +34,11 @@
                 background: white;
                 overflow-x: scroll;
                 white-space: nowrap;
+
+                &.none{
+                    height: 80px;
+
+                }
 
                 .nav-item {
                     height: 80px;
@@ -90,7 +95,7 @@
 
             .goods-item {
                 padding: 25px 2px 22px 16px;
-                border-bottom: 1px solid #DBDBDB;
+                border-bottom: 2px solid #DBDBDB;
                 .fj();
 
                 &:last-child {
@@ -180,7 +185,38 @@
             white-space: nowrap;
 
         }
+
+        .pay-order-fixed{
+            position: fixed;
+            left: 30px;
+            bottom: 150px;
+            padding: 15px 0;
+            box-sizing: border-box;
+            .wl(90px, 90px);
+            .fontc(40px);
+            .fz(28px);
+            border-radius: 50%;
+            color: white;
+            background: @mainColor;
+            opacity: .9;
+        }
     }
+
+    /*
+    image[lazy=loading] {
+        margin: 0 5px;
+        .wl(40px, 40px);
+        display: inline-block;
+        vertical-align: middle;
+        animation: myLoading 1s steps(12, end) infinite;
+        background: transparent url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHBhdGggZmlsbD0ibm9uZSIgZD0iTTAgMGgxMDB2MTAwSDB6Ii8+PHJlY3Qgd2lkdGg9IjciIGhlaWdodD0iMjAiIHg9IjQ2LjUiIHk9IjQwIiBmaWxsPSIjRTlFOUU5IiByeD0iNSIgcnk9IjUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgLTMwKSIvPjxyZWN0IHdpZHRoPSI3IiBoZWlnaHQ9IjIwIiB4PSI0Ni41IiB5PSI0MCIgZmlsbD0iIzk4OTY5NyIgcng9IjUiIHJ5PSI1IiB0cmFuc2Zvcm09InJvdGF0ZSgzMCAxMDUuOTggNjUpIi8+PHJlY3Qgd2lkdGg9IjciIGhlaWdodD0iMjAiIHg9IjQ2LjUiIHk9IjQwIiBmaWxsPSIjOUI5OTlBIiByeD0iNSIgcnk9IjUiIHRyYW5zZm9ybT0icm90YXRlKDYwIDc1Ljk4IDY1KSIvPjxyZWN0IHdpZHRoPSI3IiBoZWlnaHQ9IjIwIiB4PSI0Ni41IiB5PSI0MCIgZmlsbD0iI0EzQTFBMiIgcng9IjUiIHJ5PSI1IiB0cmFuc2Zvcm09InJvdGF0ZSg5MCA2NSA2NSkiLz48cmVjdCB3aWR0aD0iNyIgaGVpZ2h0PSIyMCIgeD0iNDYuNSIgeT0iNDAiIGZpbGw9IiNBQkE5QUEiIHJ4PSI1IiByeT0iNSIgdHJhbnNmb3JtPSJyb3RhdGUoMTIwIDU4LjY2IDY1KSIvPjxyZWN0IHdpZHRoPSI3IiBoZWlnaHQ9IjIwIiB4PSI0Ni41IiB5PSI0MCIgZmlsbD0iI0IyQjJCMiIgcng9IjUiIHJ5PSI1IiB0cmFuc2Zvcm09InJvdGF0ZSgxNTAgNTQuMDIgNjUpIi8+PHJlY3Qgd2lkdGg9IjciIGhlaWdodD0iMjAiIHg9IjQ2LjUiIHk9IjQwIiBmaWxsPSIjQkFCOEI5IiByeD0iNSIgcnk9IjUiIHRyYW5zZm9ybT0icm90YXRlKDE4MCA1MCA2NSkiLz48cmVjdCB3aWR0aD0iNyIgaGVpZ2h0PSIyMCIgeD0iNDYuNSIgeT0iNDAiIGZpbGw9IiNDMkMwQzEiIHJ4PSI1IiByeT0iNSIgdHJhbnNmb3JtPSJyb3RhdGUoLTE1MCA0NS45OCA2NSkiLz48cmVjdCB3aWR0aD0iNyIgaGVpZ2h0PSIyMCIgeD0iNDYuNSIgeT0iNDAiIGZpbGw9IiNDQkNCQ0IiIHJ4PSI1IiByeT0iNSIgdHJhbnNmb3JtPSJyb3RhdGUoLTEyMCA0MS4zNCA2NSkiLz48cmVjdCB3aWR0aD0iNyIgaGVpZ2h0PSIyMCIgeD0iNDYuNSIgeT0iNDAiIGZpbGw9IiNEMkQyRDIiIHJ4PSI1IiByeT0iNSIgdHJhbnNmb3JtPSJyb3RhdGUoLTkwIDM1IDY1KSIvPjxyZWN0IHdpZHRoPSI3IiBoZWlnaHQ9IjIwIiB4PSI0Ni41IiB5PSI0MCIgZmlsbD0iI0RBREFEQSIgcng9IjUiIHJ5PSI1IiB0cmFuc2Zvcm09InJvdGF0ZSgtNjAgMjQuMDIgNjUpIi8+PHJlY3Qgd2lkdGg9IjciIGhlaWdodD0iMjAiIHg9IjQ2LjUiIHk9IjQwIiBmaWxsPSIjRTJFMkUyIiByeD0iNSIgcnk9IjUiIHRyYW5zZm9ybT0icm90YXRlKC0zMCAtNS45OCA2NSkiLz48L3N2Zz4=) no-repeat;
+        background-size: 100%;
+
+        &.weui-loading_transparent {
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 100 100'%3E%3Cpath fill='none' d='M0 0h100v100H0z'/%3E%3Crect xmlns='http://www.w3.org/2000/svg' width='7' height='20' x='46.5' y='40' fill='rgba(255,255,255,.56)' rx='5' ry='5' transform='translate(0 -30)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='rgba(255,255,255,.5)' rx='5' ry='5' transform='rotate(30 105.98 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='rgba(255,255,255,.43)' rx='5' ry='5' transform='rotate(60 75.98 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='rgba(255,255,255,.38)' rx='5' ry='5' transform='rotate(90 65 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='rgba(255,255,255,.32)' rx='5' ry='5' transform='rotate(120 58.66 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='rgba(255,255,255,.28)' rx='5' ry='5' transform='rotate(150 54.02 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='rgba(255,255,255,.25)' rx='5' ry='5' transform='rotate(180 50 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='rgba(255,255,255,.2)' rx='5' ry='5' transform='rotate(-150 45.98 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='rgba(255,255,255,.17)' rx='5' ry='5' transform='rotate(-120 41.34 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='rgba(255,255,255,.14)' rx='5' ry='5' transform='rotate(-90 35 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='rgba(255,255,255,.1)' rx='5' ry='5' transform='rotate(-60 24.02 65)'/%3E%3Crect width='7' height='20' x='46.5' y='40' fill='rgba(255,255,255,.03)' rx='5' ry='5' transform='rotate(-30 -5.98 65)'/%3E%3C/svg%3E");
+        }
+    }
+    */
 </style>
 
 <template>
@@ -191,16 +227,17 @@
                              alt=""></router-link>
             </section>
             <section slot="right">
-                <button class="pay-order" @click="gotoPayOrder">结算</button>
+                <button class="header-btn" @click="gotoPayOrder">结算</button>
             </section>
         </header-top>
 
         <section class="banner">
-            <img src="/static/images/testbg.jpg" alt="">
+            <img v-lazy="banner.mallUrls[0].SMurl" alt="">
         </section>
 
+        <!-- 一二级分类wrap -->
         <section class="nav-wrap">
-            <ul class="nav-list-parent">
+            <ul :class="{'nav-list-parent': true, 'none': true}">
                 <li v-for="item in parentCategory" :class="{'nav-item': true, 'active': item.PAid == paSelected}"
                     @click="switchPACategory(item)">
                     {{item.PAname}}
@@ -215,11 +252,12 @@
             </ul>
         </section>
 
+        <!--商品列表-->
         <template v-if="productListWithCart.length">
             <ul class="goods-list">
                 <li class="goods-item" v-for="item in productListWithCart" @dblclick.stop="addCart(item, 10)">
                     <section class="goods-img">
-                        <img :src="item.PRpic" alt="">
+                        <img v-lazy="item.PRpic" alt="">
                     </section>
                     <section class="goods-description">
                         <header class="goods-description-header">
@@ -245,8 +283,17 @@
                 <load-more :type="loadingType"></load-more>
             </section>
         </template>
-        <place-holder v-else title="该类暂时没有上架的商品"></place-holder>
+        <place-holder v-else :title="placeHolderTitle"></place-holder>
 
+
+        <section class="pay-order-fixed" @click="gotoPayOrder">
+            <p>
+                结算
+            </p>
+            <p>
+                {{usefulCartList.length}}
+            </p>
+        </section>
 
         <footer-guide></footer-guide>
     </div>
@@ -278,6 +325,9 @@
                 page: 1,
                 count: 10,
                 loadingType: 'normal',  // 加载组件加载状态
+
+
+
             }
         },
 
@@ -289,7 +339,7 @@
         },
 
         computed: {
-            ...mapState(['userInfo']),
+            ...mapState(['userInfo', 'banner']),
             ...mapState({
                 productListWithCart: function (state) {
                     let rst = JSON.parse(JSON.stringify(this.productList));
@@ -306,6 +356,18 @@
                 }
             }),
             ...mapGetters(['usefulCartList']),
+            placeHolderTitle(){
+                if(!this.parentCategory.length){
+                    return '商城还没有一级分类'
+                }
+                if(!this.secondCategory.length){
+                    return '该类暂时没有没有二级分类'
+                }
+                if(!this.productList.length){
+                    return '该类暂时没有上架的商品'
+                }
+
+            },
 
         },
 
@@ -315,6 +377,10 @@
             },
             ...mapMutations({
                 addCart({}, product, num = 1) {
+                    if(this.$store.state.addTenCartTip){
+                        this.$toast('双击商品可增加10个')
+                        this.$store.commit('SET_ADD_TEN_CART_TIP', false);
+                    }
                     this.$store.commit('ADD_CART', {
                         product,
                         num
@@ -336,15 +402,15 @@
                 if (this.usefulCartList.length) {
                     let checkBailData = await checkBail();
 
-                    if (checkBailData.bailstatus ==  1) {
+                    if (checkBailData.bailstatus == 1) {
                         this.$router.push('/payOrder');
-                    } else if (checkBailData.bailstatus ==  2){
+                    } else if (checkBailData.bailstatus == 2) {
                         this.$messagebox.confirm(`还需交纳保证金(${checkBailData.data.shouldpay}元)后才可下单,是否前往钱包页交纳?`).then(
                             () => {
                                 this.$router.push('/wallet')
                             }
                         )
-                    }else if (checkBailData.bailstatus ==  3){
+                    } else if (checkBailData.bailstatus == 3) {
                         this.$toast('保证金退还中,无法下单!');
 
                     }
@@ -388,9 +454,13 @@
                 let {data: seData} = await  getProductCategory(2, this.paSelected);
 
                 this.secondCategory = seData;
-                this.secondSelected = this.secondCategory[0].PAid;
 
-                await this.setProductList(true);
+                if(this.secondCategory[0]){
+                    this.secondSelected = this.secondCategory[0].PAid;
+                    await this.setProductList(true);
+                }else{
+                    this.productList = [];
+                }
             },
 
             /**
@@ -425,9 +495,10 @@
         },
 
         async mounted() {
+            this.$store.dispatch('getSowingMap');
+
             await this.initCategoryAndPrds();
             window.addEventListener('scroll', this.touchMove);
-
         }
     }
 </script>

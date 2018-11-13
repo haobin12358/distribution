@@ -39,7 +39,6 @@ const myAxios = async (url, {params, data, method = 'get', showIndicator = true}
             if(res.data.status == 405 && res.data.status_code == 405003){
                 location.href=location.origin
                 setStore(TOKEN, '');
-                console.log(res.data);
             }
             return
         }
@@ -604,6 +603,22 @@ export const weixinPay = (amount) => myAxios('/account/weixin_pay', {
     data: {
         amount
     },
+    params:{
+        token: getStore(TOKEN)
+    },
+});
+
+export const addComments = (CMcontent) => myAxios('/mycenter/add_comments', {
+    method: 'post',
+    data: {
+        CMcontent
+    },
+    params:{
+        token: getStore(TOKEN)
+    },
+});
+
+export const getSowingMap = () => myAxios('/product/get_sowingmap', {
     params:{
         token: getStore(TOKEN)
     },

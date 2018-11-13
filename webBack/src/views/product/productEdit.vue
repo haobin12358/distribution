@@ -29,18 +29,9 @@
                         <el-input v-model.trim="formData.prname"></el-input>
                     </el-form-item>
                     <el-form-item prop="prpic" label="商品图片(限一张)">
-                        <!--<el-upload-->
-                        <!--class="swiper-uploader"-->
-                        <!--action="https://jsonplaceholder.typicode.com/posts/"-->
-                        <!--list-type="picture-card"-->
-                        <!--:on-preview="handlePictureCardPreview"-->
-                        <!--:on-remove="handleRemove"-->
-                        <!--:limit="1">-->
-                        <!--<i class="el-icon-plus"></i>-->
-                        <!--</el-upload>-->
                         <el-upload
                             class="avatar-uploader"
-                            action="xxx"
+                            :action="$api.uploadFile"
                             :show-file-list="false"
                             accept="image/*"
                             :on-success="handleAvatarSuccess"
@@ -49,9 +40,9 @@
                             <img v-if="imageUrl"  v-lazy="imageUrl" class="avatar">
                             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
 
-                            <span class="upload-tip" slot="tip">
+                            <div slot="tip" class="el-upload__tip">
                                 建议为方形,大小不要超过10M,上传成功后会显示,上传大图请耐心等待
-                            </span>
+                            </div>
                         </el-upload>
                     </el-form-item>
                     <el-form-item prop="selectedOption" label="分类">
@@ -175,13 +166,6 @@
                 this.imageUrl = URL.createObjectURL(file.raw);
             },
             beforeAvatarUpload(file) {
-                console.log(file);
-                // console.log('before', file.size);
-                // lrz(file).then(
-                //     res=>{
-                //         console.log('after', file.size);
-                //     }
-                // )
                 const isLt15M = file.size / 1024 / 1024 < 10;
 
                 if (!isLt15M) {

@@ -167,10 +167,13 @@
         async created() {
             let checkData = await checkBail();
 
+            // console.log('获取保证金');
             this.bailstatus = checkData.bailstatus;
 
             if (this.bailstatus == 1) {
-                this.personBail = await getUserBasicInfo().data.USbail;
+                let {data} = await getUserBasicInfo();
+
+                this.personBail = data.USbail;
             }else if(this.bailstatus == 2){
                 this.shouldPay = checkData.data.shouldpay;
             }

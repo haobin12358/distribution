@@ -2,7 +2,7 @@
     @import "../../common/css/index";
 
     .container {
-        padding-bottom: 100px;
+        padding-bottom: 150px;
 
         .container-hd{
             position: relative;
@@ -98,8 +98,8 @@
     <div class="container">
         <section class="container-hd">
             <mt-swipe class="banner">
-                <mt-swipe-item v-for="item in 5" :key="item">
-                    <img class="banner-img" src="/static/images/testbg.jpg" alt="">
+                <mt-swipe-item v-for="item in banner.personUrls" :key="item.SMid">
+                    <img class="banner-img" v-lazy="item.SMurl" alt="">
                 </mt-swipe-item>
             </mt-swipe>
             <router-link to="/setting" tag="img" class="go-setting" src="/static/images/setting.png" ></router-link>
@@ -175,7 +175,7 @@
         },
 
         computed:{
-            ...mapState(['userInfo']),
+            ...mapState(['userInfo', 'banner']),
         },
 
         components: {

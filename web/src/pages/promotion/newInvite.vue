@@ -49,9 +49,9 @@
 
         data() {
             return {
-                expireDateTxt: '',  // 显示用
-                expireDate: '',
-                count: '',
+                expireDateTxt: '一周',  // 显示用
+                expireDate: new Date().getTime() + 7 * 24 * 60 * 60 * 1000,
+                count: '10',
 
                 actions: [
                     {name: '一小时', method: this.selectExpiryDate},

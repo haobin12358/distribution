@@ -54,6 +54,10 @@ const withdraw = r => require.ensure([], () => r(require('../views/service/withd
 const marginMoney = r => require.ensure([], () => r(require('../views/service/marginMoney')), 'marginMoney');     //保证金
 const register = r => require.ensure([], () => r(require('../views/service/register')), 'register');     //保证金
 
+const settings = r => require.ensure([], () => r(require('../views/settings/index')), 'settings');     //设置
+const dealBaseGradient = r => require.ensure([], () => r(require('../views/settings/dealBaseGradient')), 'dealBaseGradient');     //返点梯度
+const updatePassword = r => require.ensure([], () => r(require('../views/settings/updatePassword')), 'updatePassword');     //返点梯度
+
 
 export const constantRouterMap = [
     {
@@ -219,8 +223,29 @@ export const constantRouterMap = [
         ]
     },
 
-
-
+    {
+        path: '/settings',
+        redirect: 'settings/index',
+        component: commonLayout,
+        meta: {
+            requireAuth: true
+        },
+        children: [
+            {
+                path: 'index',
+                component: settings,
+                meta: {}
+            },  {
+                path: 'dealBaseGradient',
+                component: dealBaseGradient,
+                meta: {}
+            },{
+                path: 'updatePassword',
+                component: updatePassword,
+                meta: {}
+            },
+        ]
+    },
 ]
 
 const router = new Router({

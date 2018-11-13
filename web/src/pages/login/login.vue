@@ -2,7 +2,7 @@
     @import "../../common/css/index";
 
     .container {
-        background: url("/static/images/testbg.jpg");
+        background: url("/static/images/login_bg.png");
         background-size: cover;
         width: 100%;
         min-height: 100vh;
@@ -14,7 +14,7 @@
         text-align: center;
 
         .container-hd {
-            .sc(38px, @mainColor);
+            .sc(42px, @mainColor);
             font-weight: bold;
             margin: 69px 0 18px;
         }
@@ -30,23 +30,23 @@
 
             .platform-logo {
                 .wl(234px, 234px);
-                border: 10px solid #707070;
+                /*border: 10px solid #707070;*/
                 box-sizing: border-box;
                 border-radius: 50%;
                 margin-bottom: 131px;
-                box-shadow: 0px 10px 3px rgba(0, 0, 0, 0.16);
+                /*box-shadow: 0px 10px 3px rgba(0, 0, 0, 0.16);*/
             }
 
             .login-input {
                 width: 490px;
-                height: 70px;
-                border: 1px solid @mainColor;
-                box-shadow: -5px 5px 0px rgba(0, 0, 0, 0.16);
+                height: 80px;
+                border: 2px solid @mainColor;
+                box-shadow: -3px 3px 0px rgba(0, 0, 0, 0.16);
                 opacity: 0.5;
                 border-radius: 50px;
                 margin-bottom: 70px;
                 padding-left: 38px;
-                .fz(24px);
+                .fz(28px);
 
                 &:last-child {
                     margin-bottom: 118px;
@@ -55,7 +55,7 @@
 
             .forget-pwd {
                 color: @mainFontColor;
-                font-size: 24px;
+                font-size: 26px;
                 text-align: right;
                 align-self: flex-end;
             }
@@ -89,7 +89,7 @@
             会员登录平台
         </header>
         <section class="container-bd">
-            <img class="platform-logo" src="/static/images/testbg.jpg" alt="">
+            <img class="platform-logo" src="/static/images/logo.jpeg" alt="">
 
             <input type="tel" v-model.trim="username" class="login-input" placeholder="请输入手机号码">
             <input type="password" v-model="password" class="login-input" placeholder="请输入密码">
@@ -131,7 +131,7 @@
         methods: {
             ...mapActions(['getUserInfo','setNotReadMsgNum']),
             gotoForgetPassword() {
-                this.$router.push('/login/forgetPassword');
+                this.$router.push('/forgetPassword');
             },
             doLogin() {
                 if (this.username && this.password) {

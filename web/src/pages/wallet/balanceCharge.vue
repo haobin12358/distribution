@@ -171,6 +171,9 @@
             ref="picker"
             type="date"
             v-model="datetime"
+            year-format="{value} 年"
+            month-format="{value} 月"
+            date-format="{value} 日"
             :closeOnClickModal="false"
             @cancel="close"
             :startDate="startDate"
@@ -204,7 +207,7 @@
                 date: '',
 
                 formData: {
-                    "paytype": 3,
+                    "paytype": 1,
                     "alipaynum": "",
                     "bankname": "",
                     "accountname": "",
@@ -297,7 +300,7 @@
 
                 if (!this.formData.amount) {
                     return '请输入打款金额'
-                } else if (!(this.formData.amount > 0 && /^[0-9]+([.]{1}[0-9]+){0,1}$/.test(this.formData.amount))) {
+                } else if (!(this.formData.amount >= 0.01 && /^[0-9]+([.]{1}[0-9]+){0,1}$/.test(this.formData.amount))) {
                     return '请输入合理的打款金额数字'
                 }
 
@@ -335,108 +338,77 @@
             doWeChatPay() {
                 let that = this;
 
-                weixinPay(this.formData.amount).then(
-                    resData => {
-                        if (resData.status == 200) {
-                            let data = resData.data;
-                            // let resData = res.data,
-                            //     data = res.data.data;
-                            // console.log(res);
+                if(this.userInfo.openid){
+                    weixinPay(this.formData.amount).then(
+                        resData => {
+                            if (resData.status == 200) {
+                                let data = resData.data;
 
-                            function onBridgeReady() {      // 微信支付接口
-                                WeixinJSBridge.invoke(
-                                    'getBrandWCPayRequest', {
-                                        "appId": data.appId,                 // 公众号名称，由商户传入
-                                        "timeStamp": data.timeStamp,         // 时间戳，自1970年以来的秒数
-                                        "nonceStr": data.nonceStr,           // 随机串
-                                        "package": data.package,             // 统一下单接口返回的prepay_id参数值
-                                        "signType": data.signType,           // 微信签名方式：
-                                        "paySign": data.paySign              // 微信签名
-                                    },
-                                    function (res) {
-                                        console.log(res);
-                                        if (res.err_msg == "get_brand_wcpay_request:ok") {             // 支付成功
-                                            that.$toast('充值成功!');
-                                            that.$router.back();
-                                            // 支付成功进入支付成功页
-                                            // that.$router.push({
-                                            //     path: "/orderPayOK",
-                                            //     query: {oiid: oiid, price: that.totalPrice}
-                                            // });
-                                        } else if (res.err_msg == "get_brand_wcpay_request:cancel") {   // 支付过程中用户取消
-                                            that.$toast('支付取消!');
+                                function onBridgeReady() {      // 微信支付接口
+                                    WeixinJSBridge.invoke(
+                                        'getBrandWCPayRequest', {
+                                            "appId": data.appId,                 // 公众号名称，由商户传入
+                                            "timeStamp": data.timeStamp,         // 时间戳，自1970年以来的秒数
+                                            "nonceStr": data.nonceStr,           // 随机串
+                                            "package": data.package,             // 统一下单接口返回的prepay_id参数值
+                                            "signType": data.signType,           // 微信签名方式：
+                                            "paySign": data.paySign              // 微信签名
+                                        },
+                                        function (res) {
+                                            console.log(res);
+                                            if (res.err_msg == "get_brand_wcpay_request:ok") {             // 支付成功
+                                                that.$toast('充值成功!');
+                                                that.$router.back();
+                                                // 支付成功进入支付成功页
+                                                // that.$router.push({
+                                                //     path: "/orderPayOK",
+                                                //     query: {oiid: oiid, price: that.totalPrice}
+                                                // });
+                                            } else if (res.err_msg == "get_brand_wcpay_request:cancel") {   // 支付过程中用户取消
+                                                that.$toast('支付取消!');
 
-                                            // Toast({message: "支付已取消", className: 'm-toast-warning'});
-                                            // that.$router.push({path: "/orderStatus", query: {oiid}});
-                                        } else if (res.err_msg == "get_brand_wcpay_request:fail") {     // 支付失败
-                                            that.$toast('支付失败!');
+                                                // Toast({message: "支付已取消", className: 'm-toast-warning'});
+                                                // that.$router.push({path: "/orderStatus", query: {oiid}});
+                                            } else if (res.err_msg == "get_brand_wcpay_request:fail") {     // 支付失败
+                                                that.$toast('支付失败!');
 
-                                            // Toast({message: "支付失败", className: 'm-toast-fail'});
-                                            // that.$router.push({path: "/orderStatus", query: {oiid}});
-                                        }
-                                    });
-                            }   //  onBridgeReady
-
-                            if (typeof WeixinJSBridge == "undefined") {
-                                if (document.addEventListener) {
-                                    document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
-                                } else if (document.attachEvent) {
-                                    document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
-                                    document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
-                                }
-                            } else {
-                                onBridgeReady();
-                            }
-                        }
-                    }
-                )
-
-                return
-                // this.$http.post(this.$api.weixinPay).then()
-                axios.post(api.pay_order + '?token=' + localStorage.getItem('token'), params).then(res => {
-                    if (res.data.status == 200) {
-                        function onBridgeReady() {      // 微信支付接口
-                            WeixinJSBridge.invoke(
-                                'getBrandWCPayRequest', {
-                                    "appId": res.data.data.appId,                 // 公众号名称，由商户传入
-                                    "timeStamp": res.data.data.timeStamp,         // 时间戳，自1970年以来的秒数
-                                    "nonceStr": res.data.data.nonceStr,           // 随机串
-                                    "package": res.data.data.package,             // 统一下单接口返回的prepay_id参数值
-                                    "signType": res.data.data.signType,           // 微信签名方式：
-                                    "paySign": res.data.data.paySign              // 微信签名
-                                },
-                                function (res) {
-                                    console.log(res);
-                                    if (res.err_msg == "get_brand_wcpay_request:ok") {             // 支付成功
-                                        // 支付成功进入支付成功页
-                                        that.$router.push({
-                                            path: "/orderPayOK",
-                                            query: {oiid: oiid, price: that.totalPrice}
+                                                // Toast({message: "支付失败", className: 'm-toast-fail'});
+                                                // that.$router.push({path: "/orderStatus", query: {oiid}});
+                                            }
                                         });
-                                    } else if (res.err_msg == "get_brand_wcpay_request:cancel") {   // 支付过程中用户取消
-                                        Toast({message: "支付已取消", className: 'm-toast-warning'});
-                                        that.$router.push({path: "/orderStatus", query: {oiid}});
-                                    } else if (res.err_msg == "get_brand_wcpay_request:fail") {     // 支付失败
-                                        Toast({message: "支付失败", className: 'm-toast-fail'});
-                                        that.$router.push({path: "/orderStatus", query: {oiid}});
-                                    }
-                                });
-                        }
+                                }   //  onBridgeReady
 
-                        if (typeof WeixinJSBridge == "undefined") {
-                            if (document.addEventListener) {
-                                document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
-                            } else if (document.attachEvent) {
-                                document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
-                                document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+                                if (typeof WeixinJSBridge == "undefined") {
+                                    if (document.addEventListener) {
+                                        document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+                                    } else if (document.attachEvent) {
+                                        document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
+                                        document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+                                    }
+                                } else {
+                                    onBridgeReady();
+                                }
                             }
-                        } else {
-                            onBridgeReady();
                         }
-                    } else {
-                        Toast({message: res.data.message, className: 'm-toast-warning'});
-                    }
-                });
+                    );
+                }else{
+                    this.$toast('抱歉,请重新登录前往支付');
+                    this.$http.get(title+'/user/check_openid',{
+                        params: {
+                            token: getStore(TOKEN),
+                            state: location.href,
+                        }
+                    }).then(
+                        res => {
+                            if (res.data.status == 302) {
+                                let resData = res.data,
+                                    data = res.data.data;
+
+                                location.href = data.url;
+                            }
+                        }
+                    )
+                }
             }
         },
 

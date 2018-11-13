@@ -63,8 +63,8 @@
         <header-top :show-back="true"></header-top>
 
         <mt-swipe class="banner">
-            <mt-swipe-item v-for="item in 5" :key="item">
-                <img class="banner-img" src="/static/images/testbg.jpg" alt="">
+            <mt-swipe-item v-for="item in banner.personUrls" :key="item.SMid">
+                <img class="banner-img" v-lazy="item.SMurl" alt="">
             </mt-swipe-item>
         </mt-swipe>
 
@@ -93,11 +93,17 @@
 </template>
 
 <script>
+    import {mapState} from "vuex"
+
     export default {
         name: "setting",
 
         data() {
             return {}
+        },
+
+        computed:{
+            ...mapState(['banner'])
         },
 
         components: {},

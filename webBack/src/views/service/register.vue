@@ -256,7 +256,7 @@
                             let resData = res.data,
                                 data = res.data.data;
 
-                            this.total = resData.mount;
+                            this.total = resData.mount|| 0;
                             this.tableData = data;
                         }
                     }

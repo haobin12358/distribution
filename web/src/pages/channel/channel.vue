@@ -73,8 +73,8 @@
     <div class="container">
         <header-top :show-back="true"></header-top>
         <mt-navbar v-model="selected" style="margin-bottom: 3px">
-            <mt-tab-item id="1">直属代理 ({{directAgentLen}})</mt-tab-item>
-            <mt-tab-item id="2">分销商 ({{distributeAgentLen}})</mt-tab-item>
+            <mt-tab-item id="1">直属代理 ({{directAgentLen || 0}})</mt-tab-item>
+            <mt-tab-item id="2">分销商 ({{distributeAgentLen || 0}})</mt-tab-item>
         </mt-navbar>
 
         <section class="search-bar-wrap">
@@ -95,7 +95,7 @@
                                       :index="indexItem.index">
                         <section class="people-info-item-wrap">
                             <section class="people-info-item" v-for="info in indexItem.list">
-                                <img :src="info.USheadimg" alt="" class="people-img">
+                                <img v-lazy="info.USheadimg" alt="" class="people-img">
 
                                 <span class="people-name">{{info.USname}}</span>
                                 <span class="people-phone">{{info.USagentid}}</span>

@@ -15,5 +15,6 @@ export const ORDER_TYPE= {
 }
 export const ALL_AREA = 'ALL_AREA'
 export const AGREE_AGENT_AGREEMENT_EXP = 'AGREE_AGENT_AGREEMENT_EXP'    //  同意协议过期时间
+export const ADD_TEN_CART_TIP = 'ADD_TEN_CART_TIP'    //  同意协议过期时间
 
 

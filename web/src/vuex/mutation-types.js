@@ -12,3 +12,8 @@ export const CLEAR_CART = 'CLEAR_CART'  // 从购物车取数据
 export const SET_CART = 'SET_CART'  // 设置购物车数据
 export const SET_CHOOSE_ADDRESS = 'SET_CHOOSE_ADDRESS'  //
 
+export const INIT_ADD_TEN_CART_TIP = 'INIT_ADD_TEN_CART_TIP'  //
+export const SET_ADD_TEN_CART_TIP = 'SET_ADD_TEN_CART_TIP'  //
+
+export const SET_BANNER_IMGS = 'SET_BANNER_IMGS'  //
+

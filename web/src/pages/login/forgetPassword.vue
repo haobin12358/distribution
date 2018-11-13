@@ -1,14 +1,8 @@
 <style lang="less" scoped>
-    @import "../../../common/css/index";
+    @import "../../common/css/index";
 
     .forget-password {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: @bgMainColor;
-        z-index: 10;
+        .least-full-screen();
 
         .forget-password-form {
             padding: 66px 74px 81px 51px;
@@ -18,11 +12,11 @@
 
             .form-item {
                 padding-bottom: 37px;
-                border-bottom: 1px solid #CCCCCC;
+                border-bottom: 2px solid #CCCCCC;
                 margin-bottom: 37px;
                 .fj();
                 align-items: flex-end;
-                .fz(26px);
+                .fz(28px);
 
                 .form-item-label {
 
@@ -42,17 +36,18 @@
                 }
 
                 .form-item-input {
-                    .fz(26px);
+                    height: 40px;
+                    .fz(28px);
                     flex: 1;
                 }
 
                 .form-item-code {
                     width: 157px;
                     height: 40px;
-                    border: 1px solid @mainColor;
+                    border: 2px solid @mainColor;
                     border-radius: 30px;
                     .fontc(40px);
-                    .fz(24px);
+                    .fz(26px);
                     background: white;
                 }
             }
@@ -121,7 +116,10 @@
             </div>
         </form>
 
-        <button class="confirm-btn" @click="confirmUpdate">确 定</button>
+        <section class="my-confirm-btn-wrap">
+
+            <button class="my-confirm-btn" @click="confirmUpdate">确 定</button>
+        </section>
     </div>
 </template>
 

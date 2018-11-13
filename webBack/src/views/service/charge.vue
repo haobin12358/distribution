@@ -83,7 +83,6 @@
                         <el-button type="text" class="danger-text" size="small" @click="noPass(scope.row)">审核不通过
                         </el-button>
                     </template>
-
                 </template>
             </el-table-column>
         </el-table>
@@ -204,7 +203,7 @@
                             let resData = res.data,
                                 data = res.data.data;
 
-                            this.total = resData.mount;
+                            this.total = resData.mount|| 0;
                             this.tableData = data;
                         }
                     }

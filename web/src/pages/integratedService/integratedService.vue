@@ -3,7 +3,6 @@
 
     .container {
         .least-full-screen();
-        padding-bottom: 50px;
 
         .banner {
             height: 290px;
@@ -57,8 +56,8 @@
         <header-top :show-back="true"></header-top>
 
         <mt-swipe class="banner">
-            <mt-swipe-item v-for="item in 5" :key="item">
-                <img class="banner-img" src="/static/images/testbg.jpg" alt="">
+            <mt-swipe-item v-for="item in banner.personUrls" :key="item.SMid">
+                <img class="banner-img" v-lazy="item.SMurl" alt="">
             </mt-swipe-item>
         </mt-swipe>
 
@@ -84,22 +83,15 @@
                 <img src="/static/images/arrow.png" alt="" class="cell-ft">
             </router-link>
 
-            <li @click="$toast('功能开发中,敬请期待!')" class="cell">
-                <img src="/static/images/wechat.png" alt="" class="cell-icon">
-
-                <span class="cell-title">绑定微信</span>
-                <img src="/static/images/arrow.png" alt="" class="cell-ft">
-            </li>
-
-            <li @click="$toast('功能开发中,敬请期待!')" class="cell">
+            <router-link tag="li" to="/feedback" class="cell">
                 <img src="/static/images/feedback.png" alt="" class="cell-icon">
 
                 <span class="cell-title">问题反馈</span>
                 <img src="/static/images/arrow.png" alt="" class="cell-ft">
-            </li>
+            </router-link>
         </ul>
 
-        <section class="my-confirm-btn-wrap">
+        <section class="my-confirm-btn-wrap" >
             <button class="my-confirm-btn disabled" @click="doLogout">退 出 登 录</button>
         </section>
     </div>
@@ -108,12 +100,18 @@
 <script>
     import {setStore, getStore} from "src/common/js/mUtils"
     import {TOKEN} from "src/common/js/const"
+    import {mapState} from "vuex"
+
 
     export default {
         name: "integratedService",
 
         data() {
             return {}
+        },
+
+        computed:{
+            ...mapState(['banner']),
         },
 
         components: {},

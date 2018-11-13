@@ -158,7 +158,7 @@
             },
 
             doAddPd(){
-                this.$router.push('/productEdit');
+                this.$router.push('productEdit');
             },
 
             handleEdit(pd) {
@@ -258,7 +258,7 @@
                         if (res.data.status == 200) {
                             this.loading = false;
                             this.tableData = res.data.data;
-                            this.total = res.data.mount;
+                            this.total = res.data.mount|| 0;
                         }
                     }
                 )
