@@ -69,6 +69,22 @@ const state = {
                     path: 'withdraw',
                 },
             ]
+        },{
+            title: '配置',
+            path: '/settings',
+            iconPath: '/static/images/menu_profile.png',
+            children: [
+                {
+                    title: '云仓配置',
+                    path: 'index',
+                },{
+                    title: '返点梯度',
+                    path: 'dealBaseGradient',
+                },{
+                    title: '修改密码',
+                    path: 'updatePassword',
+                },
+            ]
         },
     ],     //  主页左侧菜单
 }

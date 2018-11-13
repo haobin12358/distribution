@@ -95,9 +95,9 @@
                     <span v-if="scope.row.AMstatus == 3">累加中</span>
                 </template>
             </el-table-column>
-            <el-table-column  align="left" label="操作">
+            <el-table-column align="left" label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" size="mini" v-if="scope.row.AMstatus == 1">
+                    <el-button type="text" size="mini" v-if="scope.row.AMstatus == 1" @click="grantReward(scope.row)">
                         发放奖励
                     </el-button>
                 </template>
@@ -114,18 +114,18 @@
                     </template>
                 </el-table-column>
                 <el-table-column property="USagentid" align="center" label="代理号" width="150"></el-table-column>
-                <el-table-column property="USname" align="center" label="用户名" ></el-table-column>
+                <el-table-column property="USname" align="center" label="用户名"></el-table-column>
             </el-table>
         </el-dialog>
-        <el-dialog title="销售折扣详情" :visible.sync="dialogTableVisible2"  width="70%">
+        <el-dialog title="销售折扣详情" :visible.sync="dialogTableVisible2" width="70%">
             <el-table :data="discountData" size="mini" style="width: 100%">
-                <el-table-column prop="img"  align="center" label="头像" width="120">
+                <el-table-column prop="img" align="center" label="头像" width="120">
                     <template slot-scope="scope">
                         <img v-lazy="scope.row.USheadimg" class="table-pic"/>
                     </template>
                 </el-table-column>
                 <el-table-column property="USagentid" align="center" label="代理号" width="150"></el-table-column>
-                <el-table-column property="USname" align="center" label="用户名" ></el-table-column>
+                <el-table-column property="USname" align="center" label="用户名"></el-table-column>
                 <el-table-column property="performance" align="center" label="件数" width="150"></el-table-column>
             </el-table>
         </el-dialog>
@@ -180,10 +180,10 @@
                 tableData: [],
 
                 dialogTableVisible: false,
-                rewardData:[],
+                rewardData: [],
 
                 dialogTableVisible2: false,
-                discountData:[],
+                discountData: [],
 
             }
         },
@@ -257,14 +257,14 @@
                         if (res.data.status == 200) {
                             let resData = res.data,
                                 data = res.data.data;
-                            this.total = resData.mount;
+                            this.total = resData.mount || 0;
                             this.tableData = data;
                         }
                     }
                 )
             },
 
-            showZhiTuiDetail(item){
+            showZhiTuiDetail(item) {
                 this.dialogTableVisible = true;
 
                 this.$http.post(this.$api.getDirectagentPerformance,
@@ -288,7 +288,7 @@
                     }
                 )
             },
-            showDiscountDetail(item){
+            showDiscountDetail(item) {
                 this.dialogTableVisible2 = true;
 
                 this.$http.post(this.$api.getAllPerformance,
@@ -314,6 +314,41 @@
 
             },
 
+
+            grantReward(item) {
+                console.log(item);
+                this.$confirm(`确定发放该月奖励(用户名:${item.USname}),共${item.myprofit}元?`, '提示', {
+                    type: 'info'
+                }).then(
+                    () => {
+                        this.$http.post(this.$api.dealRewardDiscount, {
+                            "amid": item.AMid,
+                            "usid":  item.USid,
+                            "month": this.$common.dateFormat(new Date(this.now)).substr(0, 6),
+                            "profit": item.myprofit,
+                        }, {
+                            params: {
+                                token: this.$common.getStore('token')
+
+                            }
+                        }).then(
+                            res => {
+                                if (res.data.status == 200) {
+                                    let resData = res.data,
+                                        data = res.data.data;
+
+                                    this.setSaleData();
+                                    this.$notify({
+                                        title: '奖励发放成功',
+                                        message: `用户名:${item.USname},共${item.myprofit}元`,
+                                        type: 'success'
+                                    });
+                                }
+                            }
+                        )
+                    }
+                )
+            }
         },
 
         created() {

@@ -30,6 +30,7 @@ const api = {
     getAllUserAcount: title + '/account/get_alluser_account',     //  个人销售
     getDirectagentPerformance: title + '/account/get_directagent_performance',    //  直推详情
     getAllPerformance: title + '/account/get_all_performance',    //  销售折扣详情
+    dealRewardDiscount: title + '/account/deal_reward_discount',    //  销售折扣详情
 
     getAlluserDrawmoneyList: title + '/account/get_alluser_drawmoney_list',    //  提现
     dealDrawmoney: title + '/account/deal_drawmoney',    //  提现
@@ -39,6 +40,22 @@ const api = {
 
     getRegisterRecord: title + '/user/get_register_record',    //  注册
     dealRegisterRecord: title + '/user/deal_register_record',    //  处理注册
+
+    getSevenDaysData: title + '/account/get_sevendays_data',    //  获取近7天数据
+
+    getCommentList: title + '/mycenter/get_comment_list',    //  评论列表
+    dealComments: title + '/mycenter/deal_comments',    //  处理评论
+
+    getSowingMap: title + '/product/get_sowingmap',    //  获取轮播图
+    addSowingMap: title + '/product/add_sowingmap',    //  设置轮播图
+    deleteSowingMap: title + '/product/delete_sowingmap',    //  删除轮播图
+
+    getCountData: title + '/account/get_count_data',    //  获取统计数据
+    getThisYearDate: title + '/account/get_thisyear_date',    //  获取统计数据
+    getThisMonthAgentnum: title + '/account/get_thismonth_agentnum',    //  获取统计数据
+
+    getDiscountRuler: title + '/account/get_discountruler',    //  获取统计数据
+
 };
 
 export default api

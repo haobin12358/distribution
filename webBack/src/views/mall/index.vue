@@ -18,18 +18,24 @@
 
         <section class="swiper-section">
             <header class="my-title fcm">
-                云仓轮播图
+                云仓轮播图(限一张)
             </header>
 
             <el-upload
                 class="swiper-uploader"
-                action="https://jsonplaceholder.typicode.com/posts/"
+                :action="$api.uploadFile"
+                accept="image/*"
                 list-type="picture-card"
                 :file-list="mallImgList"
+                :on-success="handleMallImgSuccess"
                 :on-preview="handlePictureCardPreview"
+                :before-upload="beforeAvatarUpload"
+
                 :on-remove="handleRemove"
                 :limit="1">
                 <i class="el-icon-plus"></i>
+                <div slot="tip" class="el-upload__tip">建议宽高比为2.6(375/145),大小不要超过10M,上传成功后会显示,上传大图请耐心等待</div>
+
             </el-upload>
             <el-dialog :visible.sync="dialogVisible">
                 <img width="100%" :src="dialogImageUrl" alt="">
@@ -43,12 +49,17 @@
 
             <el-upload
                 class="avatar-uploader"
-                action="https://jsonplaceholder.typicode.com/posts/"
+                :action="$api.uploadFile"
+                accept="image/*"
                 list-type="picture-card"
                 :file-list="personImgList"
+                :on-success="handlePersonImgSuccess"
                 :on-preview="handlePictureCardPreview"
+                :before-upload="beforeAvatarUpload"
+
                 :on-remove="handleRemove">
                 <i class="el-icon-plus"></i>
+                <div slot="tip" class="el-upload__tip">建议宽高比为2.6(375/145),大小不要超过10M,上传成功后会显示,上传大图请耐心等待</div>
             </el-upload>
             <el-dialog :visible.sync="dialogVisible">
                 <img width="100%" :src="dialogImageUrl" alt="">
@@ -65,18 +76,8 @@
 
         data() {
             return {
-                mallImgList: [{
-                    name: 'food.jpeg',
-                    url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'
-                }],
-                // mallImgList: ['https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'],
-                personImgList: [{
-                    name: 'food.jpeg',
-                    url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'
-                }, {
-                    name: 'food2.jpeg',
-                    url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'
-                }],
+                mallImgList: [],
+                personImgList: [],
 
                 dialogImageUrl: '',
                 dialogVisible: false
@@ -89,16 +90,167 @@
 
         methods: {
             handleRemove(file, fileList) {
-                console.log(file, fileList);
+                this.$confirm(`确定要删除该图?`, '提示',{
+                    type: 'warning'
+                }).then(
+                    () => {
+                        this.$http.post(this.$api.deleteSowingMap,{
+                            smid: file.uid
+                        },{
+                            params: {
+                                token: this.$common.getStore('token')
+
+                            }
+                        }).then(
+                            res => {
+                                if (res.data.status == 200) {
+                                    let resData = res.data,
+                                        data = res.data.data;
+
+                                    this.setData();
+                                    this.$notify({
+                                        title: '轮播图删除成功',
+                                        type: 'success'
+                                    });
+                                }
+                            }
+                        )
+                    }).catch(e=>{
+                    this.setData();
+                })
+
             },
+
+
             handlePictureCardPreview(file) {
-                console.log('[preview]',file);
+                console.log('[preview]', file);
                 this.dialogImageUrl = file.url;
                 this.dialogVisible = true;
-            }
+            },
+
+            setData() {
+                this.$http.get(this.$api.getSowingMap,
+                    {
+                        params: {
+                            token: this.$common.getStore('token')
+                        }
+                    }).then(
+                    res => {
+                        if (res.data.status == 200) {
+                            let resData = res.data,
+                                data = res.data.data;
+
+                                this.mallImgList = data.mallUrls.map(
+                                item => {
+                                    return {
+                                        url: item.SMurl,
+                                        uid: item.SMid,
+                                    };
+                                }
+                            );
+
+                            this.personImgList = data.personUrls.map(
+                                item => {
+                                    return {
+                                        url: item.SMurl,
+                                        uid: item.SMid,
+                                    };
+                                }
+                            )
+
+                        }
+                    }
+                )
+            },
+
+            beforeAvatarUpload(file) {
+                const isLt15M = file.size / 1024 / 1024 < 10;
+
+                if (!isLt15M) {
+                    this.$message.error('上传轮播图片大小不能超过 10MB!');
+                }
+
+                return isLt15M;
+            },
+
+            //
+            handleMallImgSuccess(response, file, fileList) {
+                this.mallImgList = fileList.map(item => {
+                    let res = {
+                        name: item.name,
+                        url: item.url,
+                    }
+
+                    if (item.response && item.response.data) {
+                        res.url = item.response.data;
+                    }
+
+                    return res;
+                });
+                this.$http.post(this.$api.addSowingMap, {
+                    "type": 2,
+                    "urls": this.mallImgList.map(item => item.url),
+                }, {
+                    params: {
+                        token: this.$common.getStore('token')
+
+                    }
+                }).then(
+                    res => {
+                        if (res.data.status == 200) {
+                            let resData = res.data,
+                                data = res.data.data;
+
+                            this.$notify({
+                                title: '商城图已更新',
+                                type: 'success'
+                            });
+                        }
+                    }
+                );
+            },
+
+            handlePersonImgSuccess(response, file, fileList) {
+                this.personImgList = fileList.map(item => {
+                    let res = {
+                        name: item.name,
+                        url: item.url,
+                    }
+
+                    if (item.response && item.response.data) {
+                        res.url = item.response.data;
+                    }
+
+                    return res;
+                });
+
+                this.$http.post(this.$api.addSowingMap, {
+                    "type": 1,
+                    "urls": this.personImgList.map(item => item.url),
+                }, {
+                    params: {
+                        token: this.$common.getStore('token')
+
+                    }
+                }).then(
+                    res => {
+                        if (res.data.status == 200) {
+                            let resData = res.data,
+                                data = res.data.data;
+
+                            this.$notify({
+                                title: '个人轮播图已更新',
+                                type: 'success'
+                            });
+                        }
+                    }
+                );
+            },
+
         },
 
         created() {
+            this.setData();
         },
     }
 </script>

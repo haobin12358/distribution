@@ -242,7 +242,7 @@
                                 data = res.data.data;
 
                             this.tableData = data;
-                            this.total = resData.mount;
+                            this.total = resData.mount|| 0;
                         }
                     }
                 )

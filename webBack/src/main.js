@@ -26,7 +26,7 @@ filter(Vue);
 //图表
 import echarts from 'echarts';
 
-Vue.prototype.echarts = echarts;
+Vue.prototype.$echarts = echarts;
 
 import axios from 'axios';
 
