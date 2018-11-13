@@ -728,6 +728,7 @@ class CUser():
             response['data'] = {
                 "url": result['authorization']
             }
+            return response
         else:
             from common.make_pic import make_pic
             user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
