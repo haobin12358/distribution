@@ -519,13 +519,15 @@ class CMyCenter():
             args = request.args.to_dict()
             page_num = int(args.get("page_num"))
             page_size = int(args.get("page_size"))
+            status = int(args.get("status"))
         except:
             return PARAMS_ERROR
         try:
-            comment_list = get_model_return_list(self.smycenter.get_comments())
+            comment_list = get_model_return_list(self.smycenter.get_comments(status))
             if not comment_list:
                 response = import_status('get_commentslist_success', 'OK')
                 response['data'] = []
+                response['mount'] = 0
                 return response
             for comment in comment_list:
                 comment['CMcreatetime'] = get_web_time_str(comment['CMcreatetime'])
@@ -547,4 +549,18 @@ class CMyCenter():
             print e
             return SYSTEM_ERROR
 
- 
+
+    @verify_token_decorator
+    def deal_comments(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            cmid = data.get('cmid')
+        except:
+            return PARAMS_ERROR
+        result = self.smycenter.deal_comments(cmid)
+        if not result:
+            return SYSTEM_ERROR
+        response = import_status("deal_comment_success", "OK")
+        return response

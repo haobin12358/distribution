@@ -968,7 +968,7 @@ class CAccount():
         for i in range(6):
             days_list.append(self.get_data_by_day((today + timedelta(days=-(i+1))).strftime("%Y%m%d")))
         response = import_status("get_sevendays_data_success", "OK")
-        response['date'] = days_list
+        response['data'] = days_list
         return response
 
     @verify_token_decorator

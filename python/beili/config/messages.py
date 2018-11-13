@@ -79,4 +79,5 @@ get_sevendays_data_success = "获取近七天销售数据成功"
 get_year_data_success = "获取今年的销售数据成功"
 get_count_data_success = "获取统计数据成功"
 get_thismonth_agentnum_success = "获取当月新增代理数成功"
+deal_comment_success = "处理评论成功"
 

@@ -400,6 +400,7 @@ class Comments(Base):
     USphonenum = Column(String(11))  # 用户手机号
     CMcontent = Column(String(512))  # 用户评论内容
     CMcreatetime = Column(String(14))  # 评论创建创建时间
+    CMstatus = Column(Integer, default=1)  # 1未处理 2已处理
 
 class test(Base):
     """

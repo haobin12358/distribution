@@ -195,10 +195,15 @@ class SMyCenter(SBase):
         return True
 
     @close_session
-    def get_comments(self):
-        return self.session.query(Comments.CMcontent, Comments.USname, Comments.USphonenum, Comments.CMcreatetime)\
-            .order_by(Comments.CMcreatetime.desc()).all()
+    def get_comments(self, status):
+        list = self.session.query(Comments.CMcontent, Comments.USname, Comments.USphonenum, Comments.CMstatus
+                                  , Comments.CMcreatetime, Comments.CMid).order_by(Comments.CMcreatetime.desc())
+        if status > 0:
+            list = list.filter(Comments.CMstatus == status)
+        list = list.all()
+        return list
 
     @close_session
-    def update_CMisread(self, USid, read):
-        self.session.query(Comments).filter_by(USid=USid).update(read)
+    def deal_comments(self, cmid):
+        self.session.query(Comments).filter(Comments.CMid == cmid).update({"CMstatus": 2})
+        return True
