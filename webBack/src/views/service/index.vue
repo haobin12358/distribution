@@ -27,7 +27,7 @@
         <el-table :data="tableData" v-loading="loading" stripe style="width: 100%">
             <el-table-column prop="USname" align="center" label="用户名" width="180"></el-table-column>
             <el-table-column prop="USphonenum" align="center" label="手机号" width="180"></el-table-column>
-            <el-table-column prop="CMcontent" align="center" label="反馈内容" width="280"></el-table-column>
+            <el-table-column prop="CMcontent" align="center" label="反馈内容" ></el-table-column>
             <el-table-column prop="CMcontent" align="center" label="状态" width="120">
                 <template slot-scope="scope">
                     {{statusToTxt(scope.row.CMstatus)}}

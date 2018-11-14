@@ -54,7 +54,11 @@ const api = {
     getThisYearDate: title + '/account/get_thisyear_date',    //  获取统计数据
     getThisMonthAgentnum: title + '/account/get_thismonth_agentnum',    //  获取统计数据
 
-    getDiscountRuler: title + '/account/get_discountruler',    //  获取统计数据
+    getDiscountRuler: title + '/account/get_discountruler',    //  获取
+    updateDiscountRuler: title + '/account/update_discountruler',    //  获取统计数据
+
+    updateAccounts: title + '/account/update_accounts',    //  获取统计数据
+    getConfigure: title + '/account/get_configure',    //  获取统计数据
 
 };
 
