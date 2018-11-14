@@ -624,6 +624,12 @@ export const getSowingMap = () => myAxios('/product/get_sowingmap', {
     },
 });
 
+export const getAuthorization = () => myAxios('/user/get_authorization', {
+    params:{
+        token: getStore(TOKEN)
+    },
+});
+
 
 
 

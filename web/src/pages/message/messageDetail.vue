@@ -61,7 +61,7 @@
                 <img src="/static/images/pdf.png" alt="">
                 <a :href="message.CMfile">{{fullFileName}}</a>
             </section>
-            <img class="content-is-img" v-else :src="message.CMfile" alt="">
+            <img class="content-is-img" v-else v-lazy="message.CMfile" alt="">
         </article>
     </section>
 </template>
@@ -107,7 +107,7 @@
                 let lastDotIndex = this.message.CMfile.lastIndexOf('.'),
                     fullNameSuffix = this.message.CMfile.substring(lastDotIndex + 1);
 
-                if (['img', 'jpg', 'gif', 'jpeg', 'bmp'].includes(fullNameSuffix)) {
+                if (['img', 'jpg', 'gif', 'jpeg', 'bmp', 'png'].includes(fullNameSuffix)) {
                     this.isDoc = false;
                 }
                 this.fullFileName = this.message.CMtitle + '.' + fullNameSuffix;
