@@ -162,7 +162,11 @@
                     type: 'info'
                 }).then(
                     ()=>{
-                        this.$http.post(this.$api.updateAccounts,
+                        this.formData.agentmoney = Number(this.formData.agentmoney);
+                        this.formData.bail = Number(this.formData.bail);
+                        this.formData.reward = Number(this.formData.reward);
+
+                        this.$http.post(this.$api.updateConfigure,
                             this.formData
                         ,{
                             params: {
