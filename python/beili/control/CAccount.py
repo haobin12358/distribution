@@ -381,7 +381,7 @@ class CAccount():
         if record:
             response = import_status("check_bail_success", "OK")
             response['bailstatus'] = 3  # 退还中
-        if float(userinfo['USbail']) < system_bail or float(userinfo['USbail']) == float(0):
+        if float(userinfo['USbail']) < system_bail :
             response = import_status("check_bail_success", "OK")
             response['bailstatus'] = 2  # 未充值
             shouldpay = system_bail - userinfo['USbail']
