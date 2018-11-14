@@ -108,5 +108,7 @@ venv.bak/
 # config
 *dbconfig.py
 *Inforcode.py
+*setting.ini
+*setting.py
 # mac
 .DS_Store

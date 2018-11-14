@@ -2,7 +2,7 @@
 from configparser import ConfigParser
 
 def modify(alipaynum, alipayname, bankname, accountname, cardnum, money, service, drawbank, bail, reward):
-    fp = 'setting.ini'  # 定义配置文件名
+    fp = 'config/setting.ini'  # 定义配置文件名
     conf = ConfigParser()  # 实例化
     conf.read(fp)  # 打开conf
     option = conf.options('account')
@@ -19,7 +19,6 @@ def modify(alipaynum, alipayname, bankname, accountname, cardnum, money, service
     conf.set('account', 'drawbank', drawbank)
     conf.set('account', 'bail', bail)
     conf.set('account', 'reward', reward)
+    with open("config/setting.ini", "w+") as f:
+        conf.write(f)
     return True
-
-if __name__ == '__main__':
-    modify('1','2','3','4','5','6','7','8','9','0')

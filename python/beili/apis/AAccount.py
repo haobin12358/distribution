@@ -33,7 +33,7 @@ class AAccount(Resource):
             'deal_reward_discount': 'self.caccount.deal_reward_discount()',
             'weixin_pay': 'self.caccount.weixin_pay()',
             'pay_callback': 'self.caccount.pay_callback()',
-            'update_accounts': 'self.caccount.update_accounts()',
+            'update_configure': 'self.caccount.update_configure()',
             'update_discountruler': 'self.caccount.update_discountruler()'
         }
         res = eval(apis[account])
@@ -54,7 +54,8 @@ class AAccount(Resource):
             'get_thisyear_date': 'self.caccount.get_thisyear_date()',
             'get_count_data': 'self.caccount.get_count_data()',
             'get_thismonth_agentnum': 'self.caccount.get_thismonth_agentnum()',
-            'get_discountruler': 'self.caccount.get_discountruler()'
+            'get_discountruler': 'self.caccount.get_discountruler()',
+            'get_configure': 'self.caccount.get_configure()'
 
         }
         res = eval(apis[account])

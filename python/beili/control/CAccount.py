@@ -7,8 +7,8 @@ import random
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR, STOCK_NOT_ENOUGH,\
-        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_USER, NOT_FOUND_OPENID, NOT_FOUND_RECORD, MONEY_ERROR
-from config.setting import QRCODEHOSTNAME, DRAWBANK, BAIL, APP_ID, MCH_ID, MCH_KEY, notify_url
+        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_USER, NOT_FOUND_OPENID, NOT_FOUND_RECORD, MONEY_ERROR, REPERT_NUMBER
+from config.setting import QRCODEHOSTNAME, APP_ID, MCH_ID, MCH_KEY, notify_url
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
 #from config.setting import QRCODEHOSTNAME, ALIPAYNUM, ALIPAYNAME, WECHAT, BANKNAME, COUNTNAME, CARDNUM, MONEY, BAIL, \
@@ -22,8 +22,10 @@ from service.SGoods import SGoods
 from service.SMyCenter import SMyCenter
 from service.DBSession import db_session
 from service.SAccount import SAccount
+from configparser import ConfigParser
 from config.urlconfig import get_code
 import platform
+from configparser import ConfigParser
 from common.beili_error import stockerror, dberror
 from datetime import datetime, date, timedelta
 from weixin import WeixinError
@@ -46,6 +48,8 @@ class CAccount():
         self.saccount = SAccount()
         self.pay = WeixinPay(APP_ID, MCH_ID, MCH_KEY, notify_url)
         self.rulerlist = get_model_return_list(self.saccount.get_discount_ruler())
+        self.conf = ConfigParser()
+        self.conf.read('config/setting.ini')
 
     @verify_token_decorator
     def get_account(self):
@@ -208,7 +212,7 @@ class CAccount():
     def get_draw_info(self):
         if is_tourist():
             return TOKEN_ERROR
-        bank = DRAWBANK
+        bank = self.conf.get('account', 'drawbank')
         user = get_model_return_dict(self.suser.getuserinfo_by_uid(request.user.id))
         if not user:
             return NOT_FOUND_USER
@@ -229,7 +233,7 @@ class CAccount():
             branchbank = str(data.get('branchbank'))
             accountname = str(data.get('accountname'))
             cardnum = str(data.get('cardnum'))
-            amount = int(data.get('amount'))
+            amount = float(data.get('amount'))
         except:
             return PARAMS_ERROR
         user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
@@ -310,7 +314,7 @@ class CAccount():
             bankname = str(data.get('bankname'))
             accountname = str(data.get('accountname'))
             cardnum = data.get('cardnum')
-            amount = int(data.get('amount'))
+            amount = float(data.get('amount'))
             remark = str(data.get('remark'))
             proof = str(data.get('proof'))
             paytime = str(data.get('paytime'))
@@ -369,7 +373,7 @@ class CAccount():
     def check_bail(self):
         if is_tourist():
             return TOKEN_ERROR
-        system_bail = BAIL
+        system_bail = float(self.conf.get('account', 'bail'))
         userinfo = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
         if not userinfo:
             return SYSTEM_ERROR
@@ -397,7 +401,7 @@ class CAccount():
         try:
             data = request.json
             type = int(data.get('type'))
-            mount = int(data.get('mount'))
+            mount = float(data.get('mount'))
         except:
             return PARAMS_ERROR
         user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
@@ -1031,36 +1035,33 @@ class CAccount():
         return response
 
     @verify_token_decorator
-    def update_accounts(self):
+    def update_configure(self):
         if not is_admin():
             return TOKEN_ERROR
         params_list = ['alipaynum', 'alipayname', 'bankname', 'accountname', 'cardnum', 'agentmoney', 'wechat', 'drawbank'
             , 'bail', 'reward']
-        try:
-            data = request.json
-            for param in params_list:
-                if param not in data:
-                    params_miss = {
-                        "param": param,
-                        "status": 405,
-                        "status_code": 405002,
-                        "message": u"参数错误"
-                    }
-                    return params_miss
-        except:
-            return PARAMS_ERROR
+        data = request.json
+        for param in params_list:
+            if param not in data:
+                params_miss = {
+                    "paramname": param,
+                    "status": 405,
+                    "status_code": 405002,
+                    "message": u"参数错误"
+                }
+                return params_miss
         alipaynum = data.get('alipaynum')
-        alipayname = data.get('alipayname')
-        bankname = data.get('bankname')
-        accountname = data.get('accountname')
+        alipayname = data.get('alipayname').encode('utf-8')
+        bankname = data.get('bankname').encode('utf-8')
+        accountname = data.get('accountname').encode('utf-8')
         cardnum = data.get('cardnum')
-        money = data.get('agentmoney')
-        service = data.get('wechat')
-        drawbank = data.get('drawbank')
-        bail = data.get('bail')
-        reward = data.get('reward')
+        money = float(data.get('agentmoney'))
+        service = data.get('wechat').encode('utf-8')
+        drawbank = data.get('drawbank').encode('utf-8')
+        bail = float(data.get('bail'))
+        reward = float(data.get('reward'))
         from config.modify_setting import modify
-        result = modify(alipaynum, alipayname, bankname, accountname, cardnum, money, service, drawbank, bail, reward)
+        result = modify(alipaynum, alipayname, bankname, accountname, cardnum, str(money), service, drawbank, str(bail), str(reward))
         if not result:
             return SYSTEM_ERROR
         response = import_status("update_account_success", "OK")
@@ -1085,10 +1086,14 @@ class CAccount():
         except:
             return PARAMS_ERROR
         session = db_session()
+        all_number = []
         try:
             session.query(DiscountRuler).delete()
             for ruler in rulers:
                 number = float(ruler['number'])
+                if number in all_number:
+                    return REPERT_NUMBER
+                all_number.append(number)
                 money = float(ruler['money'])
                 discount = DiscountRuler()
                 discount.DRid = str(uuid.uuid4())
@@ -1103,4 +1108,25 @@ class CAccount():
         finally:
             session.close()
         response = import_status("update_discountruler_success", "OK")
+        return response
+
+    @verify_token_decorator
+    def get_configure(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        conf = ConfigParser()
+        conf.read('config/setting.ini')
+        user_dict = {}
+        user_dict['alipaynum'] = conf.get('account', 'alipaynum')
+        user_dict['alipayname'] = conf.get('account', 'alipayname')
+        user_dict['bankname'] = conf.get('account', 'bankname')
+        user_dict['accountname'] = conf.get('account', 'accountname')
+        user_dict['cardnum'] = conf.get('account', 'cardnum')
+        user_dict['agentmoney'] = float(conf.get('account', 'money'))
+        user_dict['wechat'] = conf.get('account', 'service')
+        user_dict['drawbank'] = conf.get('account', 'drawbank')
+        user_dict['bail'] = float(conf.get('account', 'bail'))
+        user_dict['reward'] = float(conf.get('account', 'reward'))
+        response = import_status("get_configure_success", "OK")
+        response['data'] = user_dict
         return response

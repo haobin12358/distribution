@@ -39,7 +39,8 @@ class AUser(Resource):
             'get_single_message': 'self.cuser.get_single_message()',
             'get_qrcode': 'self.cuser.get_qrcode()',
             'check_openid': 'self.cuser.check_openid()',
-            'get_code': 'self.cuser.get_code()'
+            'get_code': 'self.cuser.get_code()',
+            'get_authorization': 'self.cuser.get_authorization()'
         }
         res = eval(apis[user])
         if isinstance(res, Response):

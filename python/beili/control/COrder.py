@@ -12,7 +12,6 @@ from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
 from common.timeformat import get_db_time_str
-from config.setting import BAIL
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
 from service.SUser import SUser
 from service.SMessage import SMessage
@@ -22,6 +21,7 @@ from service.SMyCenter import SMyCenter
 from service.DBSession import db_session
 from service.SAccount import SAccount
 import platform
+from configparser import ConfigParser
 from common.beili_error import stockerror, dberror
 from datetime import datetime
 from common.timeformat import format_for_db
@@ -38,6 +38,8 @@ class COrder():
         self.smycenter = SMyCenter()
         self.smessage = SMessage()
         self.saccount = SAccount()
+        self.conf = ConfigParser()
+        self.conf.read('config/setting.ini')
 
     @verify_token_decorator
     def create_order(self):
@@ -67,7 +69,7 @@ class COrder():
         user_info = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
         if not user_info:
             return SYSTEM_ERROR
-        if user_info['USbail'] < BAIL:
+        if user_info['USbail'] < float(self.conf.get('account', 'reward')):
             return NO_BAIL
         mount = 0
         new_list = []

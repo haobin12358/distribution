@@ -83,4 +83,6 @@ deal_comment_success = "处理评论成功"
 update_account_success = "修改账户信息成功"
 get_discountruler_success = "获取折扣规则成功"
 update_discountruler_success = "修改折扣规则成功"
+get_authorization_success = "获取授权图成功"
+get_configure_success = "获取配置信息成功"
 
