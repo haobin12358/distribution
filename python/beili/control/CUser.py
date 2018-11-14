@@ -55,7 +55,6 @@ class CUser():
         if not usphonenum or not uspassword:
             return PARAMS_MISS
         print type(usphonenum)
-        user = get_model_return_dict(self.suser.getuser_by_phonenum(usphonenum))
         # 从注册申请表里查询信息
         info = get_model_return_dict(self.suser.get_registerrecord_by_phonenum(usphonenum))
         if info:
@@ -73,6 +72,7 @@ class CUser():
                     "message": u"您的账户未审核通过，请联系客服微信:" + self.conf.get('account', 'service')
                 }
                 return returnbody
+        user = get_model_return_dict(self.suser.getuser_by_phonenum(usphonenum))
         if not user or not check_password_hash(user['USpassword'], uspassword):
             return PHONE_OR_PASSWORD_WRONG
         token = usid_to_token(user['USid'])
@@ -365,6 +365,8 @@ class CUser():
             return NOT_FOUND_USER
         user = get_model_return_dict(user)
         user_dict = {}
+        user_dict['name'] = user['USname']
+        user_dict['USphonenum'] = user['USphonenum']
         user_dict['alipaynum'] = self.conf.get('account', 'alipaynum')
         user_dict['alipayname'] = self.conf.get('account', 'alipayname')
         user_dict['bankname'] = self.conf.get('account', 'bankname')
