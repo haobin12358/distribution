@@ -7,7 +7,7 @@
 
 <template>
     <div class="container">
-        <el-col :span="16">
+        <el-col :span="12">
             <el-form ref="form" :model="form">
 
                 <el-form-item label="旧密码">

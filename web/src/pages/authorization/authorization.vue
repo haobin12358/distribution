@@ -13,25 +13,42 @@
     <div class="container">
         <header-top :show-back="true"></header-top>
 
-        <img src="/static/images/testbg.jpg" alt="">
-        <a href="https://www.hzmyo.cn/ued/php/upload/20181011/1539237187747826.pdf">
-            <img src="/static/images/testbg.jpg" style="width: 20px;height: 20px;" alt="">
-            xx公司制度
-        </a>
+        <img v-lazy="img" alt="">
+        <p>
+            说明：长按或右击证书图片下载。
+        </p>
     </div>
 </template>
 
 <script>
+    import {getAuthorization} from "src/api/api"
+
     export default {
         name: "authorization",
 
         data() {
-            return {}
+            return {
+                img: ''
+            }
         },
 
         components: {},
 
-        methods: {},
+        methods: {
+            setAuthorization(){
+                getAuthorization().then(
+                    resData => {
+                        if(resData){
+                            this.img = resData.data.url;
+                        }
+                    }
+                )
+            }
+        },
+
+        created(){
+            this.setAuthorization();
+        }
     }
 </script>
 

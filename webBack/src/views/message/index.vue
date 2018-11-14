@@ -18,7 +18,7 @@
                     公告
                 </template>
             </el-table-column>
-            <el-table-column prop="CMfile" label="文件">
+            <el-table-column prop="CMfile" align="center" label="文件">
                 <template slot-scope="scope">
                     <a :href="scope.row.CMfile" target="_blank">查看文件({{scope.row.CMfile | fileType}})</a>
                 </template>

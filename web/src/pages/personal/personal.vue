@@ -139,10 +139,10 @@
                 <img src="/static/images/order.png" alt="">
                 <span>云仓订单</span>
             </router-link>
-            <li class="function-item" @click="gotoAuthorization">
+            <router-link tag="li" to="/authorization" class="function-item" >
                 <img src="/static/images/authorization.png" alt="">
                 <span>我的授权</span>
-            </li>
+            </router-link>
             <router-link tag="li" class="function-item" to="/promotion">
                 <img src="/static/images/promotion.png" alt="">
                 <span>我要推广</span>
