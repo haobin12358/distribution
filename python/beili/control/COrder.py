@@ -69,7 +69,7 @@ class COrder():
         user_info = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
         if not user_info:
             return SYSTEM_ERROR
-        if user_info['USbail'] < float(self.conf.get('account', 'reward')):
+        if user_info['USbail'] < float(self.conf.get('account', 'bail')):
             return NO_BAIL
         mount = 0
         new_list = []
