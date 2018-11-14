@@ -128,18 +128,23 @@
 
         methods: {
             returnMarginMoney() {
-                this.$messagebox.confirm(`退还保证金后无法下单和邀请代理,确认退还(${this.personBail}元)?`).then(
-                    () => {
-                        chargeDrawBail(2, this.personBail).then(
-                            resData => {
-                                if (resData) {
-                                    this.$toast('您的退还申请已进入审核');
-                                    this.$router.back();
+                if(this.personBail > 0){
+
+                    this.$messagebox.confirm(`退还保证金后无法下单和邀请代理,确认退还(${this.personBail}元)?`).then(
+                        () => {
+                            chargeDrawBail(2, this.personBail).then(
+                                resData => {
+                                    if (resData) {
+                                        this.$toast('您的退还申请已进入审核');
+                                        this.$router.back();
+                                    }
                                 }
-                            }
-                        )
-                    }
-                )
+                            )
+                        }
+                    )
+                }else{
+                    this.$toast('当前金额无法退还');
+                }
             },
             payMarginMoney() {
                 this.$messagebox.confirm(`缴纳保证金后可以下单和邀请代理,确认缴纳(${this.shouldPay}元)?`).then(
