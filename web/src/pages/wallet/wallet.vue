@@ -122,7 +122,7 @@
                     </span>
                     <router-link to="/marginMoney" tag="section" class="margin-money">
                         <span class="">保证金</span>
-                        <span class="margin-money-num">￥0.00</span>
+                        <span class="margin-money-num">￥{{userInfo.USbail}}</span>
                     </router-link>
                 </p>
                 <p class="num">￥{{userInfo.USmount}}</p>
