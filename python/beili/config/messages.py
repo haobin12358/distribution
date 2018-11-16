@@ -85,4 +85,5 @@ get_discountruler_success = "获取折扣规则成功"
 update_discountruler_success = "修改折扣规则成功"
 get_authorization_success = "获取授权图成功"
 get_configure_success = "获取配置信息成功"
+get_user_totalinfo_success = "获取用户全部信息成功"
 

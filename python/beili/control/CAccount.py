@@ -806,13 +806,13 @@ class CAccount():
         result = get_model_return_list(self.saccount.get_alluser_bailrecord(status)) if self.saccount\
             .get_alluser_bailrecord(status) else None
         if not result:
-            return NOT_FOUND_RECORD
-        if not result:
             response = import_status("get_bailrecordlist_success", "OK")
             response['data'] = []
             return response
         for record in result:
             from common.timeformat import get_web_time_str
+            record['USphonenum'] = get_model_return_dict(self.smycenter.get_user_basicinfo(record['USid']))['USphonenum']
+            record['USname'] = get_model_return_dict(self.smycenter.get_user_basicinfo(record['USid']))['USname']
             record['BRcreatetime'] = get_web_time_str(record['BRcreatetime'])
         mount = len(result)
         page = mount / page_size

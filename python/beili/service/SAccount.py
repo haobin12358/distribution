@@ -160,7 +160,7 @@ class SAccount(SBase):
         list = self.session.query(BailRecord.BRtradenum, BailRecord.USid, BailRecord.BRstatus, BailRecord.BRcreatetime
                     , BailRecord.BRtype, BailRecord.BRmount, BailRecord.BRid).order_by(BailRecord.BRcreatetime.desc())
         if status > 0:
-            list = list.filter(BailRecord.BRstatus)
+            list = list.filter(BailRecord.BRstatus == status)
         list = list.all()
         return list
 

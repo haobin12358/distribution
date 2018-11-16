@@ -253,7 +253,7 @@ class CGoods():
         params = ['paid', 'prname', 'prpic', 'proldprice', 'prprice', 'prstock', 'prlogisticsfee', 'prdiscountnum', 'prstatus']
         data = request.json
         for param in params:
-            if param not in data:
+            if param not in params:
                 response = {}
                 response['message'] = u"参数缺失"
                 response['paramname'] = param

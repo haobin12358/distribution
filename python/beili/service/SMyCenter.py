@@ -51,9 +51,9 @@ class SMyCenter(SBase):
 
     @close_session
     def get_user_totalinfo(self, usid):
-        return self.session.query(User.USphonenum, User.USmount, User.USbail, User.USheadimg, User.USname, \
-                                  User.subscribe, User.USpre, User.unionid, User.openid,\
-                                  User.accesstoken).filter_by(USid=usid).first()
+        return self.session.query(User.USphonenum, User.USmount, User.USbail, User.USheadimg, User.USname, User.UScreatetime,
+                                  User.subscribe, User.USpre, User.unionid, User.openid, User.idcardnum, User.USwechat,
+                                  User.authorization, User.USagentid, User.accesstoken).filter_by(USid=usid).first()
 
     @close_session
     def get_province(self):
