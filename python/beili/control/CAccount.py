@@ -224,7 +224,7 @@ class CAccount():
         return response
 
     @verify_token_decorator
-    def draw_money(self):
+    def draw_money(self):  # 提现
         if is_tourist():
             return TOKEN_ERROR
         try:
@@ -716,7 +716,7 @@ class CAccount():
                     return SYSTEM_ERROR
             if willstatus == 4:
                 time_now = datetime.strftime(datetime.now(), format_for_db)
-                result2 = self.saccount.add_moneyrecord(session, result['USid'], result['DMamount'], 7, time_now
+                result2 = self.saccount.add_moneyrecord(session, result['USid'], +result['DMamount'], 7, time_now
                                                        , tradenum=result['DMtradenum'], oiid=None)
                 user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
                     self.smycenter.get_user_basicinfo(result['USid']) else None
