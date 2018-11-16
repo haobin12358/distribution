@@ -135,8 +135,7 @@ class CMyCenter():
         result = get_model_return_dict(self.smycenter.get_user_totalinfo(request.user.id))
 
         if result:
-            for user in result:
-                user['UScreatetime'] = get_web_time_str(user['UScreatetime'])
+            result['UScreatetime'] = get_web_time_str(result['UScreatetime'])
             res = import_status("get_user_totalinfo_success", "OK")
             res['data'] = result
             return res
