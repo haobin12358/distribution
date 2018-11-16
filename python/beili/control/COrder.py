@@ -24,7 +24,7 @@ import platform
 from configparser import ConfigParser
 from common.beili_error import stockerror, dberror
 from datetime import datetime
-from common.timeformat import format_for_db, get_random_str
+from common.timeformat import format_for_db, get_random_str, get_random_int
 from models.model import User, AgentMessage, Performance, Amount, Reward, MoneyRecord
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -102,7 +102,7 @@ class COrder():
         session = db_session()
         try:
             OIid = str(uuid.uuid4())
-            OIsn = datetime.strftime(datetime.now(), format_for_db) + get_random_str()
+            OIsn = datetime.strftime(datetime.now(), format_for_db) + get_random_int()
             OIcreatetime = datetime.strftime(datetime.now(), format_for_db)
             result = self.sorder.check_stock(new_list)
             if not result:
