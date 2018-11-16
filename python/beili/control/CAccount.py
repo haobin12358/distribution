@@ -850,6 +850,10 @@ class CAccount():
             return SYSTEM_ERROR
         if willstatus == 3:
             time_now = datetime.strftime(datetime.now(), format_for_db)
+            # 写入代理消息
+            content = u'您的保证金退还成功，流水号为' + ' ' + str(result['BRtradenum'])
+            agent_result = self.smessage.create_agentmessage(result['USid'], time_now, content, 1)
+
             self.saccount.add_moneyrecord(result['USid'], result['BRmount'], 6, time_now
                                           , tradenum=result['BRtradenum'], oiid=None)
             user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
@@ -858,6 +862,11 @@ class CAccount():
             update['USmount'] = user['USmount'] + result['BRmount']
             self.smycenter.update_user_by_uid(result['USid'], update)
         if willstatus == 4:
+            # 写入代理消息
+            content = u'您的保证金退还失败，请联系微信客服处理'
+            time_now = datetime.strftime(datetime.now(), format_for_db)
+            agent_result = self.smessage.create_agentmessage(result['USid'], time_now, content, 1)
+
             user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
                 self.smycenter.get_user_basicinfo(result['USid']) else None
             update_bail = {}
