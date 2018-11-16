@@ -251,6 +251,7 @@ class CAccount():
             update = {}
             update['USmount'] = float(user['USmount']) - float(amount)
             self.smycenter.update_user_by_uid(session, request.user.id, update)
+            session.commit()
         except Exception as e:
             print e
             session.rollback()
