@@ -241,19 +241,24 @@ class CAccount():
             return NOT_FOUND_USER
         if float(user['USmount']) < float(amount):
             return NO_ENOUGH_MOUNT
-        time_now = datetime.strftime(datetime.now(), format_for_db)
-        tradenum = 'tx' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
-        result = self.saccount.add_drawmoney(str(uuid.uuid4()), request.user.id, bankname, branchbank, accountname, cardnum,\
-                                    float(amount), time_now, tradenum)
-        result2 = self.saccount.add_moneyrecord(request.user.id, -amount, 2, time_now, tradenum=tradenum, oiid=None)
-        if result:
+        session = db_session()
+        try:
+            time_now = datetime.strftime(datetime.now(), format_for_db)
+            tradenum = 'tx' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
+            result = self.saccount.add_drawmoney(session, str(uuid.uuid4()), request.user.id, bankname, branchbank, accountname, cardnum,\
+                                        float(amount), time_now, tradenum)
+            result2 = self.saccount.add_moneyrecord(session, request.user.id, -amount, 2, time_now, tradenum=tradenum, oiid=None)
             update = {}
             update['USmount'] = float(user['USmount']) - float(amount)
-            self.smycenter.update_user_by_uid(request.user.id, update)
-            response = import_status("drawmoney_success", "OK")
-            return response
-        else:
+            self.smycenter.update_user_by_uid(session, request.user.id, update)
+        except Exception as e:
+            print e
+            session.rollback()
             return SYSTEM_ERROR
+        finally:
+            session.close()
+        response = import_status("drawmoney_success", "OK")
+        return response
 
     @verify_token_decorator
     def get_drawmoney_list(self):
@@ -434,7 +439,7 @@ class CAccount():
                 session.add(record)
 
                 time_now = datetime.strftime(datetime.now(), format_for_db)
-                result2 = self.saccount.add_moneyrecord(request.user.id, -mount, 3, time_now
+                result2 = self.saccount.add_moneyrecord(session, request.user.id, -mount, 3, time_now
                                                         , tradenum=tradenum, oiid=None)
 
                 session.commit()
@@ -543,28 +548,37 @@ class CAccount():
         reward = account['reward']
         if profit != mydiscount + reward:
             return MONEY_ERROR
-        tradenum =  datetime.strftime(datetime.now(), format_for_db_no_HMS) + get_random_str(8)
-        time_now = datetime.strftime(datetime.now(), format_for_db)
-        result2 = self.saccount.add_moneyrecord(usid, profit, 5, time_now
-                                                , tradenum=tradenum, oiid=None)
-        if not result2:
+        session = db_session()
+        try:
+            tradenum =  datetime.strftime(datetime.now(), format_for_db_no_HMS) + get_random_str(8)
+            time_now = datetime.strftime(datetime.now(), format_for_db)
+            result2 = self.saccount.add_moneyrecord(session, usid, profit, 5, time_now
+                                                    , tradenum=tradenum, oiid=None)
+            if not result2:
+                return SYSTEM_ERROR
+            # 写入代理消息
+            content = u'您' + month + u'月的奖金已发放，流水号为' + ' ' + str(tradenum)
+            agent_result = self.smessage.create_agentmessage(session, usid, time_now, content, 1)
+            if not agent_result:
+                return SYSTEM_ERROR
+            update = {}
+            update["AMstatus"] = 2
+            update['AMtradenum'] = tradenum
+            result = self.saccount.update_account(session, amid, update)
+            if not result:
+                return SYSTEM_ERROR
+            user = get_model_return_dict(self.smycenter.get_user_basicinfo(usid)) if \
+                self.smycenter.get_user_basicinfo(usid) else None
+            update = {}
+            update['USmount'] = user['USmount'] + profit
+            self.smycenter.update_user_by_uid(session, usid, update)
+            session.commit()
+        except Exception as e:
+            print e
+            session.rollback()
             return SYSTEM_ERROR
-        # 写入代理消息
-        content = u'您' + month + u'月的奖金已发放，流水号为' + ' ' + str(tradenum)
-        agent_result = self.smessage.create_agentmessage(usid, time_now, content, 1)
-        if not agent_result:
-            return SYSTEM_ERROR
-        update = {}
-        update["AMstatus"] = 2
-        update['AMtradenum'] = tradenum
-        result = self.saccount.update_account(amid, update)
-        if not result:
-            return SYSTEM_ERROR
-        user = get_model_return_dict(self.smycenter.get_user_basicinfo(usid)) if \
-            self.smycenter.get_user_basicinfo(usid) else None
-        update = {}
-        update['USmount'] = user['USmount'] + profit
-        self.smycenter.update_user_by_uid(usid, update)
+        finally:
+            session.close()
         response = import_status("deal_profit_success", "OK")
         return response
 
@@ -690,22 +704,31 @@ class CAccount():
         update_result = self.saccount.update_by_dmid(dmid, update)
         if not update_result:
             return SYSTEM_ERROR
-        if willstatus == 3:
-            # 写入代理消息
-            time_now = datetime.strftime(datetime.now(), format_for_db)
-            content = u'您已提现成功，流水号为' + ' ' + str(result['DMtradenum'])
-            agent_result = self.smessage.create_agentmessage(result['USid'], time_now, content, 1)
-            if not agent_result:
-                return SYSTEM_ERROR
-        if willstatus == 4:
-            time_now = datetime.strftime(datetime.now(), format_for_db)
-            result2 = self.saccount.add_moneyrecord(result['USid'], result['DMamount'], 7, time_now
-                                                   , tradenum=result['DMtradenum'], oiid=None)
-            user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
-                self.smycenter.get_user_basicinfo(result['USid']) else None
-            update = {}
-            update['USmount'] = user['USmount'] + result['DMamount']
-            self.smycenter.update_user_by_uid(result['USid'], update)
+        session = db_session()
+        try:
+            if willstatus == 3:
+                # 写入代理消息
+                time_now = datetime.strftime(datetime.now(), format_for_db)
+                content = u'您已提现成功，流水号为' + ' ' + str(result['DMtradenum'])
+                agent_result = self.smessage.create_agentmessage(session, result['USid'], time_now, content, 1)
+                if not agent_result:
+                    return SYSTEM_ERROR
+            if willstatus == 4:
+                time_now = datetime.strftime(datetime.now(), format_for_db)
+                result2 = self.saccount.add_moneyrecord(session, result['USid'], result['DMamount'], 7, time_now
+                                                       , tradenum=result['DMtradenum'], oiid=None)
+                user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
+                    self.smycenter.get_user_basicinfo(result['USid']) else None
+                update = {}
+                update['USmount'] = user['USmount'] + result['DMamount']
+                self.smycenter.update_user_by_uid(session, result['USid'], update)
+            session.commit()
+        except Exception as e:
+            print e
+            session.rollback()
+            return SYSTEM_ERROR
+        finally:
+            session.close()
         response = import_status("update_record_success", "OK")
         return response
 
@@ -768,27 +791,36 @@ class CAccount():
         if not update_result:
             return SYSTEM_ERROR
         time_now = datetime.strftime(datetime.now(), format_for_db)
-        if willstatus == 2:
-            # 写入收支记录
-            self.saccount.add_moneyrecord(result['USid'], result['CMamount'], 4, time_now
-                                                    , tradenum=result['CMtradenum'], oiid=None)
-            # 写入代理消息
-            content = u'您已充值成功，流水号为' + ' ' + str(result['CMtradenum'])
-            agent_result = self.smessage.create_agentmessage(result['USid'], time_now, content, 1)
-            if not agent_result:
-                return SYSTEM_ERROR
-            # 加余额
-            user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
-                self.smycenter.get_user_basicinfo(result['USid']) else None
-            update = {}
-            update['USmount'] = user['USmount'] + result['CMamount']
-            self.smycenter.update_user_by_uid(result['USid'], update)
-        if willstatus == 3:
-            # 写入代理消息
-            content = u'您充值失败，请联系客服处理，流水号为' + result['CMtradenum']
-            agent_result = self.smessage.create_agentmessage(result['USid'], time_now, content, 1)
-            if not agent_result:
-                return SYSTEM_ERROR
+        session = db_session()
+        try:
+            if willstatus == 2:
+                # 写入收支记录
+                self.saccount.add_moneyrecord(session, result['USid'], result['CMamount'], 4, time_now
+                                                        , tradenum=result['CMtradenum'], oiid=None)
+                # 写入代理消息
+                content = u'您已充值成功，流水号为' + ' ' + str(result['CMtradenum'])
+                agent_result = self.smessage.create_agentmessage(session, result['USid'], time_now, content, 1)
+                if not agent_result:
+                    return SYSTEM_ERROR
+                # 加余额
+                user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
+                    self.smycenter.get_user_basicinfo(result['USid']) else None
+                update = {}
+                update['USmount'] = user['USmount'] + result['CMamount']
+                self.smycenter.update_user_by_uid(session, result['USid'], update)
+            if willstatus == 3:
+                # 写入代理消息
+                content = u'您充值失败，请联系客服处理，流水号为' + result['CMtradenum']
+                agent_result = self.smessage.create_agentmessage(session, result['USid'], time_now, content, 1)
+                if not agent_result:
+                    return SYSTEM_ERROR
+            session.commit()
+        except Exception as e:
+            print e
+            session.rollback()
+            return SYSTEM_ERROR
+        finally:
+            session.close()
         response = import_status("update_record_success", "OK")
         return response
 
@@ -848,30 +880,39 @@ class CAccount():
         result2 = self.saccount.update_bailrecord(brid, update)
         if not result2:
             return SYSTEM_ERROR
-        if willstatus == 3:
-            time_now = datetime.strftime(datetime.now(), format_for_db)
-            # 写入代理消息
-            content = u'您的保证金退还成功，流水号为' + ' ' + str(result['BRtradenum'])
-            agent_result = self.smessage.create_agentmessage(result['USid'], time_now, content, 1)
+        session = db_session()
+        try:
+            if willstatus == 3:
+                time_now = datetime.strftime(datetime.now(), format_for_db)
+                # 写入代理消息
+                content = u'您的保证金退还成功，流水号为' + ' ' + str(result['BRtradenum'])
+                agent_result = self.smessage.create_agentmessage(session, result['USid'], time_now, content, 1)
 
-            self.saccount.add_moneyrecord(result['USid'], result['BRmount'], 6, time_now
-                                          , tradenum=result['BRtradenum'], oiid=None)
-            user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
-                self.smycenter.get_user_basicinfo(result['USid']) else None
-            update = {}
-            update['USmount'] = user['USmount'] + result['BRmount']
-            self.smycenter.update_user_by_uid(result['USid'], update)
-        if willstatus == 4:
-            # 写入代理消息
-            content = u'您的保证金退还失败，请联系微信客服处理'
-            time_now = datetime.strftime(datetime.now(), format_for_db)
-            agent_result = self.smessage.create_agentmessage(result['USid'], time_now, content, 1)
+                self.saccount.add_moneyrecord(session, result['USid'], result['BRmount'], 6, time_now
+                                              , tradenum=result['BRtradenum'], oiid=None)
+                user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
+                    self.smycenter.get_user_basicinfo(result['USid']) else None
+                update = {}
+                update['USmount'] = user['USmount'] + result['BRmount']
+                self.smycenter.update_user_by_uid(session, result['USid'], update)
+            if willstatus == 4:
+                # 写入代理消息
+                content = u'您的保证金退还失败，请联系微信客服处理'
+                time_now = datetime.strftime(datetime.now(), format_for_db)
+                agent_result = self.smessage.create_agentmessage(session, result['USid'], time_now, content, 1)
 
-            user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
-                self.smycenter.get_user_basicinfo(result['USid']) else None
-            update_bail = {}
-            update_bail['USbail'] = user['USbail'] + result['BRmount']
-            self.smycenter.update_user_by_uid(result['USid'], update_bail)
+                user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
+                    self.smycenter.get_user_basicinfo(result['USid']) else None
+                update_bail = {}
+                update_bail['USbail'] = user['USbail'] + result['BRmount']
+                self.smycenter.update_user_by_uid(session, result['USid'], update_bail)
+            session.commit()
+        except Exception as e:
+            print e
+            session.rollback()
+            return SYSTEM_ERROR
+        finally:
+            session.close()
         response = import_status("update_record_success", "OK")
         return response
 
@@ -926,19 +967,27 @@ class CAccount():
 
         USmount = float(user.get('USmount')) + (float(data.get('total_fee')) / 100)
         print 'to add usmount :', USmount
-        self.suser.update_user_by_uid(user.get("USid"), {'USmount': USmount})
-        # 修改微信充值状态
-        self.saccount.update_weixin_charge(str(data.get("out_trade_no")))
-        # todo 收支记录
-        self.saccount.add_moneyrecord(
-            user.get("USid"), float(data.get('total_fee')) / 100, 4,
-            datetime.strftime(datetime.now(), format_for_db), sn, str(data.get("out_trade_no")))
-        # 写入代理消息
-        time_now = datetime.strftime(datetime.now(), format_for_db)
-        content = u'您已通过微信充值成功，流水号为' + ' ' + str(sn)
-        agent_result = self.smessage.create_agentmessage(user.get("USid"), time_now, content, 1)
-        if not agent_result:
+        result = self.suser.update_user_by_uid(user.get("USid"), {'USmount': USmount})
+        if not result:
             return SYSTEM_ERROR
+        # 修改微信充值状态
+        session = db_session()
+        try:
+            self.saccount.update_weixin_charge(session, str(data.get("out_trade_no")))
+            # todo 收支记录
+            self.saccount.add_moneyrecord(
+                session, user.get("USid"), float(data.get('total_fee')) / 100, 4,
+                datetime.strftime(datetime.now(), format_for_db), sn, str(data.get("out_trade_no")))
+            # 写入代理消息
+            time_now = datetime.strftime(datetime.now(), format_for_db)
+            content = u'您已通过微信充值成功，流水号为' + ' ' + str(sn)
+            agent_result = self.smessage.create_agentmessage(session, user.get("USid"), time_now, content, 1)
+            session.commit()
+        except Exception as e:
+            print e
+            session.rollback()
+        finally:
+            session.close()
         return self.pay.reply(u'OK', True)
 
     def get_data_by_day(self, day):  # 获取当日的订单数以及销售额

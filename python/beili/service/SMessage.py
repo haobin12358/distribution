@@ -20,14 +20,14 @@ class SMessage(SBase):
         return list, mount
 
     @close_session
-    def create_agentmessage(self, usid, time, content, type):
+    def create_agentmessage(self, session, usid, time, content, type):
         agent = AgentMessage()
         agent.AMid = str(uuid.uuid4())
         agent.USid = usid
         agent.AMdate = time
         agent.AMcontent = content
         agent.AMtype = type
-        self.session.add(agent)
+        session.add(agent)
         return True
 
 

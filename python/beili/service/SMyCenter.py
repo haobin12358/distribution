@@ -16,8 +16,8 @@ class SMyCenter(SBase):
             .order_by(IdentifyingCode.ICtime.desc()).first()
 
     @close_session
-    def update_user_by_uid(self, uid, users):
-        self.session.query(User).filter_by(USid=uid).update(users)
+    def update_user_by_uid(self, session, uid, users):
+        session.query(User).filter_by(USid=uid).update(users)
         return True
 
 

@@ -19,8 +19,8 @@ class SAccount(SBase):
             .filter(Amount.USid == usid).filter(Amount.AMmonth == month).first()
 
     @close_session
-    def update_account(self, amid, update):
-        self.session.query(Amount).filter(Amount.AMid == amid).update(update)
+    def update_account(self, session, amid, update):
+        session.query(Amount).filter(Amount.AMid == amid).update(update)
         return True
 
     @close_session
@@ -38,7 +38,7 @@ class SAccount(SBase):
             .filter(Amount.AMmonth == month).first()
 
     @close_session
-    def add_drawmoney(self, id, usid, bankname, branchbank, accountname, cardnum, amount, time_now, tradenum):
+    def add_drawmoney(self, session, id, usid, bankname, branchbank, accountname, cardnum, amount, time_now, tradenum):
         draw = DrawMoney()
         draw.DMid = id
         draw.USid = usid
@@ -50,7 +50,7 @@ class SAccount(SBase):
         draw.DMcreatetime = time_now
         draw.DMtradenum = tradenum
         draw.DMstatus = 1
-        self.session.add(draw)
+        session.add(draw)
         return True
 
     @close_session
@@ -94,7 +94,7 @@ class SAccount(SBase):
         return result
 
     @close_session
-    def add_moneyrecord(self, usid,  amount, type, createtime, tradenum=None, oiid=None):
+    def add_moneyrecord(self, session, usid,  amount, type, createtime, tradenum=None, oiid=None):
         record = MoneyRecord()
         record.MRid = str(uuid.uuid4())
         record.USid = usid
@@ -103,7 +103,7 @@ class SAccount(SBase):
         record.MRcreatetime = createtime
         record.MRtradenum = tradenum
         record.OIid = oiid
-        self.session.add(record)
+        session.add(record)
         return True
 
 
@@ -221,7 +221,7 @@ class SAccount(SBase):
         return self.session.query(WeixinCharge.WCstatus).filter(WeixinCharge.WCsn == wcsn, WeixinCharge.WCstatus < 2).first()
 
     @close_session
-    def update_weixin_charge(self, wcsn):
+    def update_weixin_charge(self, session, wcsn):
         return self.session.query(WeixinCharge.WCid).filter(WeixinCharge.WCsn == wcsn).update(
             {"WCstatus": 2}, synchronize_session=False)
 
