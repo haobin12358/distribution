@@ -56,7 +56,7 @@ class SAccount(SBase):
     @close_session
     def get_drawmoney_list(self, id, status):
         return self.session.query(DrawMoney.DMstatus, DrawMoney.DMcreatetime, DrawMoney.DMamount, DrawMoney.DMtradenum)\
-            .filter(DrawMoney.USid == id).order_by(DrawMoney.DMcreatetime.desc()).filter(DrawMoney.DMstatus == status).all()
+            .filter(DrawMoney.USid == id).filter(DrawMoney.DMstatus == status).order_by(DrawMoney.DMcreatetime.desc()).all()
 
     @close_session
     def get_all_drawmoney_list(self, id):
