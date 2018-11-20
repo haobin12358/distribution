@@ -81,12 +81,94 @@ class Product(Base):
     PRpic = Column(String(255))  # 商品图片
     PRoldprice = Column(Float)  # 原价
     PRprice = Column(Float, nullable=False)  # 显示价格
-    PRstock = Column(Integer)  # 库存
     PRcreatetime = Column(String(14))  # 创建时间
     PRlogisticsfee = Column(Float)  # 物流费
     PRstatus = Column(Integer)     # 商品状态，1出售中，2已售罄，3已下架
     PAid = Column(String(64))      # 分类id，用于绑定商品类目，空值表示未绑定分类
     PAdiscountnum = Column(Float,default=1)  # 折扣件数
+
+class ProductSku(Base):
+    """
+    商品sku表，一个商品对应着多个sku
+    """
+    __tablename__ = 'productsku'
+    PSid = Column(String(64), primary_key=True)
+    PRid = Column(String(64))  # 商品id
+    colorid = Column(String(64))  # 颜色id
+    colorname = Column(String(64))  # 颜色名称
+    sizeid = Column(String(64))  # 尺码id
+    sizename = Column(String(64))  # 尺码名称
+    PSstock = Column(Integer)  # 库存
+    PScreatetime = Column(String(14))  # 创建时间
+    PSstatus = Column(Integer)   # 状态
+
+class Color(Base):
+    """
+    颜色表
+    """
+    __tablename__ = 'color'
+    COid = Column(String(64), primary_key=True)
+    COname = Column(String(64))  # 颜色名称
+    COcreatetime = Column(String(14))  # 记录创建时间
+
+class Size(Base):
+    """
+    尺码表
+    """
+    __tablename__ = 'size'
+    SIid = Column(String(64), primary_key=True)
+    SIname = Column(String(64))  # 尺码名称
+    SIcreatetime = Column(String(14))  # 记录创建时间
+
+"""
+class ShoppingCart(Base):
+   
+   
+    __tablename__ = 'shoppingcart'
+    SCid = Column(String(64), primary_key=True)
+    USid = Column(String(64))  # 用户id
+    PRid = Column(String(64))  # 商品id
+    PSid = Column(String(64))  # skuid
+    PSnumber = Column(Integer)  # 商品数量
+    PSprice = Column(Float)  # 商品价格
+"""
+
+
+class OrderInfo(Base):
+    """订单信息"""
+    __tablename__ = 'orderinfo'
+    OIid = Column(String(64), primary_key=True)
+    OIsn = Column(String(64))  # 订单号
+    USid = Column(String(64))  # 用户id
+    """
+    订单状态: {0:所有订单, 1:待发货, 2:已发货, 3:交易完成 } 根据需求无待支付状态
+    """
+    OIstatus = Column(Integer, default=1)
+    OInote = Column(String(255))  # 订单留言
+    OImount = Column(Float)  # 金额
+    UAid = Column(String(255), nullable=False)  # 地址id
+    OIcreatetime = Column(String(14))  # 订单创建时间
+    OIlogisticsfee = Column(Float)  # 订单运费
+    username = Column(String(64))  # 联系人
+    userphonenum = Column(String(64))  # 电话号码
+    provincename = Column(String(64))  # 省
+    cityname = Column(String(64))  # 市
+    areaname = Column(String(64))  # 区
+    details = Column(String(255))  # 详细地址
+    expressname = Column(String(64))  # 快递名称
+    expressnum = Column(String(64))  # 快递单号
+    productnum = Column(Integer, default=0)  # 商品数量
+
+class OrderProductInfo(Base):
+    """订单商品详情, 多个订单商品详情对应一个订单"""
+    __tablename__ = 'orderproductinfo'
+    OPIid = Column(String(64), primary_key=True)
+    OIid = Column(String(64), nullable=False)  # 订单
+    PRid = Column(String(64), nullable=False)  # 商品id
+    PRprice = Column(Float, nullable=False)   # 商品价格(购买时候的价格)
+    PRname = Column(String(64))  # 商品的名字(购买之时的)
+    PRimage = Column(String(255))  # 商品主图
+    PRnum = Column(Integer)  # 购买数量
 
 class BailRecord(Base):
     """
@@ -155,43 +237,6 @@ class MoneyRecord(Base):
     MRtradenum = Column(String(30))  # 流水号
     MRcreatetime = Column(String(14))  # 创建日期
 
-
-
-class OrderInfo(Base):
-    """订单信息"""
-    __tablename__ = 'orderinfo'
-    OIid = Column(String(64), primary_key=True)
-    OIsn = Column(String(64))  # 订单号
-    USid = Column(String(64))  # 用户id
-    """
-    订单状态: {0:所有订单, 1:待发货, 2:已发货, 3:交易完成 } 根据需求无待支付状态
-    """
-    OIstatus = Column(Integer, default=1)
-    OInote = Column(String(255))  # 订单留言
-    OImount = Column(Float)  # 金额
-    UAid = Column(String(255), nullable=False)  # 地址id
-    OIcreatetime = Column(String(14))  # 订单创建时间
-    OIlogisticsfee = Column(Float)  # 订单运费
-    username = Column(String(64))  # 联系人
-    userphonenum = Column(String(64))  # 电话号码
-    provincename = Column(String(64))  # 省
-    cityname = Column(String(64))  # 市
-    areaname = Column(String(64))  # 区
-    details = Column(String(255))  # 详细地址
-    expressname = Column(String(64))  # 快递名称
-    expressnum = Column(String(64))  # 快递单号
-    productnum = Column(Integer, default=0)  # 商品数量
-
-class OrderProductInfo(Base):
-    """订单商品详情, 多个订单商品详情对应一个订单"""
-    __tablename__ = 'orderproductinfo'
-    OPIid = Column(String(64), primary_key=True)
-    OIid = Column(String(64), nullable=False)  # 订单
-    PRid = Column(String(64), nullable=False)  # 商品id
-    PRprice = Column(Float, nullable=False)   # 商品价格(购买时候的价格)
-    PRname = Column(String(64))  # 商品的名字(购买之时的)
-    PRimage = Column(String(255))  # 商品主图
-    PRnum = Column(Integer)  # 购买数量
 
 class ChargeMoney(Base):
     """

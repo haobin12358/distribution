@@ -9,7 +9,7 @@ from flask import request
 import copy
 # import logging
 
-
+from service.DBSession import db_session
 from config.response import PARAMS_MISS, NO_THIS_CATEGORY, PARAMS_ERROR, PRODUCE_CATEGORY_EXIST, PRODUCE_CATEGORY_NOT_EXIST\
     , AUTHORITY_ERROR, SYSTEM_ERROR, TOKEN_ERROR, PRODUCE_CATEGORY_HAS_PRODUCT
 from config.setting import QRCODEHOSTNAME
@@ -250,10 +250,10 @@ class CGoods():
     def create_update_product(self):
         if not is_admin():
             return AUTHORITY_ERROR
-        params = ['paid', 'prname', 'prpic', 'proldprice', 'prprice', 'prstock', 'prlogisticsfee', 'prdiscountnum', 'prstatus']
+        params = ['paid', 'prname', 'prpic', 'proldprice', 'prprice', 'skulist', 'prlogisticsfee', 'prdiscountnum', 'prstatus']
         data = request.json
         for param in params:
-            if param not in params:
+            if param not in data:
                 response = {}
                 response['message'] = u"参数缺失"
                 response['paramname'] = param
@@ -264,11 +264,11 @@ class CGoods():
         prpic = data.get('prpic')
         proldprice = data.get('proldprice')
         prprice = data.get('prprice')
-        prstock = data.get('prstock')
         prlogisticsfee = data.get('prlogisticsfee')
         prdiscountnum = data.get('prdiscountnum')
         prstatus = data.get('prstatus')
         prid = data.get('prid')
+        skulist = data.get('skulist')
         if prid:
             product = {}
             product['PAid'] = paid
@@ -276,7 +276,6 @@ class CGoods():
             product['PRpic'] = prpic
             product['PRoldprice'] = proldprice
             product['PRprice'] = prprice
-            product['PRstock'] = prstock
             product['PRlogisticsfee'] = prlogisticsfee
             product['PRstatus'] = prstatus
             product['PAdiscountnum'] = prdiscountnum
@@ -286,11 +285,29 @@ class CGoods():
             response = import_status("update_product_success", "OK")
             return response
         else:
-            time_now = datetime.strftime(datetime.now(), format_for_db)
-            result = self.sgoods.create_product(str(uuid.uuid4()), paid, prname, prpic, proldprice, prprice, prstock
-                                       , prlogisticsfee, prstatus, prdiscountnum, time_now)
-            if not result:
+            session = db_session()
+            try:
+                time_now = datetime.strftime(datetime.now(), format_for_db)
+                prid = str(uuid.uuid4())
+                result = self.sgoods.create_product(session, prid, paid, prname, prpic, proldprice, prprice
+                                           , prlogisticsfee, prstatus, prdiscountnum, time_now)
+                if not result:
+                    return SYSTEM_ERROR
+                for sku in skulist:
+                    coid = sku['coid']
+                    colorname = sku['colorname']
+                    siid = sku['siid']
+                    sizename = sku['sizename']
+                    stock = sku['stock']
+                    time_now = datetime.strftime(datetime.now(), format_for_db)
+                    self.sgoods.create_sku(session, prid, coid, colorname, siid, sizename, stock, time_now)
+                session.commit()
+            except Exception as e:
+                print e
+                session.rollback()
                 return SYSTEM_ERROR
+            finally:
+                session.close()
             response = import_status("create_product_success", "OK")
             return response
 
@@ -383,4 +400,54 @@ class CGoods():
         else:
             pass
 
+    @verify_token_decorator
+    def add_color(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            colorname = data.get("colorname")
+        except Exception as e:
+            print e
+            return PARAMS_ERROR
+        time_now = datetime.strftime(datetime.now(), format_for_db)
+        result = self.sgoods.add_color(colorname, time_now)
+        if not result:
+            return SYSTEM_ERROR
+        response = import_status("add_color_success", "OK")
+        return response
 
+    @verify_token_decorator
+    def get_color(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        list = get_model_return_list(self.sgoods.get_color_list())
+        response = import_status("get_color_list_success", "OK")
+        response['data'] = list
+        return response
+
+    @verify_token_decorator
+    def add_size(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            sizename = data.get("sizename")
+        except Exception as e:
+            print e
+            return PARAMS_ERROR
+        time_now = datetime.strftime(datetime.now(), format_for_db)
+        result = self.sgoods.add_size(sizename, time_now)
+        if not result:
+            return SYSTEM_ERROR
+        response = import_status("add_size_success", "OK")
+        return response
+
+    @verify_token_decorator
+    def get_size(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        list = get_model_return_list(self.sgoods.get_size_list())
+        response = import_status("get_size_list_success", "OK")
+        response['data'] = list
+        return response

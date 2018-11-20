@@ -86,4 +86,8 @@ update_discountruler_success = "修改折扣规则成功"
 get_authorization_success = "获取授权图成功"
 get_configure_success = "获取配置信息成功"
 get_user_totalinfo_success = "获取用户全部信息成功"
+add_color_success = "添加颜色成功"
+get_color_list_success = "获取颜色列表成功"
+add_size_success = "添加尺码成功"
+get_size_list_success = "获取尺码列表成功"
 

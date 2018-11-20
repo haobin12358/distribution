@@ -3,7 +3,7 @@ import sys
 import os
 import uuid
 from service.SBase import SBase, close_session
-from models.model import Product, ProductCategory, SowingMap
+from models.model import Product, ProductCategory, SowingMap, Color, Size, ProductSku
 from sqlalchemy import func
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -67,8 +67,7 @@ class SGoods(SBase):
         self.session.query(Product).filter_by(PRid=PRid).update(product)
         return True
 
-    @close_session
-    def create_product(self, id, paid, prname, prpic, proldprice, prprice, prstock, prlogisticsfee, prstatus, prdiscountnum, createtime):
+    def create_product(self, session, id, paid, prname, prpic, proldprice, prprice, prlogisticsfee, prstatus, prdiscountnum, createtime):
         product = Product()
         product.PRid = id
         product.PAid = paid
@@ -76,13 +75,26 @@ class SGoods(SBase):
         product.PRpic = prpic
         product.PRoldprice = proldprice
         product.PRprice = prprice
-        product.PRstock = prstock
         product.PRlogisticsfee = prlogisticsfee
         product.PRstatus = prstatus
         product.PAdiscountnum = prdiscountnum
         product.PRcreatetime = createtime
-        self.session.add(product)
+        session.add(product)
         return True
+
+    @close_session
+    def create_sku(self, session, prid, coid, colorname, siid, sizename, stock, time_now):
+        sku = ProductSku()
+        sku.PSid = str(uuid.uuid4())
+        sku.PRid = prid
+        sku.colorid = coid
+        sku.colorname = colorname
+        sku.sizeid = siid
+        sku.sizename = sizename
+        sku.PSstock = stock
+        sku.PScreatetime = time_now
+        sku.PSstatus = 1
+        session.add(sku)
 
     @close_session
     def get_paname(self, PAid):
@@ -154,3 +166,29 @@ class SGoods(SBase):
     def update_sowingmap(self, smid):
         self.session.query(SowingMap).filter(SowingMap.SMid == smid).update({'SMstatus':False})
         return True
+
+    @close_session
+    def add_color(self, colorname, time):
+        color = Color()
+        color.COid = str(uuid.uuid4())
+        color.COname = colorname
+        color.COcreatetime = time
+        self.session.add(color)
+        return True
+
+    @close_session
+    def get_color_list(self):
+        return self.session.query(Color.COid, Color.COname).order_by(Color.COcreatetime.desc()).all()
+
+    @close_session
+    def add_size(self, sizename, time):
+        size = Size()
+        size.SIid = str(uuid.uuid4())
+        size.SIname = sizename
+        size.SIcreatetime = time
+        self.session.add(size)
+        return True
+
+    @close_session
+    def get_size_list(self):
+        return self.session.query(Size.SIid, Size.SIname).order_by(Size.SIcreatetime.desc()).all()
