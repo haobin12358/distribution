@@ -93,34 +93,33 @@ class CGoods():
         response = import_status("get_product_success", "OK")
         response["data"] = product
         return response
+
     @verify_token_decorator
     def get_product_category_list(self):
-        #商品分类列表
-        try:
-            first_level = get_model_return_list(self.sgoods.get_first_product_category_status(0))
-            print first_level
-            options = []
-            product_category_list = {}
-            for parent_category in first_level:
-                parnetid = parent_category['PAid']
-                parentname = parent_category['PAname']
-                pastatus = parent_category['PAstatus']
-                if pastatus == False:
-                    continue
-                product_category_list['PAid'] = parnetid
-                product_category_list['PAname'] = parentname
-                child_category = get_model_return_list(self.sgoods.get_first_product_category(parnetid))
-                product_category_list['child_category'] = child_category
-                test = product_category_list.copy()
-                options.append(test)
-            print options
-            response = import_status("get_product_category_list_success", "OK")
-            response['data'] = options
-            #response['child_data'] = product_category_list
-        except Exception as e:
-            print(e.message)
-            return PARAMS_MISS
+        # 获取商品分类列表
+        if not is_admin():
+            return TOKEN_ERROR
+        first_level = get_model_return_list(self.sgoods.get_first_product_category_status(0))
+        print first_level
+        options = []
+        product_category_list = {}
+        for parent_category in first_level:
+            parnetid = parent_category['PAid']
+            parentname = parent_category['PAname']
+            pastatus = parent_category['PAstatus']
+            if pastatus == False:
+                continue
+            product_category_list['PAid'] = parnetid
+            product_category_list['PAname'] = parentname
+            child_category = get_model_return_list(self.sgoods.get_first_product_category(parnetid))
+            product_category_list['child_category'] = child_category
+            test = product_category_list.copy()
+            options.append(test)
+        print options
+        response = import_status("get_product_category_list_success", "OK")
+        response['data'] = options
         return response
+
     @verify_token_decorator
     def add_product_category(self):
         #添加商品分类
