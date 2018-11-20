@@ -11,13 +11,14 @@ import copy
 
 from service.DBSession import db_session
 from config.response import PARAMS_MISS, NO_THIS_CATEGORY, PARAMS_ERROR, PRODUCE_CATEGORY_EXIST, PRODUCE_CATEGORY_NOT_EXIST\
-    , AUTHORITY_ERROR, SYSTEM_ERROR, TOKEN_ERROR, PRODUCE_CATEGORY_HAS_PRODUCT
+    , AUTHORITY_ERROR, SYSTEM_ERROR, TOKEN_ERROR, PRODUCE_CATEGORY_HAS_PRODUCT, REPERT_COLOR, REPERT_SIZE
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin, is_ordirnaryuser,is_superadmin
 from common.import_status import import_status
 from common.timeformat import get_db_time_str
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
 from service.SGoods import SGoods
+from models.model import ProductSku
 from common.timeformat import get_web_time_str
 import platform
 
@@ -29,7 +30,6 @@ class CGoods():
     def __init__(self):
         self.sgoods = SGoods()
 
-    #@verify_token_decorator
     def get_product_list(self):
         args = request.args.to_dict()
         try:
@@ -75,6 +75,23 @@ class CGoods():
         response = import_status("get_product_list_success", "OK")
         response["data"] = return_list
         response['mount'] = mount
+        return response
+
+    @verify_token_decorator
+    def get_product_details(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            prid = data.get('prid')
+        except:
+            return PARAMS_ERROR
+        details = get_model_return_dict(self.sgoods.get_product_details(prid))
+        details['sowingmap'] = details['sowingmap'].split(",")
+        sku_list = get_model_return_list(self.sgoods.get_sku_by_prid(prid))
+        response = import_status("get_product_detail_success", "OK")
+        response['data'] = details
+        response['data']['skulist'] = sku_list
         return response
 
 
@@ -269,25 +286,48 @@ class CGoods():
         prstatus = data.get('prstatus')
         prid = data.get('prid')
         skulist = data.get('skulist')
-        sowingmap = str(data.get('sowingmap'))
-        if prid:
-            product = {}
-            product['PAid'] = paid
-            product['PRname'] = prname
-            product['PRpic'] = prpic
-            product['PRoldprice'] = proldprice
-            product['PRprice'] = prprice
-            product['PRlogisticsfee'] = prlogisticsfee
-            product['PRstatus'] = prstatus
-            product['PAdiscountnum'] = prdiscountnum
-            result = self.sgoods.update_product(prid, product)
-            if not result:
-                return SYSTEM_ERROR
-            response = import_status("update_product_success", "OK")
-            return response
-        else:
-            session = db_session()
-            try:
+        sowingmap = ",".join(data.get('sowingmap'))
+        session = db_session()
+        try:
+            if prid:
+                product = {}
+                product['PAid'] = paid
+                product['PRname'] = prname
+                product['PRpic'] = prpic
+                product['PRoldprice'] = proldprice
+                product['PRprice'] = prprice
+                product['PRlogisticsfee'] = prlogisticsfee
+                product['PRstatus'] = prstatus
+                product['PAdiscountnum'] = prdiscountnum
+                product['sowingmap'] = sowingmap
+                result = self.sgoods.update_product(session, prid, product)
+                if not result:
+                    return SYSTEM_ERROR
+                skuid_list = get_model_return_list(self.sgoods.get_all_skuid(session, prid))
+                db_skuid_list = []
+                for id in skuid_list:
+                    db_skuid_list.append(id['PSid'])
+                web_skuid_list = []
+                for sku in skulist:
+                    if not sku['psid']:
+                        coid = sku['coid']
+                        colorname = sku['colorname']
+                        siid = sku['siid']
+                        sizename = sku['sizename']
+                        stock = sku['stock']
+                        time_now = datetime.strftime(datetime.now(), format_for_db)
+                        self.sgoods.create_sku(session, prid, coid, colorname, siid, sizename, stock, time_now)
+                    if sku['psid']:
+                        web_skuid_list.append(sku['psid'])
+                        self.sgoods.update_sku(session, prid, sku['psid'], {'PSstock': sku['stock']})
+                for dbskuid in db_skuid_list:
+                    if dbskuid not in web_skuid_list:
+                        session.query(ProductSku).filter(ProductSku.PRid == prid).filter(ProductSku.PSid == dbskuid)\
+                        .update({'PSstatus': 0})
+                session.commit()
+                response = import_status("update_product_success", "OK")
+                return response
+            else:
                 time_now = datetime.strftime(datetime.now(), format_for_db)
                 prid = str(uuid.uuid4())
                 result = self.sgoods.create_product(session, prid, paid, prname, prpic, proldprice, prprice
@@ -303,14 +343,14 @@ class CGoods():
                     time_now = datetime.strftime(datetime.now(), format_for_db)
                     self.sgoods.create_sku(session, prid, coid, colorname, siid, sizename, stock, time_now)
                 session.commit()
-            except Exception as e:
-                print e
-                session.rollback()
-                return SYSTEM_ERROR
-            finally:
-                session.close()
-            response = import_status("create_product_success", "OK")
-            return response
+                response = import_status("create_product_success", "OK")
+                return response
+        except Exception as e:
+            print e
+            session.rollback()
+            return SYSTEM_ERROR
+        finally:
+            session.close()
 
     @verify_token_decorator
     def withdraw_product(self):
@@ -411,6 +451,9 @@ class CGoods():
         except Exception as e:
             print e
             return PARAMS_ERROR
+        is_same = self.sgoods.get_color_by_colorname(colorname.encode('utf-8'))
+        if is_same:
+            return REPERT_COLOR
         time_now = datetime.strftime(datetime.now(), format_for_db)
         result = self.sgoods.add_color(colorname, time_now)
         if not result:
@@ -437,6 +480,9 @@ class CGoods():
         except Exception as e:
             print e
             return PARAMS_ERROR
+        is_same = self.sgoods.get_color_by_sizename(sizename.encode('utf-8'))
+        if is_same:
+            return REPERT_SIZE
         time_now = datetime.strftime(datetime.now(), format_for_db)
         result = self.sgoods.add_size(sizename, time_now)
         if not result:
@@ -451,4 +497,47 @@ class CGoods():
         list = get_model_return_list(self.sgoods.get_size_list())
         response = import_status("get_size_list_success", "OK")
         response['data'] = list
+        return response
+
+    @verify_token_decorator
+    def add_shoppingcart(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        params = ['prid', 'prname', 'prprice', 'prpic', 'prlogisticsfee', 'psid', 'colorid', 'colorname'
+            , 'sizeid', 'sizename', 'number']
+        data = request.json
+        for param in params:
+            if param not in data:
+                response = {}
+                response['message'] = u"参数缺失"
+                response['paramname'] = param
+                response['status'] = 405
+                return response
+        result = self.sgoods.add_shoppingcart(request.user.id, data)
+        if not result:
+            return SYSTEM_ERROR
+        response = import_status("add_shoppingcart_success", "OK")
+        return response
+
+    @verify_token_decorator
+    def get_shoppingcart(self):
+        if not is_ordirnaryuser():
+            return TOKEN_ERROR
+        product_list = get_model_return_list(self.sgoods.get_shoppingcart_product(request.user.id))
+        real_product_list = []
+        for product in product_list:
+            product_info = get_model_return_dict(self.sgoods.get_product_info(product['PRid']))
+            if product_info:
+                real_product_list.append(product)
+        if real_product_list:
+            for product in real_product_list:
+                real_sku_list = []
+                sku_list = get_model_return_list(self.sgoods.get_shoppingcart_sku(request.user.id, product['PRid']))
+                for sku in sku_list:
+                    skuinfo = self.sgoods.get_sku_info(sku['PSid'])
+                    if skuinfo:
+                        real_sku_list.append(sku)
+                product['skulist'] = real_sku_list
+        response = import_status("get_shoppingcart_success", "OK")
+        response['data'] = real_product_list
         return response

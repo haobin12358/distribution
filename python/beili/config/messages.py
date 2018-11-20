@@ -90,4 +90,7 @@ add_color_success = "添加颜色成功"
 get_color_list_success = "获取颜色列表成功"
 add_size_success = "添加尺码成功"
 get_size_list_success = "获取尺码列表成功"
+get_product_detail_success = "获取商品详情成功"
+add_shoppingcart_success = "添加购物车成功"
+get_shoppingcart_success = "获取购物车成功"
 

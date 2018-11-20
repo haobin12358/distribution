@@ -166,6 +166,16 @@ REPERT_NUMBER = {
     'status_code': 405033,
     'message': '达标件数重复，请检查数据！'
 }
+REPERT_COLOR = {
+    'status': 405,
+    'status_code': 405034,
+    'message': '颜色已经存在!'
+}
+REPERT_SIZE = {
+    'status': 405,
+    'status_code': 405035,
+    'message': '尺码已经存在!'
+}
 
 
 

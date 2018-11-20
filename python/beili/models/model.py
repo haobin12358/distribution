@@ -121,19 +121,26 @@ class Size(Base):
     SIname = Column(String(64))  # 尺码名称
     SIcreatetime = Column(String(14))  # 记录创建时间
 
-"""
 class ShoppingCart(Base):
-   
-   
+    """
+    购物车
+    """
     __tablename__ = 'shoppingcart'
     SCid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户id
     PRid = Column(String(64))  # 商品id
+    PRname = Column(String(64), nullable=False)  # 商品名称
+    PRprice = Column(Float)  # 商品价格
+    PRlogisticsfee = Column(Float)  # 物流费
+    PRpic = Column(Text)  # 商品图片地址
     PSid = Column(String(64))  # skuid
-    PSnumber = Column(Integer)  # 商品数量
-    PSprice = Column(Float)  # 商品价格
-"""
-
+    colorid = Column(String(64))  # 颜色id
+    colorname = Column(String(64))  # 颜色名称
+    sizeid = Column(String(64))  # 尺码id
+    sizename = Column(String(64))  # 尺码名称
+    number = Column(Integer)  # 商品数量
+    SCcreatetime = Column(String(14))  # 记录创建时间
+    SCstatus = Column(Integer, default=1)  # 状态
 
 class OrderInfo(Base):
     """订单信息"""

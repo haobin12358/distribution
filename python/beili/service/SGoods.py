@@ -3,8 +3,11 @@ import sys
 import os
 import uuid
 from service.SBase import SBase, close_session
-from models.model import Product, ProductCategory, SowingMap, Color, Size, ProductSku
+from models.model import Product, ProductCategory, SowingMap, Color, Size, ProductSku, ShoppingCart
 from sqlalchemy import func
+from datetime import datetime
+from common.timeformat import format_for_db, get_random_str, format_for_db_no_HMS, get_random_int\
+    , format_forweb_no_HMS, format_for_dbmonth
 sys.path.append(os.path.dirname(os.getcwd()))
 
 class SGoods(SBase):
@@ -15,7 +18,7 @@ class SGoods(SBase):
     @close_session
     def admin_get_product(self, PRstatus=None, PRname=None, PAid=None):
         product_list = self.session.query(Product.PRpic, Product.PRname, Product.PAid, Product.PRoldprice, Product.PRprice,
-                                          Product.PRstock, Product.PRid, Product.PRlogisticsfee, Product.PAdiscountnum,
+                                          Product.PRid, Product.PRlogisticsfee, Product.PAdiscountnum,
                                           Product.PRcreatetime, Product.PRstatus)
         if PAid:
             product_list = product_list.filter(Product.PAid == PAid)
@@ -25,6 +28,18 @@ class SGoods(SBase):
             product_list = product_list.filter(Product.PRname.like('%{0}%'.format(PRname)))
         product_list = product_list.order_by(Product.PRcreatetime.desc()).all()
         return product_list
+
+    @close_session
+    def get_product_details(self, prid):
+        return self.session.query(Product.sowingmap, Product.PRid, Product.PRlogisticsfee, Product.PRoldprice, Product.PRprice
+                                  , Product.PRname).filter(Product.PRid == prid).first()
+
+    @close_session
+    def get_sku_by_prid(self, prid):
+        return self.session.query(ProductSku.PSid, ProductSku.colorid, ProductSku.colorname, ProductSku.sizeid
+                                  , ProductSku.sizename, ProductSku.PSstock).filter(ProductSku.PRid == prid)\
+                                  .filter(ProductSku.PSstatus == 1).order_by(ProductSku.sizename).all()
+
 
     @close_session
     def get_category_byid(self, id):
@@ -40,7 +55,7 @@ class SGoods(SBase):
     @close_session
     def get_product_list(self, page_size, page_num, PAid=None, PRstatus=None):
         product_list = self.session.query(Product.PRpic, Product.PRname, Product.PRoldprice, Product.PRprice,
-                Product.PRstock, Product.PRid, Product.PRlogisticsfee,
+                Product.PRid, Product.PRlogisticsfee,
                 Product.PRcreatetime).filter_by(PRstatus=PRstatus).order_by(Product.PRcreatetime.desc())
         mount = self.session.query(func.count(Product.PAid)).filter_by(PRstatus=PRstatus).scalar()
         if PAid:
@@ -63,8 +78,8 @@ class SGoods(SBase):
                 Product.PRlogisticsfee, Product.PAdiscountnum).filter_by(PRid=PRid).first()
 
     @close_session
-    def update_product(self, PRid, product):
-        self.session.query(Product).filter_by(PRid=PRid).update(product)
+    def update_product(self, session, PRid, product):
+        session.query(Product).filter_by(PRid=PRid).update(product)
         return True
 
     def create_product(self, session, id, paid, prname, prpic, proldprice, prprice, prlogisticsfee, prstatus
@@ -84,7 +99,6 @@ class SGoods(SBase):
         session.add(product)
         return True
 
-    @close_session
     def create_sku(self, session, prid, coid, colorname, siid, sizename, stock, time_now):
         sku = ProductSku()
         sku.PSid = str(uuid.uuid4())
@@ -97,6 +111,14 @@ class SGoods(SBase):
         sku.PScreatetime = time_now
         sku.PSstatus = 1
         session.add(sku)
+
+    def update_sku(self, session, prid, skuid, update):
+        session.query(ProductSku).filter(ProductSku.PRid == prid).filter(ProductSku.PSid == skuid).update(update)
+
+
+    @close_session
+    def get_all_skuid(self, session, prid):
+        return session.query(ProductSku.PSid).filter(ProductSku.PRid == prid).filter(ProductSku.PSstatus == 1).all()
 
     @close_session
     def get_paname(self, PAid):
@@ -179,6 +201,10 @@ class SGoods(SBase):
         return True
 
     @close_session
+    def get_color_by_colorname(self, name):
+        return self.session.query(Color).filter(Color.COname == name).first()
+
+    @close_session
     def get_color_list(self):
         return self.session.query(Color.COid, Color.COname).order_by(Color.COcreatetime.desc()).all()
 
@@ -192,5 +218,52 @@ class SGoods(SBase):
         return True
 
     @close_session
+    def get_color_by_sizename(self, name):
+        return self.session.query(Size).filter(Size.SIname == name).first()
+
+    @close_session
     def get_size_list(self):
         return self.session.query(Size.SIid, Size.SIname).order_by(Size.SIcreatetime.desc()).all()
+
+    @close_session
+    def add_shoppingcart(self, usid, data):
+        cart = ShoppingCart()
+        cart.SCid = str(uuid.uuid4())
+        cart.USid = usid
+        cart.PRid = data.get('prid')
+        cart.PRname = data.get('prname')
+        cart.PRprice = data.get('prprice')
+        cart.PRlogisticsfee = data.get('prlogisticsfee')
+        cart.PRpic = data.get('prpic')
+        cart.PSid = data.get('psid')
+        cart.colorid = data.get('colorid')
+        cart.colorname = data.get('colorname')
+        cart.sizeid = data.get('sizeid')
+        cart.sizename = data.get('sizename')
+        cart.number = data.get('number')
+        cart.SCcreatetime = datetime.strftime(datetime.now(), format_for_db)
+        self.session.add(cart)
+        return True
+
+    @close_session
+    def get_product_info(self, id):
+        return self.session.query(Product.PRid).filter(Product.PRid == id).filter(Product.PRstatus == 1).first()
+
+    @close_session
+    def get_shoppingcart_product(self, id):
+        return self.session.query(ShoppingCart.PRid, ShoppingCart.PRname, ShoppingCart.PRlogisticsfee\
+                           , ShoppingCart.PRpic, ShoppingCart.PRprice)\
+                           .filter(ShoppingCart.USid == id).group_by(ShoppingCart.PRid, ShoppingCart.PRname
+                           , ShoppingCart.PRlogisticsfee, ShoppingCart.PRpic, ShoppingCart.PRprice).all()
+
+    @close_session
+    def get_shoppingcart_sku(self, usid, prid):
+        return self.session.query(ShoppingCart.SCid, ShoppingCart.colorid, ShoppingCart.colorname
+                           , ShoppingCart.sizeid, ShoppingCart.sizename, ShoppingCart.number, ShoppingCart.PSid)\
+                           .filter(ShoppingCart.USid == usid).filter(ShoppingCart.PRid == prid)\
+                           .order_by(ShoppingCart.SCcreatetime.desc()).all()
+
+    @close_session
+    def get_sku_info(self, psid):
+        return self.session.query(ProductSku).filter(ProductSku.PSid == psid)\
+                           .filter(ProductSku.PSstock > 0).filter(ProductSku.PSstatus == 1).first()
