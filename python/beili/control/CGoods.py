@@ -250,7 +250,8 @@ class CGoods():
     def create_update_product(self):
         if not is_admin():
             return AUTHORITY_ERROR
-        params = ['paid', 'prname', 'prpic', 'proldprice', 'prprice', 'skulist', 'prlogisticsfee', 'prdiscountnum', 'prstatus']
+        params = ['paid', 'prname', 'prpic', 'sowingmap', 'proldprice', 'prprice', 'skulist', 'prlogisticsfee'
+            , 'prdiscountnum', 'prstatus']
         data = request.json
         for param in params:
             if param not in data:
@@ -269,6 +270,7 @@ class CGoods():
         prstatus = data.get('prstatus')
         prid = data.get('prid')
         skulist = data.get('skulist')
+        sowingmap = str(data.get('sowingmap'))
         if prid:
             product = {}
             product['PAid'] = paid
@@ -290,7 +292,7 @@ class CGoods():
                 time_now = datetime.strftime(datetime.now(), format_for_db)
                 prid = str(uuid.uuid4())
                 result = self.sgoods.create_product(session, prid, paid, prname, prpic, proldprice, prprice
-                                           , prlogisticsfee, prstatus, prdiscountnum, time_now)
+                                           , prlogisticsfee, prstatus, prdiscountnum, time_now, sowingmap)
                 if not result:
                     return SYSTEM_ERROR
                 for sku in skulist:

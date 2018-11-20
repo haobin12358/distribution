@@ -67,7 +67,8 @@ class SGoods(SBase):
         self.session.query(Product).filter_by(PRid=PRid).update(product)
         return True
 
-    def create_product(self, session, id, paid, prname, prpic, proldprice, prprice, prlogisticsfee, prstatus, prdiscountnum, createtime):
+    def create_product(self, session, id, paid, prname, prpic, proldprice, prprice, prlogisticsfee, prstatus
+                       , prdiscountnum, createtime, sowingmap):
         product = Product()
         product.PRid = id
         product.PAid = paid
@@ -79,6 +80,7 @@ class SGoods(SBase):
         product.PRstatus = prstatus
         product.PAdiscountnum = prdiscountnum
         product.PRcreatetime = createtime
+        product.sowingmap = sowingmap
         session.add(product)
         return True
 
