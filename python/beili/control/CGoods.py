@@ -507,9 +507,21 @@ class CGoods():
                 response['paramname'] = param
                 response['status'] = 405
                 return response
-        result = self.sgoods.add_shoppingcart(request.user.id, data)
-        if not result:
-            return SYSTEM_ERROR
+        prid = data.get('prid')
+        psid = data.get('psid')
+        is_exist = get_model_return_dict(self.sgoods.check_is_exist_sku(request.user.id, prid, psid))
+        if is_exist:
+            new_number = is_exist['number'] + int(data.get('number'))
+            update = {
+                "number": new_number
+            }
+            result = self.sgoods.update_sku_number(request.user.id, psid, update)
+            if not result:
+                return SYSTEM_ERROR
+        else:
+            result = self.sgoods.add_shoppingcart(request.user.id, data)
+            if not result:
+                return SYSTEM_ERROR
         response = import_status("add_shoppingcart_success", "OK")
         return response
 

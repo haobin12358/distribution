@@ -267,3 +267,13 @@ class SGoods(SBase):
     def get_sku_info(self, psid):
         return self.session.query(ProductSku).filter(ProductSku.PSid == psid)\
                            .filter(ProductSku.PSstock > 0).filter(ProductSku.PSstatus == 1).first()
+
+    @close_session
+    def check_is_exist_sku(self, usid, prid, psid):
+        return self.session.query(ShoppingCart.number).filter(ShoppingCart.USid == usid).filter(ShoppingCart.PRid == prid)\
+                           .filter(ShoppingCart.PSid == psid).first()
+
+    @close_session
+    def update_sku_number(self, usid, psid, update):
+        self.session.query(ShoppingCart).filter(ShoppingCart.USid == usid).filter(ShoppingCart.PSid == psid).update(update)
+        return True
