@@ -11,7 +11,8 @@ import copy
 
 from service.DBSession import db_session
 from config.response import PARAMS_MISS, NO_THIS_CATEGORY, PARAMS_ERROR, PRODUCE_CATEGORY_EXIST, PRODUCE_CATEGORY_NOT_EXIST\
-    , AUTHORITY_ERROR, SYSTEM_ERROR, TOKEN_ERROR, PRODUCE_CATEGORY_HAS_PRODUCT, REPERT_COLOR, REPERT_SIZE
+    , AUTHORITY_ERROR, SYSTEM_ERROR, TOKEN_ERROR, PRODUCE_CATEGORY_HAS_PRODUCT, REPERT_COLOR, REPERT_SIZE, STOCK_NOT_ENOUGH\
+    , PRODUCT_STATUS_WRONG
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin, is_ordirnaryuser,is_superadmin
 from common.import_status import import_status
@@ -497,8 +498,7 @@ class CGoods():
     def add_shoppingcart(self):
         if is_tourist():
             return TOKEN_ERROR
-        params = ['prid', 'prname', 'prprice', 'prpic', 'prlogisticsfee', 'psid', 'colorid', 'colorname'
-            , 'sizeid', 'sizename', 'number']
+        params = ['prid', 'psid', 'colorid', 'colorname', 'sizeid', 'sizename', 'number']
         data = request.json
         for param in params:
             if param not in data:
@@ -509,16 +509,21 @@ class CGoods():
                 return response
         prid = data.get('prid')
         psid = data.get('psid')
+        sku_stock = get_model_return_dict(self.sgoods.get_sku_stock(psid))['PSstock']
         is_exist = get_model_return_dict(self.sgoods.check_is_exist_sku(request.user.id, prid, psid))
         if is_exist:
             new_number = is_exist['number'] + int(data.get('number'))
+            if sku_stock < new_number:
+                return STOCK_NOT_ENOUGH
             update = {
                 "number": new_number
             }
-            result = self.sgoods.update_sku_number(request.user.id, psid, update)
+            result = self.sgoods.update_user_sku(request.user.id, psid, update)
             if not result:
                 return SYSTEM_ERROR
         else:
+            if int(data.get('number')) > sku_stock:
+                return STOCK_NOT_ENOUGH
             result = self.sgoods.add_shoppingcart(request.user.id, data)
             if not result:
                 return SYSTEM_ERROR
@@ -530,21 +535,70 @@ class CGoods():
         if not is_ordirnaryuser():
             return TOKEN_ERROR
         product_list = get_model_return_list(self.sgoods.get_shoppingcart_product(request.user.id))
-        real_product_list = []
         for product in product_list:
-            product_info = get_model_return_dict(self.sgoods.get_product_info(product['PRid']))
-            if product_info:
-                real_product_list.append(product)
-        if real_product_list:
-            for product in real_product_list:
-                real_sku_list = []
-                sku_list = get_model_return_list(self.sgoods.get_shoppingcart_sku(request.user.id, product['PRid']))
-                for sku in sku_list:
-                    skuinfo = self.sgoods.get_sku_info(sku['PSid'])
-                    if skuinfo:
-                        real_sku_list.append(sku)
-                product['skulist'] = real_sku_list
-        new_list = sorted(real_product_list, key=lambda product: product['skulist'][0]['SCcreatetime'], reverse=True)
+            product_info = get_model_return_dict(self.sgoods.get_product_details(product['PRid']))
+            product['PRpic'] = product_info['PRpic']
+            product['PRlogisticsfee'] = product_info['PRlogisticsfee']
+            product['PRprice'] = product_info['PRprice']
+            product['PRname'] = product_info['PRname']
+            product_status = self.sgoods.get_product_info(product['PRid'])
+            sku_list = get_model_return_list(self.sgoods.get_shoppingcart_sku(request.user.id, product['PRid']))
+            for sku in sku_list:
+                sku_stok = get_model_return_dict(self.sgoods.get_sku_stock(sku['PSid']))
+                if int(sku['number']) > int(sku_stok['PSstock']):
+                    sku['SCstatus'] = 2
+                sku_status = self.sgoods.get_sku_status(sku['PSid'])
+                if not sku_status:
+                    sku['SCstatus'] = 3
+                if not product_status:
+                    sku['SCstatus'] = 4
+            product['skulist'] = sku_list
+        if len(product_list) != 0:
+            return_list = sorted(product_list, key=lambda product: product['skulist'][0]['SCcreatetime'], reverse=True)
+        else:
+            return_list = []
         response = import_status("get_shoppingcart_success", "OK")
-        response['data'] = new_list
+        response['data'] = return_list
         return response
+
+    @verify_token_decorator
+    def delete_shoppingcart_sku(self):
+        if not is_ordirnaryuser():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            scid = data.get('scid')
+        except:
+            return PARAMS_ERROR
+        update = {
+            "SCstatus": 0
+        }
+        result = self.sgoods.update_user_sku_by_scid(request.user.id, scid, update)
+        if not result:
+            return SYSTEM_ERROR
+        response = import_status("delete_shoppingcart_sku_success", "OK")
+        return response
+
+    @verify_token_decorator
+    def update_shoppingcart_number(self):
+        if not is_ordirnaryuser():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            psid = data.get('psid')
+            number = data.get('number')
+        except:
+            return PARAMS_ERROR
+        sku_stock = get_model_return_dict(self.sgoods.get_sku_stock(psid))
+        if sku_stock['PSstatus'] != 1:
+            return PRODUCT_STATUS_WRONG
+        if int(number) > sku_stock['PSstock']:
+            return STOCK_NOT_ENOUGH
+        if int(number) < 0:
+            return PARAMS_MISS
+        result = self.sgoods.update_user_sku(request.user.id, psid, {"number": number})
+        if not result:
+            return SYSTEM_ERROR
+        response = import_status("change_shoppingcart_number_success", "OK")
+        return response
+

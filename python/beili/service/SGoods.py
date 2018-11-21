@@ -32,7 +32,7 @@ class SGoods(SBase):
     @close_session
     def get_product_details(self, prid):
         return self.session.query(Product.sowingmap, Product.PRid, Product.PRlogisticsfee, Product.PRoldprice, Product.PRprice
-                                  , Product.PRname).filter(Product.PRid == prid).first()
+                                  , Product.PRname, Product.PRpic).filter(Product.PRid == prid).first()
 
     @close_session
     def get_sku_by_prid(self, prid):
@@ -251,29 +251,37 @@ class SGoods(SBase):
 
     @close_session
     def get_shoppingcart_product(self, id):
-        return self.session.query(ShoppingCart.PRid, ShoppingCart.PRname, ShoppingCart.PRlogisticsfee\
-                           , ShoppingCart.PRpic, ShoppingCart.PRprice)\
-                           .filter(ShoppingCart.USid == id).group_by(ShoppingCart.PRid, ShoppingCart.PRname
-                           , ShoppingCart.PRlogisticsfee, ShoppingCart.PRpic, ShoppingCart.PRprice).all()
+        return self.session.query(ShoppingCart.PRid).filter(ShoppingCart.USid == id).filter(ShoppingCart.SCstatus == 1)\
+            .group_by(ShoppingCart.PRid).all()
 
     @close_session
     def get_shoppingcart_sku(self, usid, prid):
         return self.session.query(ShoppingCart.SCid, ShoppingCart.colorid, ShoppingCart.colorname, ShoppingCart.SCcreatetime\
-                           , ShoppingCart.sizeid, ShoppingCart.sizename, ShoppingCart.number, ShoppingCart.PSid)\
-                           .filter(ShoppingCart.USid == usid).filter(ShoppingCart.PRid == prid)\
-                           .order_by(ShoppingCart.SCcreatetime.desc()).all()
+            , ShoppingCart.sizeid, ShoppingCart.sizename, ShoppingCart.number, ShoppingCart.PSid, ShoppingCart.SCstatus)\
+            .filter(ShoppingCart.USid == usid).filter(ShoppingCart.PRid == prid).filter(ShoppingCart.SCstatus == 1)\
+            .order_by(ShoppingCart.SCcreatetime.desc()).all()
 
     @close_session
-    def get_sku_info(self, psid):
-        return self.session.query(ProductSku).filter(ProductSku.PSid == psid)\
-                           .filter(ProductSku.PSstock > 0).filter(ProductSku.PSstatus == 1).first()
+    def get_sku_status(self, psid):
+        return self.session.query(ProductSku).filter(ProductSku.PSid == psid).filter(ProductSku.PSstatus == 1).first()
+
+    @close_session
+    def get_sku_stock(self, psid):
+        return self.session.query(ProductSku.PSstock, ProductSku.PSstatus).filter(ProductSku.PSid == psid).first()
+
 
     @close_session
     def check_is_exist_sku(self, usid, prid, psid):
         return self.session.query(ShoppingCart.number).filter(ShoppingCart.USid == usid).filter(ShoppingCart.PRid == prid)\
-                           .filter(ShoppingCart.PSid == psid).first()
+                           .filter(ShoppingCart.PSid == psid).filter(ShoppingCart.SCstatus == 1).first()
 
     @close_session
-    def update_sku_number(self, usid, psid, update):
+    def update_user_sku(self, usid, psid, update):
         self.session.query(ShoppingCart).filter(ShoppingCart.USid == usid).filter(ShoppingCart.PSid == psid).update(update)
+        return True
+
+    @close_session
+    def update_user_sku_by_scid(self, usid, scid, update):
+        self.session.query(ShoppingCart).filter(ShoppingCart.USid == usid).filter(ShoppingCart.SCid == scid).update(
+            update)
         return True

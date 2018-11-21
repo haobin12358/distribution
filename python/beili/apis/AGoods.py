@@ -42,7 +42,9 @@ class AGoods(Resource):
             'add_color': 'self.cgoods.add_color()',
             'add_size': 'self.cgoods.add_size()',
             'get_product_details': 'self.cgoods.get_product_details()',
-            'add_shoppingcart': 'self.cgoods.add_shoppingcart()'
+            'add_shoppingcart': 'self.cgoods.add_shoppingcart()',
+            'delete_shoppingcart_sku': 'self.cgoods.delete_shoppingcart_sku()',
+            'update_shoppingcart_number': 'self.cgoods.update_shoppingcart_number()'
         }
         res = eval(apis[product])
         return res

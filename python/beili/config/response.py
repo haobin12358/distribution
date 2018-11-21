@@ -176,7 +176,11 @@ REPERT_SIZE = {
     'status_code': 405035,
     'message': '尺码已经存在!'
 }
-
+PRODUCT_STATUS_WRONG = {
+    'status': 405,
+    'status_code': 405036,
+    'message': '商品状态异常!'
+}
 
 
 ADMINNUM_ERROR = {

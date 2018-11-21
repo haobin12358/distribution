@@ -129,10 +129,6 @@ class ShoppingCart(Base):
     SCid = Column(String(64), primary_key=True)
     USid = Column(String(64))  # 用户id
     PRid = Column(String(64))  # 商品id
-    PRname = Column(String(64), nullable=False)  # 商品名称
-    PRprice = Column(Float)  # 商品价格
-    PRlogisticsfee = Column(Float)  # 物流费
-    PRpic = Column(Text)  # 商品图片地址
     PSid = Column(String(64))  # skuid
     colorid = Column(String(64))  # 颜色id
     colorname = Column(String(64))  # 颜色名称
@@ -140,7 +136,7 @@ class ShoppingCart(Base):
     sizename = Column(String(64))  # 尺码名称
     number = Column(Integer)  # 商品数量
     SCcreatetime = Column(String(14))  # 记录创建时间
-    SCstatus = Column(Integer, default=1)  # 状态
+    SCstatus = Column(Integer, default=1)  # 状态 1.在售 2.库存不足 3.商品规格发生变化 4.商品已下架 5.用户已删除
 
 class OrderInfo(Base):
     """订单信息"""

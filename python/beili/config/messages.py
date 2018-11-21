@@ -93,4 +93,5 @@ get_size_list_success = "获取尺码列表成功"
 get_product_detail_success = "获取商品详情成功"
 add_shoppingcart_success = "添加购物车成功"
 get_shoppingcart_success = "获取购物车成功"
-
+delete_shoppingcart_sku_success = "删除购物车记录成功"
+change_shoppingcart_number_success = "更改购物车数量成功"
