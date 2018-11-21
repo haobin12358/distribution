@@ -23,7 +23,7 @@
 
             <el-upload
                 class="swiper-uploader"
-                :action="$api.uploadFile"
+                :action="uploadUrl"
                 accept="image/*"
                 list-type="picture-card"
                 :file-list="mallImgList"
@@ -49,7 +49,7 @@
 
             <el-upload
                 class="avatar-uploader"
-                :action="$api.uploadFile"
+                :action="uploadUrl"
                 accept="image/*"
                 list-type="picture-card"
                 :file-list="personImgList"
@@ -71,6 +71,8 @@
 </template>
 
 <script>
+    import {mapState} from "vuex";
+
     export default {
         name: "index",
 
@@ -86,20 +88,23 @@
 
         components: {},
 
-        computed: {},
+        computed: {
+            uploadUrl(){
+                return this.$api.uploadFile + localStorage.getItem('token');
+            }
+        },
 
         methods: {
             handleRemove(file, fileList) {
-                this.$confirm(`确定要删除该图?`, '提示',{
+                this.$confirm(`确定要删除该图?`, '提示', {
                     type: 'warning'
                 }).then(
                     () => {
-                        this.$http.post(this.$api.deleteSowingMap,{
+                        this.$http.post(this.$api.deleteSowingMap, {
                             smid: file.uid
-                        },{
+                        }, {
                             params: {
                                 token: this.$common.getStore('token')
-
                             }
                         }).then(
                             res => {
@@ -115,7 +120,7 @@
                                 }
                             }
                         )
-                    }).catch(e=>{
+                    }).catch(e => {
                     this.setData();
                 })
 
@@ -140,8 +145,7 @@
                             let resData = res.data,
                                 data = res.data.data;
 
-                                this.mallImgList = data.mallUrls.map(
-                                item => {
+                            this.mallImgList = data.mallUrls.map(item => {
                                     return {
                                         url: item.SMurl,
                                         uid: item.SMid,
@@ -149,8 +153,7 @@
                                 }
                             );
 
-                            this.personImgList = data.personUrls.map(
-                                item => {
+                            this.personImgList = data.personUrls.map(item => {
                                     return {
                                         url: item.SMurl,
                                         uid: item.SMid,
@@ -173,8 +176,8 @@
                 return isLt15M;
             },
 
-            //
             handleMallImgSuccess(response, file, fileList) {
+                //  显示
                 this.mallImgList = fileList.map(item => {
                     let res = {
                         name: item.name,
@@ -182,14 +185,16 @@
                     }
 
                     if (item.response && item.response.data) {
+                        //  替换掉blob
                         res.url = item.response.data;
                     }
 
                     return res;
                 });
+
                 this.$http.post(this.$api.addSowingMap, {
                     "type": 2,
-                    "urls": this.mallImgList.map(item => item.url),
+                    "urls": this.mallImgList.map(item => item.url), //  数据格式
                 }, {
                     params: {
                         token: this.$common.getStore('token')

@@ -201,7 +201,10 @@
 
             setCategoryList() {
                 this.$http.get(this.$api.getProductCategoryList,{
-                    noLoading: true
+                    noLoading: true,
+                    params: {
+                        token: this.$common.getStore('token')
+                    }
                 }).then(
                     res => {
                         if (res.data.status == 200) {

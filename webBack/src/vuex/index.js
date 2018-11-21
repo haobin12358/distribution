@@ -67,6 +67,9 @@ const state = {
                 },{
                     title: '提现',
                     path: 'withdraw',
+                },{
+                    title: '保证金',
+                    path: 'marginMoney',
                 },
             ]
         },{
@@ -87,6 +90,7 @@ const state = {
             ]
         },
     ],     //  主页左侧菜单
+
 }
 
 export default new Vuex.Store({

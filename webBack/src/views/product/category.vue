@@ -18,8 +18,9 @@
         <div class="block">
 
             <section class="tool-tip-wrap">
-                <el-form :inline="true" size="small" :model="formInline" class="demo-form-inline">
-                    <el-form-item label="分类名">
+                <el-form :inline="true" size="small" ref="ruleForm" :rules="rules" :model="formInline"
+                         class="demo-form-inline">
+                    <el-form-item prop="PAname" label="分类名">
                         <el-input v-model.trim="formInline.PAname" :clearable="true" placeholder="分类名"></el-input>
                     </el-form-item>
 
@@ -35,7 +36,7 @@
                     </el-form-item>
 
 
-                    <el-form-item label="所属分类" v-if="!isFirstLevel">
+                    <el-form-item prop="Parentid" label="所属分类" v-if="!isFirstLevel">
                         <el-cascader
                             :options="options"
                             :props="cascaderProps"
@@ -48,7 +49,7 @@
                         <el-button v-if="!formInline.PAid" type="primary" icon="el-icon-plus" @click="doAdd">新 增
                         </el-button>
                         <el-button v-else type="primary" icon="el-icon-edit" @click="doEdit">编 辑</el-button>
-                        <el-button type="primary" icon="el-icon-refresh" @click="doReset">重 置</el-button>
+                        <el-button  icon="el-icon-refresh" @click="doReset">重 置</el-button>
                     </el-form-item>
                 </el-form>
             </section>
@@ -82,6 +83,14 @@
         name: "category",
 
         data() {
+            let paidValidator = (rule, value, callback) => {
+                if (!this.isFirstLevel && !value) {
+                    callback(new Error('所属一级分类必选'));
+                } else {
+                    callback();
+                }
+            };
+
             return {
                 isFirstLevel: true,
                 secondPAid: [],
@@ -101,6 +110,17 @@
                     Parentid: '',
                 },
 
+                rules: {
+                    PAname: [
+                        {required: true, message: '分类名称必填', trigger: 'blur'}
+                    ],
+                    Parentid: [
+                        {validator: paidValidator, trigger: 'blur'}
+                    ]
+
+
+                },
+
                 treeData: [],
                 treeProps: {
                     value: 'PAid',
@@ -108,6 +128,14 @@
                     children: 'child_category',
                 },
 
+            }
+        },
+
+        watch: {
+            secondPAid(val) {
+                if (val) {
+                    this.formInline.Parentid = val[0];
+                }
             }
         },
 
@@ -130,7 +158,6 @@
             },
 
             doEdit() {
-                console.log(this.formInline);
                 this.addCategory(this.formInline.PAname, this.formInline.PAtype, this.formInline.Parentid, this.formInline.PAid);
             },
 
@@ -144,31 +171,40 @@
 
 
             addCategory(PAname, PAtype, Parentid = 0, PAid = '') {
-                this.$http.post(this.$api.addProductCategory, {
-                    PAid,
-                    PAname,
-                    PAtype,
-                    Parentid
-                }, {
-                    params: {
-                        token: this.$common.getStore('token')
-                    }
-                }).then(
-                    res => {
-                        if (res.data.status == 200) {
-                            let resData = res.data,
-                                data = res.data.data;
+                this.$refs.ruleForm.validate(
+                    valid => {
+                        if(valid){
+                            this.$http.post(this.$api.addProductCategory, {
+                                PAid,
+                                PAname,
+                                PAtype,
+                                Parentid
+                            }, {
+                                params: {
+                                    token: this.$common.getStore('token')
+                                }
+                            }).then(
+                                res => {
+                                    if (res.data.status == 200) {
+                                        let resData = res.data,
+                                            data = res.data.data;
 
-                            this.setCategorySelect();
-                            this.setCategoryList();
-                            this.$notify({
-                                title: `商品分类${PAid ? '修改' : '新增'}成功`,
-                                message: `分类名:${PAname}`,
-                                type: 'success'
-                            });
+                                        this.setCategorySelect();
+                                        this.setCategoryList();
+                                        this.$notify({
+                                            title: `商品分类${PAid ? '修改' : '新增'}成功`,
+                                            message: `分类名:${PAname}`,
+                                            type: 'success'
+                                        });
+                                    }
+                                }
+                            )
+                        }else{
+                            this.$message.warning('请根据校验信息完善表单!')
+
                         }
-                    }
-                )
+                    })
+
             },
             addFirstCategory() {
 
@@ -228,7 +264,11 @@
 
 
             setCategoryList() {
-                this.$http.get(this.$api.getProductCategoryList).then(
+                this.$http.get(this.$api.getProductCategoryList,{
+                    params:{
+                        token: this.$common.getStore('token')
+                    }
+                }).then(
                     res => {
                         if (res.data.status == 200) {
                             let resData = res.data,
