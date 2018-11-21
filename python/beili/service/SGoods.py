@@ -258,7 +258,7 @@ class SGoods(SBase):
 
     @close_session
     def get_shoppingcart_sku(self, usid, prid):
-        return self.session.query(ShoppingCart.SCid, ShoppingCart.colorid, ShoppingCart.colorname
+        return self.session.query(ShoppingCart.SCid, ShoppingCart.colorid, ShoppingCart.colorname, ShoppingCart.SCcreatetime\
                            , ShoppingCart.sizeid, ShoppingCart.sizename, ShoppingCart.number, ShoppingCart.PSid)\
                            .filter(ShoppingCart.USid == usid).filter(ShoppingCart.PRid == prid)\
                            .order_by(ShoppingCart.SCcreatetime.desc()).all()
