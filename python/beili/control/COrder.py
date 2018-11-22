@@ -7,7 +7,7 @@ import random
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR, STOCK_NOT_ENOUGH,\
-        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_ORDER
+        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_ORDER, PRODUCT_OFFLINE, SKU_WRONG
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
@@ -25,7 +25,7 @@ from configparser import ConfigParser
 from common.beili_error import stockerror, dberror
 from datetime import datetime
 from common.timeformat import format_for_db, get_random_str, get_random_int
-from models.model import User, AgentMessage, Performance, Amount, Reward, MoneyRecord
+from models.model import User, AgentMessage, Performance, Amount, Reward, MoneyRecord, OrderSkuInfo, ShoppingCart, ProductSku
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -49,9 +49,13 @@ class COrder():
         if not data:
             return PARAMS_MISS
         params_list = ["UAid", "product_list", "OInote", "PRlogisticsfee", "totalprice"]
-        for params in params_list:
-            if params not in data:
-                return PARAMS_MISS
+        for param in params_list:
+            if param not in data:
+                response = {}
+                response['message'] = u"参数缺失"
+                response['paramname'] = param
+                response['status'] = 405
+                return response
         try:
             UAid = data['UAid']
             OInote = data['OInote']
@@ -60,12 +64,10 @@ class COrder():
             totalprice = float(data['totalprice'])
         except:
             return PARAMS_ERROR
-        if len(product_list) > 1:
-            real_PRlogisticsfee = 0
-        else:
-            real_PRlogisticsfee = get_model_return_dict(self.sgoods.get_product(product_list[0]['PRid']))['PRlogisticsfee']
-            if not real_PRlogisticsfee:
-                real_PRlogisticsfee = 0
+        real_PRlogisticsfee = 0
+        if len(product_list) == 1 and len(product_list[0]['skulist']) == 1 and int(product_list[0]['skulist'][0]['number']) == 1:
+            real_PRlogisticsfee = get_model_return_dict(self.sgoods.get_product_details(product_list[0]['PRid']))[
+                'PRlogisticsfee']
         user_info = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
         if not user_info:
             return SYSTEM_ERROR
@@ -73,18 +75,25 @@ class COrder():
             return NO_BAIL
         mount = 0
         new_list = []
+        all_psid = []
         discountnum = 0
         product_num = 0
         try:
             for product in product_list:
-                num = product['PRnum']
-                if num > 1:
-                    real_PRlogisticsfee = 0
-                check_product = get_model_return_dict(self.sgoods.get_product(product['PRid']))
-                mount = mount + num * check_product['PRprice']
+                check_product = get_model_return_dict(self.sgoods.get_product_info(product['PRid']))
+                if not check_product:
+                    return PRODUCT_OFFLINE
+                for sku in product['skulist']:
+                    sku_info = get_model_return_dict(self.sgoods.get_sku_status(sku['psid']))
+                    if not sku_info:
+                        return SKU_WRONG
+                    if sku['number'] > sku_info['PSstock']:
+                        return STOCK_NOT_ENOUGH
+                    mount = mount + sku['number'] * check_product['PRprice']
+                    product_num = product_num + sku['number']
+                    discountnum = discountnum + sku['number'] * check_product['PAdiscountnum']
+                    all_psid.append(sku['psid'])
                 product['PRprice'] = check_product['PRprice']
-                product_num = product_num + num
-                discountnum = discountnum + num * check_product['PAdiscountnum']
                 new_list.append(product)
             if totalprice != mount + real_PRlogisticsfee or real_PRlogisticsfee != PRlogisticsfee:
                 response = {}
@@ -104,10 +113,6 @@ class COrder():
             OIid = str(uuid.uuid4())
             OIsn = datetime.strftime(datetime.now(), format_for_db) + get_random_int()
             OIcreatetime = datetime.strftime(datetime.now(), format_for_db)
-            result = self.sorder.check_stock(new_list)
-            if not result:
-                raise dberror
-
             address = get_model_return_dict(self.smycenter.get_other_address(request.user.id, UAid))
             if not address:
                 return NO_ADDRESS
@@ -134,20 +139,37 @@ class COrder():
 
 
             result = self.sorder.add_order(session, OIid, OIsn, request.user.id, OInote, mount, UAid, OIcreatetime,
-                                           PRlogisticsfee, provincename, cityname, areaname, details, username, userphonenum, product_num)
+                PRlogisticsfee, provincename, cityname, areaname, details, username, userphonenum, product_num, discountnum)
             if not result:
                 raise dberror
+
+            # 插入订单商品详情表
             for product in new_list:
                 OPIid = str(uuid.uuid4())
                 PRid = product['PRid']
-                PRnum = product['PRnum']
                 PRname = product['PRname']
                 PRimage = get_model_return_dict(self.sgoods.get_product(PRid))['PRpic']
                 PRprice = product['PRprice']
-                result = self.sorder.add_orderproductinfo(session, OPIid, OIid, PRid, PRname, PRprice, PRnum, PRimage)
+                result = self.sorder.add_orderproductinfo(session, OPIid, OIid, PRid, PRname, PRprice, PRimage)
                 if not result:
                     raise dberror
+                # 插入订单sku详情表
+                for sku in product['skulist']:
+                    orderskuinfo = OrderSkuInfo()
+                    orderskuinfo.OSIid = str(uuid.uuid4())
+                    orderskuinfo.OPIid = OPIid
+                    orderskuinfo.number = sku['number']
+                    orderskuinfo.sizename = sku['sizename']
+                    orderskuinfo.colorname = sku['colorname']
+                    session.add(orderskuinfo)
+                    sku_info = get_model_return_dict(self.sgoods.get_sku_status(sku['psid']))
+                    session.query(ProductSku).filter(ProductSku.PSid == sku['psid'])\
+                        .update({"PSstock": sku_info['PSstock'] - sku['number']})
 
+            # 更改用户购物车商品状态
+            for psid in all_psid:
+                session.query(ShoppingCart).filter(ShoppingCart.USid == request.user.id).filter(ShoppingCart.PSid == psid)\
+                    .update({"SCstatus": 0})
             # 插入代理消息
             user = {}
             user['USmount'] = user_info['USmount'] - mount - real_PRlogisticsfee
@@ -242,6 +264,12 @@ class COrder():
                 request.user.id, 3) else 0
             for order in order_list:
                 product_list = get_model_return_list(self.sorder.get_product_list(order['OIid']))
+                for product in product_list:
+                    product['PRnum'] = 0
+                    sku_list = get_model_return_list(self.sorder.get_sku_list_by_opiid(product['OPIid']))
+                    for sku in sku_list:
+                        product['PRnum'] = product['PRnum'] + sku['number']
+                    product['skulist'] = sku_list
                 order['product_list'] = product_list
                 from common.timeformat import get_web_time_str
                 order['OIcreatetime'] = get_web_time_str(order['OIcreatetime'])
@@ -261,6 +289,12 @@ class COrder():
                 return response
             for order in order_list:
                 product_list = get_model_return_list(self.sorder.get_product_list(order['OIid']))
+                for product in product_list:
+                    product['PRnum'] = 0
+                    sku_list = get_model_return_list(self.sorder.get_sku_list_by_opiid(product['OPIid']))
+                    for sku in sku_list:
+                        product['PRnum'] = product['PRnum'] + sku['number']
+                    product['skulist'] = sku_list
                 order['product_list'] = product_list
                 from common.timeformat import get_web_time_str
                 order['OIcreatetime'] = get_web_time_str(order['OIcreatetime'])
@@ -284,6 +318,12 @@ class COrder():
         from common.timeformat import get_web_time_str
         detail['createtime'] = get_web_time_str(detail['OIcreatetime'])
         product_list = get_model_return_list(self.sorder.get_product_list(detail['OIid']))
+        for product in product_list:
+            product['PRnum'] = 0
+            sku_list = get_model_return_list(self.sorder.get_sku_list_by_opiid(product['OPIid']))
+            for sku in sku_list:
+                product['PRnum'] = product['PRnum'] + sku['number']
+            product['skulist'] = sku_list
         detail['product_list'] = product_list
         response = import_status("get_orderdetails_success", "OK")
         response['data'] = detail

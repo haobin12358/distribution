@@ -68,12 +68,12 @@ class SGoods(SBase):
     def get_type1_product(self, PAid=None, PRstatus=None):
 
         return self.session.query(Product.PRpic, Product.PRname, Product.PRoldprice, Product.PRprice, Product.PRcreatetime,
-                Product.PRlogisticsfee,Product.PRstock, Product.PRid).filter_by(PRstatus=PRstatus).filter_by(PAid=PAid)
+                Product.PRlogisticsfee, Product.PRid).filter_by(PRstatus=PRstatus).filter_by(PAid=PAid)
 
 
     @close_session
     def get_product(self, PRid):
-        return self.session.query(Product.PRstock, Product.PRpic, Product.PRstatus, Product.PRprice, Product.PRoldprice,
+        return self.session.query(Product.PRpic, Product.PRstatus, Product.PRprice, Product.PRoldprice,
                 Product.PRname, Product.PRpic, Product.PRoldprice, Product.PAid, Product.PRcreatetime,
                 Product.PRlogisticsfee, Product.PAdiscountnum).filter_by(PRid=PRid).first()
 
@@ -247,7 +247,8 @@ class SGoods(SBase):
 
     @close_session
     def get_product_info(self, id):
-        return self.session.query(Product.PRid).filter(Product.PRid == id).filter(Product.PRstatus == 1).first()
+        return self.session.query(Product.PRid, Product.PRprice, Product.PAdiscountnum
+                                  ).filter(Product.PRid == id).filter(Product.PRstatus == 1).first()
 
     @close_session
     def get_shoppingcart_product(self, id):
@@ -263,7 +264,7 @@ class SGoods(SBase):
 
     @close_session
     def get_sku_status(self, psid):
-        return self.session.query(ProductSku).filter(ProductSku.PSid == psid).filter(ProductSku.PSstatus == 1).first()
+        return self.session.query(ProductSku.PSstock).filter(ProductSku.PSid == psid).filter(ProductSku.PSstatus == 1).first()
 
     @close_session
     def get_sku_stock(self, psid):
@@ -281,7 +282,7 @@ class SGoods(SBase):
         return True
 
     @close_session
-    def update_user_sku_by_scid(self, usid, scid, update):
-        self.session.query(ShoppingCart).filter(ShoppingCart.USid == usid).filter(ShoppingCart.SCid == scid).update(
+    def update_user_sku_by_scid(self, session, usid, scid, update):
+        session.query(ShoppingCart).filter(ShoppingCart.USid == usid).filter(ShoppingCart.SCid == scid).update(
             update)
         return True

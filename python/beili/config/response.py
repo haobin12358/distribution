@@ -181,6 +181,17 @@ PRODUCT_STATUS_WRONG = {
     'status_code': 405036,
     'message': '商品状态异常!'
 }
+PRODUCT_OFFLINE = {
+    'status': 405,
+    'status_code': 405037,
+    'message': '商品已下架!'
+}
+SKU_WRONG = {
+    'status': 405,
+    'status_code': 405038,
+    'message': '商品规格发生变化!'
+}
+
 
 
 ADMINNUM_ERROR = {

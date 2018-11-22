@@ -136,7 +136,7 @@ class ShoppingCart(Base):
     sizename = Column(String(64))  # 尺码名称
     number = Column(Integer)  # 商品数量
     SCcreatetime = Column(String(14))  # 记录创建时间
-    SCstatus = Column(Integer, default=1)  # 状态 1.在售 2.库存不足 3.商品规格发生变化 4.商品已下架 5.用户已删除
+    SCstatus = Column(Integer, default=1)  # 状态 0.用户已删除 1.在售 2.库存不足 3.商品规格发生变化 4.商品已下架
 
 class OrderInfo(Base):
     """订单信息"""
@@ -162,6 +162,7 @@ class OrderInfo(Base):
     expressname = Column(String(64))  # 快递名称
     expressnum = Column(String(64))  # 快递单号
     productnum = Column(Integer, default=0)  # 商品数量
+    discountnum = Column(Integer, default=0)  # 返点数量
 
 class OrderProductInfo(Base):
     """订单商品详情, 多个订单商品详情对应一个订单"""
@@ -172,7 +173,17 @@ class OrderProductInfo(Base):
     PRprice = Column(Float, nullable=False)   # 商品价格(购买时候的价格)
     PRname = Column(String(64))  # 商品的名字(购买之时的)
     PRimage = Column(String(255))  # 商品主图
-    PRnum = Column(Integer)  # 购买数量
+
+class OrderSkuInfo(Base):
+    """
+    订单sku详情，
+    """
+    __tablename__ = 'orderskuinfo'
+    OSIid = Column(String(64), primary_key=True)
+    OPIid = Column(String(64))  # 对应的订单商品详情id
+    colorname = Column(String(64))  # 颜色名称
+    sizename = Column(String(64))  # 尺码名称
+    number = Column(Integer)  # 购买数量
 
 class BailRecord(Base):
     """

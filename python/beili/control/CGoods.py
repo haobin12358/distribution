@@ -567,15 +567,23 @@ class CGoods():
             return TOKEN_ERROR
         try:
             data = request.json
-            scid = data.get('scid')
+            scidlist = data.get('scidlist')
         except:
             return PARAMS_ERROR
         update = {
             "SCstatus": 0
         }
-        result = self.sgoods.update_user_sku_by_scid(request.user.id, scid, update)
-        if not result:
+        session = db_session()
+        try:
+            for scid in scidlist:
+                self.sgoods.update_user_sku_by_scid(session, request.user.id, str(scid), update)
+            session.commit()
+        except Exception as e:
+            print e
+            session.rollback()
             return SYSTEM_ERROR
+        finally:
+            session.close()
         response = import_status("delete_shoppingcart_sku_success", "OK")
         return response
 
