@@ -464,13 +464,4 @@ class Comments(Base):
     CMcreatetime = Column(String(14))  # 评论创建创建时间
     CMstatus = Column(Integer, default=1)  # 1未处理 2已处理
 
-
-class test(Base):
-    """
-    测试
-    """
-    __tablename__ = "test"
-    id1 = Column(Integer, primary_key=True, autoincrement=True)
-    id2 = Column(Integer)
-
 # Base.metadata.create_all(mysql_engine)

@@ -361,6 +361,12 @@ class COrder():
             from common.timeformat import get_web_time_str
             order['OIcreatetime'] = get_web_time_str(order['OIcreatetime'])
             product_list = get_model_return_list(self.sorder.get_product_list(detail['OIid']))
+            for product in product_list:
+                product['PRnum'] = 0
+                sku_list = get_model_return_list(self.sorder.get_sku_list_by_opiid(product['OPIid']))
+                for sku in sku_list:
+                    product['PRnum'] = product['PRnum'] + sku['number']
+                product['skulist'] = sku_list
             order['product_list'] = product_list
             if productname:
                 for product in product_list:
