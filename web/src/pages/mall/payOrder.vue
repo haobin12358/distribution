@@ -58,19 +58,26 @@
 
                     .goods-item-description {
                         flex: 1;
+                        .fjc();
+                        .fz(26px);
 
                         .goods-name {
-                            .fz(28px);
+                            .fj();
 
+                            .name {
+                            }
+                            .sku {
+                                color: @lightFontColor;
+                            }
                         }
-                        .goods-price {
-                            text-align: right;
-                            .sc(24px, @lightFontColor);
-                            margin: 13px 0 10px;
-                        }
-                        .goods-shop-num {
-                            text-align: right;
-                            .sc(24px, @lightFontColor);
+
+                        .goods-num {
+                            .fj();
+
+                            .shop-num {
+                                color: @lightFontColor;
+
+                            }
                         }
                     }
 
@@ -79,9 +86,9 @@
 
             .remark {
                 .fj();
-                padding: 11px 0;
+                padding: 14px 0;
                 border-bottom: 1px solid @grayBorderColor;
-                height: 32px;
+                /*height: 32px;*/
                 line-height: 32px;
 
                 .remark-label {
@@ -167,45 +174,56 @@
 
         <section class="goods-list-container">
             <ul class="goods-list">
-                <li class="goods-item" v-for="item in usefulCartList">
-                    <section class="goods-img-wrap">
-                        <img :src="item.PRpic" alt="">
-                    </section>
+                <template v-for="product in cartList">
+                    <li class="goods-item" v-for="cartItem in product.skulist">
+                        <section class="goods-img-wrap">
+                            <img :src="product.PRpic" alt="">
+                        </section>
 
-                    <section class="goods-item-description">
-                        <p class="goods-name">
-                            {{item.PRname}}
-                        </p>
-                        <p class="goods-price">
-                            ￥{{item.PRprice}}
-                        </p>
-                        <p class="goods-shop-num">
-                            ×{{item.PRnum}}
-                        </p>
-                    </section>
-                </li>
+                        <section class="goods-item-description">
+                            <p class="goods-name">
+                                <span class="name">
+                                    {{product.PRname}}
+                                </span>
+                                <span class="sku">
+                                    {{`${cartItem.colorname} ${cartItem.sizename}`}}
+                                </span>
+                            </p>
+                            <p class="goods-num">
+                                <span class="price">
+                                    ￥{{product.PRprice}}
+                                </span>
+                                <span class="shop-num">
+                                    ×{{cartItem.number}}
+                                </span>
+
+                            </p>
+                        </section>
+                    </li>
+                </template>
+
             </ul>
 
             <section class="remark">
                 <span class="remark-label">买家备注:</span>
-                <input type="text" v-model="remark" class="remark-input" placeholder="文化衫请备注尺码">
+                <input type="text" v-model.trim="remark" class="remark-input" placeholder="文化衫请备注尺码">
             </section>
 
-            <p class="total-num">共几件商品</p>
+            <p class="total-num">共{{totalObj.totalNumber}}件商品</p>
         </section>
 
         <ul class="cell-list">
             <li class="cell-item">
                 <div class="cell-left">商品金额</div>
-                <div class="cell-right">￥{{cartTotalPrice}}元</div>
+                <div class="cell-right">￥{{totalObj.totalPrice}}元</div>
             </li>
             <li class="cell-item">
                 <div class="cell-left">快递费用</div>
-                <div class="cell-right">￥{{payDeliverFee}}元</div>
+                <div class="cell-right">￥{{totalObj.expressMoney}}元</div>
             </li>
             <li class="cell-item">
                 <div class="cell-left">合计需付</div>
-                <div class="cell-right">￥{{needPayAmount}}元</div>
+                <div class="cell-right">￥{{totalObj.needPayMoney}}元</div>
             </li>
         </ul>
 
@@ -235,20 +253,45 @@
         data() {
             return {
                 defaultAddress: null,
+                cartList: [],
                 remark: '', // 备注
             }
         },
 
         computed: {
             ...mapState(['userInfo']),
-            ...mapGetters(['usefulCartList', 'cartTotalPrice', 'payDeliverFee']),
-            needPayAmount(){
-                if(this.usefulCartList.length == 1 && this.usefulCartList[0].PRnum == 1){
-                    return this.cartTotalPrice + this.usefulCartList[0].PRlogisticsfee;
-                }else{
-                    return this.cartTotalPrice;
+
+            totalObj() {
+                let totalNumber = 0,
+                    totalPrice = 0,
+                    expressMoney = 0,
+                    needPayMoney = 0;
+
+                if (this.cartList.length == 1 && this.cartList[0].skulist.length == 1 && this.cartList[0].skulist[0].number == 1) {
+                    expressMoney = this.cartList[0].PRlogisticsfee;
                 }
-            }
+
+                for (let i = 0; i < this.cartList.length; i++) {
+                    let currentProduct = this.cartList[i];
+
+                    for (let j = 0; j < currentProduct.skulist.length; j++) {
+                        let currentCartItem = currentProduct.skulist[j];
+
+                        totalNumber += currentCartItem.number;
+                        totalPrice += currentCartItem.number * currentProduct.PRprice;
+                    }
+                }
+
+                needPayMoney = expressMoney + totalPrice;
+
+                return {
+                    totalNumber,
+                    totalPrice,
+                    expressMoney,
+                    needPayMoney,
+                }
+            },
+
         },
 
         components: {},
@@ -265,22 +308,24 @@
 
             confirmPayOrder() {
                 if (this.defaultAddress) {
-                    this.$messagebox.confirm(`需支付${this.needPayAmount}元,确认下单?`).then(
+                    this.$messagebox.confirm(`需支付${this.totalObj.needPayMoney}元,确认下单?`).then(
                         () => {
-                            createOrder(this.defaultAddress.uaid, this.usefulCartList,
-                                this.remark, this.payDeliverFee, this.needPayAmount).then(
+                            createOrder(this.defaultAddress.uaid, this.cartList,
+                                this.remark, this.totalObj.expressMoney, this.totalObj.needPayMoney).then(
                                 (resData) => {
                                     if (resData) {
-                                        let {success, message, data: newCartList} = resData;
+                                        let {success, message} = resData;
 
                                         if (success) {
                                             this.$toast(message);
-                                            this.$store.commit('CLEAR_CART');
-                                            //  更新账户余额
-                                            this.$router.back();
+                                            this.$router.push({
+                                                path: '/mall',
+                                                // query:{
+                                                //     goOrderList: true
+                                                // }
+                                            });
                                         } else {
-                                            this.$messagebox('提示', '商品价格或运费有变动,下单失败,数据已更新,请再次确认下单!')
-                                            this.$store.commit('SET_CART', newCartList);
+                                            this.$messagebox('提示', '下单失败,请返回购物车再次选择商品结算!')
                                         }
                                     }
                                 }
@@ -298,7 +343,13 @@
         async mounted() {
             this.getUserInfo();
             this.setDefaultAddress();
-        }
+
+            this.cartList = JSON.parse(this.$route.query.cartList);
+        },
+
+        created() {
+            // console.log(this.$route);
+        },
     }
 </script>
 

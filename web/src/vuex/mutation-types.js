@@ -7,6 +7,7 @@ export const SET_SHOW_AGENT = 'SET_SHOW_AGENT'  // 设置是否显示代理消�
 export const SET_NOT_READ_COM_MSG = 'SET_NOT_READ_COM_MSG'  // 设置未读消息数
 export const ADD_CART = 'ADD_CART'  // 加购物车数量
 export const REDUCE_CART = 'REDUCE_CART'  // 减少购物车数量
+export const CHANGE_CART_ITEM = 'CHANGE_CART_ITEM'  // 减少购物车数量
 export const INIT_CART = 'INIT_CART'  // 从购物车取数据
 export const CLEAR_CART = 'CLEAR_CART'  // 从购物车取数据
 export const SET_CART = 'SET_CART'  // 设置购物车数据

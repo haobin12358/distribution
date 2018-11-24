@@ -1,11 +1,14 @@
 <style lang="less" scoped>
     @import "../../common/css/index";
 
+    .my-header{
+        padding-top: 80px;
+    }
 </style>
 
 <template>
-    <div>
-        <mt-header :title="title || $route.meta.title">
+    <div class="my-header">
+        <mt-header :title="title || $route.meta.title" :fixed="true">
 
             <section slot="left" >
                 <mt-button v-if="showBack" @click="goBack" icon="back"></mt-button>

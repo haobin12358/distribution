@@ -2,7 +2,7 @@
     @import "../../common/css/index";
 
     .container {
-        padding-bottom: 120px;
+        padding-bottom: 220px;
         .least-full-screen();
 
         #go-order-img {
@@ -35,7 +35,7 @@
                 overflow-x: scroll;
                 white-space: nowrap;
 
-                &.none{
+                &.none {
                     height: 80px;
 
                 }
@@ -45,6 +45,7 @@
                     display: inline-block;
                     padding: 0 50px;
                     .fontc(80px);
+                    box-sizing: border-box;
 
                     &.active {
                         color: @mainColor;
@@ -135,19 +136,24 @@
                         align-items: center;
 
                         .goods-description-price {
+                            .fz(28px);
 
                             .current-price {
                                 margin-right: 20px;
                                 color: #FC0000;
-                                .fz(26px);
 
                             }
                             .original-price {
-                                color: black;
                                 text-decoration: line-through;
-                                .fz(26px);
-
+                                color: @999;
                             }
+                        }
+
+                        .addToCartBtn{
+                            padding: 10px 20px;
+                            background: @mainColor;
+                            .sc(24px, white);
+                            border-radius: 30px;
                         }
 
                     }
@@ -186,19 +192,15 @@
 
         }
 
-        .pay-order-fixed{
+        .pay-order-fixed {
             position: fixed;
             left: 30px;
             bottom: 150px;
-            padding: 15px 0;
-            box-sizing: border-box;
-            .wl(90px, 90px);
+            .wl(120px, 120px);
             .fontc(40px);
             .fz(28px);
             border-radius: 50%;
             color: white;
-            background: @mainColor;
-            opacity: .9;
         }
     }
 
@@ -227,13 +229,16 @@
                              alt=""></router-link>
             </section>
             <section slot="right">
-                <button class="header-btn" @click="gotoPayOrder">结算</button>
+                <button class="header-btn" @click="gotoShopCart">购物车</button>
             </section>
         </header-top>
 
         <section class="banner">
-            <img v-lazy="banner.mallUrls[0].SMurl" alt="">
+            <img v-if="banner.mallUrls && banner.mallUrls.length" v-lazy="banner.mallUrls[0].SMurl" alt="">
         </section>
+
+        <!--<div style="width: 100px;height: 60px;border: 1px solid black;"  @dblclick.stop="$toast('双击测试')">双击测试</div>-->
+        <!--<button style="width: 100px;height: 60px;border: 1px solid black;" @touch="$toast('触摸测试')">触摸测试</button>-->
 
         <!-- 一二级分类wrap -->
         <section class="nav-wrap">
@@ -252,19 +257,18 @@
             </ul>
         </section>
 
-        <!--商品列表-->
-        <template v-if="productListWithCart.length">
+        <template v-if="productList.length">
             <ul class="goods-list">
-                <li class="goods-item" v-for="item in productListWithCart" @dblclick.stop="addCart(item, 10)">
+                <li class="goods-item" v-for="item in productList" @click="gotoGoodsDetail(item)">
                     <section class="goods-img">
                         <img v-lazy="item.PRpic" alt="">
                     </section>
                     <section class="goods-description">
                         <header class="goods-description-header">
                             <span class="name">{{item.PRname}}</span>
-                            <span v-if="item.PRstock < 1000000" class="stock">
-                                库存: {{item.PRstock}} 件
-                            </span>
+                            <!--<span v-if="item.PRstock < 1000000" class="stock">-->
+                                <!--库存: {{item.PRstock}} 件-->
+                            <!--</span>-->
                         </header>
                         <section class="goods-description-content">
                             <p class="goods-description-price">
@@ -272,8 +276,10 @@
                                 <span class="original-price">￥{{item.PRoldprice}}</span>
                             </p>
 
-                            <buy-cart @dblclick.native.stop="" :shopNum.sync="item.PRnum" @add="addCart(item, 1)"
-                                      @minus="reduceCart(item)"></buy-cart>
+                            <button class="addToCartBtn">加入购物车</button>
+
+                            <!--<buy-cart :shopItem="item" @add="addCart(item, 1)"-->
+                                      <!--@minus="reduceCart(item)" @input="inputHandler(item,$event)"></buy-cart>-->
                         </section>
                     </section>
                 </li>
@@ -286,21 +292,13 @@
         <place-holder v-else :title="placeHolderTitle"></place-holder>
 
 
-        <section class="pay-order-fixed" @click="gotoPayOrder">
-            <p>
-                结算
-            </p>
-            <p>
-                {{usefulCartList.length}}
-            </p>
-        </section>
+        <img src="/static/images/shopcart.png" class="pay-order-fixed" @click="gotoShopCart"/>
 
         <footer-guide></footer-guide>
     </div>
 </template>
 
 <script>
-    import {Toast} from "mint-ui"
     import footerGuide from "src/components/footer/footerGuide"
     import buyCart from "src/components/common/buyCart"
     import {getProductCategory, getProductList, checkBail} from "src/api/api"
@@ -325,7 +323,6 @@
                 page: 1,
                 count: 10,
                 loadingType: 'normal',  // 加载组件加载状态
-
 
 
             }
@@ -356,14 +353,14 @@
                 }
             }),
             ...mapGetters(['usefulCartList']),
-            placeHolderTitle(){
-                if(!this.parentCategory.length){
+            placeHolderTitle() {
+                if (!this.parentCategory.length) {
                     return '商城还没有一级分类'
                 }
-                if(!this.secondCategory.length){
+                if (!this.secondCategory.length) {
                     return '该类暂时没有没有二级分类'
                 }
-                if(!this.productList.length){
+                if (!this.productList.length) {
                     return '该类暂时没有上架的商品'
                 }
 
@@ -372,13 +369,14 @@
         },
 
         methods: {
-            dbclick() {
-                console.log('dbclick');
+            gotoShopCart(){
+                this.$router.push('/shopCart');
             },
+
             ...mapMutations({
                 addCart({}, product, num = 1) {
-                    if(this.$store.state.addTenCartTip){
-                        this.$toast('双击商品可增加10个')
+                    if (this.$store.state.addTenCartTip) {
+                        this.$toast('新增商品后可调整数量')
                         this.$store.commit('SET_ADD_TEN_CART_TIP', false);
                     }
                     this.$store.commit('ADD_CART', {
@@ -388,6 +386,23 @@
                 },
                 reduceCart: 'REDUCE_CART'
             }),
+
+            inputHandler(product, evt) {
+                this.$store.commit('CHANGE_CART_ITEM', {
+                    product,
+                    num: evt
+                });
+            },
+
+            gotoGoodsDetail(goods){
+                this.$router.push({
+                    path: '/goodsDetail',
+                    query: {
+                        prid: goods.PRid
+                    }
+                });
+            },
+
             // 滚动条监听事件
             touchMove() {
                 let scrollTop = common.getScrollTop();
@@ -398,28 +413,7 @@
                     this.setProductList();
                 }
             },
-            async gotoPayOrder() {
-                if (this.usefulCartList.length) {
-                    let checkBailData = await checkBail();
 
-                    if (checkBailData.bailstatus == 1) {
-                        this.$router.push('/payOrder');
-                    } else if (checkBailData.bailstatus == 2) {
-                        this.$messagebox.confirm(`还需交纳保证金(${checkBailData.data.shouldpay}元)后才可下单,是否前往钱包页交纳?`).then(
-                            () => {
-                                this.$router.push('/wallet')
-                            }
-                        )
-                    } else if (checkBailData.bailstatus == 3) {
-                        this.$toast('保证金退还中,无法下单!');
-
-                    }
-                } else {
-                    this.$toast('请选几样商品加入购物车!');
-                }
-
-
-            },
 
             switchPACategory(categroy) {
                 // 选中还是当前父级tab就结束
@@ -451,14 +445,15 @@
             },
 
             async initSECategory() {
-                let {data: seData} = await  getProductCategory(2, this.paSelected);
+                let {data: seData} = await getProductCategory(2, this.paSelected);
 
                 this.secondCategory = seData;
 
-                if(this.secondCategory[0]){
+                if (this.secondCategory[0]) {
                     this.secondSelected = this.secondCategory[0].PAid;
+
                     await this.setProductList(true);
-                }else{
+                } else {
                     this.productList = [];
                 }
             },
@@ -496,9 +491,12 @@
 
         async mounted() {
             this.$store.dispatch('getSowingMap');
-
             await this.initCategoryAndPrds();
             window.addEventListener('scroll', this.touchMove);
+
+            // if(this.$route.query.goOrderList){
+            //     this.$router.push('/mallOrder');
+            // }
         }
     }
 </script>
