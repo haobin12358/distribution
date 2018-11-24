@@ -628,7 +628,7 @@ class CUser():
 
                 # 写入代理消息
                 content = u'您推荐的代理已审核通过，直推奖励已累加至当月奖励中'
-                agent_result = self.smessage.create_agentmessage(user['USid']
+                agent_result = self.smessage.create_agentmessage(session, user['USid']
                                                     , datetime.strftime(datetime.now(), format_for_db), content, 2)
                 if not agent_result:
                     return SYSTEM_ERROR

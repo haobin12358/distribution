@@ -19,7 +19,10 @@ class AGoods(Resource):
             "get_product": "self.cgoods.get_product()",
             "get_product_category": "self.cgoods.get_product_category()",
             "get_product_category_list":"self.cgoods.get_product_category_list()",
-            'get_sowingmap': 'self.cgoods.get_sowingmap()'
+            'get_sowingmap': 'self.cgoods.get_sowingmap()',
+            'get_color': 'self.cgoods.get_color()',
+            'get_size': 'self.cgoods.get_size()',
+            'get_shoppingcart': 'self.cgoods.get_shoppingcart()'
         }
         res = eval(apis[product])
         return res
@@ -35,7 +38,13 @@ class AGoods(Resource):
             "create_update_product":"self.cgoods.create_update_product()",
             "add_sowingmap":"self.cgoods.add_sowingmap()",
             'withdraw_product': 'self.cgoods.withdraw_product()',
-            'delete_sowingmap': 'self.cgoods.delete_sowingmap()'
+            'delete_sowingmap': 'self.cgoods.delete_sowingmap()',
+            'add_color': 'self.cgoods.add_color()',
+            'add_size': 'self.cgoods.add_size()',
+            'get_product_details': 'self.cgoods.get_product_details()',
+            'add_shoppingcart': 'self.cgoods.add_shoppingcart()',
+            'delete_shoppingcart_sku': 'self.cgoods.delete_shoppingcart_sku()',
+            'update_shoppingcart_number': 'self.cgoods.update_shoppingcart_number()'
         }
         res = eval(apis[product])
         return res

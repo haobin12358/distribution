@@ -6,3 +6,4 @@ ALTER TABLE chargemoney MODIFY CMamount DOUBLE;
 ALTER TABLE orderinfo MODIFY OImount DOUBLE;
 ALTER TABLE moneyrecord MODIFY MRamount DOUBLE;
 ALTER TABLE user MODIFY USmount DOUBLE;
+ALTER TABLE weixincharge MODIFY WCamount DOUBLE;

@@ -166,6 +166,31 @@ REPERT_NUMBER = {
     'status_code': 405033,
     'message': '达标件数重复，请检查数据！'
 }
+REPERT_COLOR = {
+    'status': 405,
+    'status_code': 405034,
+    'message': '颜色已经存在!'
+}
+REPERT_SIZE = {
+    'status': 405,
+    'status_code': 405035,
+    'message': '尺码已经存在!'
+}
+PRODUCT_STATUS_WRONG = {
+    'status': 405,
+    'status_code': 405036,
+    'message': '商品状态异常!'
+}
+PRODUCT_OFFLINE = {
+    'status': 405,
+    'status_code': 405037,
+    'message': '商品已下架!'
+}
+SKU_WRONG = {
+    'status': 405,
+    'status_code': 405038,
+    'message': '商品规格发生变化!'
+}
 
 
 
