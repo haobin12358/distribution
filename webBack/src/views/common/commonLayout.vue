@@ -59,8 +59,7 @@
             <el-row class="tac">
                 <el-col :span="24">
                     <el-menu class="m-sidebar" :default-active="defaultPage.path" background-color="#545c64"
-                             text-color="#fff" popper-class="menu-title"
-                             active-text-color="#ffd04b" :router="true">
+                             text-color="#fff" popper-class="menu-title" active-text-color="#ffd04b" :router="true">
                         <el-menu-item v-for="item,index in menu" :index="item.path" :key="index">
                             <i class="el-icon-menu"></i>
                             <span slot="title">{{item.title}}</span>

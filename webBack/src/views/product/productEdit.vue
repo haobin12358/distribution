@@ -24,6 +24,7 @@
             position: fixed;
             right: 3rem;
             bottom: 2rem;
+            font-size: .22rem;
 
         }
     }
@@ -32,7 +33,7 @@
 <template>
     <div class="container">
         <el-breadcrumb style="margin-bottom: .2rem;" separator-class="el-icon-arrow-right">
-            <el-breadcrumb-item to="index">所有商品</el-breadcrumb-item>
+            <el-breadcrumb-item to="index" replace>所有商品</el-breadcrumb-item>
             <el-breadcrumb-item>商品编辑</el-breadcrumb-item>
         </el-breadcrumb>
 
@@ -101,60 +102,65 @@
                     <section class="my-title">
                         商品销售属性
                     </section>
-                    <el-form-item label="选择颜色(从共用的勾选)">
-                        <el-checkbox :indeterminate="isColorIndeterminate" v-model="checkAllColor"
-                                     @change="handleCheckAllColorsChange">全选
-                        </el-checkbox>
-                        <div style="margin: 15px 0;"></div>
-                        <el-checkbox-group v-model="checkedColors" @change="handleCheckedColorsChange">
-                            <el-checkbox v-for="color in allColors" :label="color" :key="color.COid">
-                                {{color.COname}}
-                            </el-checkbox>
-                        </el-checkbox-group>
-                        <el-input ref="inputColor" class="input-new-tag" v-if="inputColorVisible"
-                                  v-model.trim="inputColorVal"
-                                  size="small" @keyup.enter.native="addColor" @blur="inputColorVisible=false"
-                                  placeholder="回车保存新的颜色"
-                        >
-                        </el-input>
-                        <el-tooltip v-else class="item" effect="dark" content="点击后切换成输入框,不能重名!" placement="right">
-                            <el-button type="=primary" size="small" @click="showInputColor" icon="el-icon-plus">
-                                新增颜色
-                            </el-button>
-                        </el-tooltip>
-                    </el-form-item>
+                    <el-collapse v-model="activeNames">
+                        <el-collapse-item :title="`选择的颜色和尺码${isEdit? '---当前是编辑状态,谨慎减去在售的组合!':''}`" name="1">
+                            <el-form-item label="选择颜色(从共用的勾选)">
+                                <el-checkbox :indeterminate="isColorIndeterminate" v-model="checkAllColor"
+                                             @change="handleCheckAllColorsChange">全选
+                                </el-checkbox>
+                                <div style="margin: 15px 0;"></div>
+                                <el-checkbox-group v-model="checkedColors" @change="handleCheckedColorsChange">
+                                    <el-checkbox v-for="color in allColorsName" :label="color" :key="color">
+                                        {{color}}
+                                    </el-checkbox>
+                                </el-checkbox-group>
+                                <el-input ref="inputColor" class="input-new-tag" v-if="inputColorVisible"
+                                          v-model.trim="inputColorVal"
+                                          size="small" @keyup.enter.native="addColor" @blur="inputColorVisible=false"
+                                          placeholder="回车保存新的颜色"
+                                >
+                                </el-input>
+                                <el-tooltip v-else class="item" effect="dark" content="点击后切换成输入框,不能重名!"
+                                            placement="right">
+                                    <el-button type="=primary" size="small" @click="showInputColor" icon="el-icon-plus">
+                                        新增颜色
+                                    </el-button>
+                                </el-tooltip>
+                            </el-form-item>
 
-                    <el-form-item label="选择尺码(从共用的勾选)">
-                        <el-checkbox :indeterminate="isSizeIndeterminate" v-model="checkAllSize"
-                                     @change="handleCheckAllSizesChange">全选
-                        </el-checkbox>
-                        <div style="margin: 15px 0;"></div>
-                        <el-checkbox-group v-model="checkedSizes" @change="handleCheckedSizesChange">
-                            <el-checkbox v-for="size in allSizes" :label="size" :key="size.SIid">
-                                {{size.SIname}}
-                            </el-checkbox>
-                        </el-checkbox-group>
-                        <el-input
-                            ref="inputSize"
-                            class="input-new-tag"
-                            v-if="inputSizeVisible"
-                            v-model.trim="inputSizeVal"
-                            size="small"
-                            @keyup.enter.native="addSize"
-                            @blur="inputSizeVisible=false"
-                            placeholder="回车保存新的尺码"
-                        >
-                        </el-input>
-                        <el-tooltip v-else class="item" effect="dark" content="点击后切换成输入框,不能重名!" placement="right">
-                            <el-button type="=primary" size="small" @click="showInputSize" icon="el-icon-plus">
-                                新增尺码
-                            </el-button>
-                        </el-tooltip>
-                    </el-form-item>
-
-                    <el-form-item label="商品销售属性(颜色与尺码的组合)">
+                            <el-form-item label="选择尺码(从共用的勾选)">
+                                <el-checkbox :indeterminate="isSizeIndeterminate" v-model="checkAllSize"
+                                             @change="handleCheckAllSizesChange">全选
+                                </el-checkbox>
+                                <div style="margin: 15px 0;"></div>
+                                <el-checkbox-group v-model="checkedSizes" @change="handleCheckedSizesChange">
+                                    <el-checkbox v-for="size in allSizesName" :label="size" :key="size">
+                                        {{size}}
+                                    </el-checkbox>
+                                </el-checkbox-group>
+                                <el-input
+                                    ref="inputSize"
+                                    class="input-new-tag"
+                                    v-if="inputSizeVisible"
+                                    v-model.trim="inputSizeVal"
+                                    size="small"
+                                    @keyup.enter.native="addSize"
+                                    @blur="inputSizeVisible=false"
+                                    placeholder="回车保存新的尺码"
+                                >
+                                </el-input>
+                                <el-tooltip v-else class="item" effect="dark" content="点击后切换成输入框,不能重名!"
+                                            placement="right">
+                                    <el-button type="=primary" size="small" @click="showInputSize" icon="el-icon-plus">
+                                        新增尺码
+                                    </el-button>
+                                </el-tooltip>
+                            </el-form-item>
+                        </el-collapse-item>
+                    </el-collapse>
+                    <el-form-item label="商品销售属性(颜色与尺码的组合,可将不需要的组合的库存置0)">
                         <el-table :data="skuTableData" size="medium" :span-method="objectSpanMethod" border
-                                  style="width: 100%; margin-top: 20px;">
+                                  style="width: 100%; margin-top: 20px;" empty-text="请在上方勾选颜色和尺码的组合后再来补全库存">
                             <el-table-column prop="colorname" align="center" label="颜色" width="180">
                             </el-table-column>
                             <el-table-column prop="sizename" align="center" label="尺码">
@@ -187,14 +193,14 @@
                     <!--</section>-->
 
                     <el-form-item>
-                        <el-button type="primary" @click="doSavePd">{{isEdit ? '保存商品' : '新增商品'}}</el-button>
+                        <el-button type="primary" @click="doSavePd" icon="el-icon-edit">{{isEdit ? '保存商品' : '新增商品'}}</el-button>
                     </el-form-item>
                 </el-form>
             </el-col>
         </el-row>
 
         <section class="tool-tip-wrap pin-right-bottom">
-            <el-button type="primary" @click="doSavePd">{{isEdit ? '保存商品' : '新增商品'}}</el-button>
+            <el-button type="primary" @click="doSavePd" icon="el-icon-edit">{{isEdit ? '保存商品' : '新增商品'}}</el-button>
         </section>
 
         <el-dialog :visible.sync="dialogVisible">
@@ -206,8 +212,9 @@
 <script>
     import lrz from "lrz"
 
-    const numberReg = /^[0-9]+([.]{1}[0-9]+){0,1}$/;
-    const positiveNumberReg = /^([1-9]\d*)$/;
+    const numberReg = /^[0-9]+([.]{1}[0-9]+){0,1}$/;    //  正数
+    const positiveNumberReg = /^([1-9]\d*)$/;   //  正整数
+    const natureNumberReg = /^(\d*)$/;   //  自然数
     export default {
         name: "productEdit",
 
@@ -283,10 +290,13 @@
                     ],
                 },
 
+                activeNames: [],
+
                 //  颜色
                 checkAllColor: false,
                 isColorIndeterminate: false,
                 allColors: [],
+                allColorsName: [],
                 checkedColors: [],
                 inputColorVisible: false,
                 inputColorVal: '',
@@ -295,6 +305,7 @@
                 checkAllSize: false,
                 isSizeIndeterminate: false,
                 allSizes: [],
+                allSizesName: [],
                 checkedSizes: [],
                 inputSizeVisible: false,
                 inputSizeVal: '',
@@ -310,7 +321,7 @@
                 this.formData.paid = val[1];
             },
             detailImgs(val) {
-                this.formData.sowingmap = val.map(item => item.url).join(',');
+                this.formData.sowingmap = val.map(item => item.url);
             }
         },
 
@@ -327,17 +338,30 @@
                     for (let j = 0; j < this.checkedSizes.length; j++) {
                         res.push({
                             psid: '',
-                            coid: this.checkedColors[i].COid,
-                            colorname: this.checkedColors[i].COname,
-                            siid: this.checkedSizes[j].SIid,
-                            sizename: this.checkedSizes[j].SIname,
+                            coid: this.allColors.find(item => item.COname == this.checkedColors[i]).COid,
+                            colorname: this.checkedColors[i],
+                            siid: this.allSizes.find(item => item.SIname == this.checkedSizes[j]).SIid,
+                            sizename: this.checkedSizes[j],
                             stock: 0,
-                        })
+                        });
+
+                        if (this.isEdit) {
+                            let resLastItem = res[res.length - 1],
+                                existSkuItem = this.formData.skulist.find(item => {
+                                    return item.colorid == resLastItem.coid && item.sizeid == resLastItem.siid;
+                                });
+
+                            if (existSkuItem) {
+                                resLastItem.psid = existSkuItem.PSid;
+                                resLastItem.stock = existSkuItem.PSstock;
+                            }
+                        }
                     }
                 }
 
-                this.getSpanArr(res);
 
+
+                this.getSpanArr(res);
                 return res
             }
         },
@@ -345,7 +369,7 @@
         methods: {
             //  颜色
             handleCheckAllColorsChange(val) {
-                this.checkedColors = val ? this.allColors : [];
+                this.checkedColors = val ? this.allColorsName : [];
                 this.isColorIndeterminate = false;
             },
             handleCheckedColorsChange(value) {
@@ -384,17 +408,18 @@
                                 message: `颜色名:${this.inputColorVal}`,
                                 type: 'success'
                             });
+
+
+                            this.inputColorVal = '';
+                            this.inputColorVisible = false;
                         }
                     }
-                )
-
-                this.inputColorVal = '';
-                this.inputColorVisible = false;
+                );
             },
 
             //  尺码
             handleCheckAllSizesChange(val) {
-                this.checkedSizes = val ? this.allSizes : [];
+                this.checkedSizes = val ? this.allSizesName : [];
                 this.isSizeIndeterminate = false;
             },
             handleCheckedSizesChange(value) {
@@ -432,12 +457,14 @@
                                 message: `尺码名:${this.inputSizeVal}`,
                                 type: 'success'
                             });
+
+                            this.inputSizeVal = '';
+                            this.inputSizeVisible = false;
                         }
                     }
                 )
 
-                this.inputSizeVal = '';
-                this.inputSizeVisible = false;
+
             },
 
             //  sku表格
@@ -577,6 +604,7 @@
                                 data = res.data.data;
 
                             this.allColors = data;
+                            this.allColorsName = data.map(item => item.COname);
                         }
                     }
                 )
@@ -596,6 +624,7 @@
                                 data = res.data.data;
 
                             this.allSizes = data;
+                            this.allSizesName = data.map(item => item.SIname);
                         }
                     }
                 )
@@ -610,8 +639,8 @@
                         if (this.skuTableData[i].stock === undefined) {
                             return res + '库存必填!'
                         }
-                        if (!positiveNumberReg.test(this.skuTableData[i].stock)) {
-                            return res + '库存要求为正整数!'
+                        if (!natureNumberReg.test(this.skuTableData[i].stock)) {
+                            return res + '库存要求为自然数!'
                         }
                     }
                 } else {
@@ -683,9 +712,9 @@
             if (editPd) {
                 this.isEdit = true;
 
-                this.$http.post(this.$api.getProductDetails,{
+                this.$http.post(this.$api.getProductDetails, {
                     prid: editPd.PRid
-                },{
+                }, {
                     params: {
                         token: this.$common.getStore('token')
                     }
@@ -705,6 +734,8 @@
                             this.formData.prlogisticsfee = editPd.PRlogisticsfee;
                             this.formData.prdiscountnum = editPd.PAdiscountnum;
                             this.formData.prstatus = editPd.PRstatus;
+                            this.formData.skulist = data.skulist;
+                            this.formData.sowingmap = data.sowingmap;
 
                             this.imageUrl = editPd.PRpic;
                             this.detailImgs = data.sowingmap.map(item => {
@@ -717,17 +748,19 @@
                             // this.skuTableData = data.skulist;
 
                             for (let i = 0; i < data.skulist.length; i++) {
-                                console.log(data.skulist[i].colorid);
-                                if(!this.checkedColors.find(item => item.COid == data.skulist[i].colorid)){
-                                    this.checkedColors.push({
-                                        COid: data.skulist[i].colorid,
-                                        COname: data.skulist[i].colorname
-                                    });
+                                if (!this.checkedColors.find(item => item == data.skulist[i].colorname)) {
+                                    this.checkedColors.push(data.skulist[i].colorname);
+                                }
+
+                                if (!this.checkedSizes.find(item => item == data.skulist[i].sizename)) {
+                                    this.checkedSizes.push(data.skulist[i].sizename);
                                 }
                             }
                         }
                     }
                 )
+            }else{
+                this.activeNames = ['1'];
             }
 
         },

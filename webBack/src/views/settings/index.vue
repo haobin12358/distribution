@@ -81,6 +81,7 @@
                     <el-input v-model="formData.reward" type="number"></el-input>
                 </el-form-item>
 
+
                 <el-form-item>
                     <el-button type="info" @click="setData">重 置</el-button>
                     <el-button type="primary" @click="doConfirm">保 存</el-button>
