@@ -30,7 +30,7 @@ class User(Base):
     USagentid = Column(Integer, primary_key=True, autoincrement=True) # 代理编号
     USheadimg = Column(String(255))              # 头像
     USbail = Column(Float)                       # 保证金余额
-    USmount = Column(DECIMAL)                      # 账户余额
+    USmount = Column(Float)                      # 账户余额
     USpre = Column(String(64))                   # 上级代理id
     UScreatetime = Column(String(14))            # 创建时间
     authorization = Column(String(512))          # 认证书url
