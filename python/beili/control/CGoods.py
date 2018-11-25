@@ -377,6 +377,9 @@ class CGoods():
             return PARAMS_ERROR 
         if int(type) < 0:
             return PARAMS_ERROR
+        result = self.sgoods.update_sowingmap()
+        if not result:
+            return SYSTEM_ERROR
         result = self.sgoods.add_sowingmap(type, urls)
         if not result:
             return SYSTEM_ERROR
@@ -395,9 +398,6 @@ class CGoods():
                 personUrls.append(pic)
             if pic['SMtype'] == 2:
                 mallUrls.append(pic)
-        result = self.sgoods.update_sowingmap()
-        if not result:
-            return SYSTEM_ERROR
         data = {}
         data['mallUrls'] = mallUrls
         data['personUrls'] = personUrls
