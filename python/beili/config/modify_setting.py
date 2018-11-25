@@ -1,7 +1,8 @@
 # -*- coding:utf8 -*-
 from configparser import ConfigParser
 
-def modify(alipaynum, alipayname, bankname, accountname, cardnum, money, service, drawbank, bail, reward):
+def modify(alipaynum, alipayname, bankname, accountname, cardnum, money, service, drawbank, bail, reward, sendname
+           , sendphone, sendaddress):
     fp = 'config/setting.ini'  # 定义配置文件名
     conf = ConfigParser()  # 实例化
     conf.read(fp)  # 打开conf
@@ -19,6 +20,9 @@ def modify(alipaynum, alipayname, bankname, accountname, cardnum, money, service
     conf.set('account', 'drawbank', drawbank)
     conf.set('account', 'bail', bail)
     conf.set('account', 'reward', reward)
+    conf.set('account', 'sendname', sendname)
+    conf.set('account', 'sendphone', sendphone)
+    conf.set('account', 'sendaddress', sendaddress)
     with open("config/setting.ini", "w+") as f:
         conf.write(f)
     return True

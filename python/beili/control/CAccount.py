@@ -1099,7 +1099,7 @@ class CAccount():
         if not is_admin():
             return TOKEN_ERROR
         params_list = ['alipaynum', 'alipayname', 'bankname', 'accountname', 'cardnum', 'agentmoney', 'wechat', 'drawbank'
-            , 'bail', 'reward']
+            , 'bail', 'reward', 'sendname', 'sendphone', 'sendaddress']
         data = request.json
         for param in params_list:
             if param not in data:
@@ -1120,8 +1120,12 @@ class CAccount():
         drawbank = data.get('drawbank').encode('utf-8')
         bail = float(data.get('bail'))
         reward = float(data.get('reward'))
+        sendname = data.get('sendname')
+        sendphone = data.get('sendphone')
+        sendaddress = data.get('sendaddress')
         from config.modify_setting import modify
-        result = modify(alipaynum, alipayname, bankname, accountname, cardnum, str(money), service, drawbank, str(bail), str(reward))
+        result = modify(alipaynum, alipayname, bankname, accountname, cardnum, str(money), service, drawbank, str(bail)
+                        , str(reward), sendname, sendphone, sendaddress)
         if not result:
             return SYSTEM_ERROR
         response = import_status("update_account_success", "OK")
@@ -1187,6 +1191,9 @@ class CAccount():
         user_dict['drawbank'] = conf.get('account', 'drawbank')
         user_dict['bail'] = float(conf.get('account', 'bail'))
         user_dict['reward'] = float(conf.get('account', 'reward'))
+        user_dict['sendname'] = conf.get('account', 'sendname')
+        user_dict['sendphone'] = (conf.get('account', 'sendphone'))
+        user_dict['sendaddress'] = (conf.get('account', 'sendaddress'))
         response = import_status("get_configure_success", "OK")
         response['data'] = user_dict
         return response

@@ -4,6 +4,9 @@ import sys
 import os
 import uuid
 import random
+import shutil
+import xlrd
+import xlwt
 from flask import request
 # import logging
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR, STOCK_NOT_ENOUGH,\
@@ -25,7 +28,8 @@ from configparser import ConfigParser
 from common.beili_error import stockerror, dberror
 from datetime import datetime
 from common.timeformat import format_for_db, get_random_str, get_random_int
-from models.model import User, AgentMessage, Performance, Amount, Reward, MoneyRecord, OrderSkuInfo, ShoppingCart, ProductSku
+from models.model import User, AgentMessage, Performance, Amount, Reward, MoneyRecord, OrderSkuInfo, ShoppingCart\
+    , ProductSku, OrderInfo
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -421,3 +425,92 @@ class COrder():
         detail['product_list'] = product_list
         reponse['data'] = detail
         return reponse
+
+    @verify_token_decorator
+    def get_willsend_products(self):
+        if not is_admin():
+            return TOKEN_ERROR
+        # workbook = xlrd.open_workbook(r'/Users/fx/Desktop/项目相关/1.xls')
+        # print (workbook.sheet_names())
+        # sheet = workbook.sheet_names()[0]
+        # sheet_data = workbook.sheet_by_name(sheet)
+        # print(sheet_data)
+        # print (sheet_data.name, sheet_data.nrows, sheet_data.ncols)
+        # rows = sheet_data.row_values(0)  # 获取第一行内容
+        # cols = sheet_data.col_values(0)  # 获取第一列内容
+        # print (rows)
+
+        style = xlwt.XFStyle()
+        font = xlwt.Font()
+        font.name = u'宋体'
+        font.bold = True
+        style.font = font
+        time_now = datetime.strftime(datetime.now(), format_for_db)
+        workbook = xlwt.Workbook(encoding='utf-8')
+        worksheet = workbook.add_sheet('sheet1')
+        # worksheet.write_merge()
+        worksheet.write(0, 0, label='订单号', style=style)
+        worksheet.write(0, 1, label='收货地址', style=style)
+        worksheet.write(0, 2, label='卖家备注', style=style)
+        worksheet.write(0, 3, label='发件人姓名', style=style)
+        worksheet.write(0, 4, label='发件人电话', style=style)
+        worksheet.write(0, 5, label='发件人地址', style=style)
+        worksheet.write(0, 6, label='发货商品', style=style)
+        font = xlwt.Font()
+        font.name = u'宋体'
+        font.bold = False
+        style.font = font
+        order_list = get_model_return_list(self.sorder.get_all_order(None, None, None, 1, None, None))
+        url = ''
+        session = db_session()
+        try:
+            if order_list:
+                for i,order in enumerate(order_list):
+                    oisn = order['OIsn']
+                    provincename = order['provincename']
+                    cityname = order['cityname']
+                    areaname = order['areaname'] if order['areaname'] else ''
+                    details = order['details']
+                    address = provincename + cityname + areaname + details
+                    OInote = order['OInote']
+                    product_list = get_model_return_list(self.sorder.get_product_list(order['OIid']))
+                    productname = self.get_product_name(product_list)
+                    worksheet.write(i+1, 0, label=oisn, style=style)
+                    worksheet.write(i+1, 1, label=address, style=style)
+                    worksheet.write(i+1, 2, label=OInote, style=style)
+                    worksheet.write(i+1, 3, label=self.conf.get('account', 'sendname'), style=style)
+                    worksheet.write(i+1, 4, label=self.conf.get('account', 'sendphone'), style=style)
+                    worksheet.write(i+1, 5, label=self.conf.get('account', 'sendaddress'), style=style)
+                    session.query(OrderInfo).filter(OrderInfo.OIsn == oisn).update({"OIstatus": 2})
+                    worksheet.write(i+1, 6, label=productname, style=style)
+            if platform.system() == "Windows":
+                rootdir = "D:/task"
+            else:
+                rootdir = "/opt/beili/file/"
+            if not os.path.isdir(rootdir):
+                os.makedirs(rootdir)
+            filename = get_db_time_str() + "." + 'xls'
+            filepath = os.path.join(rootdir, filename)
+            print(filepath)
+            workbook.save(filepath)
+            url = QRCODEHOSTNAME + "/file/" + filename
+        except Exception as e:
+            print e
+            session.rollback()
+            return SYSTEM_ERROR
+        finally:
+            session.commit()
+        response = import_status("get_willsend_products_success", "OK")
+        response['data'] = url
+        return response
+
+    def get_product_name(self, list):
+        name = ''
+        for product in list:
+            name = name + '' + product['PRname']
+        return name
+
+
+
+if __name__ == '__main__':
+    COrder().get_willsend_products()
