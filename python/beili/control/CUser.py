@@ -163,12 +163,10 @@ class CUser():
             filessuffix = str(files.filename)[lastpoint + 1:]
             if filessuffix.lower() in ['png', 'jpg', 'jpeg', 'gif']:
                 image = Image.open(files)
-                imBytes = image.toBytes()
-                compress = zlib.compress(imBytes)
-                new_image = Image.frombytes('RGB', image.size, zlib.decompress(compress))
+                w, h = image.size
                 filename = request.user.id + get_db_time_str() + "." + filessuffix
                 filepath = os.path.join(rootdir, filename)
-                new_image.save(filepath)
+                image.resize(w/4, h/4).save(filepath, filessuffix, quality=90)
                 response = import_status("upload_file_success", "OK")
                 url = QRCODEHOSTNAME + "/file/" + filename
                 response["data"] = url
