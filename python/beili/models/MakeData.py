@@ -408,10 +408,11 @@ class MakeData():
 
     def add_test(self):
         from model import Test
-        test = Test()
-        test.name='fengxin'
-        self.session.add(test)
-        self.session.commit()
+        for i in range(3):
+            test = Test()
+            test.name='fengxin'
+            self.session.add(test)
+            self.session.commit()
 
 
 class databse_deal():

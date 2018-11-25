@@ -27,7 +27,7 @@ class User(Base):
     USname = Column(String(64), nullable=False)  # 用户名
     USpassword = Column(String(255))             # 密码
     USphonenum = Column(String(16), nullable=False)  # 手机号
-    USagentid = Column(Integer, primary_key=True, autoincrement=True, default=1) # 代理编号
+    USagentid = Column(Integer, primary_key=True, autoincrement=True) # 代理编号
     USheadimg = Column(String(255))              # 头像
     USbail = Column(Float)                       # 保证金余额
     USmount = Column(DECIMAL)                      # 账户余额
@@ -466,7 +466,7 @@ class Comments(Base):
 
 # class Test(Base):
 #     __tablename__ = 'test'
-#     id = Column(Integer, primary_key=True, autoincrement=True, default=1)
+#     id = Column(Integer, primary_key=True, autoincrement=True)
 #     name = Column(String(32))
 
 # Base.metadata.create_all(mysql_engine)
