@@ -266,6 +266,9 @@ class COrder():
                 request.user.id, 2) else 0
             state3 = int(self.sorder.get_order_num(request.user.id, 3)) if self.sorder.get_order_num(
                 request.user.id, 3) else 0
+            state4 = int(self.sorder.get_order_num(request.user.id, 1)) if self.sorder.get_order_num(
+                request.user.id, 4) else 0
+            state1 = state1 + state4
             for order in order_list:
                 product_list = get_model_return_list(self.sorder.get_product_list(order['OIid']))
                 for product in product_list:
@@ -287,6 +290,10 @@ class COrder():
             return response
         else:
             order_list = get_model_return_list(self.sorder.get_order_list(request.user.id, type, page, count))
+            if type == 1:
+                order_list = order_list + get_model_return_list(self.sorder.get_order_list(request.user.id, 4, page, count))
+                new_list = sorted(order_list, key=lambda order: order['OIcreatetime'], reverse=True)
+                order_list = new_list
             if not order_list:
                 response = import_status("get_orderlist_success", "OK")
                 response['data'] = order_return_list
@@ -465,13 +472,15 @@ class COrder():
         session = db_session()
         try:
             if order_list:
-                for i,order in enumerate(order_list):
+                for i, order in enumerate(order_list):
                     oisn = order['OIsn']
+                    username = order['username']
+                    phone = order['userphonenum']
                     provincename = order['provincename']
                     cityname = order['cityname']
                     areaname = order['areaname'] if order['areaname'] else ''
                     details = order['details']
-                    address = provincename + cityname + areaname + details
+                    address = username + ' ' + phone + ' ' + provincename + cityname + areaname + details
                     OInote = order['OInote']
                     product_list = get_model_return_list(self.sorder.get_product_list(order['OIid']))
                     productname = self.get_product_name(product_list)
@@ -509,8 +518,3 @@ class COrder():
         for product in list:
             name = name + '' + product['PRname']
         return name
-
-
-
-if __name__ == '__main__':
-    COrder().get_willsend_products()
