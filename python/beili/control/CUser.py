@@ -162,7 +162,7 @@ class CUser():
             lastpoint = str(files.filename).rindex(".")
             filessuffix = str(files.filename)[lastpoint + 1:]
             if filessuffix.lower() in ['png', 'jpg', 'jpeg', 'gif']:
-                image = files
+                image = Image.open(files)
                 imBytes = image.toBytes()
                 compress = zlib.compress(imBytes)
                 new_image = Image.frombytes('RGB', image.size, zlib.decompress(compress))
