@@ -267,7 +267,7 @@ class COrder():
                 request.user.id, 2) else 0
             state3 = int(self.sorder.get_order_num(request.user.id, 3)) if self.sorder.get_order_num(
                 request.user.id, 3) else 0
-            state4 = int(self.sorder.get_order_num(request.user.id, 1)) if self.sorder.get_order_num(
+            state4 = int(self.sorder.get_order_num(request.user.id, 4)) if self.sorder.get_order_num(
                 request.user.id, 4) else 0
             state1 = state1 + state4
             for order in order_list:
