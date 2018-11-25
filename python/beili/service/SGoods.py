@@ -187,8 +187,11 @@ class SGoods(SBase):
             .filter(SowingMap.SMstatus == 1).all()
 
     @close_session
-    def update_sowingmap(self, smid):
-        self.session.query(SowingMap).filter(SowingMap.SMid == smid).update({'SMstatus':False})
+    def update_sowingmap(self, smid=None):
+        if smid:
+            self.session.query(SowingMap).filter(SowingMap.SMid == smid).update({'SMstatus':False})
+        else:
+            self.session.query(SowingMap).update({'SMstatus': False})
         return True
 
     @close_session

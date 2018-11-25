@@ -395,6 +395,9 @@ class CGoods():
                 personUrls.append(pic)
             if pic['SMtype'] == 2:
                 mallUrls.append(pic)
+        result = self.sgoods.update_sowingmap()
+        if not result:
+            return SYSTEM_ERROR
         data = {}
         data['mallUrls'] = mallUrls
         data['personUrls'] = personUrls
