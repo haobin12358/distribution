@@ -166,7 +166,7 @@ class CUser():
                 w, h = image.size
                 filename = request.user.id + get_db_time_str() + "." + filessuffix
                 filepath = os.path.join(rootdir, filename)
-                image.resize((w/4, h/4)).save(filepath, filessuffix, quality=90)
+                image.resize((w/6, h/6)).save(filepath, filessuffix, quality=30)
                 response = import_status("upload_file_success", "OK")
                 url = QRCODEHOSTNAME + "/file/" + filename
                 response["data"] = url
@@ -196,6 +196,19 @@ class CUser():
                 os.makedirs(rootdir)
             lastpoint = str(files.filename).rindex(".")
             filessuffix = str(files.filename)[lastpoint + 1:]  # 后缀名
+            if filessuffix.lower() in ['png', 'jpg', 'jpeg', 'gif']:
+                image = Image.open(files)
+                w, h = image.size
+                filename = request.user.id + get_db_time_str() + "." + filessuffix
+                filepath = os.path.join(rootdir, filename)
+                image.resize((w/6, h/6)).save(filepath, filessuffix, quality=30)
+                url = QRCODEHOSTNAME + "/file/" + filename
+                data = import_status("upload_file_success", "OK")
+                data['data'] = {
+                    'token': token,
+                    'url': url
+                }
+                return data
             filename = id1 + get_db_time_str() + "." + filessuffix
             filepath = os.path.join(rootdir, filename)
             print(filepath)
