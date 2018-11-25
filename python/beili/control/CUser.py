@@ -32,7 +32,7 @@ import platform
 import zlib
 from werkzeug.security import generate_password_hash, check_password_hash
 from weixin import WeixinError
-from PIL import Image, ImageGrab
+from PIL import Image
 from weixin.login import WeixinLoginError, WeixinLogin
 sys.path.append(os.path.dirname(os.getcwd()))
 
