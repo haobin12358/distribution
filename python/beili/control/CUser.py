@@ -29,8 +29,10 @@ from models.model import Amount, User, Reward
 from configparser import ConfigParser
 from common.timeformat import format_for_db
 import platform
+import zlib
 from werkzeug.security import generate_password_hash, check_password_hash
 from weixin import WeixinError
+from PIL import Image, ImageGrab
 from weixin.login import WeixinLoginError, WeixinLogin
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -159,6 +161,18 @@ class CUser():
                 os.makedirs(rootdir)
             lastpoint = str(files.filename).rindex(".")
             filessuffix = str(files.filename)[lastpoint + 1:]
+            if filessuffix.lower() in ['png', 'jpg', 'jpeg', 'gif']:
+                image = files
+                imBytes = image.toBytes()
+                compress = zlib.compress(imBytes)
+                new_image = Image.frombytes('RGB', image.size, zlib.decompress(compress))
+                filename = request.user.id + get_db_time_str() + "." + filessuffix
+                filepath = os.path.join(rootdir, filename)
+                new_image.save(filepath)
+                response = import_status("upload_file_success", "OK")
+                url = QRCODEHOSTNAME + "/file/" + filename
+                response["data"] = url
+                return response
             filename = request.user.id + get_db_time_str() + "." + filessuffix
             filepath = os.path.join(rootdir, filename)
             print(filepath)
