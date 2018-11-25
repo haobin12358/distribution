@@ -104,7 +104,6 @@ class MakeData():
         user.USid = '1204cf38-c3cf-401f-8ba7-f8ce040f064f'
         user.USname = 'fengxin'
         user.USphonenum = '13588046059'
-        user.USagentid = 1
         user.USwechat = 'wechat'
         user.USpassword = "123"
         user.USbail = 0
@@ -407,6 +406,13 @@ class MakeData():
     #             "COend": "2018041421%02d00" % i
     #         })
 
+    def add_test(self):
+        from model import Test
+        test = Test()
+        test.name='fengxin'
+        self.session.add(test)
+        self.session.commit()
+
 
 class databse_deal():
     def __init__(self):
@@ -465,14 +471,14 @@ if __name__ == "__main__":
 
 
     else:
-        #databse_deal().create_database()
+        databse_deal().create_database()
         create()
-        # data = MakeData()
+        data = MakeData()
         # data.add_test()
         # print "OK!"
         # print('start add data')
         # data.add_superuser()
-        # data.add_user()
+        data.add_user()
         # data.add_user2()
         # data.add_user3()
         # data.add_user4()
