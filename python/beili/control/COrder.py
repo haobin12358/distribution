@@ -9,6 +9,7 @@ import xlrd
 import xlwt
 from flask import request
 # import logging
+import threading
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR, STOCK_NOT_ENOUGH,\
         NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_ORDER, PRODUCT_OFFLINE, SKU_WRONG
 from config.setting import QRCODEHOSTNAME
@@ -518,3 +519,23 @@ class COrder():
         for product in list:
             name = name + '' + product['PRname']
         return name
+
+
+    def timer_fun(self):  # 定时器
+        global TIMER
+        print "start timer_fun !"
+        import datetime
+        time_now = datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d')
+        print time_now
+        order_list = get_model_return_list(self.sorder.get_all_order(None, None, None, 2, None, None))
+        if order_list:
+            for order in order_list:
+                time = datetime.datetime.strptime(order['OIcreatetime'][0:8], '%Y%m%d')
+                print 'time', time
+                days_10 = (time + datetime.timedelta(days=10)).strftime("%Y%m%d")
+                print 'days_10', days_10
+                if time_now > days_10:
+                    self.sorder.update_order(order['OIsn'], {"OIstatus": 3})
+        # 继续添加定时器，周期执行，否则只会执行一次
+        TIMER = threading.Timer(5, self.timer_fun)
+        TIMER.start()
