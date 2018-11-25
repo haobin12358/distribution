@@ -164,7 +164,7 @@ class CUser():
             if filessuffix.lower() in ['png', 'jpg', 'jpeg', 'gif']:
                 image = Image.open(files)
                 w, h = image.size
-                filename = request.user.id + get_db_time_str() + "." + filessuffix
+                filename = request.user.id + get_db_time_str()
                 filepath = os.path.join(rootdir, filename)
                 image.resize((w/6, h/6)).save(filepath, filessuffix.lower(), quality=30)
                 response = import_status("upload_file_success", "OK")
