@@ -59,8 +59,7 @@
             <el-row class="tac">
                 <el-col :span="24">
                     <el-menu class="m-sidebar" :default-active="defaultPage.path" background-color="#545c64"
-                             text-color="#fff" popper-class="menu-title"
-                             active-text-color="#ffd04b" :router="true">
+                             text-color="#fff" popper-class="menu-title" active-text-color="#ffd04b" :router="true">
                         <el-menu-item v-for="item,index in menu" :index="item.path" :key="index">
                             <i class="el-icon-menu"></i>
                             <span slot="title">{{item.title}}</span>
@@ -72,6 +71,9 @@
 
         <section class="right-content">
             <header class="right-content-hd">
+                <span class="version">
+                    开发版本:0.0.1
+                </span>
                 <el-input class="search-input" size="mini" v-model="searchTxt" placeholder="请输入内容"></el-input>
                 <el-dropdown class="admin-name" trigger="click" @command="handleCommand">
                     <span class="el-dropdown-link">

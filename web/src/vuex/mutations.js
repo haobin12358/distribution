@@ -8,6 +8,7 @@ import {
     SET_NOT_READ_COM_MSG,
     ADD_CART,
     REDUCE_CART,
+    CHANGE_CART_ITEM,
     INIT_CART,
     CLEAR_CART,
     SET_CART,
@@ -78,6 +79,32 @@ export default {
         // state.cartList = state.cartList.concat();
         setStore(CART_LIST, state.cartList);
     },
+    [CHANGE_CART_ITEM](state, payload) {
+        let reduceIndex = 0;
+        let changeItem = state.cartList.find((item, index) => {
+            if (item.PRid == payload.product.PRid) {
+                reduceIndex = index;
+                return true;
+            }
+        });
+
+        if (changeItem) {
+            if(payload.num){
+
+                changeItem.PRnum = payload.num;
+            }else{
+                state.cartList.splice(reduceIndex, 1);
+
+            }
+        }else {
+            payload.product.PRnum = payload.num;
+            state.cartList = [...state.cartList, payload.product];
+        }
+
+
+        setStore(CART_LIST, state.cartList);
+
+    },
     [INIT_CART](state, payload) {
         let cartListSto = getStore(CART_LIST);
 
@@ -113,12 +140,12 @@ export default {
 
         if (addTenCartTip === null) {
             state.addTenCartTip = true;
-        }else{
+        } else {
             state.addTenCartTip = JSON.parse(addTenCartTip) ? true : false;
         }
     },
 
-    [SET_BANNER_IMGS](state, payload){
+    [SET_BANNER_IMGS](state, payload) {
         state.banner = payload;
     }
 

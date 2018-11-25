@@ -1,18 +1,18 @@
 import axios from "axios"
-import {Indicator, Toast} from "mint-ui"
-import {getStore,setStore} from "src/common/js/mUtils"
+import {Indicator, Toast, MessageBox} from "mint-ui"
+import {getStore, setStore} from "src/common/js/mUtils"
 import {TOKEN} from "src/common/js/const"
 
 const debug = false;
 export const title = debug ? 'https://dsn.apizza.net/mock/60c954072cfff536376e5acb0392c590' : 'https://beiliserver.daaiti.cn:443';
 
-const myAxios = async (url, {params, data, method = 'get', showIndicator = true}) => {
+const myAxios = async (url, {params, data, method = 'get', showIndicator = true, showTypeIsMessage = false}) => {
     if (showIndicator) {
         Indicator.open({text: '加载中...', spinnerType: 'fading-circle'});
     }
 
     let res = await axios({
-        baseURL: title,    //todo 代理
+        baseURL: title,
         method: method,
         url: url,
         params: params,
@@ -23,7 +23,11 @@ const myAxios = async (url, {params, data, method = 'get', showIndicator = true}
                 Indicator.close();
             }
 
-            Toast('服务器出错!');
+            if(showTypeIsMessage){
+                MessageBox.alert('服务器出错!');
+            }else{
+                Toast('服务器出错!');
+            }
         }
     )
 
@@ -35,9 +39,14 @@ const myAxios = async (url, {params, data, method = 'get', showIndicator = true}
         if (res.data.status == 200) {
             return res.data;
         } else {
-            Toast(res.data.message);
-            if(res.data.status == 405 && res.data.status_code == 405003){
-                location.href=location.origin
+            if(showTypeIsMessage){
+                MessageBox.alert(res.data.message);
+            }else{
+                Toast(res.data.message);
+            }
+
+            if (res.data.status == 405 && res.data.status_code == 405003) {
+                location.href = location.origin
                 setStore(TOKEN, '');
             }
             return
@@ -307,12 +316,16 @@ export const getProductList = (PAtype, PAid, PRstatus, page_num, page_size = 10)
 });
 /**
  * 获取商品详情
- * @param PRid
+ * @param prid
  * @returns {Promise<*|undefined>}
  */
-export const getProduct = (PRid) => myAxios('/product/get_product', {
+export const getProductDetails = (prid) => myAxios('/product/get_product_details', {
+    method: 'post',
     params: {
-        PRid
+        token: getStore(TOKEN),
+    },
+    data: {
+        prid
     }
 });
 
@@ -432,7 +445,7 @@ export const getQrcode = () => myAxios('/user/get_qrcode', {
  * @param number
  * @returns {Promise<*|undefined>}
  */
-export const addQrcode = (overtime,number) => myAxios('/user/add_qrcode', {
+export const addQrcode = (overtime, number) => myAxios('/user/add_qrcode', {
     method: 'post',
     params: {
         token: getStore(TOKEN),
@@ -475,13 +488,13 @@ export const removeFile = (url, token) => myAxios('/user/remove_file', {
  */
 export const getRegisterInfo = (qrid) => myAxios('/user/get_registerinfo', {
     method: 'post',
-    data:{
+    data: {
         qrid
     }
 });
 export const checkQrcode = (qrid) => myAxios('/user/check_qrcode', {
     method: 'post',
-    data:{
+    data: {
         qrid
     }
 });
@@ -500,7 +513,7 @@ export const register = (formData) => myAxios('/user/register', {
  * @returns {Promise<*|undefined>}
  */
 export const getDrawInfo = () => myAxios('/account/get_draw_info', {
-    params:{
+    params: {
         token: getStore(TOKEN)
     }
 });
@@ -512,10 +525,10 @@ export const getDrawInfo = () => myAxios('/account/get_draw_info', {
  */
 export const drawMoney = (formData) => myAxios('/account/draw_money', {
     method: 'post',
-    params:{
+    params: {
         token: getStore(TOKEN)
     },
-    data:formData
+    data: formData
 });
 /**
  * 获取提现列表
@@ -524,10 +537,10 @@ export const drawMoney = (formData) => myAxios('/account/draw_money', {
  */
 export const getDrawMoneyList = (status) => myAxios('/account/get_drawmoney_list', {
     method: 'post',
-    params:{
+    params: {
         token: getStore(TOKEN)
     },
-    data:{
+    data: {
         status
     }
 });
@@ -539,10 +552,10 @@ export const getDrawMoneyList = (status) => myAxios('/account/get_drawmoney_list
  */
 export const chargeMonney = (formData) => myAxios('/account/charge_monney', {
     method: 'post',
-    params:{
+    params: {
         token: getStore(TOKEN)
     },
-    data:formData
+    data: formData
 });
 /**
  * 获取充值记录
@@ -551,10 +564,10 @@ export const chargeMonney = (formData) => myAxios('/account/charge_monney', {
  */
 export const getChargeMoneyList = (status) => myAxios('/account/get_chargemoney_list', {
     method: 'post',
-    params:{
+    params: {
         token: getStore(TOKEN)
     },
-    data:{
+    data: {
         status
     }
 });
@@ -565,7 +578,7 @@ export const getChargeMoneyList = (status) => myAxios('/account/get_chargemoney_
  * @returns {Promise<*|undefined>}
  */
 export const checkBail = () => myAxios('/account/check_bail', {
-    params:{
+    params: {
         token: getStore(TOKEN)
     }
 });
@@ -577,23 +590,23 @@ export const checkBail = () => myAxios('/account/check_bail', {
  */
 export const chargeDrawBail = (type, mount) => myAxios('/account/charge_draw_bail', {
     method: 'post',
-    params:{
+    params: {
         token: getStore(TOKEN)
     },
-    data:{
+    data: {
         type,
         mount
     }
 });
 
 export const getMoneyRecord = () => myAxios('/account/get_moneyrecord', {
-    params:{
+    params: {
         token: getStore(TOKEN)
     },
 });
 
 export const checkOpenid = () => myAxios('/user/check_openid', {
-    params:{
+    params: {
         token: getStore(TOKEN)
     },
 });
@@ -603,7 +616,7 @@ export const weixinPay = (amount) => myAxios('/account/weixin_pay', {
     data: {
         amount
     },
-    params:{
+    params: {
         token: getStore(TOKEN)
     },
 });
@@ -613,21 +626,63 @@ export const addComments = (CMcontent) => myAxios('/mycenter/add_comments', {
     data: {
         CMcontent
     },
-    params:{
+    params: {
         token: getStore(TOKEN)
     },
 });
 
 export const getSowingMap = () => myAxios('/product/get_sowingmap', {
-    params:{
+    params: {
         token: getStore(TOKEN)
     },
 });
 
 export const getAuthorization = () => myAxios('/user/get_authorization', {
-    params:{
+    params: {
         token: getStore(TOKEN)
     },
+});
+
+//  购物车
+export const addShoppingCart = (prid, sku, number) => myAxios('/product/add_shoppingcart',{
+    showTypeIsMessage: true,
+    method: 'post',
+    data: {
+        prid,
+        "psid": sku.PSid,
+        "colorid": sku.colorid,
+        "colorname": sku.colorname,
+        "sizeid": sku.sizeid,
+        "sizename": sku.sizename,
+        number
+    },
+    params: {
+        token: getStore(TOKEN)
+    },
+});
+export const getShoppingCart = () => myAxios('/product/get_shoppingcart', {
+    params: {
+        token: getStore(TOKEN)
+    },
+});
+export const updateShoppingCartNumber = (psid, number) => myAxios('/product/update_shoppingcart_number', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN)
+    },
+    data:{
+        psid,
+        number,
+    }
+});
+export const deleteShoppingCart = (scidlist) => myAxios('/product/delete_shoppingcart_sku', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN)
+    },
+    data:{
+        scidlist
+    }
 });
 
 

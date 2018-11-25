@@ -42,44 +42,45 @@
             <!--</div>-->
         <!--</el-upload>-->
         <el-col :span="16">
-            <el-form  class="demo-table-expand" size="medium" label-position="right" label-width="100px">
+            <el-form ref="ruleForm" :model="formData" :rules="formRules" class="demo-table-expand" size="medium" label-position="right" label-width="100px">
 
                 <el-form-item label="支付宝账户名:">
-                    <el-input v-model="formData.alipayname"></el-input>
+                    <el-input v-model.trim="formData.alipayname"></el-input>
                 </el-form-item>
                 <el-form-item label="银行名:">
-                    <el-input v-model="formData.bankname"></el-input>
+                    <el-input v-model.trim="formData.bankname"></el-input>
                 </el-form-item>
 
                 <el-form-item label="支付宝账号:">
-                    <el-input v-model="formData.alipaynum"></el-input>
+                    <el-input v-model.trim="formData.alipaynum"></el-input>
                 </el-form-item>
                 <el-form-item label="银行户名:">
-                    <el-input v-model="formData.accountname"></el-input>
+                    <el-input v-model.trim="formData.accountname"></el-input>
                 </el-form-item>
 
                 <el-form-item label="客服微信:">
-                    <el-input v-model="formData.wechat"></el-input>
+                    <el-input v-model.trim="formData.wechat"></el-input>
                 </el-form-item>
                 <el-form-item label="银行账号:">
-                    <el-input v-model="formData.cardnum"></el-input>
+                    <el-input v-model.trim="formData.cardnum"></el-input>
                 </el-form-item>
 
-                <el-form-item label="注册费:">
+                <el-form-item prop="agentmoney" label="注册费:">
                     <el-input v-model="formData.agentmoney" type="number"></el-input>
                 </el-form-item>
 
 
-                <el-form-item label="保证金:">
+                <el-form-item prop="bail" label="保证金:">
                     <el-input v-model="formData.bail" type="number"></el-input>
                 </el-form-item>
 
                 <el-form-item label="提现指定银行:">
-                    <el-input v-model="formData.drawbank"></el-input>
+                    <el-input v-model.trim="formData.drawbank"></el-input>
                 </el-form-item>
-                <el-form-item label="直推奖励:">
+                <el-form-item prop="reward" label="直推奖励:">
                     <el-input v-model="formData.reward" type="number"></el-input>
                 </el-form-item>
+
 
                 <el-form-item>
                     <el-button type="info" @click="setData">重 置</el-button>
@@ -106,11 +107,26 @@
                     "bankname": "",
                     "accountname": "",
                     "cardnum": "",
-                    "agentmoney": 398,
+                    "agentmoney": '',
                     "wechat": "",
                     "drawbank": "",
-                    "bail": 0,
-                    "reward": 100,
+                    "bail": '',
+                    "reward": '',
+                },
+                formRules:{
+                    agentmoney:[
+                        {required: true, message: '请填写注册费', trigger: 'blur'},
+                        {pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/, message: '注册费需要是正数', trigger: 'change'},
+                    ],
+                    bail:[
+                        {required: true, message: '请填写保证金', trigger: 'blur'},
+                        {pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/, message: '保证金需要是正数', trigger: 'change'},
+                    ],
+                    reward:[
+                        {required: true, message: '请填写直推奖励', trigger: 'blur'},
+                        {pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/, message: '直推奖励需要是正数', trigger: 'change'},
+                    ],
+
                 }
             }
         },
@@ -158,37 +174,45 @@
             },
 
             doConfirm(){
-                this.$confirm(`确定保存平台配置?`, '提示', {
-                    type: 'info'
-                }).then(
-                    ()=>{
-                        this.formData.agentmoney = Number(this.formData.agentmoney);
-                        this.formData.bail = Number(this.formData.bail);
-                        this.formData.reward = Number(this.formData.reward);
+                this.$refs.ruleForm.validate(
+                    valid => {
+                        if(valid){
+                            this.$confirm(`确定保存平台配置?`, '提示', {
+                                type: 'info'
+                            }).then(
+                                ()=>{
+                                    this.formData.agentmoney = Number(this.formData.agentmoney);
+                                    this.formData.bail = Number(this.formData.bail);
+                                    this.formData.reward = Number(this.formData.reward);
 
-                        this.$http.post(this.$api.updateConfigure,
-                            this.formData
-                        ,{
-                            params: {
-                                token: this.$common.getStore('token')
+                                    this.$http.post(this.$api.updateConfigure,
+                                        this.formData
+                                        ,{
+                                            params: {
+                                                token: this.$common.getStore('token')
 
-                            }
-                        }).then(
-                            res => {
-                                if (res.data.status == 200) {
-                                    let resData = res.data,
-                                        data = res.data.data;
+                                            }
+                                        }).then(
+                                        res => {
+                                            if (res.data.status == 200) {
+                                                let resData = res.data,
+                                                    data = res.data.data;
 
-                                    this.setData();
-                                    this.$notify({
-                                        title: '平台配置保存成功',
-                                        type: 'success'
-                                    });
+                                                this.setData();
+                                                this.$notify({
+                                                    title: '平台配置保存成功',
+                                                    type: 'success'
+                                                });
+                                            }
+                                        }
+                                    )
                                 }
-                            }
-                        )
-                    }
-                )
+                            )
+                        }else{
+                            this.$message.warning('请根据校验信息完善表单!')
+                        }
+                    })
+
             }
         },
 

@@ -157,7 +157,7 @@
 
                 // 绘制图表
                 myChart.setOption({
-                    title: {text: '近7天的订单量'},
+                    title: {text: '今年的订单量'},
                     tooltip: {
                         trigger: 'axis',
 
@@ -182,7 +182,7 @@
                 let saleSeries = chartData.map(item => item.money);
                 // 绘制图表
                 myChart2.setOption({
-                    title: {text: '近7天的销售额'},
+                    title: {text: '今年的销售额'},
                     tooltip: {
                         trigger: 'axis',
                     },
@@ -205,7 +205,7 @@
 
                 this.agentChart.setOption({
                     title: {
-                        text: '动态数据 + 时间坐标轴'
+                        text: '当月实时新增代理数'
                     },
                     tooltip: {
                         trigger: 'axis',

@@ -48,7 +48,10 @@
                 <el-form-item>
                     <el-button type="primary" icon="el-icon-search" @click="doSearch">查询</el-button>
                     <el-button @click="doReset" icon="el-icon-refresh">重置</el-button>
+                    <el-button type="info" icon="el-icon-download">打印订单(表格)</el-button>
+
                 </el-form-item>
+
             </el-form>
             <el-switch
                 v-model="expandAll"
@@ -58,26 +61,25 @@
                 inactive-color="#ff4949"
                 @change="changeSwitch">
             </el-switch>
-
-            <!--<el-button @click="changeSwitch">切换的展开状态</el-button>-->
-            <!--<el-button @click="changeSwitch">切换所有行的展开状态</el-button>-->
         </section>
 
 
         <!--订单-->
-        <el-table :data="tableData" v-loading="loading" ref="orderTable" size="small" stripe :default-expand-all="expandAll"
-                  style="width: 100%" @row-click="expandRow">
+        <el-table :data="tableData" v-loading="loading" ref="orderTable" size="small" :default-expand-all="expandAll"
+                  style="width: 100%" @row-click="expandRow" :cell-class-name="cellFunction">
             <el-table-column type="expand">
                 <template slot-scope="props">
-                    <el-table :data="props.row.product_list" size="small" stripe style="width: 100%">
+                    <el-table :data="props.row.product_list" size="small" stripe :cell-class-name="subCellFunction" style="width: 100%">
                         <el-table-column prop="img" align="center" label="图片" width="180">
                             <template slot-scope="scope">
                                 <img v-lazy="scope.row.PRimage" class="table-pic" alt="">
                             </template>
                         </el-table-column>
                         <el-table-column prop="PRname" align="center" label=" 商品名" width="220"></el-table-column>
-                        <el-table-column prop="PRprice" align="center" label="单价" width="150"></el-table-column>
-                        <el-table-column prop="PRnum" align="center" label="数量" width="150"></el-table-column>
+                        <el-table-column prop="PRprice" align="center" label="单价" width="120"></el-table-column>
+                        <el-table-column prop="colorname" align="center" label="颜色" width="120"></el-table-column>
+                        <el-table-column prop="sizename" align="center" label="尺码" width="120"></el-table-column>
+                        <el-table-column prop="number" align="center" label="数量" width="120"></el-table-column>
                     </el-table>
                 </template>
             </el-table-column>
@@ -203,6 +205,21 @@
                 }
             },
 
+            cellFunction({row, column}){
+                if (column.property == 'OImount') {
+                    return 'money-cell'
+                } else {
+                    return 'primary-cell'
+                }
+            },
+            subCellFunction({row, column}){
+                // if (column.property == 'PRprice' || column.property == 'PRnum') {
+                //     return 'money-cell'
+                // } else {
+                    return 'primary-cell'
+                // }
+            },
+
             sizeChange(pageSize) {
                 this.pageSize = pageSize;
                 this.currentPage = 1;
@@ -240,6 +257,32 @@
                         if (res.data.status == 200) {
                             let resData = res.data,
                                 data = res.data.data;
+
+                            for (let i = 0; i < data.length; i++) {
+                                let newPdlist = [];
+
+                                for (let j = 0; j < data[i].product_list.length; j++) {
+                                    let cuProd = data[i].product_list[j],
+                                        newProd = [];
+
+                                    for (let k = 0; k < cuProd.skulist.length; k++) {
+                                        let cuSku = cuProd.skulist[k];
+
+                                        newProd.push({
+                                            PRimage: cuProd.PRimage,
+                                            PRname: cuProd.PRname,
+                                            PRprice: cuProd.PRprice,
+                                            colorname: cuSku.colorname,
+                                            sizename: cuSku.sizename,
+                                            number: cuSku.number,
+                                        })
+                                    }
+
+                                    newPdlist=  newPdlist.concat(newProd);
+                                }
+
+                                data[i].product_list = newPdlist;
+                            }
 
                             this.tableData = data;
                             this.total = resData.mount|| 0;

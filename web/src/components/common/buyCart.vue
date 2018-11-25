@@ -1,17 +1,21 @@
 <style lang="less" scoped>
     @import "../../common/css/index";
 
-    .buy-cart{
+    .buy-cart {
         .fj();
         align-items: center;
 
-        .buy-cart-btn{
+        .buy-cart-btn {
             .wl(50px, 50px);
         }
 
-        .buy-cart-num{
-            margin:  0 27px;
-            .fz(30px);
+        .buy-cart-num {
+            margin: 0 16px;
+            .fz(28px);
+            width: 66px;
+            text-align: center;
+            border: 2px solid @mainColor;
+            border-radius: 10px;
 
         }
     }
@@ -19,16 +23,17 @@
     .showReduce-enter-active, .showReduce-leave-active {
         transition: all .3s ease-out;
     }
+
     .showReduce-enter, .showReduce-leave-active {
         opacity: 0;
         transform: translateX(1rem);
     }
 
-    .hide-enter-active,.hide-leave-active{
+    .hide-enter-active, .hide-leave-active {
         transition: opacity .3s;
     }
 
-    .hide-enter,.hide-leave-to{
+    .hide-enter, .hide-leave-to {
         opacity: 0;
     }
 </style>
@@ -36,13 +41,24 @@
 <template>
     <section class="buy-cart">
         <transition name="showReduce">
-            <img class="buy-cart-btn" src="/static/images/minus.png" v-if="shopNum"  @click.stop="minus" alt="">
+            <img class="buy-cart-btn" src="/static/images/minus.png"
+                 v-if="shopItem.PRnum"
+                 @click.stop="minus" alt="">
+
         </transition>
 
         <transition name="hide">
-            <span class="buy-cart-num" v-if="shopNum">{{shopNum}}</span>
-        </transition>
 
+            <input class="buy-cart-num"
+                   v-if="shopItem.PRnum"
+                   type="number"
+                   onkeyup="value=value.replace(/[^\d]/g,'')"
+                   v-bind="$attrs"
+                   v-bind:value="shopItem.PRnum"
+                   v-on:blur="$emit('input', $event.target.value)"
+
+            />
+        </transition>
         <img class="buy-cart-btn" src="/static/images/add.png" @click.stop="add" alt="">
     </section>
 </template>
@@ -51,20 +67,20 @@
     export default {
         name: "buy-cart",
 
-        props: ['shopNum'],
+        props: ['shopItem'],
 
         data() {
-            return {
-            }
+            return {}
         },
 
         components: {},
 
+
         methods: {
-            minus(){
+            minus() {
                 this.$emit('minus');
             },
-            add(){
+            add() {
                 this.$emit('add');
             }
         },

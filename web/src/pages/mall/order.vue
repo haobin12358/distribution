@@ -67,8 +67,11 @@
                             }
 
                             .row-two {
-                                color: @lightFontColor;
-                                text-align: right;
+                                .fj();
+
+                                .number {
+                                    color: @lightFontColor;
+                                }
                             }
                         }
 
@@ -77,7 +80,9 @@
 
                 .order-item-total {
                     .fj(flex-end);
+                    align-items: flex-end;
                     padding-top: 10px;
+                    font-size: 26px;
 
                     .total-num {
                         margin-right: 10px;
@@ -85,6 +90,7 @@
                     .total-price {
 
                     }
+
                 }
             }
 
@@ -117,24 +123,33 @@
                     </header>
 
                     <ul class="goods-list">
-                        <li class="goods-item" v-for="product in item.product_list">
-                            <section class="goods-img">
-                                <img :src="product.PRimage" alt="">
-                            </section>
-                            <section class="goods-description">
-                                <p class="row-one">
-                                    <span class="goods-name">{{product.PRname}}</span>
-                                    <span class="goods-price">￥{{product.PRprice}}</span>
-                                </p>
-                                <p class="row-two">
-                                    ×{{product.PRnum}}
-                                </p>
-                            </section>
-                        </li>
+                        <template v-for="product in item.product_list">
+
+                            <li class="goods-item" v-for="cartItem in product.skulist">
+                                <section class="goods-img">
+                                    <img :src="product.PRimage" alt="">
+                                </section>
+                                <section class="goods-description">
+                                    <p class="row-one">
+                                        <span class="goods-name">{{product.PRname}}</span>
+                                        <span class="goods-price">￥{{product.PRprice}}</span>
+                                    </p>
+                                    <p class="row-two">
+                                        <span class="sku">
+                                            {{`${cartItem.colorname} ${cartItem.sizename}`}}
+                                        </span>
+                                        <span class="number">
+                                            ×{{cartItem.number}}
+                                        </span>
+
+                                    </p>
+                                </section>
+                            </li>
+                        </template>
                     </ul>
                     <footer class="order-item-total">
-                        <span class="total-num">共{{item.product_list.length}}件商品</span>
-                        <span class="total-price">价值:￥{{item.OImount}}</span>
+                        <span class="total-num">共{{countOrderNum(item.product_list)}}件商品</span>
+                        <span class="total-price">合计:￥{{item.OImount}}</span>
                     </footer>
                 </li>
             </ul>
@@ -197,7 +212,7 @@
         },
 
         methods: {
-            gotoOrderDetail(OIsn){
+            gotoOrderDetail(OIsn) {
                 this.$router.push({
                     path: '/mallOrderDetail',
                     query: {
@@ -215,6 +230,23 @@
             //  订单状态翻译
             statusZh(status) {
                 return this.orderType.find(item => item.value == status).label;
+            },
+            countOrderNum(productList) {
+                let count = 0;
+
+                for (let i = 0; i < productList.length; i++) {
+                    let currentProduct = productList[i];
+
+                    for (let j = 0; j < currentProduct.skulist.length; j++) {
+                        let currentCartItem = currentProduct.skulist[j];
+
+                        count += currentCartItem.number;
+                    }
+                }
+
+                return count;
+
+                // return skulist.reduce(x,y => x.number+y.number);
             },
             // 滚动条监听事件
             touchMove() {
@@ -235,10 +267,10 @@
 
                 getOrderList(this.selectOrderType, this.page, this.count).then(
                     (resData) => {
-                        if(resData){
+                        if (resData) {
                             let data = resData.data;
 
-                            if(this.selectOrderType == 0){
+                            if (this.selectOrderType == 0) {
                                 this.orderType[0].num = resData.state0_num;
                                 this.orderType[1].num = resData.state1_num;
                                 this.orderType[2].num = resData.state2_num;

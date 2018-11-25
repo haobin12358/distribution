@@ -13,6 +13,9 @@ const message = r => require.ensure([], () => r(require('../pages/message/messag
 const messageDetail = r => require.ensure([], () => r(require('../pages/message/messageDetail')), 'messageDetail')
 
 const mall = r => require.ensure([], () => r(require('../pages/mall/mall')), 'mall')
+const goodsDetail = r => require.ensure([], () => r(require('../pages/mall/goodsDetail')), 'goodsDetail')
+const shopCart = r => require.ensure([], () => r(require('../pages/mall/shopCart')), 'shopCart')
+
 const payOrder = r => require.ensure([], () => r(require('../pages/mall/payOrder')), 'payOrder')
 const mallOrder = r => require.ensure([], () => r(require('../pages/mall/order')), 'mallOrder')
 const mallOrderDetail = r => require.ensure([], () => r(require('../pages/mall/orderDetail')), 'mallOrderDetail')
@@ -112,6 +115,20 @@ export const constantRouterMap = [
         component: mall,
         meta: {
             title: '云仓',
+            requiresAuth: true
+        },
+    },{
+        path: '/goodsDetail',
+        component: goodsDetail,
+        meta: {
+            title: '商品详情',
+            requiresAuth: true
+        },
+    },{
+        path: '/shopCart',
+        component: shopCart,
+        meta: {
+            title: '购物车',
             requiresAuth: true
         },
     }, {

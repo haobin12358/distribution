@@ -216,9 +216,11 @@ export const constantRouterMap = [
             }, {
                 path: 'register',
                 component: register,
-                meta: {
-
-                }
+                meta: {}
+            },{
+                path: 'marginMoney',
+                component: marginMoney,
+                meta: {}
             },
         ]
     },

@@ -5,7 +5,7 @@ const api = {
     login: title + '/admin/login',                              //  登录
     updatePwd: title + '/admin/update_pwd',                     //  修改密码
 
-    uploadFile: `${title}/user/upload_file?token=${localStorage.getItem('token')}`,                     //  修改密码
+    uploadFile: `${title}/user/upload_file?token=`,                     //  修改密码
     removeFile: title + '/user/remove_file',                     //  删除文件
 
 
@@ -20,9 +20,16 @@ const api = {
     updateCategory: title + '/product/update_category',
     deleteCategory: title + '/product/delete_category',
 
+    getColor: title + '/product/get_color', //  颜色
+    addColor: title + '/product/add_color',
+
+    getSize: title + '/product/get_size', //  尺码
+    addSize: title + '/product/add_size',
+
     getProductList: title + '/product/get_product_list',          //  商品
     saveProduct: title + '/product/create_update_product',          //  保存商品
     withdrawProduct: title + '/product/withdraw_product',          //  下架商品
+    getProductDetails: title + '/product/get_product_details',          //  下架商品
 
     getAllOrder: title + '/order/get_all_order',                  //  订单
     updateOrder: title + '/order/update_order',
@@ -40,6 +47,9 @@ const api = {
 
     getRegisterRecord: title + '/user/get_register_record',    //  注册
     dealRegisterRecord: title + '/user/deal_register_record',    //  处理注册
+
+    getAllUserBailRecord: title + '/account/get_alluser_bailrecord',    //  保证金
+    dealBailRecord: title + '/account/deal_bailrecord',    //  处理保证金
 
     getSevenDaysData: title + '/account/get_sevendays_data',    //  获取近7天数据
 

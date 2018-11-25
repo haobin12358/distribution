@@ -48,7 +48,7 @@
 
                 .money-item{
                     flex: 1;
-                    border: 1px solid #DCDFE6;
+                    border: 2px solid #DCDFE6;
                     padding: 10px 0;
                     .fjc();
                     .sc(32px, #303133);
@@ -90,7 +90,7 @@
                 .fj();
                 align-items: center;
                 color: black;
-                border-bottom: 1px solid @mainFontColor;
+                border-bottom: 2px solid @mainFontColor;
 
                 .customer-img {
                     .wl(80px, 80px);

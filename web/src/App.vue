@@ -19,9 +19,9 @@
     export default {
         name: 'App',
         created(){
-            this.$store.commit('INIT_CART');
+            // this.$store.commit('INIT_CART');
             this.$store.commit('INIT_USER_INFO');
-            this.$store.commit('INIT_ADD_TEN_CART_TIP');
+            // this.$store.commit('INIT_ADD_TEN_CART_TIP');
             if(!getStore(ALL_AREA)){
                 getAllArea().then(
                     ({data})=>{

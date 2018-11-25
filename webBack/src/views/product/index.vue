@@ -39,8 +39,9 @@
                 </el-form-item>
             </el-form>
         </section>
+
         <!--商品表格-->
-        <el-table :data="tableData" v-loading="loading" stripe style="width: 100%">
+        <el-table :data="tableData" v-loading="loading" stripe :cell-class-name="cellFunction" style="width: 100%">
             <el-table-column prop="img" align="center" label="图片" width="120">
                 <template slot-scope="scope">
                     <img v-lazy="scope.row.PRpic" class="table-pic"/>
@@ -61,10 +62,9 @@
             </el-table-column>
             <el-table-column prop="PRlogisticsfee" label="邮费" align="center"></el-table-column>
             <el-table-column prop="PAdiscountnum" label="返点件数" align="center"></el-table-column>
-            <el-table-column prop="PRstock" label="库存" align="center"></el-table-column>
             <el-table-column prop="PRcreatetime" label="创建时间" width="180" align="center"></el-table-column>
 
-            <el-table-column label="操作" width="120" fixed="right" align="left" :render-header="renderHeader">
+            <el-table-column label="操作" width="180" fixed="right" align="left" :render-header="renderHeader">
                 <template slot-scope="scope">
                     <el-button type="text" size="small" @click="handleEdit(scope.row)">编辑</el-button>
                     <el-button v-if="scope.row.PRstatus == 1" @click="handleDelete(scope.row)" style="color: red;" type="text" size="small">下架</el-button>
@@ -201,7 +201,10 @@
 
             setCategoryList() {
                 this.$http.get(this.$api.getProductCategoryList,{
-                    noLoading: true
+                    noLoading: true,
+                    params: {
+                        token: this.$common.getStore('token')
+                    }
                 }).then(
                     res => {
                         if (res.data.status == 200) {
@@ -229,7 +232,13 @@
                 this.setProductList();
             },
 
-
+            cellFunction({row, column}){
+                if (column.property == 'PRoldprice' || column.property == 'PRprice' || column.property == 'PAdiscountnum') {
+                    return 'money-cell'
+                } else {
+                    return 'primary-cell'
+                }
+            },
             sizeChange(pageSize) {
                 this.pageSize = pageSize;
                 this.currentPage = 1;

@@ -47,7 +47,7 @@
         </section>
 
         <el-dialog title="消息编辑" :visible.sync="dialogFormVisible" label-position="top">
-            <el-form :model="form" :rules="rules">
+            <el-form ref="ruleForm" :model="form" :rules="rules">
                 <el-form-item prop="title" label="标题">
                     <el-input v-model="form.title" auto-complete="off"></el-input>
                 </el-form-item>
@@ -57,7 +57,7 @@
                         <!--<el-option label="区域二" value="beijing"></el-option>-->
                     </el-select>
                 </el-form-item>
-                <el-form-item label="消息文件">
+                <el-form-item prop="url" label="消息文件">
                     <el-upload
                         class="upload-demo"
                         :action="$api.uploadFile"
@@ -105,6 +105,10 @@
                 rules: {
                     title: [
                         {required: true, message: '标题必填', trigger: 'blur'}
+                    ],
+                    url: [
+                        {type: 'array',required: true, message: '文件必传', trigger: 'blur'}
+
                     ]
                 }
             }
@@ -213,50 +217,68 @@
             },
 
             doConfirm() {
-                if (this.form.type && this.form.url[0]) {
-                    this.$http.post(this.$api.publishComMessage, {
-                        "type": Number(this.form.type),
-                        "title": this.form.title,
-                        "url": this.form.url[0]
-                    }, {
-                        params: {
-                            token: this.$common.getStore('token')
-                        }
-                    }).then(
-                        res => {
-                            if (res.data.status == 200) {
-                                let resData = res.data,
-                                    data = res.data.data;
+                this.$refs.ruleForm.validate(
+                    valid => {
+                        if(valid){
+                            this.$http.post(this.$api.publishComMessage, {
+                                "type": Number(this.form.type),
+                                "title": this.form.title,
+                                "url": this.form.url[0]
+                            }, {
+                                params: {
+                                    token: this.$common.getStore('token')
+                                }
+                            }).then(
+                                res => {
+                                    if (res.data.status == 200) {
+                                        let resData = res.data,
+                                            data = res.data.data;
 
-                                this.setMessageList();
-                                this.dialogFormVisible = false;
-                                this.$notify({
-                                    title: '消息发布成功',
-                                    message: `标题:${this.form.title}`,
-                                    type: 'success'
-                                });
-                            }
+                                        this.setMessageList();
+                                        this.dialogFormVisible = false;
+                                        this.$notify({
+                                            title: '消息发布成功',
+                                            message: `标题:${this.form.title}`,
+                                            type: 'success'
+                                        });
+                                    }
+                                }
+                            )
+                        }  else{
+                            this.$message.warning('请根据校验信息完善表单!')
                         }
-                    )
-                }
+                    })
+
             },
 
             handleRemove(file, fileList) {
-                console.log(file, fileList);
+                this.clearUploadedImg(this.form.url[0]);
+                this.form.url = [];
             },
             handleSuccess(res, file, fileList) {
-                console.log(res, file, fileList);
                 this.form.url[0] = res.data;
             },
 
             handlePreview(file) {
-                console.log(file);
+                window.open(file.response.data);
+
             },
             handleExceed(files, fileList) {
                 this.$message.warning(`当前限制选择 1 个文件`);
             },
             beforeRemove(file, fileList) {
                 return this.$confirm(`确定移除 ${ file.name }？`);
+            },
+
+            clearUploadedImg(url) {
+                    this.$http.post(this.$api.removeFile, {
+                        url: url.split('file/')[1]
+                    }, {
+                        noLoading: true,
+                        params: {
+                            token: this.$common.getStore('token')
+                        }
+                    }).then()
             },
 
             // handleRemove(file, fileList) {

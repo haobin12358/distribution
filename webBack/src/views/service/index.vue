@@ -36,7 +36,7 @@
             <el-table-column prop="CMcreatetime" align="center" label="日期" width="180"></el-table-column>
             <el-table-column label="操作" width="120" fixed="right">
                 <template slot-scope="scope">
-                    <el-button type="text" size="small" @click="dealComment(scope.row)">处理</el-button>
+                    <el-button v-if="scope.row.CMstatus == 1"  type="text" size="small" @click="dealComment(scope.row)">处理</el-button>
                 </template>
             </el-table-column>
         </el-table>

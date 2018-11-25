@@ -40,7 +40,7 @@
 <template>
     <div class="container">
         <el-breadcrumb style="margin-bottom: .2rem;" separator-class="el-icon-arrow-right">
-            <el-breadcrumb-item to="index">所有订单</el-breadcrumb-item>
+            <el-breadcrumb-item to="index" replace>所有订单</el-breadcrumb-item>
             <el-breadcrumb-item>订单详情</el-breadcrumb-item>
         </el-breadcrumb>
 
@@ -105,22 +105,24 @@
                         <el-button type="primary" @click="doDeliver" v-if="order.OIstatus == 1">确定发货</el-button>
                     </el-form-item>
                 </el-form>
-
+{
             </section>
 
         </section>
         <h1 class="my-title">
             发货清单
         </h1>
-        <el-table :data="order.product_list" size="small" stripe style="width: 100%">
+        <el-table :data="order.product_list" size="small" cell-class-name="primary-cell" stripe style="width: 100%">
             <el-table-column prop="img" align="center" label="图片" width="180">
                 <template slot-scope="scope">
-                    <img :src="scope.row.PRimage" class="table-pic" alt="">
+                    <img v-lazy="scope.row.PRimage" class="table-pic" alt="">
                 </template>
             </el-table-column>
-            <el-table-column prop="PRname" align="center" label=" 商品名"></el-table-column>
+            <el-table-column prop="PRname" align="center" label=" 商品名" width="220"></el-table-column>
             <el-table-column prop="PRprice" align="center" label="单价" width="120"></el-table-column>
-            <el-table-column prop="PRnum" align="center" label="数量" width="120"></el-table-column>
+            <el-table-column prop="colorname" align="center" label="颜色" width="120"></el-table-column>
+            <el-table-column prop="sizename" align="center" label="尺码" width="120"></el-table-column>
+            <el-table-column prop="number" align="center" label="数量" width="120"></el-table-column>
         </el-table>
     </div>
 </template>
