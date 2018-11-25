@@ -481,7 +481,7 @@ class COrder():
                     worksheet.write(i+1, 3, label=self.conf.get('account', 'sendname'), style=style)
                     worksheet.write(i+1, 4, label=self.conf.get('account', 'sendphone'), style=style)
                     worksheet.write(i+1, 5, label=self.conf.get('account', 'sendaddress'), style=style)
-                    session.query(OrderInfo).filter(OrderInfo.OIsn == oisn).update({"OIstatus": 2})
+                    session.query(OrderInfo).filter(OrderInfo.OIsn == oisn).update({"OIstatus": 4})
                     worksheet.write(i+1, 6, label=productname, style=style)
             if platform.system() == "Windows":
                 rootdir = "D:/task"

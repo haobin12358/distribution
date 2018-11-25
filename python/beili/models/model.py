@@ -145,7 +145,7 @@ class OrderInfo(Base):
     OIsn = Column(String(64))  # 订单号
     USid = Column(String(64))  # 用户id
     """
-    订单状态: {0:所有订单, 1:待发货, 2:已发货, 3:交易完成 } 根据需求无待支付状态
+    订单状态: {0:所有订单, 1:待发货, 2:已发货, 3:交易完成, 4:已导出} 根据需求无待支付状态
     """
     OIstatus = Column(Integer, default=1)
     OInote = Column(String(255))  # 订单留言
