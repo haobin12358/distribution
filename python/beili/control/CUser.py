@@ -161,6 +161,7 @@ class CUser():
                 os.makedirs(rootdir)
             lastpoint = str(files.filename).rindex(".")
             filessuffix = str(files.filename)[lastpoint + 1:]
+            print 'filessuffix', filessuffix
             if filessuffix.lower() in ['png', 'jpg', 'jpeg', 'gif']:
                 image = Image.open(files)
                 w, h = image.size
