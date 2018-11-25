@@ -472,7 +472,7 @@ if __name__ == "__main__":
 
 
     else:
-        databse_deal().create_database()
+        # databse_deal().create_database()
         create()
         data = MakeData()
         # data.add_test()
