@@ -11,6 +11,7 @@ def make_pic(name, wechat, idcardnum):
     starttime = datetime.strftime(datetime.now(), format_forweb_no_HMS)
     endtime = str(int(starttime[0:4]) + 2) + starttime[4:]
     id = get_random_str(12)
+    idcardnum = idcardnum[:8] + '******' + idcardnum[14:]
     im = Image.open("/opt/beili/file/shouquan.png")  # 打开文件
     # im = Image.open("/Users/fx/Desktop/shouquan.png")  # 打开文件
     print(im.format, im.size, im.mode)
@@ -29,8 +30,9 @@ def make_pic(name, wechat, idcardnum):
         rootdir = "/opt/beili/file/"
     if not os.path.isdir(rootdir):
         os.makedirs(rootdir)
+    w, h = im.size
     filepath = os.path.join(rootdir, id + '.png')
-    im.save(filepath)
+    im.resize((w / 2, h / 2)).save(filepath)
     # url = QRCODEHOSTNAME + "/file/" + id + '.png'
     url = QRCODEHOSTNAME + "/file/" + id + '.png'
     return url
