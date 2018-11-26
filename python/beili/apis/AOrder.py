@@ -25,7 +25,7 @@ class AOrder(Resource):
     def get(self, order):
         print order
         apis = {
-
+            'get_willsend_products': 'self.corder.get_willsend_products()'
         }
         res = eval(apis[order])
         return jsonify(res)

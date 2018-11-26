@@ -377,6 +377,9 @@ class CGoods():
             return PARAMS_ERROR 
         if int(type) < 0:
             return PARAMS_ERROR
+        result = self.sgoods.update_sowingmap()
+        if not result:
+            return SYSTEM_ERROR
         result = self.sgoods.add_sowingmap(type, urls)
         if not result:
             return SYSTEM_ERROR

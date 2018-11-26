@@ -30,7 +30,7 @@ class User(Base):
     USagentid = Column(Integer, primary_key=True, autoincrement=True) # 代理编号
     USheadimg = Column(String(255))              # 头像
     USbail = Column(Float)                       # 保证金余额
-    USmount = Column(DECIMAL)                      # 账户余额
+    USmount = Column(Float)                      # 账户余额
     USpre = Column(String(64))                   # 上级代理id
     UScreatetime = Column(String(14))            # 创建时间
     authorization = Column(String(512))          # 认证书url
@@ -145,7 +145,7 @@ class OrderInfo(Base):
     OIsn = Column(String(64))  # 订单号
     USid = Column(String(64))  # 用户id
     """
-    订单状态: {0:所有订单, 1:待发货, 2:已发货, 3:交易完成 } 根据需求无待支付状态
+    订单状态: {0:所有订单, 1:待发货, 2:已发货, 3:交易完成, 4:已导出} 根据需求无待支付状态
     """
     OIstatus = Column(Integer, default=1)
     OInote = Column(String(255))  # 订单留言
@@ -463,5 +463,10 @@ class Comments(Base):
     CMcontent = Column(String(512))  # 用户评论内容
     CMcreatetime = Column(String(14))  # 评论创建创建时间
     CMstatus = Column(Integer, default=1)  # 1未处理 2已处理
+
+# class Test(Base):
+#     __tablename__ = 'test'
+#     id = Column(Integer, primary_key=True, autoincrement=True)
+#     name = Column(String(32))
 
 # Base.metadata.create_all(mysql_engine)

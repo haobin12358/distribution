@@ -28,6 +28,9 @@ if __name__ == '__main__':
     sg.run('0.0.0.0', 443, debug=False, ssl_context=(
         "/etc/nginx/cert/cert-1541142792481_beiliserver.daaiti.cn.crt"
     ))
+    fun_timer = COrder().timer_fun()
+    timer = threading.Timer(100, fun_timer)  # 首次启动定时器
+    timer.start()
 
 '''
 if __name__ == '__main__':

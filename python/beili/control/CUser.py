@@ -29,8 +29,10 @@ from models.model import Amount, User, Reward
 from configparser import ConfigParser
 from common.timeformat import format_for_db
 import platform
+import zlib
 from werkzeug.security import generate_password_hash, check_password_hash
 from weixin import WeixinError
+from PIL import Image
 from weixin.login import WeixinLoginError, WeixinLogin
 sys.path.append(os.path.dirname(os.getcwd()))
 
@@ -159,6 +161,29 @@ class CUser():
                 os.makedirs(rootdir)
             lastpoint = str(files.filename).rindex(".")
             filessuffix = str(files.filename)[lastpoint + 1:]
+            print 'filessuffix', filessuffix
+            if is_ordirnaryuser():
+                if filessuffix.lower() in ['png', 'jpg', 'jpeg', 'gif']:
+                    image = Image.open(files)
+                    w, h = image.size
+                    filename = request.user.id + get_db_time_str() + "." + filessuffix
+                    filepath = os.path.join(rootdir, filename)
+                    image.resize((w/6, h/6)).save(filepath, 'jpeg', quality=30)
+                    response = import_status("upload_file_success", "OK")
+                    url = QRCODEHOSTNAME + "/file/" + filename
+                    response["data"] = url
+                    return response
+            if is_admin():
+                if filessuffix.lower() in ['png', 'jpg', 'jpeg', 'gif']:
+                    image = Image.open(files)
+                    w, h = image.size
+                    filename = request.user.id + get_db_time_str() + "." + filessuffix
+                    filepath = os.path.join(rootdir, filename)
+                    image.resize((w/2, h/2)).save(filepath, 'jpeg', quality=90)
+                    response = import_status("upload_file_success", "OK")
+                    url = QRCODEHOSTNAME + "/file/" + filename
+                    response["data"] = url
+                    return response
             filename = request.user.id + get_db_time_str() + "." + filessuffix
             filepath = os.path.join(rootdir, filename)
             print(filepath)
@@ -184,6 +209,20 @@ class CUser():
                 os.makedirs(rootdir)
             lastpoint = str(files.filename).rindex(".")
             filessuffix = str(files.filename)[lastpoint + 1:]  # 后缀名
+            print filessuffix
+            if filessuffix.lower() in ['png', 'jpg', 'jpeg', 'gif']:
+                image = Image.open(files)
+                w, h = image.size
+                filename = id1 + get_db_time_str() + "." + filessuffix
+                filepath = os.path.join(rootdir, filename)
+                image.resize((w/2, h/2)).save(filepath, 'jpeg', quality=100)
+                url = QRCODEHOSTNAME + "/file/" + filename
+                data = import_status("upload_file_success", "OK")
+                data['data'] = {
+                    'token': token,
+                    'url': url
+                }
+                return data
             filename = id1 + get_db_time_str() + "." + filessuffix
             filepath = os.path.join(rootdir, filename)
             print(filepath)

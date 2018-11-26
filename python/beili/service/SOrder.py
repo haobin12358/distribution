@@ -104,7 +104,7 @@ class SOrder(SBase):
     @close_session
     def get_all_order(self, oisn, starttime, endtime, status, username, userphonenum):
         order_list = self.session.query(OrderInfo.OIid, OrderInfo.OIsn, OrderInfo.OIstatus, OrderInfo.discountnum,
-                                        OrderInfo.OIlogisticsfee,
+                                        OrderInfo.OIlogisticsfee, OrderInfo.OInote,
                                         OrderInfo.username, OrderInfo.userphonenum, OrderInfo.OImount, OrderInfo.expressname,
                                         OrderInfo.provincename, OrderInfo.cityname, OrderInfo.areaname,OrderInfo.details,
                                         OrderInfo.expressnum, OrderInfo.OIcreatetime).order_by(OrderInfo.OIcreatetime.desc())

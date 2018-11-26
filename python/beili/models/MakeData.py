@@ -104,7 +104,6 @@ class MakeData():
         user.USid = '1204cf38-c3cf-401f-8ba7-f8ce040f064f'
         user.USname = 'fengxin'
         user.USphonenum = '13588046059'
-        user.USagentid = 1
         user.USwechat = 'wechat'
         user.USpassword = "123"
         user.USbail = 0
@@ -301,7 +300,7 @@ class MakeData():
         admin.ADid = '3404cf38-c3cf-401f-8ba7-f8ce040f064f'
         admin.ADnum = '123'
         admin.ADpassword = '123'
-        admin.ADname = 'feng'
+        admin.ADname = 'test'
         admin.ADlevel = 1
         admin.ADheaderimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
         self.session.add(admin)
@@ -407,6 +406,14 @@ class MakeData():
     #             "COend": "2018041421%02d00" % i
     #         })
 
+    def add_test(self):
+        from model import Test
+        for i in range(3):
+            test = Test()
+            test.name='fengxin'
+            self.session.add(test)
+            self.session.commit()
+
 
 class databse_deal():
     def __init__(self):
@@ -465,14 +472,14 @@ if __name__ == "__main__":
 
 
     else:
-        #databse_deal().create_database()
+        databse_deal().create_database()
         create()
-        # data = MakeData()
+        data = MakeData()
         # data.add_test()
         # print "OK!"
         # print('start add data')
-        # data.add_superuser()
-        # data.add_user()
+        data.add_superuser()
+        data.add_user()
         # data.add_user2()
         # data.add_user3()
         # data.add_user4()
