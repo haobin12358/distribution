@@ -457,7 +457,16 @@ class COrder():
         # rows = sheet_data.row_values(0)  # 获取第一行内容
         # cols = sheet_data.col_values(0)  # 获取第一列内容
         # print (rows)
-
+        try:
+            data = request.json
+            oisnlist = data.get('oisnlist')
+        except:
+            return PARAMS_ERROR
+        new_oisn_list = []
+        for oisn in oisnlist:
+            order = get_model_return_dict(self.sorder.get_order_details(str(oisn)))
+            if order['OIstatus'] == 1:
+                new_oisn_list.append(order)
         style = xlwt.XFStyle()
         font = xlwt.Font()
         font.name = u'宋体'
@@ -478,12 +487,11 @@ class COrder():
         font.name = u'宋体'
         font.bold = False
         style.font = font
-        order_list = get_model_return_list(self.sorder.get_all_order(None, None, None, 1, None, None))
         url = ''
         session = db_session()
         try:
-            if order_list:
-                for i, order in enumerate(order_list):
+            if new_oisn_list:
+                for i, order in enumerate(new_oisn_list):
                     oisn = order['OIsn']
                     username = order['username']
                     phone = order['userphonenum']
@@ -541,6 +549,7 @@ class COrder():
             return PARAMS_ERROR
         order = get_model_return_dict(self.sorder.get_order_details(oisn))
         if not order:
+            print order
             return SYSTEM_ERROR
         if int(order['OIstatus']) != 1:
             return CANNOT_CANCEL
@@ -588,6 +597,6 @@ class COrder():
                 if time_now > days_10:
                     self.sorder.update_order(order['OIsn'], {"OIstatus": 3})
         # 继续添加定时器，周期执行，否则只会执行一次
-        TIMER = threading.Timer(5, self.timer_fun)
+        TIMER = threading.Timer(3600 * 24, self.timer_fun)
         TIMER.start()
 

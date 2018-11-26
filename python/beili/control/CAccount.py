@@ -22,6 +22,7 @@ from service.SGoods import SGoods
 from service.SMyCenter import SMyCenter
 from service.DBSession import db_session
 from service.SAccount import SAccount
+import threading
 from configparser import ConfigParser
 from config.urlconfig import get_code
 import platform
@@ -530,60 +531,59 @@ class CAccount():
         response['mount'] = mount
         return response
 
-    @verify_token_decorator
     def deal_reward_discount(self):  # 发放奖金
-        if not is_admin():
-            return AUTHORITY_ERROR
-        try:
-            data = request.json
-            amid = data.get('amid')
-            usid = data.get('usid')
-            month = data.get('month')
-            profit = int(data.get('profit'))
-        except:
-            return PARAMS_ERROR
-        account = get_model_return_dict(
-            self.saccount.get_account_by_month(usid, month)) if self.saccount.get_account_by_month(usid, month) else None
-        if not account or account['AMid'] != str(amid) or account['AMstatus'] != 1:
-            return NOT_FOUND_RECORD
-        mydiscount = self.get_mydiscount(usid, month)
-        reward = account['reward']
-        if profit != mydiscount + reward:
-            return MONEY_ERROR
-        session = db_session()
-        try:
-            tradenum =  datetime.strftime(datetime.now(), format_for_db_no_HMS) + get_random_str(8)
-            time_now = datetime.strftime(datetime.now(), format_for_db)
-            result2 = self.saccount.add_moneyrecord(session, usid, profit, 5, time_now
-                                                    , tradenum=tradenum, oiid=None)
-            if not result2:
-                return SYSTEM_ERROR
-            # 写入代理消息
-            content = u'您' + month + u'月的奖金已发放，流水号为' + ' ' + str(tradenum)
-            agent_result = self.smessage.create_agentmessage(session, usid, time_now, content, 1)
-            if not agent_result:
-                return SYSTEM_ERROR
-            update = {}
-            update["AMstatus"] = 2
-            update['AMtradenum'] = tradenum
-            result = self.saccount.update_account(session, amid, update)
-            if not result:
-                return SYSTEM_ERROR
-            user = get_model_return_dict(self.smycenter.get_user_basicinfo(usid)) if \
-                self.smycenter.get_user_basicinfo(usid) else None
-            update = {}
-            update['USmount'] = user['USmount'] + profit
-            self.smycenter.update_user_by_uid(session, usid, update)
-            session.commit()
-        except Exception as e:
-            print e
-            session.rollback()
-            return SYSTEM_ERROR
-        finally:
-            session.close()
-        response = import_status("deal_profit_success", "OK")
-        return response
+        import datetime
+        time_now = datetime.datetime.now().strftime("%Y%m%d")
+        print time_now
+        print 'check reward and discount'
+        if time_now[6:8] == '27':
+            print 'start deal reward and discount'
+            last_month = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y%m")
+            print last_month
+            account_list = get_model_return_dict(self.saccount.get_all_account_by_month(last_month))
+            if account_list:
+                result = self.deal_account_list(account_list, last_month)
+                if not result:
+                    print 'deal_profit_fail'
+                else:
+                    print 'deal_profit_success'
+            print 'end deal reward and discount'
+        TIMER = threading.Timer(10, self.deal_reward_discount)
+        TIMER.start()
 
+    def deal_account_list(self, account_list, last_month):
+        time_now = datetime.strftime(datetime.now(), format_for_db)
+        for account in account_list:
+            mydiscount = self.get_mydiscount(account['USid'], last_month)
+            session = db_session()
+            try:
+                # 写入代理消息
+                tradenum = datetime.strftime(datetime.now(), format_for_db_no_HMS) + get_random_str(8)
+                content = u'您' + last_month + u'月的销售折扣返点已发放，流水号为' + ' ' + str(tradenum)
+                agent_result = self.smessage.create_agentmessage(session, account['USid'], time_now, content, 1)
+                if not agent_result:
+                    raise dberror
+                # 更改数据表状态
+                update = {}
+                update["AMstatus"] = 2
+                update['AMtradenum'] = tradenum
+                result = self.saccount.update_account(session, account['AMid'], update)
+                if not result:
+                    raise dberror
+                # 更改账户余额
+                user = get_model_return_dict(self.smycenter.get_user_basicinfo(account['USid'])) if \
+                    self.smycenter.get_user_basicinfo(account['USid']) else None
+                update = {}
+                update['USmount'] = user['USmount'] + mydiscount
+                self.smycenter.update_user_by_uid(session, account['USid'], update)
+                session.commit()
+            except Exception as e:
+                print e
+                session.rollback()
+                return None
+            finally:
+                session.close()
+            return True
 
     @verify_token_decorator
     def get_directagent_performance(self):

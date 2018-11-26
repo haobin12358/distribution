@@ -665,8 +665,11 @@ class CUser():
                 reward.REcreatetime = datetime.strftime(datetime.now(), format_for_db)
                 session.add(reward)
 
+                session.query(User).filter(User.USid == user['USid'])\
+                    .update({"USmount": user['USmount'] + float(self.conf.get('account', 'reward'))})
+
                 # 写入代理消息
-                content = u'您推荐的代理已审核通过，直推奖励已累加至当月奖励中'
+                content = u'您推荐的代理已审核通过，直推奖励已发放至余额'
                 agent_result = self.smessage.create_agentmessage(session, user['USid']
                                                     , datetime.strftime(datetime.now(), format_for_db), content, 2)
                 if not agent_result:
