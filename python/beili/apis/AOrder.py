@@ -17,7 +17,8 @@ class AOrder(Resource):
             'get_order_list': 'self.corder.get_order_list()',
             'get_order_details': 'self.corder.get_order_details()',
             'get_all_order': 'self.corder.get_all_order()',
-            'update_order': 'self.corder.update_order()'
+            'update_order': 'self.corder.update_order()',
+            'cancel_order': 'self.corder.cancel_order()'
         }
         res = eval(apis[order])
         return jsonify(res)

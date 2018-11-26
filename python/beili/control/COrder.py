@@ -11,7 +11,7 @@ from flask import request
 # import logging
 import threading
 from config.response import PARAMS_MISS, SYSTEM_ERROR, PARAMS_ERROR, TOKEN_ERROR, AUTHORITY_ERROR, STOCK_NOT_ENOUGH,\
-        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_ORDER, PRODUCT_OFFLINE, SKU_WRONG
+        NO_ENOUGH_MOUNT, NO_BAIL, NO_ADDRESS, NOT_FOUND_ORDER, PRODUCT_OFFLINE, SKU_WRONG, CANNOT_CANCEL
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin
 from common.import_status import import_status
@@ -195,33 +195,7 @@ class COrder():
             performance.PEcreatetime = datetime.strftime(datetime.now(), format_for_db)
             session.add(performance)
 
-            user = self.smycenter.get_user_basicinfo(request.user.id)  # 插入销售表，有数据就更新
-            if not user:
-                raise dberror
-            user = get_model_return_dict(user)
-            monthnow = datetime.strftime(datetime.now(), format_for_db)[0:6]
-            amount_data = self.saccount.get_user_date(request.user.id, monthnow)
-            if amount_data:
-                amount_data = get_model_return_dict(amount_data)
-                new_data = {}
-                new_data['performance'] = amount_data['performance'] + discountnum
-                try:
-                    session.query(Amount).filter(Amount.USid == request.user.id).update(new_data)
-                except:
-                    raise dberror
-            else:
-                amount = Amount()
-                amount.USid = request.user.id
-                amount.AMid = str(uuid.uuid4())
-                amount.USagentid = user['USagentid']
-                amount.performance = discountnum
-                amount.USname = user['USname']
-                amount.AMstatus = 1
-                amount.USheadimg = user['USheadimg']
-                amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
-                amount.AMmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
-                session.add(amount)
-            moneyrecord = MoneyRecord()
+            moneyrecord = MoneyRecord()  # 插入收支记录表
             moneyrecord.MRid = str(uuid.uuid4())
             moneyrecord.MRtype = 1
             moneyrecord.OIid = OIsn
@@ -279,8 +253,6 @@ class COrder():
                         product['PRnum'] = product['PRnum'] + sku['number']
                     product['skulist'] = sku_list
                 order['product_list'] = product_list
-                if order['OIstatus'] == 4:
-                    order['OIstatus'] = 1
                 from common.timeformat import get_web_time_str
                 order['OIcreatetime'] = get_web_time_str(order['OIcreatetime'])
                 order_return_list.append(order)
@@ -310,8 +282,6 @@ class COrder():
                         product['PRnum'] = product['PRnum'] + sku['number']
                     product['skulist'] = sku_list
                 order['product_list'] = product_list
-                if order['OIstatus'] == 4:
-                    order['OIstatus'] = 1
                 from common.timeformat import get_web_time_str
                 order['OIcreatetime'] = get_web_time_str(order['OIcreatetime'])
                 order_return_list.append(order)
@@ -422,13 +392,49 @@ class COrder():
         detail = get_model_return_dict(self.sorder.get_order_details(oisn))
         if not detail:
             return NOT_FOUND_ORDER
-        update = {}
-        update['OIstatus'] = 2
-        update['expressname'] = expressname
-        update['expressnum'] = expressnum
-        result = self.sorder.update_order(oisn, update)
-        if not result:
+        session = db_session()
+        try:
+            update = {}
+            update['OIstatus'] = 2
+            update['expressname'] = expressname
+            update['expressnum'] = expressnum
+            session.query(OrderInfo).filter(OrderInfo.OIsn == oisn).update(update)
+            monthnow = datetime.strftime(datetime.now(), format_for_db)[0:6]
+            amount_data = self.saccount.get_user_date(request.user.id, monthnow)
+            order = get_model_return_dict(self.sorder.get_order_details(oisn))
+            user = self.smycenter.get_user_basicinfo(request.user.id)  # 插入销售表，有数据就更新
+            if not user:
+                raise dberror
+            user = get_model_return_dict(user)
+            if not order:
+                return SYSTEM_ERROR
+            if amount_data:
+                amount_data = get_model_return_dict(amount_data)
+                new_data = {}
+                new_data['performance'] = amount_data['performance'] + order['discountnum']
+                try:
+                    session.query(Amount).filter(Amount.USid == request.user.id).update(new_data)
+                except:
+                    raise dberror
+            else:
+                amount = Amount()
+                amount.USid = request.user.id
+                amount.AMid = str(uuid.uuid4())
+                amount.USagentid = user['USagentid']
+                amount.performance = order['discountnum']
+                amount.USname = user['USname']
+                amount.AMstatus = 1
+                amount.USheadimg = user['USheadimg']
+                amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
+                amount.AMmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
+                session.add(amount)
+            session.commit()
+        except Exception as e:
+            print e
+            session.rollback()
             return SYSTEM_ERROR
+        finally:
+            session.close()
         reponse = import_status("update_order_success", "OK")
         detail = get_model_return_dict(self.sorder.get_order_details(oisn))
         from common.timeformat import get_web_time_str
@@ -524,6 +530,47 @@ class COrder():
             name = name + '' + product['PRname']
         return name
 
+    @verify_token_decorator
+    def cancel_order(self):
+        if is_tourist():
+            return TOKEN_ERROR
+        try:
+            data = request.json
+            oisn = data.get('oisn')
+        except:
+            return PARAMS_ERROR
+        order = get_model_return_dict(self.sorder.get_order_details(oisn))
+        if not order:
+            return SYSTEM_ERROR
+        if int(order['OIstatus']) != 1:
+            return CANNOT_CANCEL
+        session = db_session()
+        try:
+            session.query(OrderInfo).filter(OrderInfo.OIsn == oisn).update({"OIstatus": 5})
+            user = self.smycenter.get_user_basicinfo(request.user.id)
+            if not user:
+                raise dberror
+            user = get_model_return_dict(user)
+            session.query(User).filter(User.USid == request.user.id).update({"USmount": user['USmount'] + order['OImount']})
+            moneyrecord = MoneyRecord()  # 插入收支记录表
+            moneyrecord.MRid = str(uuid.uuid4())
+            moneyrecord.MRtype = 8
+            moneyrecord.OIid = oisn
+            moneyrecord.MRamount = order['OImount']
+            moneyrecord.MRcreatetime = datetime.strftime(datetime.now(), format_for_db)
+            moneyrecord.USid = request.user.id
+            session.add(moneyrecord)
+            session.commit()
+        except Exception as e:
+            print e
+            session.rollback()
+            return SYSTEM_ERROR
+        finally:
+            session.close()
+        response = import_status("cancel_order_success", "OK")
+        return response
+
+
 
     def timer_fun(self):  # 定时器
         global TIMER
@@ -543,3 +590,4 @@ class COrder():
         # 继续添加定时器，周期执行，否则只会执行一次
         TIMER = threading.Timer(5, self.timer_fun)
         TIMER.start()
+

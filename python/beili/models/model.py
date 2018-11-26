@@ -145,7 +145,7 @@ class OrderInfo(Base):
     OIsn = Column(String(64))  # 订单号
     USid = Column(String(64))  # 用户id
     """
-    订单状态: {0:所有订单, 1:待发货, 2:已发货, 3:交易完成, 4:已导出} 根据需求无待支付状态
+    订单状态: {0:所有订单, 1:待发货, 2:已发货, 3:交易完成, 4:分拣中 5:已取消} 根据需求无待支付状态
     """
     OIstatus = Column(Integer, default=1)
     OInote = Column(String(255))  # 订单留言
@@ -246,7 +246,7 @@ class MoneyRecord(Base):
     __tablename__ = 'moneyrecord'
     MRid = Column(String(64), primary_key=True)
     USid = Column(String(64))
-    MRtype = Column(Integer)  # {1,订单支出 2,提现 3,充值保证金 4,余额充值 5,奖金发放 6,保证金退还 7，提现失败}
+    MRtype = Column(Integer)  # {1,订单支出 2,提现 3,充值保证金 4,余额充值 5,奖金发放 6,保证金退还 7，提现失败 8, 取消订单}
     MRamount = Column(Float)  # 金额
     OIid = Column(String(30))  # 订单号
     MRtradenum = Column(String(30))  # 流水号
