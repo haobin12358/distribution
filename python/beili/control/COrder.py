@@ -407,7 +407,7 @@ class COrder():
                 raise dberror
             user = get_model_return_dict(user)
             if not order:
-                return SYSTEM_ERROR
+                raise dberror
             if amount_data:
                 amount_data = get_model_return_dict(amount_data)
                 new_data = {}
