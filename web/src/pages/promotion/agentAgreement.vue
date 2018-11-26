@@ -38,6 +38,7 @@
 
         .action-block {
             padding-top: 40px;
+            padding-bottom: 100px;
             text-align: center;
             .fj();
             flex-direction: column;

@@ -99,6 +99,7 @@
                             margin-right: 30px;
                             border-radius: 30px;
                             border: 2px solid @mainColor;
+                            margin-bottom: 20px;
 
                             &.disabled {
                                 background: @999;

@@ -2,6 +2,8 @@
     @import "../../common/css/index";
 
     .container {
+        .least-full-screen();
+
         .invite-code-list {
             margin-top: 10px;
 
@@ -44,7 +46,7 @@
             </section>
         </header-top>
 
-        <ul class="invite-code-list">
+        <ul v-if="qrCodeList.length" class="invite-code-list">
             <li class="invite-code-item" v-for="item,index in qrCodeList" @click="gotoInviteLink(item)">
                 <vue-qr :text="generateCodeUrl(item)" :size="50" :margin="0" class="invite-code-img"></vue-qr>
                 <section class="invite-remain">
@@ -55,7 +57,7 @@
                 <img src="/static/images/close.png" @click.stop="removeInvite(item)" alt="" class="remove-btn">
             </li>
         </ul>
-
+        <place-holder v-else title="您还没有邀请二维码,请点击右上角+新增"></place-holder>
 
     </div>
 </template>
@@ -63,6 +65,7 @@
 <script>
     import VueQr from 'vue-qr'
     import {getQrcode, deleteQrcode} from "src/api/api"
+    import PlaceHolder from "src/components/common/placeHolder"
 
 
     export default {
@@ -74,7 +77,7 @@
             }
         },
 
-        components: {VueQr},
+        components: {VueQr, PlaceHolder},
 
         computed: {},
 

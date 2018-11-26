@@ -120,7 +120,7 @@
 
             <!--<mt-field style="background: white;" label="打款日期" placeholder="请选择打款日期" v-model="date" :readonly="false" type="date" ></mt-field>-->
 
-            <mt-field class="form-item" label="金额" v-model.trim="formData.amount" type="number"
+            <mt-field class="form-item" label="金额" v-model.trim.number="formData.amount" type="number"
                       placeholder="请输入打款金额"></mt-field>
 
             <template v-if="formData.paytype == 1 ||formData.paytype == 2 ">
@@ -196,23 +196,23 @@
 
         data() {
             return {
-                transferWay: '支付宝',
+                transferWay: '微信',
                 actions: [
+                    {name: '微信', value: 3, method: this.selectTransferWay},
                     {name: '支付宝', value: 1, method: this.selectTransferWay},
                     {name: '银行卡', value: 2, method: this.selectTransferWay},
-                    {name: '微信', value: 3, method: this.selectTransferWay},
                 ],
                 sheetVisible: false,
                 datetime: '',
                 date: '',
 
                 formData: {
-                    "paytype": 1,
+                    "paytype": 3,
                     "alipaynum": "",
                     "bankname": "",
                     "accountname": "",
                     "cardnum": "",
-                    "amount": '',
+                    "amount": 1,
                     "remark": "",
                     paytime: ''
                 },
@@ -339,6 +339,14 @@
                 let that = this;
 
                 if(this.userInfo.openid){
+                    if (!this.formData.amount) {
+                        this.$toast('请输入打款金额');
+                        return
+                    } else if (!(this.formData.amount >= 0.01 && /^[0-9]+([.]{1}[0-9]+){0,1}$/.test(this.formData.amount))) {
+                        this.$toast('请输入合理的打款金额数字');
+                        return
+                    }
+
                     weixinPay(this.formData.amount).then(
                         resData => {
                             if (resData.status == 200) {

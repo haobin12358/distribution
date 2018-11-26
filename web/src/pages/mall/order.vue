@@ -229,7 +229,12 @@
             },
             //  订单状态翻译
             statusZh(status) {
-                return this.orderType.find(item => item.value == status).label;
+                return this.orderType.find(item => {
+                    if (status == 4){
+                        status = 1;
+                    }
+                    return item.value == status
+                }).label;
             },
             countOrderNum(productList) {
                 let count = 0;
