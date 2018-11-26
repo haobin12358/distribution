@@ -60,7 +60,7 @@
                 <el-form-item prop="url" label="消息文件">
                     <el-upload
                         class="upload-demo"
-                        :action="$api.uploadFile"
+                        :action="uploadUrl"
                         accept="image/*,application/pdf"
                         :on-preview="handlePreview"
                         :on-success="handleSuccess"
@@ -126,7 +126,11 @@
 
         components: {},
 
-        computed: {},
+        computed: {
+            uploadUrl(){
+                return this.$api.uploadFile + localStorage.getItem('token');
+            }
+        },
 
         methods: {
             renderHeader(h) {

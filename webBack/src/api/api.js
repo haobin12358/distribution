@@ -33,6 +33,7 @@ const api = {
 
     getAllOrder: title + '/order/get_all_order',                  //  订单
     updateOrder: title + '/order/update_order',
+    getWillSendProducts: title + '/order/get_willsend_products',    //  导出
 
     getAllUserAcount: title + '/account/get_alluser_account',     //  个人销售
     getDirectagentPerformance: title + '/account/get_directagent_performance',    //  直推详情

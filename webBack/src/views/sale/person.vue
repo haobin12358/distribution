@@ -55,13 +55,13 @@
                 </el-form-item>
 
 
-                <el-form-item label="状态">
-                    <el-select v-model="formInline.status" @change="setSaleData">
-                        <el-option v-for="option in statusOptions" :label="option.label" :value="option.value"
-                                   :key="option.value">
-                        </el-option>
-                    </el-select>
-                </el-form-item>
+                <!--<el-form-item label="状态">-->
+                    <!--<el-select v-model="formInline.status" @change="setSaleData">-->
+                        <!--<el-option v-for="option in statusOptions" :label="option.label" :value="option.value"-->
+                                   <!--:key="option.value">-->
+                        <!--</el-option>-->
+                    <!--</el-select>-->
+                <!--</el-form-item>-->
 
                 <el-form-item>
                     <el-button type="primary" icon="el-icon-search" @click="doSearch">查询</el-button>
@@ -88,20 +88,20 @@
                 </template>
             </el-table-column>
             <el-table-column prop="myprofit" align="center" label="总奖金"></el-table-column>
-            <el-table-column prop="AMstatus" align="center" label="状态">
-                <template slot-scope="scope">
-                    <span v-if="scope.row.AMstatus == 1">未打款</span>
-                    <span v-if="scope.row.AMstatus == 2">已打款</span>
-                    <span v-if="scope.row.AMstatus == 3">累加中</span>
-                </template>
-            </el-table-column>
-            <el-table-column align="left" label="操作">
-                <template slot-scope="scope">
-                    <el-button type="text" size="mini" v-if="scope.row.AMstatus == 1" @click="grantReward(scope.row)">
-                        发放奖励
-                    </el-button>
-                </template>
-            </el-table-column>
+            <!--<el-table-column prop="AMstatus" align="center" label="状态">-->
+                <!--<template slot-scope="scope">-->
+                    <!--<span v-if="scope.row.AMstatus == 1">未打款</span>-->
+                    <!--<span v-if="scope.row.AMstatus == 2">已打款</span>-->
+                    <!--<span v-if="scope.row.AMstatus == 3">累加中</span>-->
+                <!--</template>-->
+            <!--</el-table-column>-->
+            <!--<el-table-column align="left" label="操作">-->
+                <!--<template slot-scope="scope">-->
+                    <!--<el-button type="text" size="mini" v-if="scope.row.AMstatus == 1" @click="grantReward(scope.row)">-->
+                        <!--发放奖励-->
+                    <!--</el-button>-->
+                <!--</template>-->
+            <!--</el-table-column>-->
 
 
         </el-table>

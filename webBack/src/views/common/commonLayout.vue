@@ -72,7 +72,7 @@
         <section class="right-content">
             <header class="right-content-hd">
                 <span class="version">
-                    开发版本:0.0.1
+                    开发版本:2018.11.26
                 </span>
                 <el-input class="search-input" size="mini" v-model="searchTxt" placeholder="请输入内容"></el-input>
                 <el-dropdown class="admin-name" trigger="click" @command="handleCommand">

@@ -48,7 +48,7 @@
                 <el-form-item>
                     <el-button type="primary" icon="el-icon-search" @click="doSearch">查询</el-button>
                     <el-button @click="doReset" icon="el-icon-refresh">重置</el-button>
-                    <el-button type="info" icon="el-icon-download">打印订单(表格)</el-button>
+                    <el-button type="info" icon="el-icon-download" @click="exportOrder">导出待发货订单</el-button>
 
                 </el-form-item>
 
@@ -75,7 +75,7 @@
                                 <img v-lazy="scope.row.PRimage" class="table-pic" alt="">
                             </template>
                         </el-table-column>
-                        <el-table-column prop="PRname" align="center" label=" 商品名" width="220"></el-table-column>
+                        <el-table-column prop="PRname" align="center" label=" 商品名" width="200"></el-table-column>
                         <el-table-column prop="PRprice" align="center" label="单价" width="120"></el-table-column>
                         <el-table-column prop="colorname" align="center" label="颜色" width="120"></el-table-column>
                         <el-table-column prop="sizename" align="center" label="尺码" width="120"></el-table-column>
@@ -83,9 +83,9 @@
                     </el-table>
                 </template>
             </el-table-column>
-            <el-table-column prop="OIsn" align="center" label="订单号" width="180"></el-table-column>
+            <el-table-column prop="OIsn" align="center" label="订单号" width="280"></el-table-column>
             <el-table-column prop="username" align="center" label="收件人" width="180"></el-table-column>
-            <el-table-column prop="userphonenum" align="center" label="手机号" width="120"></el-table-column>
+            <el-table-column prop="userphonenum" align="center" label="手机号" width="160"></el-table-column>
             <el-table-column prop="OImount" label="总价" align="center"></el-table-column>
             <el-table-column prop="OIcreatetime" label="下单时间" align="center" width="180"></el-table-column>
             <el-table-column label="状态" align="center">
@@ -102,7 +102,7 @@
             <!--操作-->
             <el-table-column label="操作" width="120" fixed="right" align="center">
                 <template slot-scope="scope">
-                    <el-button v-if="scope.row.OIstatus == 1" type="text" size="small" @click.stop="gotoOrderDetail(scope.row)">去发货</el-button>
+                    <el-button v-if="scope.row.OIstatus == 1 || scope.row.OIstatus == 4" type="text" size="small" @click.stop="gotoOrderDetail(scope.row)">去发货</el-button>
                     <el-button v-if="scope.row.OIstatus == 2" type="text" size="small" @click.stop="gotoOrderDetail(scope.row)">查看</el-button>
                     <el-button v-if="scope.row.OIstatus == 3" type="text" size="small" @click.stop="gotoOrderDetail(scope.row)">查看</el-button>
                 </template>
@@ -137,6 +137,9 @@
                     },{
                         value: 1,
                         label: '待发货',
+                    },{
+                        value: 4,
+                        label: '已导出',
                     },{
                         value: 2,
                         label: '已发货',
@@ -289,6 +292,32 @@
                         }
                     }
                 )
+            },
+            exportOrder(){
+                this.$confirm('确认导出订单?').then(
+                    () => {
+                        this.$http.get(this.$api.getWillSendProducts,{
+                            params: {
+                                token: this.$common.getStore('token')
+                            }
+                        }).then(
+                            res => {
+                                if (res.data.status == 200) {
+                                    let resData = res.data,
+                                        data = res.data.data;
+
+                                    window.open(data);
+                                    this.$notify({
+                                        title: '订单导出成功',
+                                        message: `请注意浏览器拦截,注意保存`,
+                                        type: 'success'
+                                    });
+                                }
+                            }
+                        )
+                    }
+                )
+
             },
 
             statusToTxt(status){
