@@ -540,7 +540,7 @@ class CAccount():
             print 'start deal reward and discount'
             last_month = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y%m")
             print last_month
-            account_list = get_model_return_dict(self.saccount.get_all_account_by_month(last_month))
+            account_list = get_model_return_list(self.saccount.get_all_account_by_month(last_month))
             if account_list:
                 result = self.deal_account_list(account_list, last_month)
                 if not result:
