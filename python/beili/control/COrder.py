@@ -400,9 +400,9 @@ class COrder():
             update['expressnum'] = expressnum
             session.query(OrderInfo).filter(OrderInfo.OIsn == oisn).update(update)
             monthnow = datetime.strftime(datetime.now(), format_for_db)[0:6]
-            amount_data = self.saccount.get_user_date(request.user.id, monthnow)
+            amount_data = self.saccount.get_user_date(detail['USid'], monthnow)
             order = get_model_return_dict(self.sorder.get_order_details(oisn))
-            user = self.smycenter.get_user_basicinfo(request.user.id)  # 插入销售表，有数据就更新
+            user = self.smycenter.get_user_basicinfo(detail['USid'])  # 插入销售表，有数据就更新
             if not user:
                 raise dberror
             user = get_model_return_dict(user)
@@ -413,12 +413,12 @@ class COrder():
                 new_data = {}
                 new_data['performance'] = amount_data['performance'] + order['discountnum']
                 try:
-                    session.query(Amount).filter(Amount.USid == request.user.id).update(new_data)
+                    session.query(Amount).filter(Amount.USid == detail['USid']).filter(Amount.AMmonth == monthnow).update(new_data)
                 except:
                     raise dberror
             else:
                 amount = Amount()
-                amount.USid = request.user.id
+                amount.USid = detail['USid']
                 amount.AMid = str(uuid.uuid4())
                 amount.USagentid = user['USagentid']
                 amount.performance = order['discountnum']
@@ -426,7 +426,7 @@ class COrder():
                 amount.AMstatus = 1
                 amount.USheadimg = user['USheadimg']
                 amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
-                amount.AMmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
+                amount.AMmonth = monthnow
                 session.add(amount)
             session.commit()
         except Exception as e:
