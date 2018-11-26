@@ -32,7 +32,7 @@ def make_pic(name, wechat, idcardnum):
         os.makedirs(rootdir)
     w, h = im.size
     filepath = os.path.join(rootdir, id + '.png')
-    im.resize((w / 2, h / 2)).save(filepath)
+    im.resize((w * 2 / 3, h * 2 / 3)).save(filepath)
     # url = QRCODEHOSTNAME + "/file/" + id + '.png'
     url = QRCODEHOSTNAME + "/file/" + id + '.png'
     return url
