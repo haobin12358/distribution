@@ -62,7 +62,6 @@
                 sheetVisible: false,
 
                 bailstatus: 1,
-                shouldPay: 0
             }
         },
 
@@ -127,7 +126,6 @@
             let checkData = await checkBail();
 
             this.bailstatus = checkData.bailstatus;
-            this.shouldPay = checkData.data.shouldpay;
         },
     }
 </script>

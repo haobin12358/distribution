@@ -72,7 +72,7 @@
                 <img class="tab-icon"
                      :src="$route.path.indexOf('message')!=-1?'/static/images/tabbar_message_active.png':'/static/images/tabbar_message.png'"
                      alt="">
-                <span class="tab-red-dot">{{notReadComMsgNum}}</span>
+                <span class="tab-red-dot" v-if="notReadComMsgNum != 0">{{notReadComMsgNum}}</span>
             </section>
 
             <span :class="{'tab-title': true,active: $route.path.indexOf('message')!=-1}">信息</span>

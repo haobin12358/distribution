@@ -144,7 +144,7 @@
                 </section>
                 <section class="money-item">
                     <span class="label">销售量</span>
-                    <span class="value">￥{{saleDetail.performance || 0}}</span>
+                    <span class="value">{{saleDetail.performance || 0}}</span>
                 </section>
                 <section class="money-item">
                     <span class="label">销售件数返点</span>

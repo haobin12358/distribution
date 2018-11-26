@@ -81,6 +81,15 @@
                     <el-input v-model="formData.reward" type="number"></el-input>
                 </el-form-item>
 
+                <el-form-item prop="reward" label="发货姓名:">
+                    <el-input v-model="formData.sendname" ></el-input>
+                </el-form-item>
+                <el-form-item prop="reward" label="发货手机号:">
+                    <el-input v-model="formData.sendphone"></el-input>
+                </el-form-item>
+                <el-form-item prop="reward" label="发货地址:">
+                    <el-input v-model="formData.sendaddress"></el-input>
+                </el-form-item>
 
                 <el-form-item>
                     <el-button type="info" @click="setData">重 置</el-button>
@@ -112,6 +121,9 @@
                     "drawbank": "",
                     "bail": '',
                     "reward": '',
+                    sendname: '',
+                    sendphone: '',
+                    sendaddress: '',
                 },
                 formRules:{
                     agentmoney:[
@@ -126,7 +138,6 @@
                         {required: true, message: '请填写直推奖励', trigger: 'blur'},
                         {pattern: /^[0-9]+([.]{1}[0-9]+){0,1}$/, message: '直推奖励需要是正数', trigger: 'change'},
                     ],
-
                 }
             }
         },
@@ -159,7 +170,6 @@
                 this.$http.get(this.$api.getConfigure,{
                     params: {
                         token: this.$common.getStore('token')
-
                     }
                 }).then(
                     res => {

@@ -3,6 +3,7 @@
 
     .pay-order-container {
         .least-full-screen();
+        padding-bottom: 100px;
 
         .choose-address {
             padding: 18px 36px 28px 30px;

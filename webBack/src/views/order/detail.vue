@@ -260,6 +260,11 @@
 
         created() {
             this.order = this.$route.query;
+            
+            if(this.order.OIstatus == 4){
+                this.order.OIstatus = 1;
+            }
+
             if (this.order.OIstatus != 1) {
                 this.formExpress.expressname = this.order.expressname
                 this.formExpress.expressnum = this.order.expressnum

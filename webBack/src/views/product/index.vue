@@ -41,27 +41,27 @@
         </section>
 
         <!--商品表格-->
-        <el-table :data="tableData" v-loading="loading" stripe :cell-class-name="cellFunction" style="width: 100%">
-            <el-table-column prop="img" align="center" label="图片" width="120">
+        <el-table :data="tableData" v-loading="loading" stripe :cell-class-name="cellFunction"  style="width: 100%">
+            <el-table-column prop="img" align="center"  label="图片" width="120">
                 <template slot-scope="scope">
                     <img v-lazy="scope.row.PRpic" class="table-pic"/>
                 </template>
             </el-table-column>
-            <el-table-column prop="PRname" label="商品名" width="180" align="center"></el-table-column>
+            <el-table-column prop="PRname" label="商品名 " width="240" align="center"></el-table-column>
             <el-table-column label="所属分类" width="180" align="center">
                 <template slot-scope="scope">
                     {{`${scope.row.firstpaname} /${scope.row.categoryname}`}}
                 </template>
             </el-table-column>
-            <el-table-column prop="PRoldprice" label="原价格" align="center"></el-table-column>
-            <el-table-column prop="PRprice" label="折后价格" align="center"></el-table-column>
-            <el-table-column prop="PRstatus" label="状态" align="center">
+            <el-table-column prop="PRoldprice" label="原价格" width="140" align="center"></el-table-column>
+            <el-table-column prop="PRprice" label="折后价格" width="140" align="center"></el-table-column>
+            <el-table-column prop="PRstatus" label="状态" width="140" align="center">
                 <template slot-scope="scope">
                     {{statusToTxt(scope.row.PRstatus)}}
                 </template>
             </el-table-column>
             <el-table-column prop="PRlogisticsfee" label="邮费" align="center"></el-table-column>
-            <el-table-column prop="PAdiscountnum" label="返点件数" align="center"></el-table-column>
+            <el-table-column prop="PAdiscountnum" label="返点件数" width="140" align="center"></el-table-column>
             <el-table-column prop="PRcreatetime" label="创建时间" width="180" align="center"></el-table-column>
 
             <el-table-column label="操作" width="180" fixed="right" align="left" :render-header="renderHeader">

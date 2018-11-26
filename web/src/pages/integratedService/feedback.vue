@@ -51,14 +51,18 @@
 
         methods: {
             addComments(){
-                addComments(this.comment).then(
-                    resData => {
-                        if(resData){
-                            this.$toast('您的反馈已提交');
-                            this.$router.back();
+                if(this.comment){
+                    addComments(this.comment).then(
+                        resData => {
+                            if(resData){
+                                this.$toast('您的反馈已提交');
+                                this.$router.back();
+                            }
                         }
-                    }
-                )
+                    )
+                }else{
+                    this.$toast('请填写反馈内容');
+                }
             }
         },
 
