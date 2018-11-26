@@ -553,10 +553,10 @@ class CAccount():
 
     def deal_account_list(self, account_list, last_month):
         time_now = datetime.strftime(datetime.now(), format_for_db)
-        for account in account_list:
-            mydiscount = self.get_mydiscount(account['USid'], last_month)
-            session = db_session()
-            try:
+        session = db_session()
+        try:
+            for account in account_list:
+                mydiscount = self.get_mydiscount(account['USid'], last_month)
                 # 写入代理消息
                 tradenum = datetime.strftime(datetime.now(), format_for_db_no_HMS) + get_random_str(8)
                 content = u'您' + last_month + u'月的销售折扣返点已发放，流水号为' + ' ' + str(tradenum)
@@ -577,13 +577,13 @@ class CAccount():
                 update['USmount'] = user['USmount'] + mydiscount
                 self.smycenter.update_user_by_uid(session, account['USid'], update)
                 session.commit()
-            except Exception as e:
-                print e
-                session.rollback()
-                return None
-            finally:
-                session.close()
-            return True
+        except Exception as e:
+            print e
+            session.rollback()
+            return None
+        finally:
+            session.close()
+        return True
 
     @verify_token_decorator
     def get_directagent_performance(self):
