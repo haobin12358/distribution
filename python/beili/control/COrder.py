@@ -535,7 +535,7 @@ class COrder():
     def get_product_name(self, list):
         name = ''
         for product in list:
-            name = name + '' + product['PRname']
+            name = name + ' ' + product['PRname']
         return name
 
     @verify_token_decorator
