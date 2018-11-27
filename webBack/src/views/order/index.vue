@@ -92,12 +92,13 @@
             <el-table-column prop="username" align="center" label="收件人" width="180"></el-table-column>
             <el-table-column prop="userphonenum" align="center" label="手机号" width="160"></el-table-column>
             <el-table-column prop="OImount" label="总价" align="center"></el-table-column>
-            <el-table-column prop="OIcreatetime" label="下单时间" align="center" width="180"></el-table-column>
-            <el-table-column label="状态" align="center">
+            <el-table-column label="状态" width="120" align="center">
                 <template slot-scope="scope">
                     {{statusToTxt(scope.row.OIstatus)}}
                 </template>
             </el-table-column>
+            <el-table-column prop="OIcreatetime" label="下单时间" align="center" width="180"></el-table-column>
+
             <el-table-column label="快递信息" width="180" align="center">
                 <template slot-scope="scope">
                     {{`${scope.row.expressname || ''} ${scope.row.expressnum || ''}`}}
@@ -154,11 +155,14 @@
                         value: 0,
                         label: '全部',
                     }, {
+                        value: 5,
+                        label: '已取消',
+                    },{
                         value: 1,
                         label: '待发货',
                     }, {
                         value: 4,
-                        label: '已导出',
+                        label: '拣货中',
                     }, {
                         value: 2,
                         label: '已发货',

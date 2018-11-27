@@ -29,13 +29,14 @@
             <el-table-column prop="DMamount" align="center" label="金额" width="120"></el-table-column>
             <el-table-column prop="DMbankname" align="center" label="银行名" width="120"></el-table-column>
             <el-table-column prop="DMbranchname" align="center" label="支行" width="120"></el-table-column>
-            <el-table-column prop="DMcardnum" align="center" label="卡号"></el-table-column>
-            <el-table-column prop="DMcreatetime" align="center" label="申请时间"></el-table-column>
+            <el-table-column prop="DMcardnum" align="center" label="卡号" width="220"></el-table-column>
+            <el-table-column prop="DMcreatetime" align="center" label="申请时间" width="180"></el-table-column>
             <el-table-column prop="DMstatus" align="center" label="状态" width="120">
                 <template slot-scope="scope">
                     {{statusToTxt(scope.row.DMstatus)}}
                 </template>
             </el-table-column>
+            <el-table-column prop="DMreason" align="center" label="不通过原因" width="180"></el-table-column>
             <el-table-column label="操作" width="220" fixed="right">
                 <template slot-scope="scope">
                     <template v-if="scope.row.DMstatus == 1">
@@ -178,10 +179,11 @@
                 return this.statusOptions.find(item => item.value == status).label;
             },
 
-            async dealWidthDraw(dmid, willstatus) {
+            async dealWidthDraw(dmid, willstatus, reason = '') {
                 let res = await this.$http.post(this.$api.dealDrawmoney, {
                     dmid,
-                    willstatus
+                    willstatus,
+                    reason,
                 }, {
                     params: {
                         token: this.$common.getStore('token')
@@ -216,12 +218,16 @@
 
             },
             async noPass(row) {
-                let confirm = await  this.$confirm(`确定不通过该审核(户名:${row.DMaccountname})?`, '提示', {
-                    type: 'warning'
+                let prompt = await this.$prompt('输入不通过原因', '提示', {
+                    inputValidator: value => {
+                        if(!value){
+                            return '原因不能为空!'
+                        }
+                    }
                 });
 
-                if (confirm) {
-                    let result = await this.dealWidthDraw(row.DMid, 4);
+                if (prompt.value) {
+                    let result = await this.dealWidthDraw(row.DMid, 4, prompt.value);
 
                     this.setData()
                     if(result){
@@ -231,6 +237,8 @@
                             type: 'success'
                         });
                     }
+                }else{
+
                 }
             },
             async confirmPay(row) {

@@ -49,7 +49,8 @@
         <!--商品表格-->
         <el-table :data="tableData" v-loading="loading" size="medium" :cell-class-name="cellFunction" stripe
                   style="width: 100%">
-            <el-table-column prop="CMaccountname" align="center" label="用户名"></el-table-column>
+            <el-table-column prop="username" align="center" width="120" label="用户名"></el-table-column>
+            <el-table-column prop="userphonenum" align="center" width="120" label="手机号"></el-table-column>
             <el-table-column prop="CMamount" align="center" label="金额" width="120"></el-table-column>
             <el-table-column prop="type" align="center" label="用户打款方式" width="120">
                 <template slot-scope="scope">
@@ -75,6 +76,7 @@
                     {{statusToTxt(scope.row.CMstatus)}}
                 </template>
             </el-table-column>
+            <el-table-column prop="CMreason" align="center" label="不通过原因" width="180"></el-table-column>
             <el-table-column prop="CMremark" align="center" label="备注" width="120"></el-table-column>
 
             <el-table-column label="操作" width="220" fixed="right">
@@ -255,7 +257,11 @@
             },
             async noPass(row) {
                 let prompt = await this.$prompt('输入不通过原因', '提示', {
-                    inputValidator: this.noPassReasonValidator
+                    inputValidator: value => {
+                        if(!value){
+                            return '原因不能为空!'
+                        }
+                    }
                 });
 
                 if (prompt.value) {
@@ -270,15 +276,8 @@
                         });
                     }
                 } else {
-
                 }
             },
-            noPassReasonValidator(val) {
-                if(!val){
-                    return '原因不能为空!'
-                }
-            },
-
 
             handleRemove(file, fileList) {
                 console.log(file, fileList);
