@@ -215,7 +215,7 @@ class CUser():
                 w, h = image.size
                 filename = id1 + get_db_time_str() + "." + filessuffix
                 filepath = os.path.join(rootdir, filename)
-                image.resize((w/2, h/2)).save(filepath, 'png', quality=100)
+                image.save(filepath, 'png', quality=100)
                 url = QRCODEHOSTNAME + "/file/" + filename
                 data = import_status("upload_file_success", "OK")
                 data['data'] = {
