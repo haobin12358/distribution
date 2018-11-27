@@ -300,7 +300,7 @@
                     }
                 }
 
-                return count
+                return count.toFixed(2);
             }
         },
 

@@ -173,7 +173,6 @@
                             <span class="total-price">合计:￥{{item.OImount}}</span>
                         </p>
                         <section class="order-item-action">
-                            <button class="btn-action" v-if="item.OIstatus == 3">查看物流</button>
                             <button class="btn-action" v-if="item.OIstatus == 1" @click.stop="handleCancelOrder(item)">取消订单</button>
                         </section>
                     </footer>

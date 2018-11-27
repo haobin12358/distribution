@@ -283,7 +283,9 @@
                     }
                 }
 
-                needPayMoney = expressMoney + totalPrice;
+                totalPrice = totalPrice.toFixed(2);
+
+                needPayMoney = Number(expressMoney) + Number(totalPrice);
 
                 return {
                     totalNumber,

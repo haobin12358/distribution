@@ -27,7 +27,9 @@
                     <span class="weak">{{item.DMtradenum}}</span>
                     <span class="hard">￥{{item.DMamount}}</span>
                 </p>
-
+                <p class="reason" v-if="item.DMstatus == 4">
+                    未通过原因:{{item.DMreason}}
+                </p>
             </li>
         </ul>
 
