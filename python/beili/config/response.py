@@ -191,6 +191,11 @@ SKU_WRONG = {
     'status_code': 405038,
     'message': '商品规格发生变化!'
 }
+CANNOT_CANCEL = {
+    'status': 405,
+    'status_code': 405039,
+    'message': '订单已分拣或已发货，不支持取消!'
+}
 
 
 

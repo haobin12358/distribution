@@ -19,6 +19,11 @@ class SAccount(SBase):
             .filter(Amount.USid == usid).filter(Amount.AMmonth == month).first()
 
     @close_session
+    def get_all_account_by_month(self, month):
+        return self.session.query(Amount.reward, Amount.USid, Amount.performance, Amount.AMid, Amount.AMstatus
+                                  , Amount.USname).filter(Amount.AMmonth == month).filter(Amount.AMstatus == 1).all()
+
+    @close_session
     def update_account(self, session, amid, update):
         session.query(Amount).filter(Amount.AMid == amid).update(update)
         return True
@@ -55,12 +60,14 @@ class SAccount(SBase):
 
     @close_session
     def get_drawmoney_list(self, id, status):
-        return self.session.query(DrawMoney.DMstatus, DrawMoney.DMcreatetime, DrawMoney.DMamount, DrawMoney.DMtradenum)\
+        return self.session.query(DrawMoney.DMstatus, DrawMoney.DMcreatetime, DrawMoney.DMreason
+            ,DrawMoney.DMamount, DrawMoney.DMtradenum)\
             .filter(DrawMoney.USid == id).filter(DrawMoney.DMstatus == status).order_by(DrawMoney.DMcreatetime.desc()).all()
 
     @close_session
     def get_all_drawmoney_list(self, id):
-        return self.session.query(DrawMoney.DMstatus, DrawMoney.DMcreatetime, DrawMoney.DMamount, DrawMoney.DMtradenum)\
+        return self.session.query(DrawMoney.DMstatus, DrawMoney.DMcreatetime, DrawMoney.DMreason
+            ,DrawMoney.DMamount, DrawMoney.DMtradenum)\
             .filter(DrawMoney.USid == id).order_by(DrawMoney.DMcreatetime.desc()).all()
 
     @close_session
@@ -87,7 +94,7 @@ class SAccount(SBase):
         result = self.session.query(ChargeMoney.USid, ChargeMoney.CMpaytime, ChargeMoney.CMstatus, ChargeMoney.CMamount, ChargeMoney.CMproof
                                   , ChargeMoney.CMtradenum, ChargeMoney.CMcreatetime, ChargeMoney.CMpaytime, ChargeMoney.CMremark
                                   , ChargeMoney.CMcardnum, ChargeMoney.CMaccountname, ChargeMoney.CMbankname, ChargeMoney.CMalipaynum
-                                  , ChargeMoney.CMstatus, ChargeMoney.CMid).order_by(ChargeMoney.CMcreatetime.desc())
+                                  , ChargeMoney.CMstatus, ChargeMoney.CMreason, ChargeMoney.CMid).order_by(ChargeMoney.CMcreatetime.desc())
         if status > 0:
             result = result.filter(ChargeMoney.CMstatus == status)
         result = result.all()

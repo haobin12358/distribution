@@ -17,7 +17,9 @@ class AOrder(Resource):
             'get_order_list': 'self.corder.get_order_list()',
             'get_order_details': 'self.corder.get_order_details()',
             'get_all_order': 'self.corder.get_all_order()',
-            'update_order': 'self.corder.update_order()'
+            'update_order': 'self.corder.update_order()',
+            'cancel_order': 'self.corder.cancel_order()',
+            'get_willsend_products': 'self.corder.get_willsend_products()'
         }
         res = eval(apis[order])
         return jsonify(res)
@@ -25,7 +27,7 @@ class AOrder(Resource):
     def get(self, order):
         print order
         apis = {
-            'get_willsend_products': 'self.corder.get_willsend_products()'
+
         }
         res = eval(apis[order])
         return jsonify(res)
