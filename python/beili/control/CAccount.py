@@ -34,7 +34,7 @@ from weixin.login import WeixinLoginError, WeixinLogin
 from weixin.pay import WeixinPay, WeixinPayError
 from common.timeformat import format_for_db, get_random_str, format_for_db_no_HMS, get_random_int\
     , format_forweb_no_HMS, format_for_dbmonth
-from models.model import User, DiscountRuler, BailRecord
+from models.model import User, DiscountRuler, BailRecord, DrawMoney, ChargeMoney
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -48,7 +48,6 @@ class CAccount():
         self.smessage = SMessage()
         self.saccount = SAccount()
         self.pay = WeixinPay(APP_ID, MCH_ID, MCH_KEY, notify_url)
-        self.rulerlist = get_model_return_list(self.saccount.get_discount_ruler())
         self.conf = ConfigParser()
         self.conf.read('config/setting.ini')
 
@@ -104,7 +103,7 @@ class CAccount():
         return totalpnum
 
     def get_discount_ratio(self, num):  # 获取商品数量对应的奖励金额
-        ruler_list = self.rulerlist
+        ruler_list = get_model_return_list(self.saccount.get_discount_ruler())
         if not ruler_list:
             return 0
         else:
@@ -696,6 +695,7 @@ class CAccount():
             data = request.json
             willstatus = int(data.get("willstatus"))
             dmid = data.get("dmid")
+            reason = data.get("reason")
         except:
             return PARAMS_ERROR
         result = get_model_return_dict(self.saccount.get_drawmoney_info(dmid)) if self.saccount.get_drawmoney_info(dmid) else None
@@ -721,6 +721,7 @@ class CAccount():
                                                        , tradenum=result['DMtradenum'], oiid=None)
                 user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
                     self.smycenter.get_user_basicinfo(result['USid']) else None
+                session.query(DrawMoney).filter(DrawMoney.DMid == dmid).update({"DMreason": str(reason)})
                 update = {}
                 update['USmount'] = user['USmount'] + result['DMamount']
                 self.smycenter.update_user_by_uid(session, result['USid'], update)
@@ -781,6 +782,7 @@ class CAccount():
             data = request.json
             willstatus = int(data.get("willstatus"))
             cmid = data.get("cmid")
+            reason = data.get("reason")
         except:
             return PARAMS_ERROR
         result = get_model_return_dict(self.saccount.get_chargemoney_info(cmid)) if self.saccount.get_chargemoney_info(
@@ -813,6 +815,7 @@ class CAccount():
             if willstatus == 3:
                 # 写入代理消息
                 content = u'您充值失败，请联系客服处理，流水号为' + result['CMtradenum']
+                session.query(ChargeMoney).filter(ChargeMoney.CMid == cmid).update({"CMreason": str(reason)})
                 agent_result = self.smessage.create_agentmessage(session, result['USid'], time_now, content, 1)
                 if not agent_result:
                     return SYSTEM_ERROR

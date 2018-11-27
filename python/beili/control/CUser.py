@@ -168,7 +168,7 @@ class CUser():
                     w, h = image.size
                     filename = request.user.id + get_db_time_str() + "." + filessuffix
                     filepath = os.path.join(rootdir, filename)
-                    image.resize((w/6, h/6)).save(filepath, 'jpeg', quality=30)
+                    image.save(filepath, 'png', quality=90)
                     response = import_status("upload_file_success", "OK")
                     url = QRCODEHOSTNAME + "/file/" + filename
                     response["data"] = url
@@ -179,7 +179,7 @@ class CUser():
                     w, h = image.size
                     filename = request.user.id + get_db_time_str() + "." + filessuffix
                     filepath = os.path.join(rootdir, filename)
-                    image.resize((w/2, h/2)).save(filepath, 'jpeg', quality=90)
+                    image.resize((w/2, h/2)).save(filepath, 'png', quality=90)
                     response = import_status("upload_file_success", "OK")
                     url = QRCODEHOSTNAME + "/file/" + filename
                     response["data"] = url
@@ -215,7 +215,7 @@ class CUser():
                 w, h = image.size
                 filename = id1 + get_db_time_str() + "." + filessuffix
                 filepath = os.path.join(rootdir, filename)
-                image.resize((w/2, h/2)).save(filepath, 'jpeg', quality=100)
+                image.resize((w/2, h/2)).save(filepath, 'png', quality=100)
                 url = QRCODEHOSTNAME + "/file/" + filename
                 data = import_status("upload_file_success", "OK")
                 data['data'] = {
@@ -603,11 +603,6 @@ class CUser():
         info = get_model_return_dict(self.suser.get_registerrecord_by_IRIid(IRIid))
         if not info:
             return NOT_FOUND_USER
-        update = {}
-        update['IRIstatus'] = int(willstatus)
-        result = self.suser.update_register_record(IRIid, update)
-        if not result:
-            return SYSTEM_ERROR
         if willstatus == 2:
             session = db_session()
             try:
@@ -715,6 +710,9 @@ class CUser():
                 return SYSTEM_ERROR
             finally:
                 session.close()
+        update = {}
+        update['IRIstatus'] = int(willstatus)
+        result = self.suser.update_register_record(IRIid, update)
         response = import_status("register_success", "OK")
         return response
 
