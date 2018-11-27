@@ -877,6 +877,7 @@ class CAccount():
             data = request.json
             willstatus = int(data.get("willstatus"))
             brid = data.get("brid")
+            reason = data.get("reason")
         except:
             return PARAMS_ERROR
         result = get_model_return_dict(self.saccount.get_bailrecord_info(brid)) if self.saccount.get_bailrecord_info(
@@ -905,7 +906,7 @@ class CAccount():
                 self.smycenter.update_user_by_uid(session, result['USid'], update)
             if willstatus == 4:
                 # 写入代理消息
-                content = u'您的保证金退还失败，请联系微信客服处理'
+                content = u'您的保证金退还失败:' + reason + u',请联系客服处理'
                 time_now = datetime.strftime(datetime.now(), format_for_db)
                 agent_result = self.smessage.create_agentmessage(session, result['USid'], time_now, content, 1)
 
