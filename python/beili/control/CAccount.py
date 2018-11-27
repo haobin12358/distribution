@@ -758,8 +758,8 @@ class CAccount():
             record['CMcreatetime'] = get_web_time_str(record['CMcreatetime'])
             record['CMpaytime'] = get_web_time_str(record['CMpaytime'], format_forweb_no_HMS)
             user = get_model_return_dict(self.smycenter.get_user_basicinfo(record['USid']))
-            record['username'] = user['USname ']
-            record['userphonenum'] = user['USphonenum  ']
+            record['username'] = user['USname']
+            record['userphonenum'] = user['USphonenum']
 
         mount = len(result)
         page = mount / page_size
