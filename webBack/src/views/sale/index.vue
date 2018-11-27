@@ -47,12 +47,12 @@
         </h1>
         <ul class="sale-data-list">
             <li class="sale-data-item">
-                <span class="num">{{countData.total_sale_num}}</span>
+                <span class="num">{{countData.total_sale_num }}</span>
                 <span class="title">总销售量（件）</span>
 
             </li>
             <li class="sale-data-item ">
-                <span class="num">￥{{countData.total_sale_money}}</span>
+                <span class="num">￥{{countData.total_sale_money | fixed2}}</span>
                 <span class="title">总销售额（元）</span>
 
             </li>
@@ -68,7 +68,7 @@
             </li>
 
             <li class="sale-data-item ">
-                <span class="num">￥{{countData.unit_price}}</span>
+                <span class="num">￥{{countData.unit_price | fixed2}}</span>
                 <span class="title">客单价（元）</span>
 
             </li>
@@ -105,6 +105,12 @@
         components: {},
 
         computed: {},
+
+        filters: {
+            fixed2: function (value) {
+                return value.toFixed(2);
+            }
+        },
 
         methods: {
             setCountData() {

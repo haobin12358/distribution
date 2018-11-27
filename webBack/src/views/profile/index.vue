@@ -40,9 +40,15 @@
                                 background: #9FD0BF;
 
                             }
+                            &.register {
+                                background: #b57a25;
+                            }
+                            &.delivery {
+                                background: #16b592;
+                            }
+
                             &.margin {
                                 background: #91AEB5;
-
                             }
 
                         }
@@ -125,7 +131,7 @@
         <section class="section-one">
             <section class="section-one-block schedule">
                 <header class="head-title fcm">
-                    代办事项
+                    待办事项
                 </header>
 
                 <section class="action-wrap">
@@ -135,13 +141,15 @@
                     <router-link tag="button" to="/service/charge" class="action-btn charge">
                         余额充值 {{chargeNum}}
                     </router-link>
-                    <router-link tag="button" to="/service/register" class="action-btn margin">
+                    <router-link tag="button" to="/service/register" class="action-btn register">
                         新代理注册 {{registerNum}}
                     </router-link>
-                    <router-link tag="button" to="/order/index" class="action-btn margin">
+                    <router-link tag="button" to="/order/index" class="action-btn delivery">
                         待发货 {{waitDeliverNum}}
                     </router-link>
-
+                    <router-link tag="button" to="/service/marginMoney" class="action-btn margin">
+                        保证金退还 {{marginMoneyNum}}
+                    </router-link>
                 </section>
             </section>
 
@@ -157,13 +165,13 @@
 
                             <section class="detail">
                                 <span>今日交易额</span>
-                                <span class="num today-sale">￥ {{todaySaleMoney}}</span>
+                                <span class="num today-sale">￥ {{todaySaleMoney | fixed2}}</span>
                             </section>
                         </section>
 
                         <section class="yesterday-data">
                             <span class="label">今日交易额</span>
-                            <span class="value">￥ {{yesterdaySaleMoney}}</span>
+                            <span class="value">￥ {{yesterdaySaleMoney | fixed2}}</span>
                         </section>
 
                     </li>
@@ -174,18 +182,16 @@
 
                             <section class="detail">
                                 <span>今日订单数</span>
-                                <span>{{todaySaleMoney}}</span>
+                                <span>{{todayOrderNum}}</span>
                             </section>
                         </section>
 
                         <section class="yesterday-data">
                             <span class="label">昨日订单数</span>
-                            <span class="value">{{yesterdaySaleMoney}}</span>
+                            <span class="value">{{yesterdayOrderNum}}</span>
                         </section>
 
                     </li>
-
-
                 </ul>
             </section>
         </section>
@@ -210,8 +216,9 @@
             return {
                 waitDeliverNum: 0,  //  待发货
                 chargeNum: 0,       //  充值
-                registerNum: 0,  //  保证金
+                registerNum: 0,  //  注册
                 withdrawNum: 0,     //  提现
+                marginMoneyNum: 0,     //  保证金
 
                 todaySaleMoney: 0,
                 yesterdaySaleMoney: 0,
@@ -227,6 +234,12 @@
         components: {},
 
         computed: {},
+
+        filters: {
+            fixed2: function (value) {
+                return value.toFixed(2);
+            }
+        },
 
         methods: {
             //  左上角快捷方式数字
@@ -325,7 +338,28 @@
                         }
                     }
                 )
+                this.$http.post(this.$api.getAllUserBailRecord, {
+                        "status": 1,
+                        "page_size": 1,
+                        "page_num": 1,
+                    }
+                    , {
+                        noLoading: true,
+                        params: {
+                            token: this.$common.getStore('token'),
+                        }
+                    }).then(
+                    res => {
+                        this.loading = false;
 
+                        if (res.data.status == 200) {
+                            let resData = res.data,
+                                data = res.data.data;
+
+                            this.marginMoneyNum = resData.mount || 0;
+                        }
+                    }
+                )
             },
 
             setSevenDaysData() {
@@ -350,7 +384,7 @@
                             this.drawLine(revData)
                         }
                     }
-                )
+                );
             },
 
             drawLine(chartData) {

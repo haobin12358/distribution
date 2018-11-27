@@ -74,7 +74,9 @@
                 <span class="version">
                     开发版本:2018.11.26
                 </span>
-                <el-input class="search-input" size="mini" v-model="searchTxt" placeholder="请输入内容"></el-input>
+                <!--<el-input class="search-input" size="mini" v-model="searchTxt" placeholder="请输入内容"></el-input>-->
+                <el-autocomplete placeholder="请输入菜单名" v-model="searchTxt"  :fetch-suggestions="querySearch">
+                </el-autocomplete>
                 <el-dropdown class="admin-name" trigger="click" @command="handleCommand">
                     <span class="el-dropdown-link">
                         Admin
@@ -160,7 +162,14 @@
                         break;
                 }
 
-            }
+            },
+
+            querySearch(queryString, cb) {
+                console.log(queryString);
+
+                cb([]);
+            },
+
         },
 
         created() {

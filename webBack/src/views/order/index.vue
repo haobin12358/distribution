@@ -66,16 +66,21 @@
 
         <!--订单-->
         <el-table :data="tableData" v-loading="loading" ref="orderTable" size="small" :default-expand-all="expandAll"
-                  style="width: 100%" @row-click="expandRow" :cell-class-name="cellFunction">
+                  style="width: 100%" @row-click="expandRow" :cell-class-name="cellFunction" @selection-change="handleSelectionChange">
+            <el-table-column
+                type="selection"
+                width="55">
+            </el-table-column>
             <el-table-column type="expand">
                 <template slot-scope="props">
-                    <el-table :data="props.row.product_list" size="small" stripe :cell-class-name="subCellFunction" style="width: 100%">
+                    <el-table :data="props.row.product_list" size="small" stripe :cell-class-name="subCellFunction"
+                              style="width: 100%">
                         <el-table-column prop="img" align="center" label="图片" width="180">
                             <template slot-scope="scope">
                                 <img v-lazy="scope.row.PRimage" class="table-pic" alt="">
                             </template>
                         </el-table-column>
-                        <el-table-column prop="PRname" align="center" label=" 商品名" width="200"></el-table-column>
+                        <el-table-column prop="PRname" align="center" label=" 商品名" width="240"></el-table-column>
                         <el-table-column prop="PRprice" align="center" label="单价" width="120"></el-table-column>
                         <el-table-column prop="colorname" align="center" label="颜色" width="120"></el-table-column>
                         <el-table-column prop="sizename" align="center" label="尺码" width="120"></el-table-column>
@@ -102,9 +107,15 @@
             <!--操作-->
             <el-table-column label="操作" width="120" fixed="right" align="center">
                 <template slot-scope="scope">
-                    <el-button v-if="scope.row.OIstatus == 1 || scope.row.OIstatus == 4" type="text" size="small" @click.stop="gotoOrderDetail(scope.row)">去发货</el-button>
-                    <el-button v-if="scope.row.OIstatus == 2" type="text" size="small" @click.stop="gotoOrderDetail(scope.row)">查看</el-button>
-                    <el-button v-if="scope.row.OIstatus == 3" type="text" size="small" @click.stop="gotoOrderDetail(scope.row)">查看</el-button>
+                    <el-button v-if="scope.row.OIstatus == 2" type="text" size="small"
+                               @click.stop="gotoOrderDetail(scope.row)">查看
+                    </el-button>
+                    <el-button v-if="scope.row.OIstatus == 3" type="text" size="small"
+                               @click.stop="gotoOrderDetail(scope.row)">查看
+                    </el-button>
+                    <el-button v-if="scope.row.OIstatus == 4" type="text" size="small"
+                               @click.stop="gotoOrderDetail(scope.row)">去发货
+                    </el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -121,6 +132,14 @@
                 @current-change="pageChange">
             </el-pagination>
         </section>
+
+        <el-dialog title="收货地址" :visible.sync="dialogTableVisible">
+            <el-table :data="waitDeliverData">
+                <el-table-column property="date" label="日期" width="150"></el-table-column>
+                <el-table-column property="name" label="姓名" width="200"></el-table-column>
+                <el-table-column property="address" label="地址"></el-table-column>
+            </el-table>
+        </el-dialog>
     </div>
 </template>
 
@@ -130,20 +149,20 @@
 
         data() {
             return {
-                statusOptions:[
+                statusOptions: [
                     {
                         value: 0,
                         label: '全部',
-                    },{
+                    }, {
                         value: 1,
                         label: '待发货',
-                    },{
+                    }, {
                         value: 4,
                         label: '已导出',
-                    },{
+                    }, {
                         value: 2,
                         label: '已发货',
-                    },{
+                    }, {
                         value: 3,
                         label: '已完成',
                     },
@@ -166,7 +185,8 @@
                 pageSize: 10,
                 tableData: [],
 
-                dialogTableVisible: false
+                dialogTableVisible: false,
+                waitDeliverData: [],
             }
         },
 
@@ -208,18 +228,18 @@
                 }
             },
 
-            cellFunction({row, column}){
+            cellFunction({row, column}) {
                 if (column.property == 'OImount') {
                     return 'money-cell'
                 } else {
                     return 'primary-cell'
                 }
             },
-            subCellFunction({row, column}){
+            subCellFunction({row, column}) {
                 // if (column.property == 'PRprice' || column.property == 'PRnum') {
                 //     return 'money-cell'
                 // } else {
-                    return 'primary-cell'
+                return 'primary-cell'
                 // }
             },
 
@@ -242,7 +262,7 @@
                         "page_size": this.pageSize,
                         "page_num": this.currentPage,
                         "oisn": this.formInline.oisn,
-                        "starttime":this.$common.dateFormat( this.formInline.starttime),
+                        "starttime": this.$common.dateFormat(this.formInline.starttime),
                         "endtime": this.$common.dateFormat(this.formInline.endtime),
                         "status": this.formInline.status,
                         "username": this.formInline.username,
@@ -261,66 +281,82 @@
                             let resData = res.data,
                                 data = res.data.data;
 
-                            for (let i = 0; i < data.length; i++) {
-                                let newPdlist = [];
-
-                                for (let j = 0; j < data[i].product_list.length; j++) {
-                                    let cuProd = data[i].product_list[j],
-                                        newProd = [];
-
-                                    for (let k = 0; k < cuProd.skulist.length; k++) {
-                                        let cuSku = cuProd.skulist[k];
-
-                                        newProd.push({
-                                            PRimage: cuProd.PRimage,
-                                            PRname: cuProd.PRname,
-                                            PRprice: cuProd.PRprice,
-                                            colorname: cuSku.colorname,
-                                            sizename: cuSku.sizename,
-                                            number: cuSku.number,
-                                        })
-                                    }
-
-                                    newPdlist=  newPdlist.concat(newProd);
-                                }
-
-                                data[i].product_list = newPdlist;
-                            }
+                            data = this.handleSkuList(data);
 
                             this.tableData = data;
-                            this.total = resData.mount|| 0;
+                            this.total = resData.mount || 0;
                         }
                     }
                 )
             },
-            exportOrder(){
-                this.$confirm('确认导出订单?').then(
-                    () => {
-                        this.$http.get(this.$api.getWillSendProducts,{
-                            params: {
-                                token: this.$common.getStore('token')
-                            }
-                        }).then(
-                            res => {
-                                if (res.data.status == 200) {
-                                    let resData = res.data,
-                                        data = res.data.data;
+            //  将三层的变成两层
+            handleSkuList(data) {
+                for (let i = 0; i < data.length; i++) {
+                    let newPdlist = [];
 
-                                    window.open(data);
-                                    this.$notify({
-                                        title: '订单导出成功',
-                                        message: `请注意浏览器拦截,注意保存`,
-                                        type: 'success'
-                                    });
-                                }
-                            }
-                        )
+                    for (let j = 0; j < data[i].product_list.length; j++) {
+                        let cuProd = data[i].product_list[j],
+                            newProd = [];
+
+                        for (let k = 0; k < cuProd.skulist.length; k++) {
+                            let cuSku = cuProd.skulist[k];
+
+                            newProd.push({
+                                PRimage: cuProd.PRimage,
+                                PRname: cuProd.PRname,
+                                PRprice: cuProd.PRprice,
+                                colorname: cuSku.colorname,
+                                sizename: cuSku.sizename,
+                                number: cuSku.number,
+                            })
+                        }
+
+                        newPdlist = newPdlist.concat(newProd);
                     }
-                )
 
+                    data[i].product_list = newPdlist;
+                }
+
+                return data;
+            },
+            exportOrder() {
+                if(this.waitDeliverData.length && this.formInline.status == 1){
+                    this.$confirm(`确认导出${this.waitDeliverData.length}个订单?`).then(
+                        () => {
+                            this.$http.post(this.$api.getWillSendProducts,{
+                                oisnlist: this.waitDeliverData.map(item => item.OIsn)
+                            },{
+                                params: {
+                                    token: this.$common.getStore('token')
+                                }
+                            }).then(
+                                res => {
+                                    if (res.data.status == 200) {
+                                        let resData = res.data,
+                                            data = res.data.data;
+
+                                        window.open(data);
+                                        this.$notify({
+                                            title: '订单导出成功',
+                                            message: `请注意浏览器拦截,注意保存`,
+                                            type: 'success'
+                                        });
+                                    }
+                                }
+                            )
+                        }
+                    )
+                }else{
+                    this.$message.warning('请勾选待发货的订单!');
+                }
             },
 
-            statusToTxt(status){
+
+            handleSelectionChange(val){
+                this.waitDeliverData = val;
+            },
+
+            statusToTxt(status) {
                 return this.statusOptions.find(item => item.value == status).label;
             }
         },

@@ -58,7 +58,8 @@
             </el-table-column>
             <el-table-column prop="info" align="center" label="账号信息" width="200">
                 <template slot-scope="scope">
-                    {{scope.row.CMalipaynum ? scope.row.CMalipaynum : `${scope.row.CMbankname} ${scope.row.CMaccountname} ${scope.row.CMcardnum}`}}
+                    {{scope.row.CMalipaynum ? scope.row.CMalipaynum : `${scope.row.CMbankname}
+                    ${scope.row.CMaccountname} ${scope.row.CMcardnum}`}}
                 </template>
             </el-table-column>
             <el-table-column prop="CMpaytime" align="center" label="充值日期" width="120"></el-table-column>
@@ -203,21 +204,22 @@
                             let resData = res.data,
                                 data = res.data.data;
 
-                            this.total = resData.mount|| 0;
+                            this.total = resData.mount || 0;
                             this.tableData = data;
                         }
                     }
                 )
             },
 
-            statusToTxt(status){
+            statusToTxt(status) {
                 return this.statusOptions.find(item => item.value == status).label;
             },
 
-            async dealWidthDraw(cmid, willstatus) {
+            async dealWidthDraw(cmid, willstatus, reason = '') {
                 let res = await this.$http.post(this.$api.dealChargemoney, {
                     cmid,
-                    willstatus
+                    willstatus,
+                    reason,
                 }, {
                     params: {
                         token: this.$common.getStore('token')
@@ -232,7 +234,7 @@
                 }
             },
             async pass(row) {
-                let confirm = await  this.$confirm(`确定通过该审核(用户名:${row.CMaccountname})?`, '提示', {
+                let confirm = await this.$confirm(`确定通过该审核(用户名:${row.CMaccountname})?`, '提示', {
                     type: 'info'
                 });
 
@@ -252,14 +254,14 @@
 
             },
             async noPass(row) {
-                let confirm = await  this.$confirm(`确定不通过该审核(用户名:${row.CMaccountname})?`, '提示', {
-                    type: 'warning'
+                let prompt = await this.$prompt('输入不通过原因', '提示', {
+                    inputValidator: this.noPassReasonValidator
                 });
 
-                if (confirm) {
-                    let result = await this.dealWidthDraw(row.CMid, 3);
+                if (prompt.value) {
+                    let result = await this.dealWidthDraw(row.CMid, 3, prompt.value);
 
-                    this.setData()
+                    this.setData();
                     if (result) {
                         this.$notify({
                             title: '充值审核已拒绝',
@@ -267,8 +269,17 @@
                             type: 'success'
                         });
                     }
+                } else {
+
                 }
             },
+            noPassReasonValidator(val) {
+                if(!val){
+                    return '原因不能为空!'
+                }
+            },
+
+
             handleRemove(file, fileList) {
                 console.log(file, fileList);
             },
