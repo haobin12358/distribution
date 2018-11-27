@@ -179,15 +179,16 @@ body {
 .small-text-parent(@height: 20px, @size, @aroundPadding: 0px) {
     display: table;
     margin-top: -@height;
-    height: 2 * @height ;
+    height: 2 * @height;
     line-height: 2 * @height;
-    font-size:2 * @size;
+    font-size: 2 * @size;
     border: 1px solid #000;
     -webkit-transform: scale(0.5);
     transform: scale(0.5);
     -webkit-transform-origin: 100% 100%;
     transform-origin: 100% 100%;
 }
+
 .small-text {
     display: table-cell;
     vertical-align: middle;
@@ -205,7 +206,7 @@ body {
         text-align: center;
 
         &.active {
-            color: @mainColor;
+            .sc(26px, @mainColor);
             border-bottom: 3px solid @mainColor;
         }
     }
@@ -213,37 +214,37 @@ body {
 }
 
 .money-record {
-
-    .money-record-item{
+    .money-record-item {
         padding: 14px 35px;
         border-bottom: 1px solid @mainFontColor;
 
-        &:first-child{
+        &:first-child {
             border-top: 1px solid @mainFontColor;
         }
 
-        .row{
+        .row {
             .fj();
             align-items: center;
+            margin-bottom: 20px;
 
-            &:first-child{
-                margin-bottom: 20px;
-            }
-
-            .hard{
-                .sc(24px, black);
+            .hard {
+                .sc(26px, black);
 
             }
 
-            .weak{
-                .sc(18px, #666666);
+            .weak {
+                .sc(24px, #666666);
 
             }
+        }
+
+        .reason {
+            color: @999;
         }
     }
 }
 
-.header-btn{
+.header-btn {
     .wl(129px, 46px);
     border: 2px solid rgba(255, 255, 255, 1);
     border-radius: 20px;

@@ -16,6 +16,7 @@
                 {{item.label}}({{item.num}})
             </li>
         </ul>
+
         <ul class="money-record">
             <li class="money-record-item" v-for="item in record">
                 <p class="row">
@@ -26,7 +27,9 @@
                     <span class="weak">{{item.CMtradenum}}</span>
                     <span class="hard">￥{{item.CMamount}}</span>
                 </p>
-
+                <p class="reason" v-if="item.CMstatus == 3">
+                    未通过原因:{{item.CMreason}}
+                </p>
             </li>
         </ul>
 

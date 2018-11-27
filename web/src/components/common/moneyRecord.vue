@@ -1,32 +1,5 @@
 <style lang="less" scoped>
     @import "../../common/css/index";
-
-    .money-record {
-
-        .money-record-item{
-            padding: 14px 35px;
-            border-bottom: 1px solid @mainFontColor;
-
-            &:first-child{
-                border-top: 1px solid @mainFontColor;
-            }
-
-            .row{
-                .fj();
-                align-items: center;
-
-                .hard{
-                    .sc(24px, black);
-
-                }
-
-                .weak{
-                    .sc(18px, #666666);
-
-                }
-            }
-        }
-    }
 </style>
 
 <template>

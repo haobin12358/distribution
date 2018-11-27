@@ -70,7 +70,7 @@
                 <section class="record-bd">
                     <p class="price">金额：{{item.MRamount}}</p>
 
-                    <p v-if="item.MRtype == 1">订单号：{{item.MRtradenum}}</p>
+                    <p v-if="item.MRtype == 1 || item.MRtype == 8">订单号：{{item.OIid}}</p>
                     <p v-else>流水号：{{item.MRtradenum}}</p>
                 </section>
             </li>
@@ -131,7 +131,10 @@
                     }, {
                         value: 7,
                         label: '提现失败'
-                    },
+                    },{
+                        value: 8,
+                        label: '订单退还'
+                    }
                 ],
                 moneyRecord: []
             }

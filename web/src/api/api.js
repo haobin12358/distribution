@@ -24,9 +24,9 @@ const myAxios = async (url, {params, data, method = 'get', showIndicator = true,
             }
 
             if(showTypeIsMessage){
-                MessageBox.alert('服务器出错!');
+                MessageBox.alert('服务器忙!');
             }else{
-                Toast('服务器出错!');
+                Toast('服务器忙!');
             }
         }
     )
@@ -381,6 +381,21 @@ export const getOrderDetails = (OIsn) => myAxios('/order/get_order_details', {
         OIsn
     }
 });
+/**
+ * 取消订单
+ * @param oisn
+ * @returns {Promise<*|undefined|void>}
+ */
+export const cancelOrder = (oisn) => myAxios('/order/cancel_order', {
+    method: 'post',
+    params: {
+        token: getStore(TOKEN),
+    },
+    data: {
+        oisn
+    }
+});
+
 
 /**
  * 获取业绩排行榜

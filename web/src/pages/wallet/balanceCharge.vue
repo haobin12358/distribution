@@ -105,7 +105,9 @@
 
         <section class="form-container">
             <mt-field class="form-item" label="打款方式" placeholder="请选择打款方式" v-model="transferWay" :readonly="true"
-                      :disableClear="true" @click.native="sheetVisible =true"></mt-field>
+                      :disableClear="true" @click.native="sheetVisible =true">
+                <img src="/static/images/arrow_down.png" style="width: 16px;height: 14px;" alt="">
+            </mt-field>
             <template v-if="formData.paytype == 1">
                 <mt-field class="form-item" label="支付宝" v-model.trim="formData.alipaynum"
                           placeholder="请输入支付宝账号"></mt-field>

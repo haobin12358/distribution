@@ -78,20 +78,40 @@
                     }
                 }
 
-                .order-item-total {
-                    .fj(flex-end);
-                    align-items: flex-end;
+                .order-item-footer{
                     padding-top: 10px;
-                    font-size: 26px;
 
-                    .total-num {
-                        margin-right: 10px;
+                    .order-item-total {
+                        .fj(flex-end);
+                        font-size: 26px;
+                        margin-bottom: 10px;
+
+                        .total-num {
+                            margin-right: 10px;
+                        }
+                        .total-price {
+
+                        }
+
                     }
-                    .total-price {
 
+                    .order-item-action{
+                        .fj(flex-end);
+
+                        .btn-action{
+                            background: white;
+                            color: @mainColor;
+                            border: 2px solid @mainColor;
+                            padding: 4px 10px;
+                            margin-right: 20px;
+
+                            &:last-child{
+                                margin-right: 0;
+                            }
+                        }
                     }
-
                 }
+
             }
 
         }
@@ -147,9 +167,15 @@
                             </li>
                         </template>
                     </ul>
-                    <footer class="order-item-total">
-                        <span class="total-num">共{{countOrderNum(item.product_list)}}件商品</span>
-                        <span class="total-price">合计:￥{{item.OImount}}</span>
+                    <footer class="order-item-footer">
+                        <p class="order-item-total">
+                            <span class="total-num">共{{countOrderNum(item.product_list)}}件商品</span>
+                            <span class="total-price">合计:￥{{item.OImount}}</span>
+                        </p>
+                        <section class="order-item-action">
+                            <button class="btn-action" v-if="item.OIstatus == 3">查看物流</button>
+                            <button class="btn-action" v-if="item.OIstatus == 1" @click.stop="handleCancelOrder(item)">取消订单</button>
+                        </section>
                     </footer>
                 </li>
             </ul>
@@ -161,7 +187,7 @@
 </template>
 
 <script>
-    import {getOrderList} from "src/api/api"
+    import {getOrderList,cancelOrder} from "src/api/api"
     import LoadMore from "src/components/common/loadMore"
     import common from "src/common/js/common"
     import PlaceHolder from "src/components/common/placeHolder"
@@ -182,7 +208,6 @@
                         label: '待发货',
                         value: 1,
                         num: 0
-
                     }, {
                         label: '已发货',
                         value: 2,
@@ -192,8 +217,6 @@
                         label: '已完成',
                         value: 3,
                         num: 0
-
-
                     },
                 ],
 
@@ -229,12 +252,27 @@
             },
             //  订单状态翻译
             statusZh(status) {
-                return this.orderType.find(item => {
-                    if (status == 4){
-                        status = 1;
-                    }
-                    return item.value == status
-                }).label;
+                let res= '';
+
+                switch (status) {
+                    case 1:
+                        res = '待发货';
+                        break;
+                    case 2:
+                        res = '已发货'
+                        break
+                    case 3:
+                        res = '已完成'
+                        break;
+                    case 4:
+                        res = '分拣中'
+                        break
+                    case 5:
+                        res = '已取消'
+                        break
+                }
+
+                return res;
             },
             countOrderNum(productList) {
                 let count = 0;
@@ -299,6 +337,24 @@
                     }
                 )
             },
+
+
+            handleCancelOrder(order){
+                this.$messagebox.confirm('确认取消该订单?').then(
+                    ()=>{
+                        cancelOrder(order.OIsn).then(
+                            resData => {
+                                if(resData){
+                                    let data = resData.data;
+
+                                    this.setOrderList(true);
+                                    this.$toast('订单已取消');
+                                }
+                            }
+                        )
+                    }
+                )
+            }
         },
 
         destroyed() {

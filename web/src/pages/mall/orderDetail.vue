@@ -126,16 +126,19 @@
             </li>
 
             <ul class="product-list">
-                <li class="product-item" v-for="product in details.product_list">
+                <template v-for="product in details.product_list">
+
+                <li class="product-item" v-for="cartItem in product.skulist">
                     <img :src="product.PRimage" alt="" class="product-img">
 
                     <span class="name">{{product.PRname}}</span>
 
                     <p class="num">
                         <span class="price">￥{{product.PRprice}}</span>
-                        <span class="shop-num">x{{product.PRnum}}</span>
+                        <span class="shop-num">x{{cartItem.number}}</span>
                     </p>
                 </li>
+                </template>
             </ul>
 
             <template v-if="details.expressnum">
@@ -199,7 +202,27 @@
         methods: {
             //  订单状态翻译
             statusZh(status) {
-                return orderType.find(item => item.value == status).label;
+                let res= '';
+
+                switch (status) {
+                    case 1:
+                        res = '待发货';
+                        break;
+                    case 2:
+                        res = '已发货'
+                        break
+                    case 3:
+                        res = '已完成'
+                        break;
+                    case 4:
+                        res = '分拣中'
+                        break
+                    case 5:
+                        res = '已取消'
+                        break
+                }
+
+                return res;
             },
 
             setDetail(OIsn) {
