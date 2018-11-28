@@ -147,7 +147,7 @@
 
                             <li class="goods-item" v-for="cartItem in product.skulist">
                                 <section class="goods-img">
-                                    <img :src="product.PRimage" alt="">
+                                    <img v-lazy="product.PRimage" alt="">
                                 </section>
                                 <section class="goods-description">
                                     <p class="row-one">

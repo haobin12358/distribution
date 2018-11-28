@@ -129,7 +129,7 @@
                 <template v-for="product in details.product_list">
 
                 <li class="product-item" v-for="cartItem in product.skulist">
-                    <img :src="product.PRimage" alt="" class="product-img">
+                    <img v-lazy="product.PRimage" alt="" class="product-img">
 
                     <span class="name">{{product.PRname}}</span>
 
