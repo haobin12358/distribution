@@ -61,7 +61,7 @@ class SAccount(SBase):
     @close_session
     def get_drawmoney_list(self, id, status):
         return self.session.query(DrawMoney.DMstatus, DrawMoney.DMcreatetime, DrawMoney.DMreason
-            ,DrawMoney.DMamount, DrawMoney.DMtradenum)\
+            , DrawMoney.DMamount, DrawMoney.DMtradenum)\
             .filter(DrawMoney.USid == id).filter(DrawMoney.DMstatus == status).order_by(DrawMoney.DMcreatetime.desc()).all()
 
     @close_session
@@ -74,7 +74,7 @@ class SAccount(SBase):
     def get_alluser_drawmoney_list(self, status):
         result = self.session.query(DrawMoney.DMstatus, DrawMoney.DMcreatetime, DrawMoney.DMamount, DrawMoney.DMtradenum
                                   , DrawMoney.DMbankname, DrawMoney.DMbranchname, DrawMoney.DMaccountname, DrawMoney.DMid
-                                  , DrawMoney.DMcardnum).order_by(DrawMoney.DMcreatetime.desc())
+                                  , DrawMoney.DMcardnum, DrawMoney.DMreason).order_by(DrawMoney.DMcreatetime.desc())
         if status > 0:
             result = result.filter(DrawMoney.DMstatus == status)
         result = result.all()
@@ -87,7 +87,8 @@ class SAccount(SBase):
 
     @close_session
     def get_drawmoney_info(self, id):
-        return self.session.query(DrawMoney.USid, DrawMoney.DMstatus, DrawMoney.DMamount, DrawMoney.DMtradenum).filter(DrawMoney.DMid == id).first()
+        return self.session.query(DrawMoney.USid, DrawMoney.DMstatus, DrawMoney.DMamount
+                                  , DrawMoney.DMtradenum, DrawMoney.DMreason).filter(DrawMoney.DMid == id).first()
 
     @close_session
     def get_alluser_chargemoney(self, status):
@@ -116,7 +117,8 @@ class SAccount(SBase):
 
     @close_session
     def get_chargemoney_info(self, cmid):
-        return self.session.query(ChargeMoney.USid, ChargeMoney.CMamount, ChargeMoney.CMtradenum).filter(ChargeMoney.CMid == cmid).first()
+        return self.session.query(ChargeMoney.USid, ChargeMoney.CMamount, ChargeMoney.CMtradenum)\
+            .filter(ChargeMoney.CMid == cmid).first()
 
     @close_session
     def update_by_cmid(self, id, update2):
@@ -125,13 +127,15 @@ class SAccount(SBase):
 
     @close_session
     def get_all_chargemoney_list(self, id):
-        return self.session.query(ChargeMoney.CMstatus, ChargeMoney.CMcreatetime, ChargeMoney.CMtradenum,
-                                  ChargeMoney.CMamount, ChargeMoney.CMpaytime).filter(ChargeMoney.USid == id).all()
+        return self.session.query(ChargeMoney.CMstatus, ChargeMoney.CMcreatetime, ChargeMoney.CMtradenum
+                                  , ChargeMoney.CMreason, ChargeMoney.CMamount, ChargeMoney.CMpaytime)\
+                                  .filter(ChargeMoney.USid == id).all()
 
     @close_session
     def get_chargemoney_list(self, id, status):
-        return self.session.query(ChargeMoney.CMstatus, ChargeMoney.CMcreatetime, ChargeMoney.CMtradenum,
-            ChargeMoney.CMamount, ChargeMoney.CMpaytime).filter(ChargeMoney.USid == id).filter(ChargeMoney.CMstatus == status).all()
+        return self.session.query(ChargeMoney.CMstatus, ChargeMoney.CMcreatetime, ChargeMoney.CMtradenum
+                                  , ChargeMoney.CMreason, ChargeMoney.CMamount, ChargeMoney.CMpaytime)\
+                                  .filter(ChargeMoney.USid == id).filter(ChargeMoney.CMstatus == status).all()
 
     @close_session
     def charge_money(self, cmid, usid, paytype, alipaynum, bankname, accountname, cardnum, amount, remark, tradenum,\

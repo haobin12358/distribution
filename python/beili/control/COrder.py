@@ -100,7 +100,7 @@ class COrder():
                     all_psid.append(sku['psid'])
                 product['PRprice'] = check_product['PRprice']
                 new_list.append(product)
-            if totalprice != mount + real_PRlogisticsfee or real_PRlogisticsfee != PRlogisticsfee:
+            if totalprice != round(mount + real_PRlogisticsfee, 2) or real_PRlogisticsfee != PRlogisticsfee:
                 response = {}
                 response['status'] = 200
                 response['success'] = False
@@ -535,7 +535,7 @@ class COrder():
     def get_product_name(self, list):
         name = ''
         for product in list:
-            name = name + '' + product['PRname']
+            name = name + product['PRname'] + ' '
         return name
 
     @verify_token_decorator

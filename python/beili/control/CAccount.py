@@ -758,8 +758,8 @@ class CAccount():
             record['CMcreatetime'] = get_web_time_str(record['CMcreatetime'])
             record['CMpaytime'] = get_web_time_str(record['CMpaytime'], format_forweb_no_HMS)
             user = get_model_return_dict(self.smycenter.get_user_basicinfo(record['USid']))
-            record['username'] = user['USname ']
-            record['userphonenum'] = user['USphonenum  ']
+            record['username'] = user['USname']
+            record['userphonenum'] = user['USphonenum']
 
         mount = len(result)
         page = mount / page_size
@@ -877,6 +877,7 @@ class CAccount():
             data = request.json
             willstatus = int(data.get("willstatus"))
             brid = data.get("brid")
+            reason = data.get("reason")
         except:
             return PARAMS_ERROR
         result = get_model_return_dict(self.saccount.get_bailrecord_info(brid)) if self.saccount.get_bailrecord_info(
@@ -905,7 +906,7 @@ class CAccount():
                 self.smycenter.update_user_by_uid(session, result['USid'], update)
             if willstatus == 4:
                 # 写入代理消息
-                content = u'您的保证金退还失败，请联系微信客服处理'
+                content = u'您的保证金退还失败，原因:' + reason + u',请联系客服处理'
                 time_now = datetime.strftime(datetime.now(), format_for_db)
                 agent_result = self.smessage.create_agentmessage(session, result['USid'], time_now, content, 1)
 
