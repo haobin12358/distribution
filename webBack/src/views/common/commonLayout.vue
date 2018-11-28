@@ -72,10 +72,11 @@
         <section class="right-content">
             <header class="right-content-hd">
                 <span class="version">
-                    开发版本:2018.11.27
+                    <!--开发版本:2018.11.27-->
                 </span>
                 <!--<el-input class="search-input" size="mini" v-model="searchTxt" placeholder="请输入内容"></el-input>-->
-                <el-autocomplete placeholder="请输入菜单名" v-model="searchTxt"  :fetch-suggestions="querySearch">
+                <el-autocomplete prefix-icon="el-icon-menu" placeholder="请输入菜单名" v-model="searchTxt"
+                                 value-key="title"  :fetch-suggestions="querySearch" @select="selectMenu">
                 </el-autocomplete>
                 <el-dropdown class="admin-name" trigger="click" @command="handleCommand">
                     <span class="el-dropdown-link">
@@ -119,6 +120,28 @@
 
         computed: {
             ...mapState(['menu']),
+
+            menuList(){
+                let menuList = [];
+
+                for (let i = 0; i < this.menu.length; i++) {
+                    let currentMenu = this.menu[i];
+
+                    if(currentMenu.children){
+                        for (let j = 0; j < currentMenu.children.length; j++) {
+                            menuList.push({
+                                title: currentMenu.children[j].title,
+                                path:currentMenu.path + '/'+currentMenu.children[j].path
+                            });
+
+                        }
+                    }else{
+                        menuList.push(currentMenu);
+                    }
+                }
+
+                return menuList;
+            },
 
             defaultIndex() {
                 let firstLevelPath = '/' + this.$route.path.split('/')[1]
@@ -165,9 +188,14 @@
             },
 
             querySearch(queryString, cb) {
-                console.log(queryString);
+                // console.log(queryString);
+                let searchRes =  this.menuList.filter(item => item.title .toLowerCase().indexOf(queryString.toLowerCase()) !== -1)
 
-                cb([]);
+                cb(searchRes);
+            },
+            selectMenu(menu){
+                console.log(menu);
+                this.$router.push(menu.path)
             },
 
         },
