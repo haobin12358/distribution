@@ -134,13 +134,13 @@
     <div class="container">
         <header-top :showBack="true">
             <section slot="right">
-                <router-link  tag="button" to="/shopCart" class="header-btn">购物车</router-link>
+                <router-link tag="button" to="/shopCart" class="header-btn">购物车</router-link>
             </section>
         </header-top>
 
         <mt-swipe class="banner" :stopPropagation="true">
             <mt-swipe-item v-for="item in product.sowingmap" :key="item">
-                <img class="banner-img" :src="item" alt="">
+                <img class="banner-img" v-lazy="item" alt="">
             </mt-swipe-item>
         </mt-swipe>
 
@@ -201,7 +201,8 @@
 
             <section class="num-block">
                 <span class="stock">库存:{{allStock || (choosedSku? choosedSku.PSstock: 0)}}件</span>
-                <count :count="count" @add="count ++" @minus="count --" @input="count = $event"></count>
+                <count :count="count" @add="changeCount( count + 1)" @minus="changeCount( count -1)"
+                       @input="changeCount"></count>
             </section>
 
             <section class="my-confirm-btn-wrap" style="margin-top: 50px;margin-bottom: 40px;">
@@ -312,6 +313,10 @@
                 } else {
                     this.choosedSize = size.id;
                 }
+            },
+
+            changeCount(newCount) {
+                this.count = Number( newCount);
             },
 
             addToCart() {

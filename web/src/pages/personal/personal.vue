@@ -108,7 +108,7 @@
 
         <section class="user-info">
             <section class="user-img">
-                <img :src="userInfo.USheadimg" alt="">
+                <img v-lazy="userInfo.USheadimg" alt="">
             </section>
 
             <section class="user-info-detail">

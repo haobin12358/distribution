@@ -67,6 +67,10 @@
                 .bs(10px, 3px, 6px);
                 padding: 0 20px;
 
+                &:last-of-type {
+                    margin-bottom: 44px;
+                }
+
                 .record-hd {
                     padding: 22px 6px 16px;
                     border-bottom: 2px solid @grayBorderColor;
@@ -93,13 +97,11 @@
 
                 }
 
-                &:last-of-type {
-                    margin-bottom: 144px;
-                }
+
             }
         }
 
-        .record-list-none{
+        .record-list-none {
             text-align: center;
             .sc(26px, #cccccc);
         }
@@ -138,31 +140,32 @@
             </footer>
         </section>
 
-<template v-if="moneyRecord.length">
-    <ul class="balance-record-list">
-        <li class="balance-record-item" v-for="item in moneyRecord">
-            <header class="record-hd">
+        <template v-if="moneyRecord.length">
+            <ul class="balance-record-list">
+                <li class="balance-record-item" v-for="item in moneyRecord">
+                    <header class="record-hd">
                     <span class="type">
                         类型：{{statusToTxt(item.MRtype)}}
                     </span>
-                <span class="date">
+                        <span class="date">
                         {{item.MRcreatetime}}
                     </span>
-            </header>
+                    </header>
 
-            <section class="record-bd">
-                <p class="price">金额：{{item.MRamount}}</p>
-                <p v-if="item.MRtype == 1 || item.MRtype == 8">订单号：{{item.OIid}}</p>
-                <p v-else>流水号：{{item.MRtradenum}}</p>
-            </section>
-        </li>
-    </ul>
-
-</template>
+                    <section class="record-bd">
+                        <p class="price">金额：{{item.MRamount}}</p>
+                        <p v-if="item.MRtype == 1 || item.MRtype == 8">订单号：{{item.OIid}}</p>
+                        <p v-else>流水号：{{item.MRtradenum}}</p>
+                    </section>
+                </li>
+            </ul>
             <load-more></load-more>
-        <!--<p v-else class="record-list-none">-->
-            <!--有余额变动的收支记录会显示在这-->
-        <!--</p>-->
+
+        </template>
+
+        <p v-else class="record-list-none">
+            有余额变动的收支记录会显示在这
+        </p>
     </div>
 </template>
 
@@ -198,7 +201,7 @@
                     }, {
                         value: 7,
                         label: '提现失败'
-                    },{
+                    }, {
                         value: 8,
                         label: '订单退还'
                     }
@@ -227,7 +230,7 @@
                 )
             },
 
-            statusToTxt(status){
+            statusToTxt(status) {
                 return this.recordType.find(item => item.value == status).label;
             }
         },

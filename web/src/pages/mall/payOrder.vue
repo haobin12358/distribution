@@ -178,7 +178,7 @@
                 <template v-for="product in cartList">
                     <li class="goods-item" v-for="cartItem in product.skulist">
                         <section class="goods-img-wrap">
-                            <img :src="product.PRpic" alt="">
+                            <img v-lazy="product.PRpic" alt="">
                         </section>
 
                         <section class="goods-item-description">

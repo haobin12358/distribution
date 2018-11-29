@@ -2,7 +2,7 @@
     @import "../../common/css/index";
 
     .container {
-        padding-bottom: 220px;
+        padding-bottom: 120px;
         .least-full-screen();
 
         #go-order-img {
@@ -149,7 +149,7 @@
                             }
                         }
 
-                        .addToCartBtn{
+                        .addToCartBtn {
                             padding: 10px 20px;
                             background: @mainColor;
                             .sc(24px, white);
@@ -267,7 +267,7 @@
                         <header class="goods-description-header">
                             <span class="name">{{item.PRname}}</span>
                             <!--<span v-if="item.PRstock < 1000000" class="stock">-->
-                                <!--库存: {{item.PRstock}} 件-->
+                            <!--库存: {{item.PRstock}} 件-->
                             <!--</span>-->
                         </header>
                         <section class="goods-description-content">
@@ -279,15 +279,13 @@
                             <button class="addToCartBtn">加入购物车</button>
 
                             <!--<buy-cart :shopItem="item" @add="addCart(item, 1)"-->
-                                      <!--@minus="reduceCart(item)" @input="inputHandler(item,$event)"></buy-cart>-->
+                            <!--@minus="reduceCart(item)" @input="inputHandler(item,$event)"></buy-cart>-->
                         </section>
                     </section>
                 </li>
             </ul>
 
-            <section class="load-more-wrap">
-                <load-more :type="loadingType"></load-more>
-            </section>
+            <load-more :type="loadingType"></load-more>
         </template>
         <place-holder v-else :title="placeHolderTitle"></place-holder>
 
@@ -369,7 +367,7 @@
         },
 
         methods: {
-            gotoShopCart(){
+            gotoShopCart() {
                 this.$router.push('/shopCart');
             },
 
@@ -394,7 +392,7 @@
                 });
             },
 
-            gotoGoodsDetail(goods){
+            gotoGoodsDetail(goods) {
                 this.$router.push({
                     path: '/goodsDetail',
                     query: {
