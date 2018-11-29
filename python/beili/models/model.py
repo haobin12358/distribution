@@ -23,11 +23,11 @@ class User(Base):
     普通用户
     """
     __tablename__ = 'user'
-    USid = Column(String(64))
+    USid = Column(String(64), primary_key=True,)
     USname = Column(String(64), nullable=False)  # 用户名
     USpassword = Column(String(255))             # 密码
     USphonenum = Column(String(16), nullable=False)  # 手机号
-    USagentid = Column(Integer, primary_key=True, autoincrement=True) # 代理编号
+    USagentid = Column(String(64))  # 代理编号
     USheadimg = Column(String(255))              # 头像
     USbail = Column(Float)                       # 保证金余额
     USmount = Column(Float)                      # 账户余额
