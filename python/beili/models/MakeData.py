@@ -108,7 +108,8 @@ class MakeData():
         user.USwechat = 'wechat'
         user.USpassword = generate_password_hash('123')
         user.USbail = 0
-        user.USmount = 10000
+        user.USmount = 0
+
         user.idcardnum = '12345678909876512'
         user.USheadimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
         self.session.add(user)

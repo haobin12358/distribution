@@ -597,6 +597,7 @@ class COrder():
                 if time_now > days_10:
                     self.sorder.update_order(order['OIsn'], {"OIstatus": 3})
         # 继续添加定时器，周期执行，否则只会执行一次
-        TIMER = threading.Timer(3600 * 24, self.timer_fun)
+        TIMER = threading.Timer(5, self.timer_fun)
+        TIMER.setDaemon(True)
         TIMER.start()
 
