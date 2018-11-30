@@ -13,6 +13,7 @@ from common.import_status import import_status
 from common.get_model_return_list import get_model_return_list, get_model_return_dict
 from common.timeformat import get_db_time_str
 from service.SAdmin import SAdmin
+from werkzeug.security import generate_password_hash, check_password_hash
 import platform
 
 sys.path.append(os.path.dirname(os.getcwd()))
@@ -33,7 +34,7 @@ class CAdmin():
         if not adnum or not adpassword:
             return NO_PHONENUM_OR_PASSWORD
         admin = get_model_return_dict(self.sadmin.getadmin_by_adnum(adnum))
-        if not admin or adpassword != int(admin['ADpassword']):
+        if not admin or check_password_hash(admin['ADpassword'], adpassword):
             if admin['ADisfreeze'] == True:
                 return PHONE_OR_PASSWORD_WRONG
         token = usid_to_token(admin['ADid'], type='SuperUser')
@@ -57,7 +58,7 @@ class CAdmin():
         if not user or user['ADpassword'] != oldpassword:
             return PASSWORD_WRONG
         admin_update = {}
-        admin_update["ADpassword"] = newpassword
+        admin_update["ADpassword"] = generate_password_hash(newpassword)
         result = self.sadmin.update_amdin_by_adminid(user['ADid'], admin_update)
         if not result:
             return SYSTEM_ERROR
