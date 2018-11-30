@@ -198,9 +198,9 @@
 
         data() {
             return {
-                transferWay: '微信',
+                transferWay: '支付宝',
                 actions: [
-                    {name: '微信', value: 3, method: this.selectTransferWay},
+                    // {name: '微信', value: 3, method: this.selectTransferWay},
                     {name: '支付宝', value: 1, method: this.selectTransferWay},
                     {name: '银行卡', value: 2, method: this.selectTransferWay},
                 ],
@@ -209,7 +209,7 @@
                 date: '',
 
                 formData: {
-                    "paytype": 3,
+                    "paytype": 1,
                     "alipaynum": "",
                     "bankname": "",
                     "accountname": "",

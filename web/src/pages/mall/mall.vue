@@ -234,7 +234,7 @@
         </header-top>
 
         <section class="banner">
-            <img v-if="banner.mallUrls && banner.mallUrls.length" v-lazy="banner.mallUrls[0].SMurl" alt="">
+            <img v-if="banner.mallUrls && banner.mallUrls.length" :src="banner.mallUrls[0].SMurl" alt="">
         </section>
 
         <!--<div style="width: 100px;height: 60px;border: 1px solid black;"  @dblclick.stop="$toast('双击测试')">双击测试</div>-->

@@ -108,7 +108,9 @@
 
         filters: {
             fixed2: function (value) {
-                return value.toFixed(2);
+                if(value){
+                    return value.toFixed(2);
+                }
             }
         },
 
@@ -283,7 +285,7 @@
                                 ]
                             });
 
-                            if(this.agentNum.length > 15){
+                            if (this.agentNum.length > 15) {
                                 this.agentNumArr.shift();
                             }
 
@@ -298,8 +300,8 @@
             }
         },
 
-        destroyed(){
-            if(this.interval){
+        destroyed() {
+            if (this.interval) {
                 clearInterval(this.interval)
             }
         },
@@ -308,31 +310,12 @@
 
             this.getThisYearDate();
 
-            function randomData() {
-                now = new Date(+now + oneDay);
-                value = value + Math.random() * 21 - 10;
-                return {
-                    name: now.toString(),
-                    value: [
-                        [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'),
-                        Math.round(value)
-                    ]
-                }
-            }
-
-            var now = +new Date(1997, 9, 3);
-            var oneDay = 24 * 3600 * 1000;
-            var value = Math.random() * 1000;
-            for (var i = 0; i < 1000; i++) {
-                // this.agentNumArr.push(randomData());
-            }
-
             this.drawAgentLine();
-
-            this.interval = setInterval(() => {
+            this.interval = setInterval(
+                () => {
                     this.getThisMonthAgentnum();
-                },
-                5000)
+                }, 5000
+            )
 
         },
     }
