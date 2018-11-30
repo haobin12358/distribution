@@ -7,10 +7,9 @@ from config.setting import QRCODEHOSTNAME
 from common.timeformat import format_for_db, get_random_str, format_for_db_no_HMS, get_random_int\
     , format_forweb_no_HMS, format_for_dbmonth, get_random_str
 
-def make_pic(name, wechat, idcardnum):
+def make_pic(name, wechat, id, idcardnum):
     starttime = datetime.strftime(datetime.now(), format_forweb_no_HMS)
     endtime = str(int(starttime[0:4]) + 2) + starttime[4:]
-    id = get_random_str(12)
     idcardnum = idcardnum[:8] + '******' + idcardnum[14:]
     im = Image.open("/opt/beili/file/shouquan.png")  # 打开文件
     # im = Image.open("/Users/fx/Desktop/shouquan.png")  # 打开文件

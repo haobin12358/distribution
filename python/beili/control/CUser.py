@@ -638,6 +638,7 @@ class CUser():
                 new_user.USid = new_userid
                 new_user.USname = info['IRIname']
                 new_user.USpre = user['USid']
+                new_user.USagentid = get_random_str(12)
                 new_user.USheadimg = info['IRIpic'] if info['IRIpic'] else 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_100' \
                                                              '00&sec=1540919391&di=91c' \
                                                              '1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommun' \
@@ -776,7 +777,7 @@ class CUser():
             user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
             if not user:
                 return SYSTEM_ERROR
-            url = make_pic(user['USname'], user['USwechat'], user['idcardnum'])
+            url = make_pic(user['USname'], user['USwechat'], user['USagentid'], user['idcardnum'])
             update = {'authorization': url}
             self.suser.update_user_by_uid(request.user.id, update)
             response = import_status("get_authorization_success", "OK")
