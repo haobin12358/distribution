@@ -27,16 +27,15 @@ class CAdmin():
     def login(self):
         try:
             json_data = request.json
-            adnum = int(json_data.get('adnum'))
-            adpassword = int(json_data.get('adpassword'))
+            adnum = json_data.get('adnum')
+            adpassword = json_data.get('adpassword')
         except:
             return PARAMS_MISS
         if not adnum or not adpassword:
             return NO_PHONENUM_OR_PASSWORD
         admin = get_model_return_dict(self.sadmin.getadmin_by_adnum(adnum))
-        if not admin or check_password_hash(admin['ADpassword'], adpassword):
-            if admin['ADisfreeze'] == True:
-                return PHONE_OR_PASSWORD_WRONG
+        if not admin or not check_password_hash(admin['ADpassword'], adpassword):
+            return PHONE_OR_PASSWORD_WRONG
         token = usid_to_token(admin['ADid'], type='SuperUser')
         data = import_status('generic_token_success', "OK")
         data['data'] = {
