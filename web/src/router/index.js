@@ -41,6 +41,7 @@ const sale = r => require.ensure([], () => r(require('../pages/sale/sale')), 'sa
 
 
 const channel = r => require.ensure([], () => r(require('../pages/channel/channel')), 'channel')
+const channel2 = r => require.ensure([], () => r(require('../pages/channel/channel2')), 'channel2')
 
 const purchase = r => require.ensure([], () => r(require('../pages/purchase/purchase')), 'purchase')
 
@@ -279,7 +280,6 @@ export const constantRouterMap = [
         path: '/sale',
         component: sale,
         meta: {
-            transitionName: 'router-slid',
             title: '我的销售',
             requiresAuth: true
 
@@ -288,9 +288,8 @@ export const constantRouterMap = [
 
     {
         path: '/channel',
-        component: channel,
+        component: channel2,
         meta: {
-            transitionName: 'router-slid',
             title: '我的渠道',
             requiresAuth: true
 

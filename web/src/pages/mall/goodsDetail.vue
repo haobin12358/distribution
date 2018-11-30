@@ -4,6 +4,7 @@
     .container {
         .least-full-screen();
         padding-bottom: 150px;
+        .bgw();
 
         .banner {
             height: 750px;
@@ -19,7 +20,6 @@
         .goods-detail {
             padding: 30px;
             .bs(10px, 3px, 6px);
-            .bgw();
 
             .detail-row-one {
                 .fj();
@@ -64,9 +64,8 @@
 
         .choose-goods-spec {
             width: 100%;
-            min-height: 500px;
-            border-top-left-radius: 30px;
-            border-top-right-radius: 30px;
+            padding: 30px;
+            box-sizing: border-box;
 
             .close-row {
                 .fj(flex-end);
@@ -80,8 +79,6 @@
             }
 
             .goods-spec-list {
-                padding-left: 65px;
-
                 .goods-spec-item {
                     margin-bottom: 22px;
 
@@ -120,8 +117,6 @@
             .fj();
             align-items: center;
             margin-top: 30px;
-            padding-left: 65px;
-            padding-right: 30px;
 
             .stock {
                 .sc(28px, @666);
@@ -140,7 +135,7 @@
 
         <mt-swipe class="banner" :stopPropagation="true">
             <mt-swipe-item v-for="item in product.sowingmap" :key="item">
-                <img class="banner-img" v-lazy="item" alt="">
+                <img class="banner-img" :src="item" alt="">
             </mt-swipe-item>
         </mt-swipe>
 
@@ -155,22 +150,18 @@
             </p>
         </section>
 
-        <section class="choose-sku" @click="showChooseSpec">
-            <span class="choose-sku-hd">
-              <span class="label">选择</span>
-              <span class="type">类型 尺寸</span>
-            </span>
-            <img src="/static/images/arrow.png" alt="" class="choose-sku-ft">
-        </section>
+        <!--<section class="choose-sku" @click="showChooseSpec">-->
+            <!--<span class="choose-sku-hd">-->
+              <!--<span class="label">选择</span>-->
+              <!--<span class="type">类型 尺寸</span>-->
+            <!--</span>-->
+            <!--<img src="/static/images/arrow.png" alt="" class="choose-sku-ft">-->
+        <!--</section>-->
 
-        <mt-popup
-            class="choose-goods-spec"
-            v-model="chooseSpecVisible"
-            position="bottom"
-        >
-            <section class="close-row">
-                <img src="/static/images/close.png" alt="" @click="chooseSpecVisible=false">
-            </section>
+        <section class="choose-goods-spec">
+            <!--<section class="close-row">-->
+                <!--<img src="/static/images/close.png" alt="" @click="chooseSpecVisible=false">-->
+            <!--</section>-->
 
             <section class="goods-spec-list">
                 <section class="goods-spec-item">
@@ -210,7 +201,7 @@
                 </button>
                 <button v-show="!addToCartEnable" class="my-confirm-btn disabled add-shop-cart ">加 入 购 物 车</button>
             </section>
-        </mt-popup>
+        </section>
     </div>
 </template>
 
@@ -275,23 +266,6 @@
         },
 
         methods: {
-            async gotoPayOrder() {
-                let checkBailData = await checkBail();
-
-                if (checkBailData.bailstatus == 1) {
-                    this.$router.push('/payOrder');
-                } else if (checkBailData.bailstatus == 2) {
-                    this.$messagebox.confirm(`还需交纳保证金(${checkBailData.data.shouldpay}元)后才可下单,是否前往钱包页交纳?`).then(
-                        () => {
-                            this.$router.push('/wallet')
-                        }
-                    )
-                } else if (checkBailData.bailstatus == 3) {
-                    this.$toast('保证金退还中,无法下单!');
-
-                }
-            },
-
             showChooseSpec() {
                 this.chooseSpecVisible = true;
 
@@ -321,19 +295,23 @@
 
             addToCart() {
                 if (this.choosedSku) {
-                    addShoppingCart(this.product.PRid, this.choosedSku, this.count).then(
-                        resData => {
-                            if (resData) {
-                                let data = resData.data;
+                    if(this.count){
+                        addShoppingCart(this.product.PRid, this.choosedSku, this.count).then(
+                            resData => {
+                                if (resData) {
+                                    let data = resData.data;
 
-                                this.count = 1;
-                                this.chooseSpecVisible = false;
-                                this.$toast('已添加到购物车')
+                                    this.count = 1;
+                                    // this.chooseSpecVisible = false;
+                                    this.$toast('已添加到购物车')
+                                }
                             }
-                        }
-                    )
+                        )
+                    }else{
+                        this.$toast('请确保数量大于1!');
+                    }
                 } else {
-                    this.$messagebox.alert('请选择颜色和尺码!');
+                    this.$toast('请选择颜色和尺码!');
                 }
             }
         },
@@ -360,6 +338,11 @@
                                     name: data.skulist[i].sizename,
                                 });
                             }
+                        }
+
+                        if (this.product.skulist.length == 1) {
+                            this.choosedColor = this.product.skulist[0].colorid;
+                            this.choosedSize = this.product.skulist[0].sizeid;
                         }
                     }
                 }
