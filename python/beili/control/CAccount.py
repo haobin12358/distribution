@@ -532,10 +532,10 @@ class CAccount():
 
     def deal_reward_discount(self):  # 发放奖金
         import datetime
-        time_now = datetime.datetime.now().strftime("%Y%m%d")
+        time_now = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         print time_now
         print 'check reward and discount'
-        if time_now[6:8] == '27':
+        if time_now[6:10] == '0101' or time_now[6:10] == '0102':
             print 'start deal reward and discount'
             last_month = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y%m")
             print last_month
@@ -547,7 +547,7 @@ class CAccount():
                 else:
                     print 'deal_profit_success'
             print 'end deal reward and discount'
-        TIMER = threading.Timer(10, self.deal_reward_discount)
+        TIMER = threading.Timer(3600, self.deal_reward_discount)
         TIMER.start()
 
     def deal_account_list(self, account_list, last_month):
