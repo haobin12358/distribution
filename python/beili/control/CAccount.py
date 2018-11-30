@@ -534,6 +534,7 @@ class CAccount():
         import datetime
         time_now = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         print time_now
+        global TIMER
         print 'check reward and discount'
         if time_now[6:10] == '0101' or time_now[6:10] == '0102':
             print 'start deal reward and discount'
