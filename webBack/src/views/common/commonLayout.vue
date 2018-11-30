@@ -6,11 +6,18 @@
         .wl(100vw, 100vh);
 
         .left-aside {
-            .wl(4rem, 100vh);
+            .wl(2.6rem, 100vh);
             overflow-y: scroll;
             background: #545c64;
 
             .tac {
+                .system-title{
+                    text-align: center;
+                    font-size: .26rem;
+                    color: #d1dbe5;
+                    padding: .12rem;
+                    border-bottom: 1px dotted #d1dbe5;
+                }
             }
 
 
@@ -58,8 +65,11 @@
         <aside class="left-aside">
             <el-row class="tac">
                 <el-col :span="24">
+                    <p class="system-title">
+                        蓓莉云仓后台管理系统
+                    </p>
                     <el-menu class="m-sidebar" :default-active="defaultPage.path" background-color="#545c64"
-                             text-color="#fff" popper-class="menu-title" active-text-color="#ffd04b" :router="true">
+                             text-color="#fff" active-text-color="#ffd04b" :router="true">
                         <el-menu-item v-for="item,index in menu" :index="item.path" :key="index">
                             <i class="el-icon-menu"></i>
                             <span slot="title">{{item.title}}</span>

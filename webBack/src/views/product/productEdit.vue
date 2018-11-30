@@ -424,6 +424,7 @@
             },
             handleCheckedSizesChange(value) {
                 let checkedCount = value.length;
+
                 this.checkAllSize = checkedCount === this.allSizes.length;
                 this.isSizeIndeterminate = checkedCount > 0 && checkedCount < this.allSizes.length;
             },
