@@ -548,6 +548,7 @@ class CAccount():
                 else:
                     print 'deal_profit_success'
             print 'end deal reward and discount'
+        print(u'当前线程数为{}'.format(threading.activeCount()))
         TIMER = threading.Timer(1, self.deal_reward_discount)
         TIMER.setDaemon(True)
         TIMER.start()
