@@ -592,7 +592,7 @@ class COrder():
             for order in order_list:
                 time = datetime.datetime.strptime(order['OIcreatetime'][0:8], '%Y%m%d')
                 print 'time', time
-                days_10 = (time + datetime.timedelta(days=10)).strftime("%Y%m%d")
+                days_10 = (time - datetime.timedelta(days=10)).strftime("%Y%m%d")
                 print 'days_10', days_10
                 if time_now > days_10:
                     self.sorder.update_order(order['OIsn'], {"OIstatus": 3})
