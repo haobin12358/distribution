@@ -329,7 +329,7 @@ class CAccount():
             return PARAMS_ERROR
 
         createtime = datetime.strftime(datetime.now(), format_for_db)
-        tradenum = datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
+        tradenum = 'cz' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
         result = self.saccount.charge_money(str(uuid.uuid4()), request.user.id, paytype, alipaynum, bankname, accountname, \
                                             cardnum, amount, remark, tradenum, createtime, proof, paytime)
         if not result:
