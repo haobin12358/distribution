@@ -54,7 +54,7 @@ class CAdmin():
         oldpassword = json_data.get('oldpassword')
         newpassword = json_data.get('newpassword')
         user = get_model_return_dict(self.sadmin.getadmin_by_adminid(request.user.id))
-        if not user or user['ADpassword'] != oldpassword:
+        if not user or not check_password_hash(user['ADpassword'], oldpassword):
             return PASSWORD_WRONG
         admin_update = {}
         admin_update["ADpassword"] = generate_password_hash(newpassword)
