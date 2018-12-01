@@ -560,7 +560,8 @@ class CAccount():
                 mydiscount = self.get_mydiscount(account['USid'], last_month)
                 # 写入代理消息
                 tradenum = datetime.strftime(datetime.now(), format_for_db_no_HMS) + get_random_str(8)
-                content = u'您' + last_month + u'月的销售折扣返点已发放，金额为' + str(mydiscount) + '流水号为' + ' ' + str(tradenum)
+                content = u'您' + last_month + u'月的销售折扣返点已发放，金额为' + str(round(mydiscount, 2)) \
+                          + '，流水号为' + ' ' + str(tradenum)
                 agent_result = self.smessage.create_agentmessage(session, account['USid'], time_now, content, 1)
                 if not agent_result:
                     raise dberror
