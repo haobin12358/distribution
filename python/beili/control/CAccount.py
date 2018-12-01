@@ -536,7 +536,7 @@ class CAccount():
         print time_now
         global TIMER
         print 'check reward and discount'
-        if time_now[6:10] == '1209' or time_now[6:10] == '1210':
+        if time_now[6:10] == '0109' or time_now[6:10] == '0110':
             print 'start deal reward and discount'
             last_month = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y%m")
             print last_month
