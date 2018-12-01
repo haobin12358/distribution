@@ -195,6 +195,11 @@ class SGoods(SBase):
         return True
 
     @close_session
+    def update_sowingmap_by_type(self, type):
+        self.session.query(SowingMap).filter(SowingMap.SMtype == type).update({'SMstatus': False})
+        return True
+
+    @close_session
     def add_color(self, colorname, time):
         color = Color()
         color.COid = str(uuid.uuid4())
