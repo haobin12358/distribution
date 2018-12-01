@@ -548,7 +548,7 @@ class CAccount():
                 else:
                     print 'deal_profit_success'
             print 'end deal reward and discount'
-        TIMER = threading.Timer(5, self.deal_reward_discount)
+        TIMER = threading.Timer(1, self.deal_reward_discount)
         TIMER.setDaemon(True)
         TIMER.start()
 
