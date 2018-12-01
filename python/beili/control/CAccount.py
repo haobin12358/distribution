@@ -536,9 +536,9 @@ class CAccount():
         print time_now
         global TIMER
         print 'check reward and discount'
-        if time_now[6:10] == '0109' or time_now[6:10] == '0110':
+        if time_now[6:10] == '0101' or time_now[6:10] == '0102' or time_now[6:10] == '0103':
             print 'start deal reward and discount'
-            last_month = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime("%Y%m")
+            last_month = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y%m")
             print last_month
             account_list = get_model_return_list(self.saccount.get_all_account_by_month(last_month))
             if account_list:
@@ -549,7 +549,7 @@ class CAccount():
                     print 'deal_profit_success'
             print 'end deal reward and discount'
         print(u'当前线程数为{}'.format(threading.activeCount()))
-        TIMER = threading.Timer(1, self.deal_reward_discount)
+        TIMER = threading.Timer(3600, self.deal_reward_discount)
         TIMER.setDaemon(True)
         TIMER.start()
 
