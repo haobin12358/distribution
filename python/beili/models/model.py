@@ -305,7 +305,7 @@ class Amount(Base):
     AMid = Column(String(64), primary_key=True)
     USid = Column(String(64), nullable=False)
     USname = Column(String(64))  # 用户名
-    USagentid = Column(Integer)
+    USagentid = Column(String(64))
     USheadimg = Column(String(255))  # 头像
     reward = Column(Float, default=0)  # 直推奖励金额
     performance = Column(Float, default=0)  # 业绩总额,就是总件数

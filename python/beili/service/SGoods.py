@@ -168,7 +168,7 @@ class SGoods(SBase):
 
     @close_session
     def get_product_by_paid(self, paid):
-        return self.session.query(Product.PRid).filter(Product.PAid == paid).all()
+        return self.session.query(Product.PRid).filter(Product.PAid == paid).filter(Product.PRstatus == 1).all()
 
     @close_session
     def add_sowingmap(self, type, list):
