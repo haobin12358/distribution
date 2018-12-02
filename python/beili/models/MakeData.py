@@ -102,7 +102,7 @@ class MakeData():
     def add_user(self):
         from model import User
         user = User()
-        user.USid = '1204cf38-c3cf-401f-8ba7-f8ce040f064f'
+        user.USid = '2224cf38-c3cf-h01f-8ba7-f8ce040f064f'
         user.USname = '123'
         user.USphonenum = '123'
         user.USwechat = 'wechat'
