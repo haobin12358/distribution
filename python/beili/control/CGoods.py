@@ -117,7 +117,7 @@ class CGoods():
         # 获取商品分类列表
         if is_tourist():
             return TOKEN_ERROR
-        first_level = get_model_return_list(self.sgoods.get_first_product_category_status(0))
+        first_level = get_model_return_list(self.sgoods.get_first_product_category_status(str(0)))
         options = []
         for parent_category in first_level:
             product_category_list = {}
@@ -144,7 +144,7 @@ class CGoods():
             PAid = data.get('PAid')
             PAname = data.get('PAname')
             PAtype = data.get('PAtype')
-            Parentid = data.get('Parentid')
+            Parentid = str(data.get('Parentid'))
         except Exception as e:
             print e.message
             return PARAMS_ERROR
