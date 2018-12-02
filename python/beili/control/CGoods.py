@@ -243,7 +243,7 @@ class CGoods():
         try:
             PAtype = int(args.get("PAtype"))
             if PAtype == 1:
-                product_category = (get_model_return_list(self.sgoods.get_first_product_category(0)))
+                product_category = (get_model_return_list(self.sgoods.get_first_product_category(str(0))))
             elif PAtype == 2:
                 PAid = args.get("PAid")
                 product_category = (get_model_return_list(self.sgoods.get_first_product_category(PAid)))
