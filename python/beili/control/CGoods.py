@@ -151,11 +151,8 @@ class CGoods():
         try:
             get_PAstatus = get_model_return_dict(self.sgoods.get_product_category(PAid))
             if get_PAstatus:
-                if PAtype != get_PAstatus['PAtype']:
-                    return CAN_NOT_CHANGE_LEVEL
                 update_category = {}
                 update_category['PAname'] = PAname
-                update_category['PAtype'] = PAtype
                 update_category['Parentid'] = Parentid if Parentid else '0'
                 print Parentid
                 self.sgoods.update_product_category(PAid, update_category)
