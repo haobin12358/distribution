@@ -19,7 +19,8 @@
         <section class="form-wrap">
             <mt-field label="原密码" type="password" v-model="oldPassword" placeholder="请输入原密码"></mt-field>
             <mt-field label="新密码" type="password" v-model="newPassword" placeholder="请输入新密码"></mt-field>
-            <mt-field label="新密码确认" type="password" v-model="newPasswordConfirm" placeholder="请再次输入新密码"></mt-field>
+            <mt-field label="新密码确认" type="password" v-model="newPasswordConfirm" placeholder="请再次输入新密码"
+                      @blur.native.capture="handleLastInputBlur"></mt-field>
         </section>
 
         <section class="my-confirm-btn-wrap">
@@ -49,6 +50,10 @@
         computed: {},
 
         methods: {
+            handleLastInputBlur(){
+                window.scrollTo(0,0);
+            },
+
             formDataCheck(){
                 if(!this.oldPassword){
                     return '请输入原密码!'
@@ -66,6 +71,8 @@
             },
             doConfirmChange(){
                 let checkMsg = this.formDataCheck();
+
+                window.scrollTo(0, 0);
 
                 if(checkMsg){
                     this.$toast(checkMsg);

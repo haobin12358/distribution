@@ -218,6 +218,7 @@
         },
 
         methods: {
+
             ...mapActions(['getUserInfo']),
 
             setMoneyRecord() {

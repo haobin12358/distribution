@@ -52,14 +52,14 @@
         <ul class="nav-bar">
             <li v-for="item,index in channelType" :class="{'nav-bar-item': true, 'active': selectedChannelIndex == index}"
                 @click="selectedChannelIndex = index">
-                {{item.label}}({{item.num}})
+                {{item.label}}({{item.num || 0}})
             </li>
         </ul>
 
         <ul class="channel-list">
             <li v-for="item in showList" class="channel-item">
                 <section class="channel-item-bd">
-                    <img v-lazy="item.USheadimg" alt="" class="head-img"/>
+                    <img :src="item.USheadimg" alt="" class="head-img"/>
 
                     <section class="info-wrap">
                         <p>姓名:{{item.USname}}</p>

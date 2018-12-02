@@ -40,7 +40,8 @@
                       :disableClear="true" @click.native="showCityPopup">
                 <img src="/static/images/arrow_down.png" style="width: 16px;height: 14px;" alt="">
             </mt-field>
-            <mt-field label="详细地址" v-model.trim="formData.details" placeholder="请输入详细地址"></mt-field>
+            <mt-field label="详细地址" v-model.trim="formData.details" placeholder="请输入详细地址"
+                      @blur.native.capture="handleLastInputBlur"></mt-field>
         </section>
 
         <section class="my-confirm-btn-wrap">
@@ -134,6 +135,10 @@
         computed: {},
 
         methods: {
+            handleLastInputBlur(){
+                window.scrollTo(0,0);
+            },
+
             onValuesChange(picker, values) {
                 if (!values[0] || !this.allArea.length) {
                     return
@@ -228,6 +233,8 @@
             },
             saveAddress() {
                 let checkMsg = this.formDataCheck();
+
+                window.scrollTo(0, 0);
 
                 if (checkMsg) {
                     this.$toast(checkMsg);
