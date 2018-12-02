@@ -1,5 +1,5 @@
 const mock = false;
-const title = mock ? 'https://dsn.apizza.net/mock/d9069d5919d18f681c57c817227226df/' : 'https://beiliserver.daaiti.cn:443';
+const title = mock ? 'https://dsn.apizza.net/mock/d9069d5919d18f681c57c817227226df/' : 'https://www.beiliyuncang.com/apis';
 
 const api = {
     login: title + '/admin/login',                              //  登录
