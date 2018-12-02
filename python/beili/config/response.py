@@ -224,5 +224,15 @@ PRODUCE_CATEGORY_NOT_EXIST = {
 PRODUCE_CATEGORY_HAS_PRODUCT = {
     'status': 405,
     'status_code': 405104,
-    'message': '该商品分类下有商品'
+    'message': '该商品分类下有商品，请先下架商品'
+}
+HAS_SECOND_CATEGORY = {
+    'status': 405,
+    'status_code': 405104,
+    'message': '请先删除该分类下的二级分类'
+}
+CAN_NOT_CHANGE_LEVEL = {
+    'status': 405,
+    'status_code': 405104,
+    'message': '编辑分类时不能修改商品级别'
 }

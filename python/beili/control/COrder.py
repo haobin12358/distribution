@@ -585,18 +585,21 @@ class COrder():
         global TIMER
         print "start timer_fun !"
         import datetime
-        time_now = datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d')
+        time_now = datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d%H%M%S')
         print time_now
-        order_list = get_model_return_list(self.sorder.get_all_order(None, None, None, 2, None, None))
-        if order_list:
-            for order in order_list:
-                time = datetime.datetime.strptime(order['OIcreatetime'][0:8], '%Y%m%d')
-                print 'time', time
-                days_10 = (time + datetime.timedelta(days=10)).strftime("%Y%m%d")
-                print 'days_10', days_10
-                if time_now > days_10:
-                    self.sorder.update_order(order['OIsn'], {"OIstatus": 3})
+        if time_now[8:10] == '04' or time_now[8:10] == '05' or time_now[8:10] == '06':
+            order_list = get_model_return_list(self.sorder.get_all_order(None, None, None, 2, None, None))
+            if order_list:
+                for order in order_list:
+                    time = datetime.datetime.strptime(order['OIcreatetime'], '%Y%m%d%H%M%S')
+                    print 'time', time
+                    days_10 = (time + datetime.timedelta(days=10)).strftime("%Y%m%d%H%M%S")
+                    print 'days_10', days_10
+                    if time_now > days_10:
+                        self.sorder.update_order(order['OIsn'], {"OIstatus": 3})
         # 继续添加定时器，周期执行，否则只会执行一次
-        TIMER = threading.Timer(3600 * 24, self.timer_fun)
+        print(u'当前线程数为{}'.format(threading.activeCount()))
+        TIMER = threading.Timer(3600, self.timer_fun)
+        TIMER.setDaemon(True)
         TIMER.start()
 

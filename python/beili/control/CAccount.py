@@ -329,7 +329,7 @@ class CAccount():
             return PARAMS_ERROR
 
         createtime = datetime.strftime(datetime.now(), format_for_db)
-        tradenum = datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
+        tradenum = 'cz' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
         result = self.saccount.charge_money(str(uuid.uuid4()), request.user.id, paytype, alipaynum, bankname, accountname, \
                                             cardnum, amount, remark, tradenum, createtime, proof, paytime)
         if not result:
@@ -532,10 +532,11 @@ class CAccount():
 
     def deal_reward_discount(self):  # 发放奖金
         import datetime
-        time_now = datetime.datetime.now().strftime("%Y%m%d")
+        time_now = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         print time_now
+        global TIMER
         print 'check reward and discount'
-        if time_now[6:8] == '27':
+        if time_now[6:10] == '0101' or time_now[6:10] == '0102' or time_now[6:10] == '0103':
             print 'start deal reward and discount'
             last_month = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y%m")
             print last_month
@@ -547,7 +548,9 @@ class CAccount():
                 else:
                     print 'deal_profit_success'
             print 'end deal reward and discount'
-        TIMER = threading.Timer(10, self.deal_reward_discount)
+        print(u'当前线程数为{}'.format(threading.activeCount()))
+        TIMER = threading.Timer(3600, self.deal_reward_discount)
+        TIMER.setDaemon(True)
         TIMER.start()
 
     def deal_account_list(self, account_list, last_month):
@@ -558,7 +561,8 @@ class CAccount():
                 mydiscount = self.get_mydiscount(account['USid'], last_month)
                 # 写入代理消息
                 tradenum = datetime.strftime(datetime.now(), format_for_db_no_HMS) + get_random_str(8)
-                content = u'您' + last_month + u'月的销售折扣返点已发放，流水号为' + ' ' + str(tradenum)
+                content = u'您' + last_month + u'月的销售折扣返点已发放，金额为' + str(round(mydiscount, 2)) \
+                          + '，流水号为' + ' ' + str(tradenum)
                 agent_result = self.smessage.create_agentmessage(session, account['USid'], time_now, content, 1)
                 if not agent_result:
                     raise dberror

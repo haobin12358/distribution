@@ -67,7 +67,7 @@ class ProductCategory(Base):
     PAid = Column(String(64), primary_key=True)
     PAname = Column(String(16))  # 类别名
     PAtype = Column(Integer)  # 类目级别{1 一级分类, 2 二级分类, 3 三级分类}
-    Parentid = Column(String(64), default=0)  # 父类别id, 默认0
+    Parentid = Column(String(64), default='0')  # 父类别id, 默认0
     #PAstatus = Column(Boolean)  # True能用 False不可用
     PAstatus = Column(Boolean, default=True)  # True能用 False不可用
 
@@ -305,7 +305,7 @@ class Amount(Base):
     AMid = Column(String(64), primary_key=True)
     USid = Column(String(64), nullable=False)
     USname = Column(String(64))  # 用户名
-    USagentid = Column(Integer)
+    USagentid = Column(String(64))
     USheadimg = Column(String(255))  # 头像
     reward = Column(Float, default=0)  # 直推奖励金额
     performance = Column(Float, default=0)  # 业绩总额,就是总件数

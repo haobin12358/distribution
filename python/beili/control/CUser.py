@@ -57,26 +57,31 @@ class CUser():
         if not usphonenum or not uspassword:
             return PARAMS_MISS
         print type(usphonenum)
-        # 从注册申请表里查询信息
-        info = get_model_return_dict(self.suser.get_registerrecord_by_phonenum(usphonenum))
-        if info:
-            if int(info['IRIstatus']) == 1:
-                returnbody = {
-                    "status": 405,
-                    "status_code": 405006,
-                    "message": u"您的账户正在审核中，请稍后再试!"
-                }
-                return returnbody
-            if int(info['IRIstatus']) == 3:
-                returnbody = {
-                    "status": 405,
-                    "status_code": 405006,
-                    "message": u"您的账户未审核通过，请联系客服微信:" + self.conf.get('account', 'service')
-                }
-                return returnbody
+
         user = get_model_return_dict(self.suser.getuser_by_phonenum(usphonenum))
-        if not user or not check_password_hash(user['USpassword'], uspassword):
-            return PHONE_OR_PASSWORD_WRONG
+        if user:
+            if not check_password_hash(user['USpassword'], uspassword):
+                return PHONE_OR_PASSWORD_WRONG
+        # 从注册申请表里查询信息
+        else:
+            info = get_model_return_dict(self.suser.get_registerrecord_by_phonenum(usphonenum))
+            if info:
+                if int(info['IRIstatus']) == 1:
+                    returnbody = {
+                        "status": 405,
+                        "status_code": 405006,
+                        "message": u"您的账户正在审核中，请稍后再试!"
+                    }
+                    return returnbody
+                if int(info['IRIstatus']) == 3:
+                    returnbody = {
+                        "status": 405,
+                        "status_code": 405006,
+                        "message": u"您的账户未审核通过，请联系客服微信:" + self.conf.get('account', 'service')
+                    }
+                    return returnbody
+            else:
+                return PHONE_OR_PASSWORD_WRONG
         token = usid_to_token(user['USid'])
         data = import_status('generic_token_success', "OK")
         data['data'] = {
@@ -166,7 +171,7 @@ class CUser():
                 if filessuffix.lower() in ['png', 'jpg', 'jpeg', 'gif']:
                     image = Image.open(files)
                     w, h = image.size
-                    filename = request.user.id + get_db_time_str() + "." + filessuffix
+                    filename = request.user.id + get_db_time_str() + get_random_str(6) + "." + filessuffix
                     filepath = os.path.join(rootdir, filename)
                     image.save(filepath, 'png', quality=90)
                     response = import_status("upload_file_success", "OK")
@@ -177,14 +182,14 @@ class CUser():
                 if filessuffix.lower() in ['png', 'jpg', 'jpeg', 'gif']:
                     image = Image.open(files)
                     w, h = image.size
-                    filename = request.user.id + get_db_time_str() + "." + filessuffix
+                    filename = request.user.id + get_db_time_str() + get_random_str(6) + "." + filessuffix
                     filepath = os.path.join(rootdir, filename)
                     image.resize((w/2, h/2)).save(filepath, 'png', quality=90)
                     response = import_status("upload_file_success", "OK")
                     url = QRCODEHOSTNAME + "/file/" + filename
                     response["data"] = url
                     return response
-            filename = request.user.id + get_db_time_str() + "." + filessuffix
+            filename = request.user.id + get_db_time_str() + get_random_str(6) + "." + filessuffix
             filepath = os.path.join(rootdir, filename)
             print(filepath)
             files.save(filepath)

@@ -12,7 +12,7 @@ import copy
 from service.DBSession import db_session
 from config.response import PARAMS_MISS, NO_THIS_CATEGORY, PARAMS_ERROR, PRODUCE_CATEGORY_EXIST, PRODUCE_CATEGORY_NOT_EXIST\
     , AUTHORITY_ERROR, SYSTEM_ERROR, TOKEN_ERROR, PRODUCE_CATEGORY_HAS_PRODUCT, REPERT_COLOR, REPERT_SIZE, STOCK_NOT_ENOUGH\
-    , PRODUCT_STATUS_WRONG
+    , PRODUCT_STATUS_WRONG, HAS_SECOND_CATEGORY, CAN_NOT_CHANGE_LEVEL
 from config.setting import QRCODEHOSTNAME
 from common.token_required import verify_token_decorator, usid_to_token, is_tourist, is_admin, is_ordirnaryuser,is_superadmin
 from common.import_status import import_status
@@ -117,7 +117,7 @@ class CGoods():
         # 获取商品分类列表
         if is_tourist():
             return TOKEN_ERROR
-        first_level = get_model_return_list(self.sgoods.get_first_product_category_status(0))
+        first_level = get_model_return_list(self.sgoods.get_first_product_category_status(str(0)))
         options = []
         for parent_category in first_level:
             product_category_list = {}
@@ -149,16 +149,16 @@ class CGoods():
             print e.message
             return PARAMS_ERROR
         try:
-            get_PAstatus = get_model_return_list(self.sgoods.get_product_category(PAid))
+            get_PAstatus = get_model_return_dict(self.sgoods.get_product_category(PAid))
             if get_PAstatus:
-                update_category = {
-                    "PAname": PAname,
-                    "PAtype": PAtype,
-                    "Parentid": Parentid
-                }
+                update_category = {}
+                update_category['PAname'] = PAname
+                update_category['Parentid'] = Parentid if Parentid else '0'
+                print Parentid
                 self.sgoods.update_product_category(PAid, update_category)
             else:
                 PAid = str(uuid.uuid1())
+                Parentid = Parentid if Parentid else '0'
                 self.sgoods.add_product_category(PAid, PAname, PAtype, Parentid)
 
         except Exception as e:
@@ -183,24 +183,21 @@ class CGoods():
         except:
             return PARAMS_ERROR
         try:
-            get_PAstatus = get_model_return_list(self.sgoods.get_product_category(PAid))
+            get_PAstatus = get_model_return_dict(self.sgoods.get_product_category(PAid))
             if not get_PAstatus:
                 return PRODUCE_CATEGORY_NOT_EXIST
-            # elif get_Parentid == 0:
-            #     self.sgoods.add_product_category(PAid, PAname, PAtype)
-            else:
-                update_category = {}
-                update_category['PAname'] = PAname
-                update_category['PAtype'] = PAtype
-                update_category['Parentid'] = Parentid
-                print Parentid
-                self.sgoods.update_product_category(PAid, update_category)
-
+            if PAtype != get_PAstatus['PAtype']:
+                return CAN_NOT_CHANGE_LEVEL
+            update_category = {}
+            update_category['PAname'] = PAname
+            update_category['PAtype'] = PAtype
+            update_category['Parentid'] = Parentid
+            print Parentid
+            self.sgoods.update_product_category(PAid, update_category)
         except Exception as e :
             print Exception
             return PARAMS_MISS
         response = import_status("update_product_category_success", "OK")
-        #response["data"] = product_category
         return response
 
     @verify_token_decorator
@@ -216,24 +213,26 @@ class CGoods():
         except:
             return PARAMS_ERROR
         try:
-            get_PAstatus = get_model_return_list(self.sgoods.get_product_category(PAid))
-            product_list = get_model_return_list(self.sgoods.get_product_by_paid(paid=PAid))
-            if product_list:
-                return PRODUCE_CATEGORY_HAS_PRODUCT
+            get_PAstatus = get_model_return_dict(self.sgoods.get_product_category(PAid))
             if not get_PAstatus:
                 return PRODUCE_CATEGORY_NOT_EXIST
             # elif get_Parentid == 0:
             #     self.sgoods.add_product_category(PAid, PAname, PAtype)
-            else:
-                delete_category = {}
-                delete_category['PAstatus'] = False
-                self.sgoods.delete_category(PAid, delete_category)
-
+            if get_PAstatus['PAtype'] == 1:
+                categorylist = get_model_return_list(self.sgoods.get_first_product_category_status(PAid))
+                if categorylist:
+                    return HAS_SECOND_CATEGORY
+            if get_PAstatus['PAtype'] == 2:
+                product_list = get_model_return_list(self.sgoods.get_product_by_paid(paid=PAid))
+                if product_list:
+                    return PRODUCE_CATEGORY_HAS_PRODUCT
+            delete_category = {}
+            delete_category['PAstatus'] = False
+            self.sgoods.delete_category(PAid, delete_category)
         except Exception as e:
             print e.message
             return PARAMS_MISS
         response = import_status("delete_product_category_success", "OK")
-        #response["data"] = product_category
         return response
 
 
@@ -244,7 +243,7 @@ class CGoods():
         try:
             PAtype = int(args.get("PAtype"))
             if PAtype == 1:
-                product_category = (get_model_return_list(self.sgoods.get_first_product_category(0)))
+                product_category = (get_model_return_list(self.sgoods.get_first_product_category(str(0))))
             elif PAtype == 2:
                 PAid = args.get("PAid")
                 product_category = (get_model_return_list(self.sgoods.get_first_product_category(PAid)))
@@ -377,7 +376,7 @@ class CGoods():
             return PARAMS_ERROR 
         if int(type) < 0:
             return PARAMS_ERROR
-        result = self.sgoods.update_sowingmap()
+        result = self.sgoods.update_sowingmap_by_type(type)
         if not result:
             return SYSTEM_ERROR
         result = self.sgoods.add_sowingmap(type, urls)
