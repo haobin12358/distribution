@@ -144,7 +144,7 @@ class CGoods():
             PAid = data.get('PAid')
             PAname = data.get('PAname')
             PAtype = data.get('PAtype')
-            Parentid = str(data.get('Parentid'))
+            Parentid = data.get('Parentid')
         except Exception as e:
             print e.message
             return PARAMS_ERROR
@@ -156,11 +156,12 @@ class CGoods():
                 update_category = {}
                 update_category['PAname'] = PAname
                 update_category['PAtype'] = PAtype
-                update_category['Parentid'] = Parentid
+                update_category['Parentid'] = Parentid if Parentid else '0'
                 print Parentid
                 self.sgoods.update_product_category(PAid, update_category)
             else:
                 PAid = str(uuid.uuid1())
+                Parentid = Parentid if Parentid else '0'
                 self.sgoods.add_product_category(PAid, PAname, PAtype, Parentid)
 
         except Exception as e:

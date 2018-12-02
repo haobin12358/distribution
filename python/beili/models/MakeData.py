@@ -104,12 +104,12 @@ class MakeData():
         user = User()
         user.USid = '1204cf38-c3cf-401f-8ba7-f8ce040f064f'
         user.USname = '123'
-        user.USphonenum = '12345678901'
+        user.USphonenum = '123'
         user.USwechat = 'wechat'
-        user.USpassword = generate_password_hash('123')
+        user.USpassword = generate_password_hash('456')
         user.USbail = 0
         user.USmount = 0
-        user.USagentid = 'BUB89gvhGBNV'
+        user.USagentid = 'BUB12gvhGBNV'
         user.idcardnum = '12345678909876512'
         user.USheadimg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540919391&di=91c1ae656341d5814e63280616ad8ade&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F0169d55548dff50000019ae9973427.jpg%401280w_1l_2o_100sh.jpg'
         self.session.add(user)
@@ -475,13 +475,13 @@ if __name__ == "__main__":
 
 
     else:
-        databse_deal().create_database()
-        create()
+        # databse_deal().create_database()
+        # create()
         data = MakeData()
         # data.add_test()
         # print "OK!"
         # print('start add data')
-        data.add_superuser()
+        # data.add_superuser()
         data.add_user()
         # data.add_user2()
         # data.add_user3()
