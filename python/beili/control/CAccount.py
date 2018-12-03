@@ -154,12 +154,12 @@ class CAccount():
     def get_directagent(self):
         if is_tourist():
             return TOKEN_ERROR
-        try:
-            args = request.args.to_dict()
-            page_num = int(args.get("page_num"))
-            page_size = int(args.get("page_size"))
-        except:
-            return PARAMS_ERROR
+        # try:
+        #     args = request.args.to_dict()
+        #     page_num = int(args.get("page_num"))
+        #     page_size = int(args.get("page_size"))
+        # except:
+        #     return PARAMS_ERROR
         direct_list = self.suser.getuser_by_preid(request.user.id)
         if direct_list:
             direct_list = get_model_return_list(direct_list)
@@ -167,19 +167,25 @@ class CAccount():
             distribution_list = self.get_tatal_distribu(request.user.id)
             distribution_num = len(distribution_list)
 
-            mount = len(direct_list)
-            page = mount / page_size
-            if page == 0 or page == 1 and mount % page_size == 0:
-                return_list = direct_list[0:]
-            else:
-                if ((mount - (page_num - 1) * page_size) / page_size) >= 1 and \
-                        (mount - (page_num * page_size)) > 0:
-                    return_list = direct_list[((page_num - 1) * page_size):(page_num * page_size)]
-                else:
-                    return_list = direct_list[((page_num - 1) * page_size):]
-
+            # if page_num and page_size:
+            #     mount = len(direct_list)
+            #     page = mount / page_size
+            #     if page == 0 or page == 1 and mount % page_size == 0:
+            #         return_list = direct_list[0:]
+            #     else:
+            #         if ((mount - (page_num - 1) * page_size) / page_size) >= 1 and \
+            #                 (mount - (page_num * page_size)) > 0:
+            #             return_list = direct_list[((page_num - 1) * page_size):(page_num * page_size)]
+            #         else:
+            #             return_list = direct_list[((page_num - 1) * page_size):]
+            #
+            #     response = import_status("get_directagent_list_success", "OK")
+            #     response['data'] = return_list
+            #     response['directcount'] = all_direct_num
+            #     response['distribucount'] = distribution_num
+            #     return response
             response = import_status("get_directagent_list_success", "OK")
-            response['data'] = return_list
+            response['data'] = direct_list
             response['directcount'] = all_direct_num
             response['distribucount'] = distribution_num
             return response
@@ -217,31 +223,34 @@ class CAccount():
     def get_distribute(self):  # 获取所有分销商
         if is_tourist():
             return TOKEN_ERROR
-        try:
-            args = request.args.to_dict()
-            page_num = int(args.get("page_num"))
-            page_size = int(args.get("page_size"))
-        except:
-            return PARAMS_ERROR
+        # try:
+        #     args = request.args.to_dict()
+        #     page_num = int(args.get("page_num"))
+        #     page_size = int(args.get("page_size"))
+        # except:
+        #     return PARAMS_ERROR
         distribution_list = self.get_tatal_distribu(request.user.id)
         if distribution_list == []:
             response = import_status("get_distribuagent_list_success", "OK")
             response['data'] = []
             return response
-
-        mount = len(distribution_list)
-        page = mount / page_size
-        if page == 0 or page == 1 and mount % page_size == 0:
-            return_list = distribution_list[0:]
-        else:
-            if ((mount - (page_num - 1) * page_size) / page_size) >= 1 and \
-                    (mount - (page_num * page_size)) > 0:
-                return_list = distribution_list[((page_num - 1) * page_size):(page_num * page_size)]
-            else:
-                return_list = distribution_list[((page_num - 1) * page_size):]
-
+        # if page_num and page_size:
+        #     mount = len(distribution_list)
+        #     page = mount / page_size
+        #     if page == 0 or page == 1 and mount % page_size == 0:
+        #         return_list = distribution_list[0:]
+        #     else:
+        #         if ((mount - (page_num - 1) * page_size) / page_size) >= 1 and \
+        #                 (mount - (page_num * page_size)) > 0:
+        #             return_list = distribution_list[((page_num - 1) * page_size):(page_num * page_size)]
+        #         else:
+        #             return_list = distribution_list[((page_num - 1) * page_size):]
+        #
+        #     response = import_status("get_distribuagent_list_success", "OK")
+        #     response['data'] = return_list
+        #     return response
         response = import_status("get_distribuagent_list_success", "OK")
-        response['data'] = return_list
+        response['data'] = distribution_list
         return response
 
     @verify_token_decorator
