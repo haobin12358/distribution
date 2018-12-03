@@ -62,6 +62,7 @@ class CGoods():
         print product_list
         for product in product_list:
             print 'for product in product_list'
+            print product['PAid']
             category = get_model_return_dict(self.sgoods.get_category_byid(product['PAid']))
             print category
             product['firstpaid'] = category['Parentid']
