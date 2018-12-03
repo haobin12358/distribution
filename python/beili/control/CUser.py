@@ -184,7 +184,7 @@ class CUser():
                     w, h = image.size
                     filename = request.user.id + get_db_time_str() + get_random_str(6) + "." + filessuffix
                     filepath = os.path.join(rootdir, filename)
-                    image.save(filepath, 'png', quality=100)
+                    image.save(filepath, 'png', quality=90)
                     response = import_status("upload_file_success", "OK")
                     url = QRCODEHOSTNAME + "/file/" + filename
                     response["data"] = url
