@@ -42,6 +42,9 @@
     import {addQrcode} from "src/api/api"
     import common from "src/common/js/common"
     import {checkBail} from "src/api/api"
+    import TimeFormater from "time-formater";
+
+
 
 
     export default {
@@ -100,7 +103,7 @@
 
                 let tempDate = new Date(Number(this.expireDate));
 
-                this.expireDate = common.dateFormat(tempDate);
+                this.expireDate = TimeFormater(tempDate).format('YYYYMMDDHHmmss');
             },
 
             doConfirm() {

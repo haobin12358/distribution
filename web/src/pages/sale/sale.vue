@@ -155,7 +155,7 @@
 
         <ul class="sale-record-list" v-if="rankList.length">
             <li class="sale-record-item" v-for="item in rankList">
-                <img class="customer-img" :src="item.USheadimg" alt="">
+                <img class="customer-img" v-lazy="item.USheadimg" alt="">
 
                 <span class="customer-name">
                     {{item.USname}}

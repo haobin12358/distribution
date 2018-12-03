@@ -118,40 +118,38 @@
         </section>
 
         <ul class="function-panel">
-
-            <router-link tag="li" class="function-item" to="/wallet">
+            <li class="function-item" @click="goFunctionPage('/wallet')">
                 <img src="/static/images/wallet.png" alt="">
                 <span>我的钱包</span>
-            </router-link>
-            <router-link tag="li" class="function-item" to="/sale">
+            </li>
+            <li class="function-item" @click="goFunctionPage('/sale')">
                 <img src="/static/images/sale.png" alt="">
                 <span>我的销售</span>
-            </router-link>
-            <router-link tag="li" class="function-item" to="/channel">
+            </li>
+            <li class="function-item" @click="goFunctionPage('/channel')">
                 <img src="/static/images/channel.png" alt="">
                 <span>我的渠道</span>
-            </router-link>
-            <router-link tag="li" class="function-item" to="/mall">
+            </li>
+            <li class="function-item" @click="goFunctionPage('/mall')">
                 <img src="/static/images/purchase.png" alt="">
                 <span>我要进货</span>
-            </router-link>
-            <router-link tag="li" class="function-item" to="/mallOrder">
+            </li>
+            <li class="function-item" @click="goFunctionPage('/mallOrder')">
                 <img src="/static/images/order.png" alt="">
                 <span>云仓订单</span>
-            </router-link>
-            <router-link tag="li" to="/authorization" class="function-item" >
+            </li>
+            <li class="function-item" @click="goFunctionPage('/authorization')">
                 <img src="/static/images/authorization.png" alt="">
                 <span>我的授权</span>
-            </router-link>
-            <router-link tag="li" class="function-item" to="/promotion">
+            </li>
+            <li class="function-item" @click="goFunctionPage('/promotion')">
                 <img src="/static/images/promotion.png" alt="">
                 <span>我要推广</span>
-            </router-link>
-            <router-link tag="li" class="function-item" to="/integratedService">
+            </li>
+            <li class="function-item" @click="goFunctionPage('/integratedService')">
                 <img src="/static/images/integrated_service.png" alt="">
                 <span>综合业务</span>
-            </router-link>
-
+            </li>
         </ul>
 
         <footer-guide></footer-guide>
@@ -183,9 +181,9 @@
         },
 
         methods: {
-            gotoAuthorization(){
-                this.$toast('功能开发中,敬请期待!');
-            }
+            goFunctionPage(path){
+                this.$router.push(path);
+            },
         },
 
         created(){

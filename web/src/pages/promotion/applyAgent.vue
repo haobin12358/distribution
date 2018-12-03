@@ -181,6 +181,7 @@
     import common from "src/common/js/common"
     import {ALL_AREA} from "src/common/js/const"
     import UploadField from "src/components/common/uploadField"
+    import TimeFormater from "time-formater";
 
     export default {
         name: "applyAgent",
@@ -343,7 +344,6 @@
             },
             closeDatePicker(){
                 this.openTouch();
-
             },
 
             showCityPopup() {
@@ -504,7 +504,7 @@
                 if (!this.date) {
                     return '请输入打款日期'
                 } else {
-                    this.formData.paytime = common.dateFormat(new Date(this.date));
+                    this.formData.paytime = TimeFormater(new Date(this.date)).format('YYYYMMDDHHmmss');
                 }
 
                 if (!this.headImgs[0]) {

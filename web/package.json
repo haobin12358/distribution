@@ -15,7 +15,6 @@
   "dependencies": {
     "axios": "^0.18.0",
     "better-scroll": "^1.13.2",
-    "date-fns": "^1.29.0",
     "es6-promise": "^4.2.4",
     "fastclick": "^1.0.6",
     "lib-flexible": "^0.3.2",
@@ -23,6 +22,7 @@
     "pinyin": "^2.8.3",
     "postcss-px2rem": "^0.3.0",
     "px2rem-loader": "^0.1.9",
+    "time-formater": "^1.0.3",
     "vue": "^2.5.2",
     "vue-axios": "^2.1.2",
     "vue-clipboard2": "^0.2.1",
