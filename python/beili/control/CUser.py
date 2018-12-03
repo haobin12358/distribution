@@ -173,7 +173,7 @@ class CUser():
                     w, h = image.size
                     filename = request.user.id + get_db_time_str() + get_random_str(6) + "." + filessuffix
                     filepath = os.path.join(rootdir, filename)
-                    image.save(filepath, 'png', quality=90)
+                    image.save(filepath, 'png', quality=80)
                     response = import_status("upload_file_success", "OK")
                     url = QRCODEHOSTNAME + "/file/" + filename
                     response["data"] = url
@@ -184,7 +184,7 @@ class CUser():
                     w, h = image.size
                     filename = request.user.id + get_db_time_str() + get_random_str(6) + "." + filessuffix
                     filepath = os.path.join(rootdir, filename)
-                    image.resize((w/2, h/2)).save(filepath, 'png', quality=90)
+                    image.resize((w * 2 / 3, h * 2 / 3)).save(filepath, 'png', quality=90)
                     response = import_status("upload_file_success", "OK")
                     url = QRCODEHOSTNAME + "/file/" + filename
                     response["data"] = url
@@ -220,7 +220,7 @@ class CUser():
                 w, h = image.size
                 filename = id1 + get_db_time_str() + "." + filessuffix
                 filepath = os.path.join(rootdir, filename)
-                image.save(filepath, 'png', quality=100)
+                image.save(filepath, 'png', quality=80)
                 url = QRCODEHOSTNAME + "/file/" + filename
                 data = import_status("upload_file_success", "OK")
                 data['data'] = {
