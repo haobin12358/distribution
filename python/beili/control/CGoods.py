@@ -49,7 +49,6 @@ class CGoods():
         if PAid == str(0):
             print 'PAid == str(0)'
             product_list = get_model_return_list(self.sgoods.admin_get_product(PRstatus, PRname))
-            print product_list
         elif int(PAtype) == 1:
             print 'int(PAtype) == 1'
             paid_list = get_model_return_list(self.sgoods.get_childid(str(PAid)))
@@ -63,6 +62,7 @@ class CGoods():
         for product in product_list:
             print 'for product in product_list'
             category = get_model_return_dict(self.sgoods.get_category_byid(product['PAid']))
+            print category
             product['firstpaid'] = category['Parentid']
             parent_category = get_model_return_dict(self.sgoods.get_category_byid(category['Parentid']))
             product['firstpaname'] = parent_category['PAname']
