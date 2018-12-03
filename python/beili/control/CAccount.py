@@ -159,6 +159,7 @@ class CAccount():
             page_num = int(args.get("page_num"))
             page_size = int(args.get("page_size"))
         except:
+            page_num = page_size = None
             print 'no params'
         direct_list = self.suser.getuser_by_preid(request.user.id)
         if direct_list:
@@ -228,6 +229,7 @@ class CAccount():
             page_num = int(args.get("page_num"))
             page_size = int(args.get("page_size"))
         except:
+            page_num = page_size = None
             print 'no params'
         distribution_list = self.get_tatal_distribu(request.user.id)
         if distribution_list == []:
