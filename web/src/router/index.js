@@ -117,7 +117,8 @@ export const constantRouterMap = [
         component: mall,
         meta: {
             title: '云仓',
-            requiresAuth: true
+            requiresAuth: true,
+            keepAlive: true
         },
     },{
         path: '/goodsDetail',
@@ -301,7 +302,9 @@ export const constantRouterMap = [
         component: channel2,
         meta: {
             title: '我的渠道',
-            requiresAuth: true
+            requiresAuth: true,
+            keepAlive: true,
+
 
         },
     },

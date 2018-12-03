@@ -59,7 +59,7 @@
         <ul class="channel-list">
             <li v-for="item in showList" class="channel-item">
                 <section class="channel-item-bd">
-                    <img :src="item.USheadimg" alt="" class="head-img"/>
+                    <img v-lazy="item.USheadimg" alt="" class="head-img"/>
 
                     <section class="info-wrap">
                         <p>姓名:{{item.USname}}</p>
@@ -141,8 +141,6 @@
                         }
                     }
                 );
-
-
             },
         },
 
