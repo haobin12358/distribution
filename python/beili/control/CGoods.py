@@ -46,13 +46,16 @@ class CGoods():
         if PAid == '':
             return PARAMS_ERROR
         if PAid == str(0):
+            print 'PAid == str(0)'
             product_list = get_model_return_list(self.sgoods.admin_get_product(PRstatus, PRname))
         elif int(PAtype) == 1:
+            print 'int(PAtype) == 1'
             paid_list = get_model_return_list(self.sgoods.get_childid(str(PAid)))
             for paid in paid_list:
                 product_list = product_list + get_model_return_list(
                     self.sgoods.admin_get_product(PRstatus, PRname, paid['PAid']))
         elif int(PAtype) == 2:
+            print 'int(PAtype) == 2'
             product_list = product_list + get_model_return_list(
                 self.sgoods.admin_get_product(PRstatus, PRname, PAid))
         for product in product_list:
