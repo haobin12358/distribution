@@ -535,7 +535,9 @@ class COrder():
     def get_product_name(self, list):
         name = ''
         for product in list:
-            name = name + product['PRname'] + ' '
+            sku_list = get_model_return_list(self.sorder.get_sku_list_by_opiid(product['OPIid']))
+            for sku in sku_list:
+                name = name + product['PRname'] + sku['colorname'] + sku['sizename'] + str(sku['number']) + u'件' + ' '
         return name
 
     @verify_token_decorator
