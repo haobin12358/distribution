@@ -40,6 +40,7 @@ class CGoods():
             PRname = args.get("PRname")
             PAid = str(args.get("PAid"))
             PAtype = int(args.get("PAtype"))
+            print args
         except:
             return PARAMS_MISS
         product_list = []
