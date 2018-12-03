@@ -2,6 +2,7 @@
     @import "../../common/css/index";
 
     .container {
+        padding-top: 80px;
         padding-bottom: 120px;
         .least-full-screen();
 
@@ -17,6 +18,41 @@
             .fontc(46px);
             .sc(26px, white);
             background: @mainColor;
+        }
+
+        .search-bar-wrap {
+            padding: 15px 25px;
+            background: #eeeeee;
+            position: fixed;
+            left: 0;
+            top: 80px;
+            width: 100%;
+
+            .search-bar {
+                .wl(694px, 50px);
+                .bgw();
+                border-radius: 50px;
+                padding: 0 20px;
+                box-sizing: border-box;
+                .fj(flex-start);
+                align-items: center;
+
+                .icon {
+                    .wl(30px, 30px);
+                    margin-right: 30px;
+                }
+
+                input {
+                    flex: 1;
+                    height: 100%;
+                    .sc(24px, #999999);
+                }
+
+                .close {
+                    .wl(48px, 48px);
+
+                }
+            }
         }
 
         .banner {
@@ -233,6 +269,17 @@
             </section>
         </header-top>
 
+        <section class="search-bar-wrap">
+            <section class="search-bar">
+                <img src="/static/images/search.png" class="icon" alt="">
+                <input ref="inputPdNameSearch" type="text" placeholder="搜索商品" v-model.trim="pdNameSearch" @keyup.enter="doSearch">
+                <transition name="router-fade">
+                    <img v-if="pdNameSearch" src="/static/images/close.png" class="icon"
+                         @click="doReset" alt="">
+                </transition>
+            </section>
+        </section>
+
         <section class="banner">
             <img v-if="banner.mallUrls && banner.mallUrls.length" :src="banner.mallUrls[0].SMurl" alt="">
         </section>
@@ -277,9 +324,6 @@
                             </p>
 
                             <button class="addToCartBtn">加入购物车</button>
-
-                            <!--<buy-cart :shopItem="item" @add="addCart(item, 1)"-->
-                            <!--@minus="reduceCart(item)" @input="inputHandler(item,$event)"></buy-cart>-->
                         </section>
                     </section>
                 </li>
@@ -287,7 +331,7 @@
 
             <load-more :type="loadingType"></load-more>
         </template>
-        <place-holder v-else :title="placeHolderTitle"></place-holder>
+        <place-holder v-else @click.native="doReset" :title="placeHolderTitle"></place-holder>
 
 
         <img src="/static/images/shopcart.png" class="pay-order-fixed" @click="gotoShopCart"/>
@@ -311,6 +355,8 @@
 
         data() {
             return {
+                pdNameSearch: '',
+
                 parentCategory: [], //  父级类别
                 paSelected: '',    // 父级类别选中的PAid
 
@@ -335,22 +381,6 @@
 
         computed: {
             ...mapState(['userInfo', 'banner']),
-            ...mapState({
-                productListWithCart: function (state) {
-                    let rst = JSON.parse(JSON.stringify(this.productList));
-
-                    for (let i = 0; i < state.cartList.length; i++) {
-                        for (let j = 0; j < this.productList.length; j++) {
-                            if (state.cartList[i].PRid == this.productList[j].PRid) {
-                                rst[j].PRnum = state.cartList[i].PRnum;
-                            }
-                        }
-                    }
-
-                    return rst;
-                }
-            }),
-            ...mapGetters(['usefulCartList']),
             placeHolderTitle() {
                 if (!this.parentCategory.length) {
                     return '商城还没有一级分类'
@@ -359,7 +389,11 @@
                     return '该类暂时没有没有二级分类'
                 }
                 if (!this.productList.length) {
-                    return '该类暂时没有上架的商品'
+                    if(this.pdNameSearch){
+                        return '没有符合查询条件的,点击清除'
+                    }else{
+                        return '该类暂时没有上架的商品'
+                    }
                 }
 
             },
@@ -371,25 +405,13 @@
                 this.$router.push('/shopCart');
             },
 
-            ...mapMutations({
-                addCart({}, product, num = 1) {
-                    if (this.$store.state.addTenCartTip) {
-                        this.$toast('新增商品后可调整数量')
-                        this.$store.commit('SET_ADD_TEN_CART_TIP', false);
-                    }
-                    this.$store.commit('ADD_CART', {
-                        product,
-                        num
-                    })
-                },
-                reduceCart: 'REDUCE_CART'
-            }),
-
-            inputHandler(product, evt) {
-                this.$store.commit('CHANGE_CART_ITEM', {
-                    product,
-                    num: evt
-                });
+            doSearch() {
+                this.setProductList(true);
+                this.$refs.inputPdNameSearch.blur();
+            },
+            doReset(){
+                this.pdNameSearch = '';
+                this.setProductList(true);
             },
 
             gotoGoodsDetail(goods) {
@@ -436,6 +458,11 @@
             async initCategoryAndPrds() {
                 let {data: paData} = await getProductCategory(1, 0);
 
+                paData.unshift({
+                    PAname: '全部',
+                    PAtype: 1,
+                    PAid: 0
+                })
                 this.parentCategory = paData;
                 this.paSelected = this.parentCategory[0].PAid;
 
@@ -443,7 +470,21 @@
             },
 
             async initSECategory() {
-                let {data: seData} = await getProductCategory(2, this.paSelected);
+                let seData = [];
+
+                if (this.paSelected == 0) {
+                    seData = [
+                        {
+                            PAname: '全部',
+                            PAtype: 2,
+                            PAid: 0
+                        }
+                    ]
+                } else {
+                    let {data} = await getProductCategory(2, this.paSelected);
+
+                    seData = data;
+                }
 
                 this.secondCategory = seData;
 
@@ -465,7 +506,9 @@
                     this.page = 1;
                 }
                 this.loadingType = 'loading';
-                let {data: prdList} = await getProductList(2, this.secondSelected, 1, this.page, this.count);
+
+                let {data: prdList} = await getProductList(this.secondSelected ? 2 : 1, this.secondSelected, 1,
+                    this.page, this.count,this.pdNameSearch);
 
                 if (prdList.length < this.count) {
                     this.loadingType = 'nomore';

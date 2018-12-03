@@ -130,7 +130,7 @@
                 <mt-field class="form-item" label="打款日期" placeholder="请选择打款日期" :readonly="true" :disableClear="true"
                           v-model="date" @click.native="openDatePicker"></mt-field>
                 <mt-field class="form-item" label="备注" v-model.trim="formData.remark"
-                          placeholder="如有说明可填写备注"></mt-field>
+                          placeholder="如有说明可填写备注"  @blur.native.capture="handleLastInputBlur"></mt-field>
                 <evidence-field label="打款凭证(1-2张)" :readOnly="false" @update="updateEvdImg"
                                 @isUploading="listenEvdUpload"
                                 :upload-limit="2"></evidence-field>
@@ -241,6 +241,10 @@
         },
 
         methods: {
+            handleLastInputBlur(){
+                window.scrollTo(0,0);
+            },
+
             selectTransferWay(evt) {
                 this.transferWay = evt.name;
                 this.formData.paytype = evt.value;
@@ -323,6 +327,7 @@
             doConfirm() {
                 let checkMsg = this.formDataCheck();
 
+                window.scrollTo(0,0);
                 if (checkMsg) {
                     this.$toast(checkMsg);
                 } else {

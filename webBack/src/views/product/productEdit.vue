@@ -74,9 +74,11 @@
                             :on-preview="handlePictureCardPreview"
                             :before-upload="beforeDetailImgsUpload"
                             :on-remove="handleDetailImgsRemove"
-                            :limit="9">
+                            :http-request="uploadDetailImgs"
+                            :limit="9"
+                            :multiple="true">
                             <i class="el-icon-plus"></i>
-                            <div slot="tip" class="el-upload__tip">建议为方形,大小不要超过10M,上传成功后会显示,上传大图请耐心等待</div>
+                            <div slot="tip" class="el-upload__tip">可多选,建议先单独上传主图!建议为方形,大小不要超过10M,上传成功后会显示,上传大图请耐心等待.</div>
                         </el-upload>
                     </el-form-item>
                     <el-form-item prop="paid" label="分类">
@@ -501,7 +503,7 @@
             },
 
 
-            //  商品主图
+            //  商品主图multiple
             handleAvatarSuccess(res, file) {
                 this.formData.prpic = res.data;
                 this.imageUrl = URL.createObjectURL(file.raw);
@@ -557,6 +559,8 @@
                 return isLt15M;
             },
             handleDetailImgsSuccess(response, file, fileList) {
+                console.log(response, file, fileList);
+                return
                 //  显示
                 this.detailImgs = fileList.map(item => {
                     let res = {
@@ -571,6 +575,35 @@
 
                     return res;
                 });
+            },
+            uploadDetailImgs(file){
+                console.log(file);
+                let formData = new FormData();
+
+                formData.append('file', file.file)
+
+                this.$http({
+                    url: file.action,
+                    params: {
+                        token: this.$common.getStore('token')
+                    },
+                    method: 'post',
+                    data: formData,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                }).then(
+                    res => {
+                        if(res.data.status == 200){
+                            let resData = res.data,
+                                data = resData.data;
+
+                            this.detailImgs.push({
+                                name: file.file.name,
+                                url: data
+                            })
+                        }
+                    }
+                )
+
             },
 
             //  设置分类列表

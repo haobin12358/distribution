@@ -50,7 +50,7 @@
             <mt-field class="form-item" label="卡号" v-model="formData.cardnum" type="number"
                       placeholder="请输入卡号"></mt-field>
             <mt-field class="form-item" label="金额" v-model="formData.amount" type="number" :disableClear="false"
-                      placeholder="请输入金额"></mt-field>
+                      placeholder="请输入金额"  @blur.native.capture="handleLastInputBlur"></mt-field>
         </section>
 
         <section class="confirm-btn-wrap">
@@ -83,6 +83,9 @@
         components: {},
 
         methods: {
+            handleLastInputBlur(){
+                window.scrollTo(0,0);
+            },
 
             formDataCheck(){
                 if(!this.formData.branchbank){
@@ -101,6 +104,8 @@
             },
             doConfirm(){
                 let checkMsg = this.formDataCheck();
+
+                window.scrollTo(0,0);
 
                 if(checkMsg){
                     this.$toast(checkMsg);

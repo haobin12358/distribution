@@ -31,6 +31,7 @@
                             inactive-text="二级分类"
                             active-color="#13ce66"
                             inactive-color="#ff4949"
+                            :disabled="!!formInline.PAid"
                         >
                         </el-switch>
                     </el-form-item>
@@ -53,10 +54,10 @@
                     </el-form-item>
                 </el-form>
             </section>
-            <el-col :span="14">
+            <el-col :span="14" style="padding-bottom: 1rem;">
                 <!--<el-button type="primary"  style="margin-bottom: .3rem;" @click="addFirstCategory">添加一级分类</el-button>-->
                 <el-tree :data="treeData" :props="treeProps" node-key="PAid" default-expand-all
-                         :expand-on-click-node="false">
+                         :expand-on-click-node="false" :highlight-current="true">
 
                  <span class="custom-tree-node" slot-scope="{ node, data }">
                      <span>{{ node.label}}</span>
@@ -225,6 +226,11 @@
             },
             removeCategory(node, data) {
                 let PAname = data.PAname;
+
+                if(this.formInline.PAid){
+                    this.$message.warning('编辑中,请编辑完或点重置后再进行删除!')
+                    return
+                }
 
                 if (node.childNodes.length) {
                     this.$message.error(`请先删除"${data.PAname}"下面的分类!`);

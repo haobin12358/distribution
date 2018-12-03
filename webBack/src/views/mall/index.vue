@@ -56,10 +56,11 @@
                 :on-success="handlePersonImgSuccess"
                 :on-preview="handlePictureCardPreview"
                 :before-upload="beforeAvatarUpload"
-
-                :on-remove="handleRemove">
+                :on-remove="handleRemove"
+                :http-request="uploadPersonImgs"
+                :multiple="true">
                 <i class="el-icon-plus"></i>
-                <div slot="tip" class="el-upload__tip">建议宽高比为2.6(375/145),大小不要超过10M,上传成功后会显示,上传大图请耐心等待</div>
+                <div slot="tip" class="el-upload__tip">建议宽高比为2.6(375/145),大小不要超过10M,上传成功后会显示,上传大图请耐心等待,可多选</div>
             </el-upload>
             <el-dialog :visible.sync="dialogVisible">
                 <img width="100%" :src="dialogImageUrl" alt="">
@@ -89,7 +90,7 @@
         components: {},
 
         computed: {
-            uploadUrl(){
+            uploadUrl() {
                 return this.$api.uploadFile + localStorage.getItem('token');
             }
         },
@@ -145,21 +146,21 @@
                             let resData = res.data,
                                 data = res.data.data;
 
-                            this.mallImgList = data.mallUrls.map(item => {
-                                    return {
-                                        url: item.SMurl,
-                                        uid: item.SMid,
-                                    };
-                                }
-                            );
+                                this.mallImgList = data.mallUrls.map(item => {
+                                        return {
+                                            url: item.SMurl,
+                                            uid: item.SMid,
+                                        };
+                                    }
+                                );
 
-                            this.personImgList = data.personUrls.map(item => {
-                                    return {
-                                        url: item.SMurl,
-                                        uid: item.SMid,
-                                    };
-                                }
-                            )
+                                this.personImgList = data.personUrls.map(item => {
+                                        return {
+                                            url: item.SMurl,
+                                            uid: item.SMid,
+                                        };
+                                    }
+                                )
 
                         }
                     }
@@ -176,6 +177,7 @@
                 return isLt15M;
             },
 
+            //  云仓图上传成功
             handleMallImgSuccess(response, file, fileList) {
                 //  显示
                 this.mallImgList = fileList.map(item => {
@@ -207,7 +209,7 @@
                                 data = res.data.data;
 
                             this.$notify({
-                                title: '商城图已更新',
+                                title: '云仓图已更新',
                                 type: 'success'
                             });
                         }
@@ -215,20 +217,7 @@
                 );
             },
 
-            handlePersonImgSuccess(response, file, fileList) {
-                this.personImgList = fileList.map(item => {
-                    let res = {
-                        name: item.name,
-                        url: item.url,
-                    }
-
-                    if (item.response && item.response.data) {
-                        res.url = item.response.data;
-                    }
-
-                    return res;
-                });
-
+            addPersonImgSowingMap() {
                 this.$http.post(this.$api.addSowingMap, {
                     "type": 1,
                     "urls": this.personImgList.map(item => item.url),
@@ -243,6 +232,7 @@
                             let resData = res.data,
                                 data = res.data.data;
 
+                            this.setData();
                             this.$notify({
                                 title: '个人轮播图已更新',
                                 type: 'success'
@@ -252,6 +242,37 @@
                 );
             },
 
+
+            uploadPersonImgs(file) {
+                console.log(file);
+                let formData = new FormData();
+
+                formData.append('file', file.file)
+
+                this.$http({
+                    url: file.action,
+                    params: {
+                        token: this.$common.getStore('token')
+                    },
+                    method: 'post',
+                    data: formData,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                }).then(
+                    res => {
+                        if (res.data.status == 200) {
+                            let resData = res.data,
+                                data = resData.data;
+
+                            this.personImgList.push({
+                                name: file.file.name,
+                                url: data
+                            })
+                            this.addPersonImgSowingMap();
+                        }
+                    }
+                )
+
+            },
         },
 
         created() {

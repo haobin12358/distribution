@@ -4,7 +4,7 @@ import {getStore, setStore} from "src/common/js/mUtils"
 import {TOKEN} from "src/common/js/const"
 
 const debug = false;
-export const title = debug ? 'https://dsn.apizza.net/mock/60c954072cfff536376e5acb0392c590' : 'https://beiliserver.daaiti.cn:443';
+export const title = debug ? 'https://dsn.apizza.net/mock/60c954072cfff536376e5acb0392c590' : 'https://www.beiliyuncang.com/apis';
 
 const myAxios = async (url, {params, data, method = 'get', showIndicator = true, showTypeIsMessage = false}) => {
     if (showIndicator) {
@@ -305,13 +305,15 @@ export const getProductCategory = (PAtype, PAid) => myAxios('/product/get_produc
  * @param page_size
  * @returns {Promise<*|undefined>}
  */
-export const getProductList = (PAtype, PAid, PRstatus, page_num, page_size = 10) => myAxios('/product/get_product_list', {
+export const getProductList = (PAtype, PAid, PRstatus, page_num, page_size = 10, PRname = '') => myAxios('/product/get_product_list', {
+    showIndicator: false,
     params: {
         PAtype,
         PAid,
         page_size,
         page_num,
-        PRstatus
+        PRstatus,
+        PRname,
     }
 });
 /**
