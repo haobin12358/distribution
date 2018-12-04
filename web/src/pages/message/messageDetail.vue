@@ -68,7 +68,6 @@
 
 <script>
     import {mapState, mapMutations} from 'vuex'
-    import BScroll from 'better-scroll'
     import {getCommessageDetails} from "src/api/api"
 
     export default {

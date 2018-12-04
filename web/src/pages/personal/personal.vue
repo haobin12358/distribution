@@ -68,8 +68,8 @@
                 flex-direction: column;
                 align-items: center;
                 padding: 30px 0 20px;
-                border-right: 1px solid @mainColor;
-                border-bottom: 1px solid @mainColor;
+                border-right: 2px solid @mainColor;
+                border-bottom: 2px solid @mainColor;
 
                 img {
                     .wl(150px, 150px);

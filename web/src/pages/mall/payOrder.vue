@@ -88,7 +88,7 @@
             .remark {
                 .fj();
                 padding: 14px 0;
-                border-bottom: 1px solid @grayBorderColor;
+                border-bottom: 2px solid @grayBorderColor;
                 /*height: 32px;*/
                 line-height: 32px;
 
@@ -120,7 +120,7 @@
             .cell-item {
                 .fj();
                 padding: 10px 0;
-                border-bottom: 1px solid @grayBorderColor;
+                border-bottom: 2px solid @grayBorderColor;
 
                 &:last-of-type {
                     border-bottom: none;

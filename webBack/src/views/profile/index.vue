@@ -170,7 +170,7 @@
                         </section>
 
                         <section class="yesterday-data">
-                            <span class="label">今日交易额</span>
+                            <span class="label">昨日交易额</span>
                             <span class="value">￥ {{yesterdaySaleMoney | fixed2}}</span>
                         </section>
 

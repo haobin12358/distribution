@@ -63,7 +63,7 @@
                             </div>
                         </el-upload>
                     </el-form-item>
-                    <el-form-item prop="sowingmap" label="商品详情轮播图(最多9张)">
+                    <el-form-item prop="sowingmap" label="商品详情顶部轮播图(最多9张)">
                         <el-upload
                             class="swiper-uploader"
                             :action="uploadUrl"
@@ -75,10 +75,28 @@
                             :before-upload="beforeDetailImgsUpload"
                             :on-remove="handleDetailImgsRemove"
                             :http-request="uploadDetailImgs"
+                            :limit="20"
+                            :multiple="true">
+                            <i class="el-icon-plus"></i>
+                            <div slot="tip" class="el-upload__tip">可多选,建议先单独上传主图!建议为方形,大小不要超过10M,上传成功后会显示,上传大图请耐心等待.
+                            </div>
+                        </el-upload>
+                    </el-form-item>
+                    <el-form-item prop="detailpics" label="商品详情底部长图(最多20张)">
+                        <el-upload
+                            class="swiper-uploader"
+                            :action="uploadUrl"
+                            accept="image/*"
+                            list-type="picture-card"
+                            :file-list="longImgs"
+                            :on-preview="handlePictureCardPreview"
+                            :before-upload="beforeDetailImgsUpload"
+                            :on-remove="handleLongImgsRemove"
+                            :http-request="uploadLongImgs"
                             :limit="9"
                             :multiple="true">
                             <i class="el-icon-plus"></i>
-                            <div slot="tip" class="el-upload__tip">可多选,建议先单独上传主图!建议为方形,大小不要超过10M,上传成功后会显示,上传大图请耐心等待.</div>
+                            <div slot="tip" class="el-upload__tip">可多选,大小不要超过10M,上传成功后会显示,上传大图请耐心等待.</div>
                         </el-upload>
                     </el-form-item>
                     <el-form-item prop="paid" label="分类">
@@ -195,7 +213,8 @@
                     <!--</section>-->
 
                     <el-form-item>
-                        <el-button type="primary" @click="doSavePd" icon="el-icon-edit">{{isEdit ? '保存商品' : '新增商品'}}</el-button>
+                        <el-button type="primary" @click="doSavePd" icon="el-icon-edit">{{isEdit ? '保存商品' : '新增商品'}}
+                        </el-button>
                     </el-form-item>
                 </el-form>
             </el-col>
@@ -228,6 +247,8 @@
                 dialogImageUrl: '',
                 dialogVisible: false,
 
+                longImgs: [],
+
                 imageUrl: '',
                 keepImg: false,
 
@@ -253,6 +274,7 @@
                     prstatus: '1',
                     sowingmap: '',
                     skulist: [],
+                    detailpics: [],
                 },
                 rules: {
                     required: [
@@ -265,8 +287,9 @@
                         {required: true, message: '商品图必传', trigger: 'change'}
                     ],
                     sowingmap: [
-                        {required: true, message: '商品详情轮播必传', trigger: 'change'}
+                        {required: true, message: '商品轮播图必传', trigger: 'change'}
                     ],
+
 
 
                     paid: [
@@ -324,7 +347,11 @@
             },
             detailImgs(val) {
                 this.formData.sowingmap = val.map(item => item.url);
-            }
+            },
+            longImgs(val) {
+                this.formData.detailpics = val.map(item => item.url);
+            },
+
         },
 
         components: {},
@@ -360,7 +387,6 @@
                         }
                     }
                 }
-
 
 
                 this.getSpanArr(res);
@@ -553,13 +579,12 @@
                 const isLt15M = file.size / 1024 / 1024 < 10;
 
                 if (!isLt15M) {
-                    this.$message.error('上传轮播图片大小不能超过 10MB!');
+                    this.$message.error('上传图片大小不能超过 10MB!');
                 }
 
                 return isLt15M;
             },
             handleDetailImgsSuccess(response, file, fileList) {
-                console.log(response, file, fileList);
                 return
                 //  显示
                 this.detailImgs = fileList.map(item => {
@@ -576,8 +601,8 @@
                     return res;
                 });
             },
-            uploadDetailImgs(file){
-                console.log(file);
+
+            uploadDetailImgs(file) {
                 let formData = new FormData();
 
                 formData.append('file', file.file)
@@ -592,7 +617,7 @@
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                 }).then(
                     res => {
-                        if(res.data.status == 200){
+                        if (res.data.status == 200) {
                             let resData = res.data,
                                 data = resData.data;
 
@@ -603,7 +628,40 @@
                         }
                     }
                 )
+            },
 
+            //  长图
+            handleLongImgsRemove(file, fileList) {
+                this.longImgs = this.longImgs.filter(
+                    item => item.uid != file.uid
+                );
+            },
+            uploadLongImgs(file) {
+                let formData = new FormData();
+
+                formData.append('file', file.file)
+
+                this.$http({
+                    url: file.action,
+                    params: {
+                        token: this.$common.getStore('token')
+                    },
+                    method: 'post',
+                    data: formData,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                }).then(
+                    res => {
+                        if (res.data.status == 200) {
+                            let resData = res.data,
+                                data = resData.data;
+
+                            this.longImgs.push({
+                                name: file.file.name,
+                                url: data
+                            })
+                        }
+                    }
+                )
             },
 
             //  设置分类列表
@@ -777,6 +835,12 @@
                                     url: item
                                 }
                             });
+                            this.longImgs = data.detailpics.map(item => {
+                                return {
+                                    url: item
+                                }
+                            });
+
 
                             this.selectedOption = [editPd.firstpaid.toString(), editPd.PAid.toString()];
                             // this.skuTableData = data.skulist;
@@ -793,7 +857,7 @@
                         }
                     }
                 )
-            }else{
+            } else {
                 this.activeNames = ['1'];
             }
 

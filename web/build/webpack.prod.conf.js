@@ -34,7 +34,7 @@ const webpackConfig = merge(baseWebpackConfig, {
     plugins: [
         new vConsolePlugin({
             filter: [],  // 需要过滤的入口文件
-            enable: false // 发布代码前记得改回 false
+            enable: true // 发布代码前记得改回 false
         }),
         // http://vuejs.github.io/vue-loader/en/workflow/production.html
         new webpack.DefinePlugin({

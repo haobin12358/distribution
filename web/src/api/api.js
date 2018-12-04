@@ -23,9 +23,9 @@ const myAxios = async (url, {params, data, method = 'get', showIndicator = true,
                 Indicator.close();
             }
 
-            if(showTypeIsMessage){
+            if (showTypeIsMessage) {
                 MessageBox.alert('服务器忙!');
-            }else{
+            } else {
                 Toast('服务器忙!');
             }
         }
@@ -39,9 +39,9 @@ const myAxios = async (url, {params, data, method = 'get', showIndicator = true,
         if (res.data.status == 200) {
             return res.data;
         } else {
-            if(showTypeIsMessage){
+            if (showTypeIsMessage) {
                 MessageBox.alert(res.data.message);
-            }else{
+            } else {
                 Toast(res.data.message);
             }
 
@@ -432,18 +432,22 @@ export const getAccount = (month) => myAxios('/account/get_account', {
  * 获取所有直属代理
  * @returns {Promise<*|undefined>}
  */
-export const getDirectagent = () => myAxios('/account/get_directagent', {
+export const getDirectagent = (page_num ,page_size = 10) => myAxios('/account/get_directagent', {
     params: {
         token: getStore(TOKEN),
+        page_size,
+        page_num,
     }
 });
 /**
  * 获取所有分销商代理
  * @returns {Promise<*|undefined>}
  */
-export const getDistribute = () => myAxios('/account/get_distribute', {
+export const getDistribute = (page_num ,page_size = 10) => myAxios('/account/get_distribute', {
     params: {
         token: getStore(TOKEN),
+        page_size,
+        page_num,
     },
 });
 
@@ -661,7 +665,7 @@ export const getAuthorization = () => myAxios('/user/get_authorization', {
 });
 
 //  购物车
-export const addShoppingCart = (prid, sku, number) => myAxios('/product/add_shoppingcart',{
+export const addShoppingCart = (prid, sku, number) => myAxios('/product/add_shoppingcart', {
     showTypeIsMessage: true,
     method: 'post',
     data: {
@@ -687,7 +691,7 @@ export const updateShoppingCartNumber = (psid, number) => myAxios('/product/upda
     params: {
         token: getStore(TOKEN)
     },
-    data:{
+    data: {
         psid,
         number,
     }
@@ -697,7 +701,7 @@ export const deleteShoppingCart = (scidlist) => myAxios('/product/delete_shoppin
     params: {
         token: getStore(TOKEN)
     },
-    data:{
+    data: {
         scidlist
     }
 });

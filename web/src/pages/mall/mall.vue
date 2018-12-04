@@ -98,7 +98,7 @@
 
                 .pillow-item {
                     margin-right: 50px;
-                    border: 1px solid rgba(110, 171, 184, 1);
+                    border: 2px solid rgba(110, 171, 184, 1);
                     border-radius: 30px;
                     white-space: nowrap;
                     /*height: 40px;*/
@@ -195,37 +195,6 @@
                     }
                 }
             }
-        }
-
-        .label-parent {
-            .fj();
-            align-items: center;
-            text-align: center;
-            border: 1px solid black;
-
-            .label {
-
-            }
-        }
-
-        .info {
-            display: flex;
-            align-items: center;
-            padding: 0px;
-            background: #db4000;
-        }
-
-        .zhiwei {
-            /*width: 30px;*/
-            border-radius: 30px;
-            text-align: center;
-            color: #FFFFFF;
-            line-height: 24px;
-            height: 24px;
-            font-size: 24px;
-            margin-left: 5px;
-            white-space: nowrap;
-
         }
 
         .pay-order-fixed {
