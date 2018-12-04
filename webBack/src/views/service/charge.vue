@@ -104,7 +104,7 @@
         </section>
 
         <el-dialog title="打款凭证" :visible.sync="dialogTableVisible">
-            <img class="proof-img" v-lazy="bigImgUrl" alt="">
+            <img class="proof-img" :src="bigImgUrl" alt="">
         </el-dialog>
     </div>
 </template>
