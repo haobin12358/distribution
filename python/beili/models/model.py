@@ -87,6 +87,7 @@ class Product(Base):
     PAid = Column(String(64))      # 分类id，用于绑定商品类目，空值表示未绑定分类
     PAdiscountnum = Column(Float,default=1)  # 折扣件数
     sowingmap = Column(Text)  # 轮播图
+    detailpics = Column(Text)  # 详情图
 
 class ProductSku(Base):
     """

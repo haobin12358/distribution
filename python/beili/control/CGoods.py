@@ -97,6 +97,7 @@ class CGoods():
             return PARAMS_ERROR
         details = get_model_return_dict(self.sgoods.get_product_details(prid))
         details['sowingmap'] = details['sowingmap'].split(",")
+        details['detailpics'] = details['detailpics'].split(",")
         sku_list = get_model_return_list(self.sgoods.get_sku_by_prid(prid))
         response = import_status("get_product_detail_success", "OK")
         response['data'] = details
@@ -269,7 +270,7 @@ class CGoods():
         if not is_admin():
             return AUTHORITY_ERROR
         params = ['paid', 'prname', 'prpic', 'sowingmap', 'proldprice', 'prprice', 'skulist', 'prlogisticsfee'
-            , 'prdiscountnum', 'prstatus']
+            , 'prdiscountnum', 'prstatus', 'detailpics']
         data = request.json
         for param in params:
             if param not in data:
@@ -289,6 +290,7 @@ class CGoods():
         prid = data.get('prid')
         skulist = data.get('skulist')
         sowingmap = ",".join(data.get('sowingmap'))
+        detailpics = ",".join(data.get('detailpics'))
         session = db_session()
         try:
             if prid:
@@ -302,6 +304,7 @@ class CGoods():
                 product['PRstatus'] = prstatus
                 product['PAdiscountnum'] = prdiscountnum
                 product['sowingmap'] = sowingmap
+                product['detailpics'] = detailpics
                 result = self.sgoods.update_product(session, prid, product)
                 if not result:
                     return SYSTEM_ERROR
@@ -333,7 +336,7 @@ class CGoods():
                 time_now = datetime.strftime(datetime.now(), format_for_db)
                 prid = str(uuid.uuid4())
                 result = self.sgoods.create_product(session, prid, paid, prname, prpic, proldprice, prprice
-                                           , prlogisticsfee, prstatus, prdiscountnum, time_now, sowingmap)
+                                           , prlogisticsfee, prstatus, prdiscountnum, time_now, sowingmap, detailpics)
                 if not result:
                     return SYSTEM_ERROR
                 for sku in skulist:

@@ -32,7 +32,7 @@ class SGoods(SBase):
     @close_session
     def get_product_details(self, prid):
         return self.session.query(Product.sowingmap, Product.PRid, Product.PRlogisticsfee, Product.PRoldprice, Product.PRprice
-                                  , Product.PRname, Product.PRpic).filter(Product.PRid == prid).first()
+                                  , Product.PRname, Product.PRpic, Product.detailpics).filter(Product.PRid == prid).first()
 
     @close_session
     def get_sku_by_prid(self, prid):
@@ -83,7 +83,7 @@ class SGoods(SBase):
         return True
 
     def create_product(self, session, id, paid, prname, prpic, proldprice, prprice, prlogisticsfee, prstatus
-                       , prdiscountnum, createtime, sowingmap):
+                       , prdiscountnum, createtime, sowingmap, detailpics):
         product = Product()
         product.PRid = id
         product.PAid = paid
@@ -96,6 +96,7 @@ class SGoods(SBase):
         product.PAdiscountnum = prdiscountnum
         product.PRcreatetime = createtime
         product.sowingmap = sowingmap
+        product.detailpics = detailpics
         session.add(product)
         return True
 
