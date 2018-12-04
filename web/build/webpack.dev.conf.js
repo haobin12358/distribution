@@ -48,7 +48,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
   plugins: [
       new vConsolePlugin({
           filter: [],  // 需要过滤的入口文件
-          enable: false // 发布代码前记得改回 false
+          enable: true // 发布代码前记得改回 false
       }),
     new webpack.DefinePlugin({
       'process.env': require('../config/dev.env')

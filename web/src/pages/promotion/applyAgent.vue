@@ -23,7 +23,7 @@
             .get-qrcode-btn {
                 width: 157px;
                 height: 40px;
-                border: 1px solid @mainColor;
+                border: 2px solid @mainColor;
                 border-radius: 30px;
                 .fontc(40px);
                 .fz(24px);

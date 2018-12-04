@@ -15,7 +15,6 @@ const messageDetail = r => require.ensure([], () => r(require('../pages/message/
 const mall = r => require.ensure([], () => r(require('../pages/mall/mall')), 'mall')
 const goodsDetail = r => require.ensure([], () => r(require('../pages/mall/goodsDetail')), 'goodsDetail')
 const shopCart = r => require.ensure([], () => r(require('../pages/mall/shopCart')), 'shopCart')
-const productSearch = r => require.ensure([], () => r(require('../pages/mall/productSearch')), 'productSearch')
 
 const payOrder = r => require.ensure([], () => r(require('../pages/mall/payOrder')), 'payOrder')
 const mallOrder = r => require.ensure([], () => r(require('../pages/mall/order')), 'mallOrder')
@@ -41,7 +40,6 @@ const marginMoney = r => require.ensure([], () => r(require('../pages/wallet/mar
 const sale = r => require.ensure([], () => r(require('../pages/sale/sale')), 'sale')
 
 
-const channel = r => require.ensure([], () => r(require('../pages/channel/channel')), 'channel')
 const channel2 = r => require.ensure([], () => r(require('../pages/channel/channel2')), 'channel2')
 
 const purchase = r => require.ensure([], () => r(require('../pages/purchase/purchase')), 'purchase')
@@ -140,15 +138,6 @@ export const constantRouterMap = [
         meta: {
             transitionName: 'router-slid',
             title: '结算',
-            requiresAuth: true
-
-        },
-    },{
-        path: '/productSearch',
-        component: productSearch,
-        meta: {
-            transitionName: 'router-slid',
-            title: '商品查询',
             requiresAuth: true
 
         },

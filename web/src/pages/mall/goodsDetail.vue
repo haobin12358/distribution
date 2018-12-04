@@ -113,6 +113,8 @@
             }
         }
 
+
+
         .num-block {
             .fj();
             align-items: center;
@@ -121,6 +123,31 @@
             .stock {
                 .sc(28px, @666);
             }
+        }
+
+        .goods-detail-imgs{
+            .title{
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            .detail-img{
+                width: 100%;
+                max-height: 100%;
+            }
+        }
+
+        .go-top-fixed{
+            position: fixed;
+            right: 30px;
+            bottom: 150px;
+            .wl(80px, 80px);
+            .fontc(40px);
+            .fz(28px);
+            border-radius: 50%;
+            color: white;
+            border: 2px solid @mainColor;
+            background: white;
+            opacity: .8;
         }
     }
 </style>
@@ -202,12 +229,23 @@
                 <button v-show="!addToCartEnable" class="my-confirm-btn disabled add-shop-cart ">加 入 购 物 车</button>
             </section>
         </section>
+
+        <section class="goods-detail-imgs">
+            <h1 class="title">
+                - 详情 -
+            </h1>
+
+            <img v-for="item in product.detailpics" v-lazy="item" class="detail-img"/>
+        </section>
+
+        <img v-show="showGoTop" @click="handleGoTop" src="/static/images/arrow_up.png" alt="" class="go-top-fixed">
     </div>
 </template>
 
 <script>
     import Count from "src/components/common/count";
     import {title, getProductDetails, addShoppingCart} from "src/api/api";
+    import common from "src/common/js/common"
 
 
     export default {
@@ -227,6 +265,8 @@
 
                 chooseSpecVisible: false,
                 count: 1,
+
+                showGoTop: false
             }
         },
 
@@ -266,6 +306,17 @@
         },
 
         methods: {
+            touchMove(){
+                let scrollTop = common.getScrollTop();
+                let scrollHeight = common.getScrollHeight();
+                let ClientHeight = common.getClientHeight();
+
+                this.showGoTop = scrollTop > ClientHeight
+            },
+            handleGoTop(){
+                window.scrollTo(0,0);
+            },
+
             showChooseSpec() {
                 this.chooseSpecVisible = true;
 
@@ -314,6 +365,14 @@
                     this.$toast('请选择颜色和尺码!');
                 }
             }
+        },
+
+        destroyed(){
+            window.removeEventListener('scroll', this.touchMove);
+        },
+
+        mounted(){
+            window.addEventListener('scroll', this.touchMove);
         },
 
         created() {

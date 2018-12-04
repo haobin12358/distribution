@@ -102,15 +102,11 @@
         <footer class="container-ft">
             <button class="confirm-btn" @click="doLogin">登 录</button>
         </footer>
-
-        <transition name="router-slid" mode="out-in">
-            <router-view></router-view>
-        </transition>
     </div>
 </template>
 
 <script>
-    import {login,getCompanyMessage} from "src/api/api"
+    import {login,getCompanyMessage,title} from "src/api/api"
     import {setStore, getStore} from "src/common/js/mUtils"
     import {TOKEN,NOT_READ_COM_MSGS} from "src/common/js/const"
     import {mapActions} from "vuex"
@@ -144,21 +140,21 @@
                                 this.setNotReadMsgNum();
                                 this.getUserInfo();
 
-                                this.$http.get(title+'/user/check_openid',{
-                                    params: {
-                                        token: getStore(TOKEN),
-                                        state: location.href,
-                                    }
-                                }).then(
-                                    res => {
-                                        if (res.data.status == 302) {
-                                            let resData = res.data,
-                                                data = res.data.data;
-
-                                            location.href = data.url;
-                                        }
-                                    }
-                                )
+                                // this.$http.get(title+'/user/check_openid',{
+                                //     params: {
+                                //         token: getStore(TOKEN),
+                                //         state: location.href,
+                                //     }
+                                // }).then(
+                                //     res => {
+                                //         if (res.data.status == 302) {
+                                //             let resData = res.data,
+                                //                 data = res.data.data;
+                                //
+                                //             location.href = data.url;
+                                //         }
+                                //     }
+                                // )
                             }
                         }
                     )
