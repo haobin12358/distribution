@@ -96,8 +96,8 @@ class CGoods():
         except:
             return PARAMS_ERROR
         details = get_model_return_dict(self.sgoods.get_product_details(prid))
-        details['sowingmap'] = details['sowingmap'].split(",")
-        details['detailpics'] = details['detailpics'].split(",")
+        details['sowingmap'] = details['sowingmap'].split(",") if details['sowingmap'] else None
+        details['detailpics'] = details['detailpics'].split(",") if details['detailpics'] else None
         sku_list = get_model_return_list(self.sgoods.get_sku_by_prid(prid))
         response = import_status("get_product_detail_success", "OK")
         response['data'] = details
