@@ -187,14 +187,6 @@ class COrder():
             agentmessage.AMcontent = u'您的订单创建成功，订单号为' + ' ' + str(OIsn)
             session.add(agentmessage)
 
-            performance = Performance()   # 插入业绩表
-            performance.USid = request.user.id
-            performance.REmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
-            performance.PEid = str(uuid.uuid4())
-            performance.PEdiscountnum = discountnum
-            performance.PEcreatetime = datetime.strftime(datetime.now(), format_for_db)
-            session.add(performance)
-
             moneyrecord = MoneyRecord()  # 插入收支记录表
             moneyrecord.MRid = str(uuid.uuid4())
             moneyrecord.MRtype = 1
@@ -438,6 +430,14 @@ class COrder():
                     amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
                     amount.AMmonth = monthnow
                     session.add(amount)
+
+                    performance = Performance()  # 插入业绩表
+                    performance.USid = request.user.id
+                    performance.REmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
+                    performance.PEid = str(uuid.uuid4())
+                    performance.PEdiscountnum = order['discountnum']
+                    performance.PEcreatetime = datetime.strftime(datetime.now(), format_for_db)
+                    session.add(performance)
             session.commit()
         except Exception as e:
             print e
