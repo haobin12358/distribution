@@ -81,5 +81,5 @@ class modify_data():
         finally:
             session.close()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     modify_data().modify()
