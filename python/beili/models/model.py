@@ -163,7 +163,7 @@ class OrderInfo(Base):
     expressname = Column(String(64))  # 快递名称
     expressnum = Column(String(64))  # 快递单号
     productnum = Column(Integer, default=0)  # 商品数量
-    discountnum = Column(float)  # 返点数量
+    discountnum = Column(Float)  # 返点数量
 
 class OrderProductInfo(Base):
     """订单商品详情, 多个订单商品详情对应一个订单"""
