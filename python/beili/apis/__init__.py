@@ -61,7 +61,7 @@ class modify_data():
             session.commit()
         except Exception as e:
             print '777777'
-            print e
+            print '88888', e
             session.rollback()
         finally:
             session.close()
