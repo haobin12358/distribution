@@ -50,7 +50,8 @@ class modify_data():
                     check_product = get_model_return_dict(self.sgoods.get_product_info(product['PRid']))
                     sku_list = get_model_return_list(self.sorder.get_sku_list_by_opiid(product['OPIid']))
                     for sku in sku_list:
-                        print float(sku['number'] * check_product['PAdiscountnum'])
+                        print '33333'
+                        print '44444', float(int(sku['number']) * float(check_product['PAdiscountnum']))
                         print real_discount
                         real_discount = real_discount + int(sku['number']) * float(check_product['PAdiscountnum'])
                         print real_discount
