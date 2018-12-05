@@ -119,7 +119,7 @@ export const constantRouterMap = [
             {
                 path: 'index',
                 component: product,
-                meta: {}
+                meta: { keepAlive: true}
             }, {
                 path: 'productEdit',
                 component: productEdit,
@@ -138,14 +138,16 @@ export const constantRouterMap = [
         redirect: 'order/index',
         component: commonLayout,
         meta: {
-            requireAuth: true
-
+            requireAuth: true,
         },
         children: [
             {
                 path: 'index',
                 component: order,
-                meta: {}
+                meta: {
+                    keepAlive: true,
+
+                }
             }, {
                 path: 'orderDetail',
                 component: orderDetail,

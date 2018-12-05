@@ -77,7 +77,7 @@
                               style="width: 100%">
                         <el-table-column prop="img" align="center" label="图片" width="180">
                             <template slot-scope="scope">
-                                <img v-lazy="scope.row.PRimage" class="table-pic" alt="">
+                                <img v-lazy="scope.row.PRimage" :key="scope.row.PRimage" class="table-pic" alt="">
                             </template>
                         </el-table-column>
                         <el-table-column prop="PRname" align="center" label=" 商品名" width="240"></el-table-column>
@@ -363,6 +363,10 @@
             statusToTxt(status) {
                 return this.statusOptions.find(item => item.value == status).label;
             }
+        },
+
+        activated(){
+            this.setOrderList();
         },
 
         created() {

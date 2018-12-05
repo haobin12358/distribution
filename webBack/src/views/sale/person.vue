@@ -110,7 +110,7 @@
             <el-table :data="rewardData" size="mini" style="width: 100%">
                 <el-table-column prop="img" align="center" label="头像" width="120">
                     <template slot-scope="scope">
-                        <img v-lazy="scope.row.USheadimg" class="table-pic"/>
+                        <img v-lazy="scope.row.USheadimg" :key="scope.row.USheadimg" class="table-pic"/>
                     </template>
                 </el-table-column>
                 <el-table-column property="USagentid" align="center" label="代理号" width="150"></el-table-column>
@@ -121,7 +121,7 @@
             <el-table :data="discountData" size="mini" style="width: 100%">
                 <el-table-column prop="img" align="center" label="头像" width="120">
                     <template slot-scope="scope">
-                        <img v-lazy="scope.row.USheadimg" class="table-pic"/>
+                        <img v-lazy="scope.row.USheadimg" :key="scope.row.USheadimg" class="table-pic"/>
                     </template>
                 </el-table-column>
                 <el-table-column property="USagentid" align="center" label="代理号" width="150"></el-table-column>

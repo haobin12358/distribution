@@ -106,7 +106,7 @@
             </el-table-column>
             <el-table-column prop="name" align="center" label="凭证" width="200">
                 <template slot-scope="scope">
-                    <img v-for="item in scope.row.IRIproof" class="table-pic" style="margin-right: .2rem;" v-lazy="item"  @click="showBigImg(item)" alt="">
+                    <img v-for="item in scope.row.IRIproof" class="table-pic" style="margin-right: .2rem;" v-lazy="item" :key="item" @click="showBigImg(item)" alt="">
                 </template>
             </el-table-column>
             <el-table-column label="操作" width="180" align="center" fixed="right">
