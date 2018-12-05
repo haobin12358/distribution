@@ -39,11 +39,13 @@ class modify_data():
             + get_model_return_list(self.sorder.get_all_order(None, None, None, 2, None, None))\
             + get_model_return_list(self.sorder.get_all_order(None, None, None, 4, None, None)) \
             + get_model_return_list(self.sorder.get_all_order(None, None, None, 5, None, None))
+        print '1111', all_order
         session = db_session()
         try:
             for order in all_order:
                 product_list = get_model_return_list(self.sorder.get_product_list(order['OIid']))
                 real_discount = 0
+                print '22222'
                 for product in product_list:
                     check_product = get_model_return_dict(self.sgoods.get_product_info(product['PRid']))
                     sku_list = get_model_return_list(self.sorder.get_sku_list_by_opiid(product['OPIid']))
@@ -54,7 +56,8 @@ class modify_data():
                         print real_discount
                 session.query(OrderInfo).filter(OrderInfo.OIid == order['OIid']).update({'discountnum': real_discount})
             session.commit()
-        except:
+        except Exception as e:
+            print e
             session.rollback()
         finally:
             session.close()
@@ -70,7 +73,8 @@ class modify_data():
                     real_amount = real_amount + order['discountnum']
                 session.query(Amount).filter(Amount.USid == amount['USid']).update({'performance': real_amount})
             session.commit()
-        except:
+        except Exception as e:
+            print e
             session.rollback()
         finally:
             session.close()
