@@ -32,6 +32,7 @@ from datetime import datetime
 from common.timeformat import format_for_db, get_random_str, get_random_int
 from models.model import User, AgentMessage, Performance, Amount, Reward, MoneyRecord, OrderSkuInfo, ShoppingCart\
     , ProductSku, OrderInfo
+
 sys.path.append(os.path.dirname(os.getcwd()))
 
 class modify_data():
