@@ -50,7 +50,7 @@ class modify_data():
                     for sku in sku_list:
                         print sku['number'] * check_product['PAdiscountnum']
                         print real_discount
-                        real_discount = real_discount + sku['number'] * check_product['PAdiscountnum']
+                        real_discount = real_discount + int(sku['number']) * float(check_product['PAdiscountnum'])
                         print real_discount
                 session.query(OrderInfo).filter(OrderInfo.OIid == order['OIid']).update({'discountnum': real_discount})
             session.commit()
