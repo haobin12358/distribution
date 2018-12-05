@@ -48,7 +48,10 @@ class modify_data():
                     check_product = get_model_return_dict(self.sgoods.get_product_info(product['PRid']))
                     sku_list = get_model_return_list(self.sorder.get_sku_list_by_opiid(product['OPIid']))
                     for sku in sku_list:
+                        print sku['number'] * check_product['PAdiscountnum']
+                        print real_discount
                         real_discount = real_discount + sku['number'] * check_product['PAdiscountnum']
+                        print real_discount
                 session.query(OrderInfo).filter(OrderInfo.OIid == order['OIid']).update({'discountnum': real_discount})
             session.commit()
         except:
