@@ -53,7 +53,6 @@
                 accept="image/*"
                 list-type="picture-card"
                 :file-list="personImgList"
-                :on-success="handlePersonImgSuccess"
                 :on-preview="handlePictureCardPreview"
                 :before-upload="beforeAvatarUpload"
                 :on-remove="handleRemove"

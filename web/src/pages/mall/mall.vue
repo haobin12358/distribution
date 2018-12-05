@@ -277,7 +277,7 @@
             <ul class="goods-list">
                 <li class="goods-item" v-for="item in productList" @click="gotoGoodsDetail(item)">
                     <section class="goods-img">
-                        <img v-lazy="item.PRpic" alt="">
+                        <img v-lazy="item.PRpic" :key="item.PRpic" alt="">
                     </section>
                     <section class="goods-description">
                         <header class="goods-description-header">

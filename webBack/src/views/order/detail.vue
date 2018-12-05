@@ -46,8 +46,8 @@
 
         <section class="tool-tip-wrap">
             <el-steps :active="order.OIstatus" align-center>
-                <el-step title="已下单" description="用户已付款"></el-step>
                 <el-step title="待发货" description="请填写快递信息"></el-step>
+                <el-step title="已发货" description="已填写快递信息"></el-step>
                 <el-step title="已完成" description="发货后10天自动完成"></el-step>
             </el-steps>
         </section>
@@ -105,7 +105,6 @@
                         <el-button type="primary" @click="doDeliver" v-if="order.OIstatus == 1">确定发货</el-button>
                     </el-form-item>
                 </el-form>
-{
             </section>
 
         </section>
@@ -260,7 +259,7 @@
 
         created() {
             this.order = this.$route.query;
-            
+
             if(this.order.OIstatus == 4){
                 this.order.OIstatus = 1;
             }

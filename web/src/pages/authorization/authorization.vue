@@ -13,7 +13,7 @@
     <div class="container">
         <header-top :show-back="true"></header-top>
 
-        <img v-lazy="img" alt="">
+        <img :src="img" alt="">
         <p>
             说明：长按或右击证书图片下载。
         </p>

@@ -66,7 +66,7 @@
             <el-table-column prop="CMpaytime" align="center" label="充值日期" width="120"></el-table-column>
             <el-table-column prop="name" align="center" label="凭证" width="200">
                 <template slot-scope="scope">
-                    <img v-for="item in scope.row.CMproof" class="small-proof-img" v-lazy="item"
+                    <img v-for="item in scope.row.CMproof" class="small-proof-img"  v-lazy="item" :key="item"
                          @click="showBigImg(item)" alt="">
                 </template>
             </el-table-column>
@@ -103,7 +103,7 @@
             </el-pagination>
         </section>
 
-        <el-dialog title="打款凭证" :visible.sync="dialogTableVisible">
+        <el-dialog title="打款凭证" top="0" custom-class="one-screen-dialog" :visible.sync="dialogTableVisible">
             <img class="proof-img" :src="bigImgUrl" alt="">
         </el-dialog>
     </div>

@@ -70,7 +70,6 @@
                             accept="image/*"
                             list-type="picture-card"
                             :file-list="detailImgs"
-                            :on-success="handleDetailImgsSuccess"
                             :on-preview="handlePictureCardPreview"
                             :before-upload="beforeDetailImgsUpload"
                             :on-remove="handleDetailImgsRemove"
@@ -830,17 +829,21 @@
                             this.formData.sowingmap = data.sowingmap;
 
                             this.imageUrl = editPd.PRpic;
-                            this.detailImgs = data.sowingmap.map(item => {
-                                return {
-                                    url: item
-                                }
-                            });
-                            this.longImgs = data.detailpics.map(item => {
-                                return {
-                                    url: item
-                                }
-                            });
 
+                            if(data.sowingmap) {
+                                this.detailImgs = data.sowingmap.map(item => {
+                                    return {
+                                        url: item
+                                    }
+                                });
+                            }
+                            if(data.detailpics){
+                                this.longImgs = data.detailpics.map(item => {
+                                    return {
+                                        url: item
+                                    }
+                                });
+                            }
 
                             this.selectedOption = [editPd.firstpaid.toString(), editPd.PAid.toString()];
                             // this.skuTableData = data.skulist;

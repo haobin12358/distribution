@@ -91,6 +91,8 @@ const state = {
         },
     ],     //  主页左侧菜单
 
+    productTablePage: 3,
+
 }
 
 export default new Vuex.Store({

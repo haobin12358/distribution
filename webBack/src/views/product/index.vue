@@ -41,10 +41,10 @@
         </section>
 
         <!--商品表格-->
-        <el-table :data="tableData" v-loading="loading" stripe :cell-class-name="cellFunction"  style="width: 100%">
-            <el-table-column prop="img" align="center"  label="图片" width="120">
-                <template slot-scope="scope">
-                    <img v-lazy="scope.row.PRpic" class="table-pic"/>
+        <el-table :data="tableData" :row-key="PRid" v-loading="loading" stripe :cell-class-name="cellFunction"  style="width: 100%">
+            <el-table-column prop="PRpic" align="center" label="图片" width="120">
+                <template slot-scope="scope" >
+                    <img v-lazy="scope.row.PRpic" :key="scope.row.PRid" class="table-pic"/>
                 </template>
             </el-table-column>
             <el-table-column prop="PRname" label="商品名 " width="240" align="center"></el-table-column>
@@ -251,6 +251,8 @@
             },
             setProductList() {
                 this.loading = true;
+                // this.tableData = this.tableData.map(item => item.PRpic = '');
+
                 this.$http.get(this.$api.getProductList, {
                     noLoading: true,
 
@@ -266,6 +268,7 @@
                     res => {
                         if (res.data.status == 200) {
                             this.loading = false;
+
                             this.tableData = res.data.data;
                             this.total = res.data.mount|| 0;
                         }
@@ -279,8 +282,12 @@
 
         },
 
+        activated(){
+            this.setCategoryList();
+            this.setProductList();
+        },
+
         created() {
-            this.currentPage = 1;
             this.setCategoryList();
             this.setProductList();
         },
