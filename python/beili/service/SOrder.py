@@ -90,7 +90,7 @@ class SOrder(SBase):
     @close_session
     def get_product_list(self, oiid):
         return self.session.query(OrderProductInfo.PRname, OrderProductInfo.PRimage, OrderProductInfo.OPIid\
-                                  , OrderProductInfo.PRprice).filter(OrderProductInfo.OIid == oiid).all()
+                                  , OrderProductInfo.PRprice, OrderProductInfo.PRid).filter(OrderProductInfo.OIid == oiid).all()
 
     @close_session
     def get_order_details(self, oisn):
