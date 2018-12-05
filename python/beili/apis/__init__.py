@@ -60,6 +60,7 @@ class modify_data():
                 print '6666'
             session.commit()
         except Exception as e:
+            print '777777'
             print e
             session.rollback()
         finally:
