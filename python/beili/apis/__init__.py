@@ -57,6 +57,7 @@ class modify_data():
                         print real_discount
                 print '555555', real_discount
                 session.query(OrderInfo).filter(OrderInfo.OIid == order['OIid']).update({'discountnum': real_discount})
+                print '6666'
             session.commit()
         except Exception as e:
             print e
