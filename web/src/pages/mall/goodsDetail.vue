@@ -66,6 +66,7 @@
             width: 100%;
             padding: 30px;
             box-sizing: border-box;
+            .bs(6px, 3px, 6px);
 
             .close-row {
                 .fj(flex-end);
@@ -113,8 +114,6 @@
             }
         }
 
-
-
         .num-block {
             .fj();
             align-items: center;
@@ -125,18 +124,20 @@
             }
         }
 
-        .goods-detail-imgs{
-            .title{
+        .goods-detail-imgs {
+            .title {
                 text-align: center;
                 margin-bottom: 20px;
+                padding: 20px 0;
             }
-            .detail-img{
+            .detail-img {
+                display: block;
                 width: 100%;
                 max-height: 100%;
             }
         }
 
-        .go-top-fixed{
+        .go-top-fixed {
             position: fixed;
             right: 30px;
             bottom: 150px;
@@ -178,16 +179,16 @@
         </section>
 
         <!--<section class="choose-sku" @click="showChooseSpec">-->
-            <!--<span class="choose-sku-hd">-->
-              <!--<span class="label">选择</span>-->
-              <!--<span class="type">类型 尺寸</span>-->
-            <!--</span>-->
-            <!--<img src="/static/images/arrow.png" alt="" class="choose-sku-ft">-->
+        <!--<span class="choose-sku-hd">-->
+        <!--<span class="label">选择</span>-->
+        <!--<span class="type">类型 尺寸</span>-->
+        <!--</span>-->
+        <!--<img src="/static/images/arrow.png" alt="" class="choose-sku-ft">-->
         <!--</section>-->
 
         <section class="choose-goods-spec">
             <!--<section class="close-row">-->
-                <!--<img src="/static/images/close.png" alt="" @click="chooseSpecVisible=false">-->
+            <!--<img src="/static/images/close.png" alt="" @click="chooseSpecVisible=false">-->
             <!--</section>-->
 
             <section class="goods-spec-list">
@@ -232,9 +233,8 @@
 
         <section class="goods-detail-imgs">
             <h1 class="title">
-                - 详情 -
+                - 商品详情 -
             </h1>
-
             <img v-for="item in product.detailpics" v-lazy="item" class="detail-img"/>
         </section>
 
@@ -306,15 +306,15 @@
         },
 
         methods: {
-            touchMove(){
+            touchMove() {
                 let scrollTop = common.getScrollTop();
                 let scrollHeight = common.getScrollHeight();
                 let ClientHeight = common.getClientHeight();
 
                 this.showGoTop = scrollTop > ClientHeight
             },
-            handleGoTop(){
-                window.scrollTo(0,0);
+            handleGoTop() {
+                window.scrollTo(0, 0);
             },
 
             showChooseSpec() {
@@ -341,12 +341,12 @@
             },
 
             changeCount(newCount) {
-                this.count = Number( newCount);
+                this.count = Number(newCount);
             },
 
             addToCart() {
                 if (this.choosedSku) {
-                    if(this.count){
+                    if (this.count) {
                         addShoppingCart(this.product.PRid, this.choosedSku, this.count).then(
                             resData => {
                                 if (resData) {
@@ -358,7 +358,7 @@
                                 }
                             }
                         )
-                    }else{
+                    } else {
                         this.$toast('请确保数量大于1!');
                     }
                 } else {
@@ -367,11 +367,11 @@
             }
         },
 
-        destroyed(){
+        destroyed() {
             window.removeEventListener('scroll', this.touchMove);
         },
 
-        mounted(){
+        mounted() {
             window.addEventListener('scroll', this.touchMove);
         },
 
