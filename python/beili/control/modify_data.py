@@ -34,8 +34,7 @@ from models.model import User, AgentMessage, Performance, Amount, Reward, MoneyR
     , ProductSku, OrderInfo
 sys.path.append(os.path.dirname(os.getcwd()))
 
-class Modify():
-
+class modify_data():
     def __init__(self):
         self.suser = SUser()
         self.sorder = SOrder()
@@ -83,4 +82,4 @@ class Modify():
             session.close()
 
 if __name__ == '__main__':
-    Modify().modify()
+    modify_data().modify()
