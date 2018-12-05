@@ -43,6 +43,8 @@ class modify_data():
         session = db_session()
         try:
             for order in all_order:
+                if order['OIid'] == '11a8144b-12f4-497c-a1c3-827e5715e682':
+                    continue
                 product_list = get_model_return_list(self.sorder.get_product_list(order['OIid']))
                 real_discount = 0
                 print '22222'
