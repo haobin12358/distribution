@@ -79,7 +79,6 @@
 </template>
 
 <script>
-    import moneyRecord from "src/components/common/moneyRecord"
     import {getMoneyRecord} from "src/api/api"
 
 
@@ -141,7 +140,6 @@
         },
 
         components: {
-            moneyRecord
         },
 
         methods: {

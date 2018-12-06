@@ -37,7 +37,6 @@
 </template>
 
 <script>
-    import moneyRecord from "src/components/common/moneyRecord"
     import {getDrawMoneyList} from "src/api/api"
 
 
@@ -78,7 +77,6 @@
         },
 
         components: {
-            moneyRecord
         },
 
         methods: {

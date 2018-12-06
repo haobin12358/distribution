@@ -311,7 +311,6 @@
 
 <script>
     import footerGuide from "src/components/footer/footerGuide"
-    import buyCart from "src/components/common/buyCart"
     import {getProductCategory, getProductList, checkBail} from "src/api/api"
     import LoadMore from "src/components/common/loadMore"
     import common from "src/common/js/common"
@@ -342,7 +341,6 @@
         },
 
         components: {
-            buyCart,
             footerGuide,
             LoadMore,
             PlaceHolder

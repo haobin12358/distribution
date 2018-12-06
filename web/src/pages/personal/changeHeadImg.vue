@@ -73,7 +73,7 @@
 
         <upload-old-head-img label="头像" :imgs="oldHeadImgs"></upload-old-head-img>
         <upload-new-head-img label="新头像" :readOnly="false" @update="updateNewHeadImg" @isUploading="listenUpload"
-                             :upload-limit="1"></upload-new-head-img>
+                             :upload-limit="1" type="1"></upload-new-head-img>
 
         <section class="my-confirm-btn-wrap">
             <button v-if="isImgUploading" class="my-confirm-btn disabled">头 像 上 传 中...</button>

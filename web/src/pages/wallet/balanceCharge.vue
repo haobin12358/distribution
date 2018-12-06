@@ -159,11 +159,6 @@
             <button v-else class="my-confirm-btn" @click="doConfirm">确 认 充 值</button>
         </section>
 
-        <section v-if="formData.paytype == 3" class="my-confirm-btn-wrap" style="margin-top: 50px">
-            <button class="my-confirm-btn" style="background: #26b83a;" @click="doWeChatPay">微 信 充 值</button>
-
-        </section>
-
         <mt-actionsheet
             :actions="actions"
             v-model="sheetVisible">
@@ -179,6 +174,7 @@
             :closeOnClickModal="false"
             @cancel="close"
             :startDate="startDate"
+            :endDate = "endDate"
             @confirm="dateTimeConfirm"
         >
         </mt-datetime-picker>
@@ -192,6 +188,7 @@
     import {mapState} from "vuex"
     import {setStore, getStore} from "src/common/js/mUtils"
     import {TOKEN} from "src/common/js/const"
+    import TimeFormater from "time-formater";
 
     export default {
         name: "marginMoney",
@@ -205,7 +202,7 @@
                     {name: '银行卡', value: 2, method: this.selectTransferWay},
                 ],
                 sheetVisible: false,
-                datetime: '',
+                datetime: new Date(),
                 date: '',
 
                 formData: {
@@ -221,6 +218,7 @@
                 registerInfo: {},
 
                 startDate: new Date('2016'),
+                endDate: new Date(),
 
 
                 evidenceImgs: [],   //  凭证
@@ -313,7 +311,7 @@
                 if (!this.date) {
                     return '请输入打款日期'
                 } else {
-                    this.formData.paytime = common.dateFormat(new Date(this.date)).substr(0, 8);
+                    this.formData.paytime = TimeFormater(new Date(this.date)).format('YYYYMMDD');
                 }
 
                 if (!this.evidenceImgs.length) {
@@ -341,90 +339,6 @@
                     )
                 }
             },
-
-            doWeChatPay() {
-                let that = this;
-
-                if(this.userInfo.openid){
-                    if (!this.formData.amount) {
-                        this.$toast('请输入打款金额');
-                        return
-                    } else if (!(this.formData.amount >= 0.01 && /^[0-9]+([.]{1}[0-9]+){0,1}$/.test(this.formData.amount))) {
-                        this.$toast('请输入合理的打款金额数字');
-                        return
-                    }
-
-                    weixinPay(this.formData.amount).then(
-                        resData => {
-                            if (resData.status == 200) {
-                                let data = resData.data;
-
-                                function onBridgeReady() {      // 微信支付接口
-                                    WeixinJSBridge.invoke(
-                                        'getBrandWCPayRequest', {
-                                            "appId": data.appId,                 // 公众号名称，由商户传入
-                                            "timeStamp": data.timeStamp,         // 时间戳，自1970年以来的秒数
-                                            "nonceStr": data.nonceStr,           // 随机串
-                                            "package": data.package,             // 统一下单接口返回的prepay_id参数值
-                                            "signType": data.signType,           // 微信签名方式：
-                                            "paySign": data.paySign              // 微信签名
-                                        },
-                                        function (res) {
-                                            console.log(res);
-                                            if (res.err_msg == "get_brand_wcpay_request:ok") {             // 支付成功
-                                                that.$toast('充值成功!');
-                                                that.$router.back();
-                                                // 支付成功进入支付成功页
-                                                // that.$router.push({
-                                                //     path: "/orderPayOK",
-                                                //     query: {oiid: oiid, price: that.totalPrice}
-                                                // });
-                                            } else if (res.err_msg == "get_brand_wcpay_request:cancel") {   // 支付过程中用户取消
-                                                that.$toast('支付取消!');
-
-                                                // Toast({message: "支付已取消", className: 'm-toast-warning'});
-                                                // that.$router.push({path: "/orderStatus", query: {oiid}});
-                                            } else if (res.err_msg == "get_brand_wcpay_request:fail") {     // 支付失败
-                                                that.$toast('支付失败!');
-
-                                                // Toast({message: "支付失败", className: 'm-toast-fail'});
-                                                // that.$router.push({path: "/orderStatus", query: {oiid}});
-                                            }
-                                        });
-                                }   //  onBridgeReady
-
-                                if (typeof WeixinJSBridge == "undefined") {
-                                    if (document.addEventListener) {
-                                        document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
-                                    } else if (document.attachEvent) {
-                                        document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
-                                        document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
-                                    }
-                                } else {
-                                    onBridgeReady();
-                                }
-                            }
-                        }
-                    );
-                }else{
-                    this.$toast('抱歉,请重新登录前往支付');
-                    this.$http.get(title+'/user/check_openid',{
-                        params: {
-                            token: getStore(TOKEN),
-                            state: location.href,
-                        }
-                    }).then(
-                        res => {
-                            if (res.data.status == 302) {
-                                let resData = res.data,
-                                    data = res.data.data;
-
-                                location.href = data.url;
-                            }
-                        }
-                    )
-                }
-            }
         },
 
         created() {

@@ -21,7 +21,7 @@
             <li class="money-record-item" v-for="item in record">
                 <p class="row">
                     <span class="hard">{{statusToTxt(item.CMstatus)}}</span>
-                    <span class="weak">{{item.CMcreatetime}}</span>
+                    <span class="weak">{{item.CMpaytime}}</span>
                 </p>
                 <p class="row">
                     <span class="weak">{{item.CMtradenum}}</span>
@@ -37,7 +37,6 @@
 </template>
 
 <script>
-    import moneyRecord from "src/components/common/moneyRecord"
     import {getChargeMoneyList} from "src/api/api"
 
     //  充值记录
@@ -74,7 +73,6 @@
         },
 
         components: {
-            moneyRecord
         },
 
         methods: {
