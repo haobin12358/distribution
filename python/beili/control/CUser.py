@@ -180,7 +180,8 @@ class CUser():
                     filepath = os.path.join(rootdir, filename)
                     if type == 1:
                         image.resize((128, 128)).save(filepath)
-                    image.resize((w / 2, h / 2)).save(filepath)
+                    else:
+                        image.resize((w / 2, h / 2)).save(filepath)
                     response = import_status("upload_file_success", "OK")
                     url = QRCODEHOSTNAME + "/file/" + filename
                     response["data"] = url
