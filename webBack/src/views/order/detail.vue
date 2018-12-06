@@ -97,12 +97,13 @@
 
                     <el-form-item prop="expressnum" label="快递单号">
                         <el-col :span="14">
-                            <el-input v-model="formExpress.expressnum" :readonly="order.OIstatus != 1"></el-input>
+                            <el-input v-model="formExpress.expressnum" :readonly="order.OIstatus == 3"></el-input>
                         </el-col>
 
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="doDeliver" v-if="order.OIstatus == 1">确定发货</el-button>
+                        <el-button type="primary" @click="doDeliver" v-if="order.OIstatus == 1 ">确定发货</el-button>
+                        <el-button type="primary" @click="doDeliver" v-if="order.OIstatus == 2 ">修改发货信息</el-button>
                     </el-form-item>
                 </el-form>
             </section>
@@ -221,7 +222,7 @@
                         if (vaild) {
                             this.$confirm(`快递公司:${ this.formExpress.expressname} 快递单号:${this.formExpress.expressnum}`
                                 , '确认').then(
-                                ()=>{
+                                () => {
                                     this.$http.post(this.$api.updateOrder, {
                                             "oisn": this.order.OIsn,
                                             "expressname": this.formExpress.expressname,
@@ -260,7 +261,7 @@
         created() {
             this.order = this.$route.query;
 
-            if(this.order.OIstatus == 4){
+            if (this.order.OIstatus == 4) {
                 this.order.OIstatus = 1;
             }
 

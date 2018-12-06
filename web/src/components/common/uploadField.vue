@@ -139,6 +139,10 @@
             uploadLimit: {
                 type: Number,
                 default: 2
+            },
+            type: {
+                type: String,
+                default: ''
             }
         },
 
@@ -218,7 +222,8 @@
                 Axios({
                     url: title + '/user/upload_file',
                     params: {
-                        token: getStore(TOKEN)
+                        token: getStore(TOKEN),
+                        type: this.type,
                     },
                     method: 'post',
                     data: formData,

@@ -166,6 +166,7 @@
             minute-format="{value} 分"
             v-model="datetime"
             :startDate = "startDate"
+            :endDate = "endDate"
             :closeOnClickModal="false"
             @cancel="closeDatePicker"
             @confirm="dateTimeConfirm"
@@ -190,8 +191,9 @@
             return {
                 transferWay: '支付宝',
                 date: '',
-                datetime: '',
+                datetime: new Date(),
                 startDate: new Date('2016'),
+                endDate: new Date(),
 
                 timer: null,    //  计时器
                 lastEnableCodeSecond: 0,    //  下一次可用验证码倒计时

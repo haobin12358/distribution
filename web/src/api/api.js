@@ -419,6 +419,7 @@ export const getRankList = (month) => myAxios('/account/get_rank_list', {
  * @returns {Promise<*|undefined>}
  */
 export const getAccount = (month) => myAxios('/account/get_account', {
+    showIndicator: false,
     method: 'post',
     params: {
         token: getStore(TOKEN),

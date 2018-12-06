@@ -20,7 +20,6 @@
 </template>
 
 <script>
-    import bigBtn from "src/components/common/bigBtn"
 
     export default {
         name: "promotion",
@@ -30,7 +29,6 @@
         },
 
         components: {
-            bigBtn
         },
 
         methods: {},
