@@ -154,7 +154,7 @@ class SAccount(SBase):
         charge.CMtradenum = tradenum
         charge.CMcreatetime = createtime
         charge.CMproof = proof
-        charge.CMpaytime = paytime + '000000'
+        charge.CMpaytime = paytime + '000000' if len(paytime) == 8 else createtime
         self.session.add(charge)
         return True
 

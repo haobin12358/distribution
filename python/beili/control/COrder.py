@@ -187,14 +187,6 @@ class COrder():
             agentmessage.AMcontent = u'您的订单创建成功，订单号为' + ' ' + str(OIsn)
             session.add(agentmessage)
 
-            performance = Performance()   # 插入业绩表
-            performance.USid = request.user.id
-            performance.REmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
-            performance.PEid = str(uuid.uuid4())
-            performance.PEdiscountnum = discountnum
-            performance.PEcreatetime = datetime.strftime(datetime.now(), format_for_db)
-            session.add(performance)
-
             moneyrecord = MoneyRecord()  # 插入收支记录表
             moneyrecord.MRid = str(uuid.uuid4())
             moneyrecord.MRtype = 1
@@ -387,6 +379,8 @@ class COrder():
             oisn = data.get('oisn')
             expressname = data.get('expressname')
             expressnum = data.get('expressnum')
+            if not expressname or not expressnum:
+                raise dberror
         except:
             return PARAMS_ERROR
         detail = get_model_return_dict(self.sorder.get_order_details(oisn))
@@ -394,40 +388,56 @@ class COrder():
             return NOT_FOUND_ORDER
         session = db_session()
         try:
-            update = {}
-            update['OIstatus'] = 2
-            update['expressname'] = expressname
-            update['expressnum'] = expressnum
-            session.query(OrderInfo).filter(OrderInfo.OIsn == oisn).update(update)
-            monthnow = datetime.strftime(datetime.now(), format_for_db)[0:6]
-            amount_data = self.saccount.get_user_date(detail['USid'], monthnow)
-            order = get_model_return_dict(self.sorder.get_order_details(oisn))
-            user = self.smycenter.get_user_basicinfo(detail['USid'])  # 插入销售表，有数据就更新
-            if not user:
-                raise dberror
-            user = get_model_return_dict(user)
-            if not order:
-                raise dberror
-            if amount_data:
-                amount_data = get_model_return_dict(amount_data)
-                new_data = {}
-                new_data['performance'] = amount_data['performance'] + order['discountnum']
-                try:
-                    session.query(Amount).filter(Amount.USid == detail['USid']).filter(Amount.AMmonth == monthnow).update(new_data)
-                except:
-                    raise dberror
+            is_exits = get_model_return_dict(session.query(OrderInfo.expressnum).filter(OrderInfo.OIsn == oisn).first())
+            if is_exits['expressnum']:
+                update = {}
+                update['OIstatus'] = 2
+                update['expressname'] = expressname
+                update['expressnum'] = expressnum
+                session.query(OrderInfo).filter(OrderInfo.OIsn == oisn).update(update)
             else:
-                amount = Amount()
-                amount.USid = detail['USid']
-                amount.AMid = str(uuid.uuid4())
-                amount.USagentid = user['USagentid']
-                amount.performance = order['discountnum']
-                amount.USname = user['USname']
-                amount.AMstatus = 1
-                amount.USheadimg = user['USheadimg']
-                amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
-                amount.AMmonth = monthnow
-                session.add(amount)
+                update = {}
+                update['OIstatus'] = 2
+                update['expressname'] = expressname
+                update['expressnum'] = expressnum
+                session.query(OrderInfo).filter(OrderInfo.OIsn == oisn).update(update)
+                monthnow = datetime.strftime(datetime.now(), format_for_db)[0:6]
+                amount_data = self.saccount.get_user_date(detail['USid'], monthnow)
+                order = get_model_return_dict(self.sorder.get_order_details(oisn))
+                user = self.smycenter.get_user_basicinfo(detail['USid'])  # 插入销售表，有数据就更新
+                if not user:
+                    raise dberror
+                user = get_model_return_dict(user)
+                if not order:
+                    raise dberror
+                if amount_data:
+                    amount_data = get_model_return_dict(amount_data)
+                    new_data = {}
+                    new_data['performance'] = amount_data['performance'] + order['discountnum']
+                    try:
+                        session.query(Amount).filter(Amount.USid == detail['USid']).filter(Amount.AMmonth == monthnow).update(new_data)
+                    except:
+                        raise dberror
+                else:
+                    amount = Amount()
+                    amount.USid = detail['USid']
+                    amount.AMid = str(uuid.uuid4())
+                    amount.USagentid = user['USagentid']
+                    amount.performance = order['discountnum']
+                    amount.USname = user['USname']
+                    amount.AMstatus = 1
+                    amount.USheadimg = user['USheadimg']
+                    amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
+                    amount.AMmonth = monthnow
+                    session.add(amount)
+
+                performance = Performance()  # 插入业绩表
+                performance.USid = detail['USid']
+                performance.REmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
+                performance.PEid = str(uuid.uuid4())
+                performance.PEdiscountnum = order['discountnum']
+                performance.PEcreatetime = datetime.strftime(datetime.now(), format_for_db)
+                session.add(performance)
             session.commit()
         except Exception as e:
             print e
