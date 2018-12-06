@@ -41,7 +41,7 @@
         </section>
 
         <!--商品表格-->
-        <el-table :data="tableData" :row-key="PRid" v-loading="loading" stripe :cell-class-name="cellFunction"  style="width: 100%">
+        <el-table :data="tableData" row-key="PRid" v-loading="loading" stripe :cell-class-name="cellFunction"  style="width: 100%">
             <el-table-column prop="PRpic" align="center" label="图片" width="120">
                 <template slot-scope="scope" >
                     <img v-lazy="scope.row.PRpic" :key="scope.row.PRid" class="table-pic"/>
