@@ -153,6 +153,11 @@ class CUser():
     def upload_file(self):
         if is_ordirnaryuser() or is_admin():
             try:
+                param = request.args.to_dict()
+                type = param.get("type")
+            except:
+                type = None
+            try:
                 files = request.files.get("file")
             except:
                 return PARAMS_ERROR
@@ -173,6 +178,8 @@ class CUser():
                     w, h = image.size
                     filename = request.user.id + get_db_time_str() + get_random_str(6) + "." + filessuffix
                     filepath = os.path.join(rootdir, filename)
+                    if type == 1:
+                        image.resize((128, 128)).save(filepath)
                     image.resize((w / 2, h / 2)).save(filepath)
                     response = import_status("upload_file_success", "OK")
                     url = QRCODEHOSTNAME + "/file/" + filename

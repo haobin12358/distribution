@@ -388,7 +388,7 @@ class COrder():
             return NOT_FOUND_ORDER
         session = db_session()
         try:
-            is_exits = get_model_return_dict(session.query(OrderInfo).filter(OrderInfo.OIsn == oisn).first())
+            is_exits = get_model_return_dict(session.query(OrderInfo.expressnum).filter(OrderInfo.OIsn == oisn).first())
             if is_exits['expressnum']:
                 update = {}
                 update['OIstatus'] = 2
@@ -431,13 +431,13 @@ class COrder():
                     amount.AMmonth = monthnow
                     session.add(amount)
 
-                    performance = Performance()  # 插入业绩表
-                    performance.USid = request.user.id
-                    performance.REmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
-                    performance.PEid = str(uuid.uuid4())
-                    performance.PEdiscountnum = order['discountnum']
-                    performance.PEcreatetime = datetime.strftime(datetime.now(), format_for_db)
-                    session.add(performance)
+                performance = Performance()  # 插入业绩表
+                performance.USid = detail['USid']
+                performance.REmonth = datetime.strftime(datetime.now(), format_for_db)[0:6]
+                performance.PEid = str(uuid.uuid4())
+                performance.PEdiscountnum = order['discountnum']
+                performance.PEcreatetime = datetime.strftime(datetime.now(), format_for_db)
+                session.add(performance)
             session.commit()
         except Exception as e:
             print e
