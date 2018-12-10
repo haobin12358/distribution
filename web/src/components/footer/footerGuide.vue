@@ -71,7 +71,7 @@
             <section style="position: relative">
                 <img class="tab-icon"
                      :src="$route.path.indexOf('message')!=-1?'/static/images/tabbar_message_active.png':'/static/images/tabbar_message.png'"
-                     alt="">
+                     alt=""/>
                 <span class="tab-red-dot" v-if="notReadComMsgNum != 0">{{notReadComMsgNum}}</span>
             </section>
 
@@ -81,13 +81,13 @@
         <section class="footer-item" @click="gotoAddress('/mall')">
             <img class="tab-icon"
                  :src="$route.path.indexOf('mall')!=-1?'/static/images/tabbar_home_active.png':'/static/images/tabbar_home.png'"
-                 alt="">
+                 alt=""/>
             <span :class="{'tab-title': true,active: $route.path.indexOf('mall')!=-1}">云仓</span>
         </section>
         <section class="footer-item" @click="gotoAddress('/personal')">
             <img class="tab-icon"
                  :src="$route.path.indexOf('personal')!=-1 ? '/static/images/tabbar_person_active.png':'/static/images/tabbar_person.png'"
-                 alt="">
+                 alt=""/>
             <span :class="{'tab-title': true,active: $route.path.indexOf('personal')!=-1}">我的</span>
         </section>
     </div>
@@ -95,8 +95,6 @@
 </template>
 
 <script>
-    import {getStore} from "src/common/js/mUtils"
-    import {NOT_READ_COM_MSGS} from "src/common/js/const"
     import {mapState} from "vuex"
 
 
@@ -111,7 +109,8 @@
         computed:{
             ...mapState({
                 notReadComMsgNum(state){
-                    return state.notReadComMsg > getStore(NOT_READ_COM_MSGS) ?this.$store.state.notReadComMsg : getStore(NOT_READ_COM_MSGS);
+                    return state.notReadComMsg;
+                    // return state.notReadComMsg > getStore(NOT_READ_COM_MSGS) ?this.$store.state.notReadComMsg : getStore(NOT_READ_COM_MSGS);
                 }
             })
         },

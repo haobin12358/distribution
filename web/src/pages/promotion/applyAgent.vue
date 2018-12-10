@@ -107,7 +107,7 @@
             <mt-field class="form-item" label="打款日期" placeholder="请选择打款日期" :readonly="true" :disableClear="true"
                       v-model="date" @click.native="openDatePicker"></mt-field>
             <head-img-field label="新头像" :readOnly="false" @update="updateNewHeadImg" @isUploading="listenHdUpload"
-                            :upload-limit="1"></head-img-field>
+                            :upload-limit="1" type="1"></head-img-field>
             <evidence-field label="打款凭证(1-2张)" :readOnly="false" @update="updateEvdImg" @isUploading="listenEvdUpload"
                             :upload-limit="2"></evidence-field>
         </section>
