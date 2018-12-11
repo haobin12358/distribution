@@ -5,6 +5,7 @@ import App from './App'
 import router from './router'
 import axios from 'axios'
 import 'lib-flexible'
+
 Vue.config.productionTip = false
 
 //mint-ui
@@ -12,9 +13,9 @@ import Mint from 'mint-ui';
 Vue.use(Mint);
 Vue.prototype.$toast = Mint.Toast;
 
-import headerTop from "components/header/header"
+import headerTop from "src/components/header/header"
 Vue.component('header-top',headerTop)
-import loadMore from "components/common/loadMore"
+import loadMore from "src/components/common/loadMore"
 Vue.component('load-more',loadMore)
 Vue.prototype.$log =()=> {
     console.log(arguments[0].toString(), arguments);
@@ -32,6 +33,7 @@ FastClick.attach(document.body);
 
 import promise from 'es6-promise';//解决axios在ie9下不生效的方法
 promise.polyfill();
+import 'babel-polyfill'
 
 Vue.prototype.$http = axios;
 //拦截器、

@@ -182,7 +182,6 @@
     import common from "src/common/js/common"
     import {ALL_AREA} from "src/common/js/const"
     import UploadField from "src/components/common/uploadField"
-    import TimeFormater from "time-formater";
 
     export default {
         name: "applyAgent",
@@ -506,7 +505,8 @@
                 if (!this.date) {
                     return '请输入打款日期'
                 } else {
-                    this.formData.paytime = TimeFormater(new Date(this.date)).format('YYYYMMDDHHmmss');
+                    // this.formData.paytime = TimeFormater(new Date(this.date)).format('YYYYMMDDHHmmss');
+                    this.formData.paytime = common.dateFormat(new Date(this.date));
                 }
 
                 if (!this.headImgs[0]) {

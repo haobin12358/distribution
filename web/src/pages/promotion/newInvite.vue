@@ -20,7 +20,9 @@
 
         <section class="form-container">
             <mt-field class="form-item" label="有效期限" placeholder="请选择有效期限" v-model="expireDateTxt" :readonly="true"
-                      :disableClear="true" @click.native="sheetVisible =true"></mt-field>
+                      :disableClear="true" @click.native="sheetVisible =true">
+                <img src="/static/images/arrow_down.png" style="width: 16px;height: 14px;" alt=""/>
+            </mt-field>
             <mt-field class="form-item" type="number" v-model="count" label="可用次数"
                       placeholder="请输入可用次数" :state="checkNumber(count) ?  '' :'warning'"></mt-field>
         </section>
@@ -42,10 +44,6 @@
     import {addQrcode} from "src/api/api"
     import common from "src/common/js/common"
     import {checkBail} from "src/api/api"
-    import TimeFormater from "time-formater";
-
-
-
 
     export default {
         name: "newInvite",
@@ -103,12 +101,13 @@
 
                 let tempDate = new Date(Number(this.expireDate));
 
-                this.expireDate = TimeFormater(tempDate).format('YYYYMMDDHHmmss');
+                // this.expireDate = TimeFormater(tempDate).format('YYYYMMDDHHmmss');
+                this.expireDate = common.dateFormat(tempDate);
+
             },
 
             doConfirm() {
                 if (this.expireDateTxt && this.count > 0) {
-
                     this.expireDateTxtToVal();
 
                     addQrcode(this.expireDate, this.count).then(

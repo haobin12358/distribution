@@ -188,7 +188,6 @@
     import {mapState} from "vuex"
     import {setStore, getStore} from "src/common/js/mUtils"
     import {TOKEN} from "src/common/js/const"
-    import TimeFormater from "time-formater";
 
     export default {
         name: "marginMoney",
@@ -311,7 +310,8 @@
                 if (!this.date) {
                     return '请输入打款日期'
                 } else {
-                    this.formData.paytime = TimeFormater(new Date(this.date)).format('YYYYMMDD');
+                    this.formData.paytime = common.dateFormat(new Date(this.date)).substr(0, 8);
+                    // this.formData.paytime = TimeFormater(new Date(this.date)).format('YYYYMMDD');
                 }
 
                 if (!this.evidenceImgs.length) {
