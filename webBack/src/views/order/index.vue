@@ -104,6 +104,7 @@
                     {{`${scope.row.expressname || ''} ${scope.row.expressnum || ''}`}}
                 </template>
             </el-table-column>
+            <el-table-column prop="OInote" label="备注" width="180" align="center"></el-table-column>
 
             <!--操作-->
             <el-table-column label="操作" width="120" fixed="right" align="center">

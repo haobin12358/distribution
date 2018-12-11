@@ -69,7 +69,7 @@
                         蓓莉云仓后台管理系统
                     </p>
                     <el-menu class="m-sidebar" :default-active="defaultPage.path" background-color="#545c64"
-                             text-color="#fff" active-text-color="#ffd04b" :router="true">
+                             text-color="#ffffff" active-text-color="#ffd04b" :router="true">
                         <el-menu-item v-for="item,index in menu" :index="item.path" :key="index">
                             <i class="el-icon-menu"></i>
                             <span slot="title">{{item.title}}</span>
