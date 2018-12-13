@@ -80,8 +80,7 @@ class CUser():
                         "message": u"您的账户未审核通过，请联系客服微信:" + self.conf.get('account', 'service')
                     }
                     return returnbody
-            else:
-                return PHONE_OR_PASSWORD_WRONG
+            return PHONE_OR_PASSWORD_WRONG
         token = usid_to_token(user['USid'])
         data = import_status('generic_token_success', "OK")
         data['data'] = {
