@@ -6,12 +6,14 @@
             .fj();
 
             .sale-data-item {
-                .wl(2.5rem, 2rem);
-                padding: .3rem 0 .4rem;
+                flex: 1;
+                .wl(auto, 2rem);
+                padding: .3rem .1rem .4rem;
                 box-sizing: border-box;
                 .fjc();
                 align-items: center;
                 border: 2px solid #46a0fc;
+                text-align: center;
 
                 &.active {
                     border-top: .1rem solid #46a0fc;
@@ -20,11 +22,9 @@
 
                 .num {
                     .sc(.5rem, #46a0fc);
-
                 }
 
                 .title {
-                    text-align: center;
 
                 }
 

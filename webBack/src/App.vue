@@ -12,7 +12,6 @@
         name: 'App',
 
         created(){
-            document.title = '蓓莉云仓后台管理系统'
         }
     }
 </script>
