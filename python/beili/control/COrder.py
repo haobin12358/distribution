@@ -546,8 +546,12 @@ class COrder():
         name = ''
         for product in list:
             sku_list = get_model_return_list(self.sorder.get_sku_list_by_opiid(product['OPIid']))
+            productName = product['PRname'].split("返")[0].strip()
+            result = re.match('[0-9A-Za-z]+', productName)
+            if result:
+                productName = result.group()
             for sku in sku_list:
-                name = name + product['PRname'] + sku['colorname'] + sku['sizename'] + str(sku['number']) + u'件' + ' '
+                name = name + productName + sku['colorname'] + sku['sizename'] + str(sku['number']) + u'件' + ' '
         return name
 
     @verify_token_decorator

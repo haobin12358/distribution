@@ -122,6 +122,7 @@ class CMyCenter():
             return TOKEN_ERROR
         result = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
         if result:
+            result['USmount'] = round(result['USmount'], 2)
             res = import_status("get_user_basicinfo_success", "OK")
             res['data'] = result
             return res
@@ -135,6 +136,7 @@ class CMyCenter():
         result = get_model_return_dict(self.smycenter.get_user_totalinfo(request.user.id))
 
         if result:
+            result['USmount'] = round(result['USmount'], 2)
             result['UScreatetime'] = get_web_time_str(result['UScreatetime'])
             res = import_status("get_user_totalinfo_success", "OK")
             res['data'] = result
