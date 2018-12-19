@@ -141,7 +141,7 @@ class CAccount():
         performance_list = []
         self_performance = self.saccount.get_user_performance(id, month)
         if self_performance:
-            self_performance['performance'] = round(self_performance['performance'], 2)
+            self_performance[0]['performance'] = round(self_performance[0]['performance'], 2)
             performance_list = performance_list + (get_model_return_list(self_performance))
         teamid_list = self.suser.getuser_by_preid(id)
         if teamid_list:
