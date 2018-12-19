@@ -99,11 +99,11 @@
                         <el-col :span="14">
                             <el-input v-model="formExpress.expressnum" :readonly="order.OIstatus == 3"></el-input>
                         </el-col>
-
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="doDeliver" v-if="order.OIstatus == 1 ">确定发货</el-button>
-                        <el-button type="primary" @click="doDeliver" v-if="order.OIstatus == 2 ">修改发货信息</el-button>
+                        <el-button type="primary" @click="doDeliver" v-if="order.OIstatus == 2">修改发货信息</el-button>
+                        <el-button type="primary" @click="doDeliver" v-if="order.OIstatus == 1">确定发货</el-button>
+                        <el-button v-else icon="el-icon-search" @click="gotoKuaidi100">查看物流</el-button>
                     </el-form-item>
                 </el-form>
             </section>
@@ -134,34 +134,6 @@
         data() {
             return {
                 order: {},
-                tableData2: [
-                    {
-                        img: '/static/images/test_img.png',
-                        name: '纸尿裤',
-                        price: 123,
-                        num: 1,
-                    }, {
-                        img: '/static/images/test_img.png',
-                        name: '纸尿裤',
-                        price: 123,
-                        num: 1,
-                    }, {
-                        img: '/static/images/test_img.png',
-                        name: '纸尿裤',
-                        price: 123,
-                        num: 1,
-                    }, {
-                        img: '/static/images/test_img.png',
-                        name: '纸尿裤',
-                        price: 123,
-                        num: 1,
-                    }, {
-                        img: '/static/images/test_img.png',
-                        name: '纸尿裤',
-                        price: 123,
-                        num: 1,
-                    },
-                ],
 
                 formExpress: {
                     expressname: '',
@@ -254,8 +226,11 @@
                         }
                     }
                 )
+            },
 
-            }
+            gotoKuaidi100() {
+                window.open(`https://m.kuaidi100.com/index_all.html?postid=${this.formExpress.expressnum}#result`);
+            },
         },
 
         created() {

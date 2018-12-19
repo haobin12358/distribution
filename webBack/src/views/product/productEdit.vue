@@ -123,57 +123,100 @@
                     </section>
                     <el-collapse v-model="activeNames">
                         <el-collapse-item :title="`选择的颜色和尺码${isEdit? '---当前是编辑状态,谨慎减去在售的组合!':''}`" name="1">
-                            <el-form-item label="选择颜色(从共用的勾选)">
-                                <el-checkbox :indeterminate="isColorIndeterminate" v-model="checkAllColor"
-                                             @change="handleCheckAllColorsChange">全选
-                                </el-checkbox>
-                                <div style="margin: 15px 0;"></div>
-                                <el-checkbox-group v-model="checkedColors" @change="handleCheckedColorsChange">
-                                    <el-checkbox v-for="color in allColorsName" :label="color" :key="color">
-                                        {{color}}
-                                    </el-checkbox>
-                                </el-checkbox-group>
-                                <el-input ref="inputColor" class="input-new-tag" v-if="inputColorVisible"
-                                          v-model.trim="inputColorVal"
-                                          size="small" @keyup.enter.native="addColor" @blur="inputColorVisible=false"
-                                          placeholder="回车保存新的颜色"
-                                >
-                                </el-input>
-                                <el-tooltip v-else class="item" effect="dark" content="点击后切换成输入框,不能重名!"
-                                            placement="right">
-                                    <el-button type="=primary" size="small" @click="showInputColor" icon="el-icon-plus">
-                                        新增颜色
-                                    </el-button>
-                                </el-tooltip>
+                            <el-form-item label="选择颜色">
+                                <el-drag-select
+                                    style="width: 100%;"
+                                    v-model="checkedColors"
+                                    multiple
+                                    filterable
+                                    allow-create
+                                    default-first-option
+                                    placeholder="任意选择,可拖动排序"
+                                @change="handleColorChange">
+                                    <el-option
+                                        v-for="color in allColorsName"
+                                        :key="color"
+                                        :label="color"
+                                        :value="color">
+                                    </el-option>
+                                </el-drag-select>
+                                <el-collapse v-model="activeColorNames">
+                                    <el-collapse-item title="所有颜色,勾选" name="1">
+                                        <el-checkbox :indeterminate="isColorIndeterminate" v-model="checkAllColor"
+                                                     @change="handleCheckAllColorsChange">全选
+                                        </el-checkbox>
+                                        <div style="margin: 15px 0;"></div>
+                                        <el-checkbox-group v-model="checkedColors" @change="handleCheckedColorsChange">
+                                            <el-checkbox v-for="color in allColorsName" :label="color" :key="color">
+                                                {{color}}
+                                            </el-checkbox>
+                                        </el-checkbox-group>
+                                        <el-input ref="inputColor" class="input-new-tag" v-if="inputColorVisible"
+                                                  v-model.trim="inputColorVal"
+                                                  size="small" @keyup.enter.native="addColor" @blur="inputColorVisible=false"
+                                                  placeholder="回车保存新的颜色"
+                                        >
+                                        </el-input>
+                                        <el-tooltip v-else class="item" effect="dark" content="点击后切换成输入框,不能重名!"
+                                                    placement="right">
+                                            <el-button type="=primary" size="small" @click="showInputColor" icon="el-icon-plus">
+                                                新增颜色
+                                            </el-button>
+                                        </el-tooltip>
+                                    </el-collapse-item>
+                                </el-collapse>
+
                             </el-form-item>
 
                             <el-form-item label="选择尺码(从共用的勾选)">
-                                <el-checkbox :indeterminate="isSizeIndeterminate" v-model="checkAllSize"
-                                             @change="handleCheckAllSizesChange">全选
-                                </el-checkbox>
-                                <div style="margin: 15px 0;"></div>
-                                <el-checkbox-group v-model="checkedSizes" @change="handleCheckedSizesChange">
-                                    <el-checkbox v-for="size in allSizesName" :label="size" :key="size">
-                                        {{size}}
-                                    </el-checkbox>
-                                </el-checkbox-group>
-                                <el-input
-                                    ref="inputSize"
-                                    class="input-new-tag"
-                                    v-if="inputSizeVisible"
-                                    v-model.trim="inputSizeVal"
-                                    size="small"
-                                    @keyup.enter.native="addSize"
-                                    @blur="inputSizeVisible=false"
-                                    placeholder="回车保存新的尺码"
-                                >
-                                </el-input>
-                                <el-tooltip v-else class="item" effect="dark" content="点击后切换成输入框,不能重名!"
-                                            placement="right">
-                                    <el-button type="=primary" size="small" @click="showInputSize" icon="el-icon-plus">
-                                        新增尺码
-                                    </el-button>
-                                </el-tooltip>
+                                <el-drag-select
+                                    style="width: 100%;"
+                                    v-model="checkedSizes"
+                                    multiple
+                                    filterable
+                                    allow-create
+                                    default-first-option
+                                    placeholder="任意选择,可拖动排序"
+                                    @change="handleSizeChange">
+                                    <el-option
+                                        v-for="color in allSizesName"
+                                        :key="color"
+                                        :label="color"
+                                        :value="color">
+                                    </el-option>
+                                </el-drag-select>
+
+                                <el-collapse v-model="activeSizeNames">
+                                    <el-collapse-item title="所有尺码,勾选" name="1">
+                                        <el-checkbox :indeterminate="isSizeIndeterminate" v-model="checkAllSize"
+                                                     @change="handleCheckAllSizesChange">全选
+                                        </el-checkbox>
+                                        <div style="margin: 15px 0;"></div>
+                                        <el-checkbox-group v-model="checkedSizes" @change="handleCheckedSizesChange">
+                                            <el-checkbox v-for="size in allSizesName" :label="size" :key="size">
+                                                {{size}}
+                                            </el-checkbox>
+                                        </el-checkbox-group>
+                                        <el-input
+                                            ref="inputSize"
+                                            class="input-new-tag"
+                                            v-if="inputSizeVisible"
+                                            v-model.trim="inputSizeVal"
+                                            size="small"
+                                            @keyup.enter.native="addSize"
+                                            @blur="inputSizeVisible=false"
+                                            placeholder="回车保存新的尺码"
+                                        >
+                                        </el-input>
+                                        <el-tooltip v-else class="item" effect="dark" content="点击后切换成输入框,不能重名!"
+                                                    placement="right">
+                                            <el-button type="=primary" size="small" @click="showInputSize" icon="el-icon-plus">
+                                                新增尺码
+                                            </el-button>
+                                        </el-tooltip>
+                                    </el-collapse-item>
+                                </el-collapse>
+
                             </el-form-item>
                         </el-collapse-item>
                     </el-collapse>
@@ -230,7 +273,7 @@
 </template>
 
 <script>
-    import lrz from "lrz"
+    import ElDragSelect from '@/components/DragSelect' // base on element-ui
 
     const numberReg = /^[0-9]+([.]{1}[0-9]+){0,1}$/;    //  正数
     const positiveNumberReg = /^([1-9]\d*)$/;   //  正整数
@@ -317,6 +360,7 @@
                 activeNames: [],
 
                 //  颜色
+                activeColorNames: [],
                 checkAllColor: false,
                 isColorIndeterminate: false,
                 allColors: [],
@@ -326,6 +370,7 @@
                 inputColorVal: '',
 
                 //  颜色
+                activeSizeNames: [],
                 checkAllSize: false,
                 isSizeIndeterminate: false,
                 allSizes: [],
@@ -353,7 +398,7 @@
 
         },
 
-        components: {},
+        components: {ElDragSelect},
 
         computed: {
             uploadUrl() {
@@ -443,6 +488,37 @@
                     }
                 );
             },
+            //  搜索加新增   select
+            //  新增了不存在的就
+            handleColorChange(colors){
+                let newColor = this.checkedColors.find(item => !this.allColors.map(color=>color.COname).includes(item));
+
+                if(newColor){
+                    this.$http.post(this.$api.addColor, {
+                        colorname: newColor
+                    }, {
+                        params: {
+                            token: this.$common.getStore('token')
+                        }
+                    }).then(
+                        res => {
+                            if (res.data.status == 200) {
+                                let resData = res.data,
+                                    data = res.data.data;
+
+                                this.setAllColors();
+                                this.$notify({
+                                    title: '商品属性新增成功',
+                                    message: `颜色名:${newColor}`,
+                                    type: 'success'
+                                });
+                            }
+                        }
+                    );
+                }else{
+
+                }
+            },
 
             //  尺码
             handleCheckAllSizesChange(val) {
@@ -491,8 +567,36 @@
                         }
                     }
                 )
+            },
 
+            handleSizeChange(size){
+                let newSize = this.checkedSizes.find(item => !this.allSizes.map(size=>size.SIname).includes(item));
 
+                if(newSize){
+                    this.$http.post(this.$api.addSize, {
+                        sizename: newSize
+                    }, {
+                        params: {
+                            token: this.$common.getStore('token')
+                        }
+                    }).then(
+                        res => {
+                            if (res.data.status == 200) {
+                                let resData = res.data,
+                                    data = res.data.data;
+
+                                this.setAllSizes();
+                                this.$notify({
+                                    title: '商品属性新增成功',
+                                    message: `尺码名:${newSize}`,
+                                    type: 'success'
+                                });
+                            }
+                        }
+                    );
+                }else{
+
+                }
             },
 
             //  sku表格
@@ -738,8 +842,6 @@
                     return '请勾选想要的销售属性后填写组合的库存'
 
                 }
-
-
                 return
             },
 
