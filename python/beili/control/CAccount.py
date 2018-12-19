@@ -77,7 +77,7 @@ class CAccount():
         data2 = {}
         data2["reward"] = round(account['reward'], 2)
         data2["discount"] = round(mydiscount, 2)
-        data2["performance"] = teamperformance
+        data2["performance"] = round(teamperformance, 2)
         data2["myprofit"] = account['reward'] + round(mydiscount, 2)
         response['data'] = data2
         return response
