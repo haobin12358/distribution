@@ -186,3 +186,7 @@ class SUser(SBase):
     @close_session
     def get_authorization(self, id):
         return self.session.query(User.authorization).filter(User.USid == id).first()
+
+    @close_session
+    def get_all_user_info(self):
+        return self.session.query(User.USid, User.USagentid, User.USname, User.USheadimg).all()

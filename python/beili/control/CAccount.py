@@ -34,7 +34,7 @@ from weixin.login import WeixinLoginError, WeixinLogin
 from weixin.pay import WeixinPay, WeixinPayError
 from common.timeformat import format_for_db, get_random_str, format_for_db_no_HMS, get_random_int\
     , format_forweb_no_HMS, format_for_dbmonth
-from models.model import User, DiscountRuler, BailRecord, DrawMoney, ChargeMoney
+from models.model import User, DiscountRuler, BailRecord, DrawMoney, ChargeMoney, Amount
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -585,11 +585,42 @@ class CAccount():
         print time_now
         global TIMER
         print 'check reward and discount'
-        if time_now[6:10] == '0101' or time_now[6:10] == '0102' or time_now[6:10] == '0103':
+        if time_now[6:10] == '0101' or time_now[6:10] == '0102' or time_now[6:12] == '020327':
             print 'start deal reward and discount'
             last_month = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y%m")
             print last_month
             account_list = get_model_return_list(self.saccount.get_all_account_by_month(last_month))
+
+            # session = db_session()
+            try:
+                all_user_list = get_model_return_list(self.suser.get_all_user_info())
+                print 'len(all_user_list)', len(all_user_list)
+                usid_list = []
+                for account in account_list:
+                    usid_list.append(account['USid'])
+                print 'len(usid_list)', len(usid_list)
+                for user in all_user_list:
+                    if user['USid'] not in usid_list:
+                        print '2222222'
+                #         amount = Amount()
+                #         amount.USid = user['USid']
+                #         amount.AMid = str(uuid.uuid4())
+                #         amount.USagentid = user['USagentid']
+                #         amount.USname = user['USname']
+                #         amount.reward = 0
+                #         amount.AMstatus = 1
+                #         amount.USheadimg = user['USheadimg']
+                #         amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
+                #         amount.AMmonth = last_month
+                #         session.add(amount)
+                # session.commit()
+            except Exception as e:
+                print '3333333', e
+                # session.rollback()
+            finally:
+                pass
+                # session.close()
+
             if account_list:
                 result = self.deal_account_list(account_list, last_month)
                 if not result:
@@ -603,6 +634,8 @@ class CAccount():
         TIMER.start()
 
     def deal_account_list(self, account_list, last_month):
+
+
         time_now = datetime.strftime(datetime.now(), format_for_db)
         for account in account_list:
             session = db_session()
