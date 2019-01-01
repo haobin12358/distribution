@@ -605,8 +605,8 @@ class CAccount():
     def deal_account_list(self, account_list, last_month):
         time_now = datetime.strftime(datetime.now(), format_for_db)
         for account in account_list:
+            session = db_session()
             try:
-                session = db_session()
                 mydiscount = self.get_mydiscount(account['USid'], last_month)
                 # 写入代理消息
                 tradenum = datetime.strftime(datetime.now(), format_for_db_no_HMS) + get_random_str(8)
