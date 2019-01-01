@@ -585,13 +585,12 @@ class CAccount():
         print time_now
         global TIMER
         print 'check reward and discount'
-        if time_now[6:10] == '0101' or time_now[6:10] == '0102' or time_now[6:12] == '020336':
+        if time_now[6:10] == '0101' or time_now[6:10] == '0102' or time_now[6:12] == '020346':
             print 'start deal reward and discount'
             last_month = (datetime.datetime.now() - datetime.timedelta(days=2)).strftime("%Y%m")
             print last_month
-            account_list = get_model_return_list(self.saccount.get_all_account_by_month(last_month))
 
-            # session = db_session()
+            session = db_session()
             try:
                 all_user_list = get_model_return_list(self.suser.get_all_user_info())
                 print 'len(all_user_list)', len(all_user_list)
@@ -603,25 +602,25 @@ class CAccount():
                 for user in all_user_list:
                     if user['USid'] not in usid_list:
                         print '2222222'
-                #         amount = Amount()
-                #         amount.USid = user['USid']
-                #         amount.AMid = str(uuid.uuid4())
-                #         amount.USagentid = user['USagentid']
-                #         amount.USname = user['USname']
-                #         amount.reward = 0
-                #         amount.AMstatus = 1
-                #         amount.USheadimg = user['USheadimg']
-                #         amount.AMcreattime = datetime.strftime(datetime.now(), format_for_db)
-                #         amount.AMmonth = last_month
-                #         session.add(amount)
-                # session.commit()
+                        amount = Amount()
+                        amount.USid = user['USid']
+                        amount.AMid = str(uuid.uuid4())
+                        amount.USagentid = user['USagentid']
+                        amount.USname = user['USname']
+                        amount.reward = 0
+                        amount.AMstatus = 1
+                        amount.USheadimg = user['USheadimg']
+                        amount.AMcreattime = datetime.datetime.strftime(datetime.datetime.now(), format_for_db)
+                        amount.AMmonth = last_month
+                        session.add(amount)
+                session.commit()
             except Exception as e:
                 print '3333333', e
-                # session.rollback()
+                session.rollback()
             finally:
-                pass
-                # session.close()
+                session.close()
 
+            account_list = get_model_return_list(self.saccount.get_all_account_by_month(last_month))
             if account_list:
                 result = self.deal_account_list(account_list, last_month)
                 if not result:
