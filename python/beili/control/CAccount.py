@@ -585,11 +585,12 @@ class CAccount():
         print time_now
         global TIMER
         print 'check reward and discount'
-        if time_now[6:10] == '0101' or time_now[6:10] == '0102' or time_now[6:12] == '020346':
+        if time_now[6:10] == '0101' or time_now[6:10] == '0102' or time_now[6:10] == '0103':
             print 'start deal reward and discount'
-            last_month = (datetime.datetime.now() - datetime.timedelta(days=2)).strftime("%Y%m")
+            last_month = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y%m")
             print last_month
 
+            # 将没有在金额表里的用户插入一条数据
             session = db_session()
             try:
                 all_user_list = get_model_return_list(self.suser.get_all_user_info())
@@ -599,21 +600,22 @@ class CAccount():
                 for account in account_list2:
                     usid_list.append(account['USid'])
                 print 'len(usid_list)', len(usid_list)
-                for user in all_user_list:
-                    if user['USid'] not in usid_list:
-                        print '2222222'
-                        amount = Amount()
-                        amount.USid = user['USid']
-                        amount.AMid = str(uuid.uuid4())
-                        amount.USagentid = user['USagentid']
-                        amount.USname = user['USname']
-                        amount.reward = 0
-                        amount.AMstatus = 1
-                        amount.USheadimg = user['USheadimg']
-                        amount.AMcreattime = datetime.datetime.strftime(datetime.datetime.now(), format_for_db)
-                        amount.AMmonth = last_month
-                        session.add(amount)
-                session.commit()
+                if len(usid_list) != len(all_user_list):
+                    for user in all_user_list:
+                        if user['USid'] not in usid_list:
+                            print '2222222'
+                            amount = Amount()
+                            amount.USid = user['USid']
+                            amount.AMid = str(uuid.uuid4())
+                            amount.USagentid = user['USagentid']
+                            amount.USname = user['USname']
+                            amount.reward = 0
+                            amount.AMstatus = 1
+                            amount.USheadimg = user['USheadimg']
+                            amount.AMcreattime = datetime.datetime.strftime(datetime.datetime.now(), format_for_db)
+                            amount.AMmonth = last_month
+                            session.add(amount)
+                    session.commit()
             except Exception as e:
                 print '3333333', e
                 session.rollback()
