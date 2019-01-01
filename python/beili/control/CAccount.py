@@ -585,7 +585,7 @@ class CAccount():
         print time_now
         global TIMER
         print 'check reward and discount'
-        if time_now[6:10] == '0101' or time_now[6:10] == '0102' or time_now[6:12] == '020327':
+        if time_now[6:10] == '0101' or time_now[6:10] == '0102' or time_now[6:12] == '020336':
             print 'start deal reward and discount'
             last_month = (datetime.datetime.now() - datetime.timedelta(days=2)).strftime("%Y%m")
             print last_month
@@ -596,7 +596,8 @@ class CAccount():
                 all_user_list = get_model_return_list(self.suser.get_all_user_info())
                 print 'len(all_user_list)', len(all_user_list)
                 usid_list = []
-                for account in account_list:
+                account_list2 = get_model_return_list(self.saccount.get_all_account_by_month2(last_month))
+                for account in account_list2:
                     usid_list.append(account['USid'])
                 print 'len(usid_list)', len(usid_list)
                 for user in all_user_list:
