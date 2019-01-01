@@ -587,7 +587,7 @@ class CAccount():
         print 'check reward and discount'
         if time_now[6:10] == '0101' or time_now[6:10] == '0102' or time_now[6:12] == '020327':
             print 'start deal reward and discount'
-            last_month = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y%m")
+            last_month = (datetime.datetime.now() - datetime.timedelta(days=2)).strftime("%Y%m")
             print last_month
             account_list = get_model_return_list(self.saccount.get_all_account_by_month(last_month))
 
