@@ -635,7 +635,7 @@ class CAccount():
                 return None
             finally:
                 session.close()
-            return True
+        return True
 
     @verify_token_decorator
     def get_directagent_performance(self):
