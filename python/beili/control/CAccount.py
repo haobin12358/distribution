@@ -559,7 +559,7 @@ class CAccount():
         for real in real_list:
             phonenum = get_model_return_dict(self.smycenter.get_user_basicinfo(real['USid']))['USphonenum']
             real['userphonenum'] = phonenum
-            real['discount'] = self.get_mydiscount(real['USid'], month)
+            real['discount'] = round(self.get_mydiscount(real['USid'], month), 2)
             real['teamperformance'] = self.get_myteamsalenum(real['USid'], month)
             real['myprofit'] = real['discount'] + real['reward']
 
@@ -1169,11 +1169,11 @@ class CAccount():
         total_agent_num = int(self.suser.get_user_num())
         response = import_status("get_count_data_success", "OK")
         data = {}
-        data['total_sale_num'] = total_sale_num
+        data['total_sale_num'] = round(total_sale_num, 2)
         data['total_sale_money'] = total_sale_money
         data['total_agent_num'] = total_agent_num
         data['total_order_num'] = total_order_num
-        data['unit_price'] = unit_price
+        data['unit_price'] = round(unit_price, 2)
         response['data'] = data
         return response
 
