@@ -100,15 +100,15 @@ class COrder():
                     all_psid.append(sku['psid'])
                 product['PRprice'] = check_product['PRprice']
                 new_list.append(product)
-            if totalprice != round(mount + real_PRlogisticsfee, 2) or real_PRlogisticsfee != PRlogisticsfee:
+            if round(totalprice, 2) != round(mount + real_PRlogisticsfee, 2) or real_PRlogisticsfee != PRlogisticsfee:
                 response = {}
                 response['status'] = 200
                 response['success'] = False
                 response['data'] = new_list
                 response['PRlogisticsfee'] = real_PRlogisticsfee
-                response['totalprice'] = mount + real_PRlogisticsfee
+                response['totalprice'] = round(mount + real_PRlogisticsfee, 2)
                 return response
-            if user_info['USmount'] < mount + PRlogisticsfee:
+            if user_info['USmount'] < round(mount + PRlogisticsfee, 2):
                 return NO_ENOUGH_MOUNT
         except Exception as e:
             print e
@@ -175,9 +175,9 @@ class COrder():
             for psid in all_psid:
                 session.query(ShoppingCart).filter(ShoppingCart.USid == request.user.id).filter(ShoppingCart.PSid == psid)\
                     .update({"SCstatus": 0})
-            # 插入代理消息
+            # 减余额并插入代理消息
             user = {}
-            user['USmount'] = user_info['USmount'] - mount - real_PRlogisticsfee
+            user['USmount'] = round(user_info['USmount'] - round(mount + real_PRlogisticsfee, 2), 2)
             session.query(User).filter_by(USid=request.user.id).update(user)
             agentmessage = AgentMessage()
             agentmessage.AMid = str(uuid.uuid4())

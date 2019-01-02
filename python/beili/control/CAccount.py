@@ -288,17 +288,17 @@ class CAccount():
         user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
         if not user:
             return NOT_FOUND_USER
-        if float(user['USmount']) < float(amount):
+        if user['USmount'] < round(amount, 2):
             return NO_ENOUGH_MOUNT
         session = db_session()
         try:
             time_now = datetime.strftime(datetime.now(), format_for_db)
             tradenum = 'tx' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
-            result = self.saccount.add_drawmoney(session, str(uuid.uuid4()), request.user.id, bankname, branchbank, accountname, cardnum,\
-                                        float(amount), time_now, tradenum)
+            result = self.saccount.add_drawmoney(session, str(uuid.uuid4()), request.user.id, bankname, branchbank, accountname, cardnum, \
+                                        round(amount, 2), time_now, tradenum)
             result2 = self.saccount.add_moneyrecord(session, request.user.id, -amount, 2, time_now, tradenum=tradenum, oiid=None)
             update = {}
-            update['USmount'] = float(user['USmount']) - float(amount)
+            update['USmount'] = round(user['USmount'] - round(amount, 2), 2)
             self.smycenter.update_user_by_uid(session, request.user.id, update)
             session.commit()
         except Exception as e:
@@ -380,7 +380,7 @@ class CAccount():
         createtime = datetime.strftime(datetime.now(), format_for_db)
         tradenum = 'cz' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
         result = self.saccount.charge_money(str(uuid.uuid4()), request.user.id, paytype, alipaynum, bankname, accountname, \
-                                            cardnum, amount, remark, tradenum, createtime, proof, paytime)
+                                            cardnum, round(amount, 2), remark, tradenum, createtime, proof, paytime)
         if not result:
             return SYSTEM_ERROR
         response = import_status("charge_money_success", "OK")
@@ -811,7 +811,7 @@ class CAccount():
                     self.smycenter.get_user_basicinfo(result['USid']) else None
                 session.query(DrawMoney).filter(DrawMoney.DMid == dmid).update({"DMreason": str(reason)})
                 update = {}
-                update['USmount'] = user['USmount'] + result['DMamount']
+                update['USmount'] = round(user['USmount'] + result['DMamount'], 2)
                 self.smycenter.update_user_by_uid(session, result['USid'], update)
             session.commit()
         except Exception as e:
@@ -901,7 +901,7 @@ class CAccount():
                 user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
                     self.smycenter.get_user_basicinfo(result['USid']) else None
                 update = {}
-                update['USmount'] = user['USmount'] + result['CMamount']
+                update['USmount'] = round(user['USmount'] + result['CMamount'], 2)
                 self.smycenter.update_user_by_uid(session, result['USid'], update)
             if willstatus == 3:
                 # 写入代理消息
@@ -1139,11 +1139,13 @@ class CAccount():
         today = date.today()
         year = today.year
         month = today.month
+        print '11111111111111month', month
         year_month = str(year) + str(month)
         date_list = []
-        date_list.append(self.get_data_by_month(year_month))
-        for i in range(month-1):
-            last_month = str((int(month) - (i+1))) if ((int(month) - (i+1))) >= 10 else '0'+str((int(month) - (i+1)))
+        # date_list.append(self.get_data_by_month(year_month))
+        print '1111111111111int()', int(month)
+        for i in range(1, int(month) + 1):
+            last_month = str(i) if i >= 10 else '0'+str(i)
             last_yearmonth = str(year) + last_month
             date_list.append(self.get_data_by_month(last_yearmonth))
         response = import_status("get_year_data_success", "OK")
@@ -1182,6 +1184,8 @@ class CAccount():
         starttime = datetime.strftime(datetime.now(), format_for_db)[6] + '01000000'
         endtime = datetime.strftime(datetime.now(), format_for_db)
         num = int(self.suser.get_thismonth_agentnum(starttime, endtime))
+        print starttime, endtime
+        print '111111111111111num', num
         response = import_status("get_thismonth_agentnum_success", "OK")
         data = {
             "num": num
