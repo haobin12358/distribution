@@ -1181,7 +1181,7 @@ class CAccount():
     def get_thismonth_agentnum(self):
         if not is_admin():
             return TOKEN_ERROR
-        starttime = datetime.strftime(datetime.now(), format_for_db)[6] + '01000000'
+        starttime = datetime.strftime(datetime.now(), format_for_db)[:6] + '01000000'
         endtime = datetime.strftime(datetime.now(), format_for_db)
         num = int(self.suser.get_thismonth_agentnum(starttime, endtime))
         print starttime, endtime
