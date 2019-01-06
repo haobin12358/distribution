@@ -62,20 +62,14 @@ class CAccount():
             return PARAMS_ERROR
         id = request.user.id
         account = get_model_return_dict(self.saccount.get_account_by_month(id, month)) if self.saccount.get_account_by_month(id, month) else None
+        data2 = {}
         if not account:
-            response = import_status("get_saleinfo_success", "OK")
-            data2 = {}
             data2["reward"] = 0
-            data2["discount"] = 0
-            data2["performance"] = 0
-            data2["myprofit"] = 0
-            response['data'] = data2
-            return response
+        else:
+            data2["reward"] = round(account['reward'], 2)
         mydiscount = self.get_mydiscount(id, month)
         teamperformance = self.get_myteamsalenum(id, month)
         response = import_status("get_saleinfo_success", "OK")
-        data2 = {}
-        data2["reward"] = round(account['reward'], 2)
         data2["discount"] = round(mydiscount, 2)
         data2["performance"] = round(teamperformance, 2)
         data2["myprofit"] = account['reward'] + round(mydiscount, 2)
