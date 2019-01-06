@@ -72,7 +72,7 @@ class CAccount():
         response = import_status("get_saleinfo_success", "OK")
         data2["discount"] = round(mydiscount, 2)
         data2["performance"] = round(teamperformance, 2)
-        data2["myprofit"] = account['reward'] + round(mydiscount, 2)
+        data2["myprofit"] = data2["reward"] + round(mydiscount, 2)
         response['data'] = data2
         return response
 
