@@ -187,14 +187,9 @@
         },
 
         created(){
-            let nowDate = new Date(),
-                month = nowDate.getFullYear().toString();
+            let nowDate = new Date();
+            let month = nowDate.getFullYear() +(nowDate.getMonth() +1).toString().padStart(2,'0');
 
-            if(nowDate.getMonth() + 1 < 10){
-                month += '0' + nowDate.getMonth() + 1;
-            }else{
-                month += nowDate.getMonth() + 1
-            }
             getAccount(month).then(
                 resData => {
                     if(resData){

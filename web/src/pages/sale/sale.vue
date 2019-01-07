@@ -189,13 +189,7 @@
         computed: {
             pickerMonth() {
                 let nowDate = new Date(this.now);
-                let month = nowDate.getFullYear() + '-';
-
-                if (nowDate.getMonth() + 1 < 10) {
-                    month += '0' + (nowDate.getMonth() + 1);
-                } else {
-                    month += (nowDate.getMonth() + 1);
-                }
+                let month = nowDate.getFullYear() + '-' +(nowDate.getMonth() +1).toString().padStart(2,'0');
 
                 return month;
             }

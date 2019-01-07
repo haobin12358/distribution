@@ -44,13 +44,15 @@
         <section class="form-container">
             <mt-field class="form-item" label="银行名称" v-model="formData.bankname" :readonly="true" :disableClear="true"
                       placeholder="请输入银行名称"></mt-field>
-            <mt-field class="form-item" label="支行名称" v-model.trim="formData.branchbank" placeholder="请输入支行名称"></mt-field>
-            <mt-field class="form-item" label="开户姓名" v-model="formData.accountname" :readonly="true" :disableClear="true"
+            <mt-field class="form-item" label="支行名称" v-model.trim="formData.branchbank"
+                      placeholder="请输入支行名称"></mt-field>
+            <mt-field class="form-item" label="开户姓名" v-model="formData.accountname" :readonly="true"
+                      :disableClear="true"
                       placeholder="请输入开户姓名"></mt-field>
             <mt-field class="form-item" label="卡号" v-model="formData.cardnum" type="number"
                       placeholder="请输入卡号"></mt-field>
             <mt-field class="form-item" label="金额" v-model="formData.amount" type="number" :disableClear="false"
-                      placeholder="请输入金额"  @blur.native.capture="handleLastInputBlur"></mt-field>
+                      placeholder="请输入金额" @blur.native.capture="handleLastInputBlur"></mt-field>
         </section>
 
         <section class="confirm-btn-wrap">
@@ -62,7 +64,7 @@
 
 <script>
     import {getDrawInfo, drawMoney} from "src/api/api"
-    import {mapActions} from "vuex"
+    import {mapState, mapActions, mapMutations} from "vuex"
 
 
     export default {
@@ -80,38 +82,43 @@
             }
         },
 
+        computed: {
+            ...mapState(['userInfo']),
+
+        },
+
         components: {},
 
         methods: {
-            handleLastInputBlur(){
-                window.scrollTo(0,0);
+            handleLastInputBlur() {
+                window.scrollTo(0, 0);
             },
 
-            formDataCheck(){
-                if(!this.formData.branchbank){
+            formDataCheck() {
+                if (!this.formData.branchbank) {
                     return '请输入支行名称!';
                 }
-                if(!this.formData.cardnum){
+                if (!this.formData.cardnum) {
                     return '请输入银行卡号!';
                 }
-                if(!this.formData.amount){
+                if (!this.formData.amount) {
                     return '请输入合理的打款金额数字';
-                }else if(!(this.formData.amount >= 0.01 && /^[0-9]+([.]{1}[0-9]+){0,1}$/.test(this.formData.amount))){
+                } else if (!(this.formData.amount >= 0.01 && /^[0-9]+([.]{1}[0-9]+){0,1}$/.test(this.formData.amount))) {
                     return '请输入合理的打款金额数字'
                 }
 
 
             },
-            doConfirm(){
+            doConfirm() {
                 let checkMsg = this.formDataCheck();
 
-                window.scrollTo(0,0);
+                window.scrollTo(0, 0);
 
-                if(checkMsg){
+                if (checkMsg) {
                     this.$toast(checkMsg);
-                }else{
+                } else {
                     this.$messagebox.confirm(`确认提现${this.formData.amount}元?`).then(
-                        ()=>{
+                        () => {
                             drawMoney(this.formData).then(
                                 resData => {
                                     if (resData) {
@@ -135,7 +142,8 @@
                         this.formData.accountname = resData.data.username;
                     }
                 }
-            )
+            );
+            this.formData.amount = this.userInfo.USmount;
         }
     }
 </script>
