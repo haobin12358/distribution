@@ -24,6 +24,11 @@ class SAccount(SBase):
                                   , Amount.USname).filter(Amount.AMmonth == month).filter(Amount.AMstatus == 1).all()
 
     @close_session
+    def get_all_account_by_month2(self, month):
+        return self.session.query(Amount.reward, Amount.USid, Amount.performance, Amount.AMid, Amount.AMstatus
+                                  , Amount.USname).filter(Amount.AMmonth == month).all()
+
+    @close_session
     def update_account(self, session, amid, update):
         session.query(Amount).filter(Amount.AMid == amid).update(update)
         return True

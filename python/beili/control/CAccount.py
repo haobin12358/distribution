@@ -34,7 +34,7 @@ from weixin.login import WeixinLoginError, WeixinLogin
 from weixin.pay import WeixinPay, WeixinPayError
 from common.timeformat import format_for_db, get_random_str, format_for_db_no_HMS, get_random_int\
     , format_forweb_no_HMS, format_for_dbmonth
-from models.model import User, DiscountRuler, BailRecord, DrawMoney, ChargeMoney
+from models.model import User, DiscountRuler, BailRecord, DrawMoney, ChargeMoney, Amount
 sys.path.append(os.path.dirname(os.getcwd()))
 
 
@@ -62,23 +62,17 @@ class CAccount():
             return PARAMS_ERROR
         id = request.user.id
         account = get_model_return_dict(self.saccount.get_account_by_month(id, month)) if self.saccount.get_account_by_month(id, month) else None
+        data2 = {}
         if not account:
-            response = import_status("get_saleinfo_success", "OK")
-            data2 = {}
             data2["reward"] = 0
-            data2["discount"] = 0
-            data2["performance"] = 0
-            data2["myprofit"] = 0
-            response['data'] = data2
-            return response
+        else:
+            data2["reward"] = round(account['reward'], 2)
         mydiscount = self.get_mydiscount(id, month)
         teamperformance = self.get_myteamsalenum(id, month)
         response = import_status("get_saleinfo_success", "OK")
-        data2 = {}
-        data2["reward"] = round(account['reward'], 2)
         data2["discount"] = round(mydiscount, 2)
-        data2["performance"] = teamperformance
-        data2["myprofit"] = account['reward'] + round(mydiscount, 2)
+        data2["performance"] = round(teamperformance, 2)
+        data2["myprofit"] = data2["reward"] + round(mydiscount, 2)
         response['data'] = data2
         return response
 
@@ -141,7 +135,9 @@ class CAccount():
         performance_list = []
         self_performance = self.saccount.get_user_performance(id, month)
         if self_performance:
-            performance_list = performance_list + (get_model_return_list(self_performance))
+            self_performance = get_model_return_list(self_performance)
+            self_performance[0]['performance'] = round(self_performance[0]['performance'], 2)
+            performance_list = performance_list + self_performance
         teamid_list = self.suser.getuser_by_preid(id)
         if teamid_list:
             teamid_list = get_model_return_list(teamid_list)
@@ -286,17 +282,17 @@ class CAccount():
         user = get_model_return_dict(self.smycenter.get_user_basicinfo(request.user.id))
         if not user:
             return NOT_FOUND_USER
-        if float(user['USmount']) < float(amount):
+        if user['USmount'] < round(amount, 2):
             return NO_ENOUGH_MOUNT
         session = db_session()
         try:
             time_now = datetime.strftime(datetime.now(), format_for_db)
             tradenum = 'tx' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
-            result = self.saccount.add_drawmoney(session, str(uuid.uuid4()), request.user.id, bankname, branchbank, accountname, cardnum,\
-                                        float(amount), time_now, tradenum)
+            result = self.saccount.add_drawmoney(session, str(uuid.uuid4()), request.user.id, bankname, branchbank, accountname, cardnum, \
+                                        round(amount, 2), time_now, tradenum)
             result2 = self.saccount.add_moneyrecord(session, request.user.id, -amount, 2, time_now, tradenum=tradenum, oiid=None)
             update = {}
-            update['USmount'] = float(user['USmount']) - float(amount)
+            update['USmount'] = round(user['USmount'] - round(amount, 2), 2)
             self.smycenter.update_user_by_uid(session, request.user.id, update)
             session.commit()
         except Exception as e:
@@ -378,7 +374,7 @@ class CAccount():
         createtime = datetime.strftime(datetime.now(), format_for_db)
         tradenum = 'cz' + datetime.strftime(datetime.now(), format_for_db) + str(random.randint(10000, 100000))
         result = self.saccount.charge_money(str(uuid.uuid4()), request.user.id, paytype, alipaynum, bankname, accountname, \
-                                            cardnum, amount, remark, tradenum, createtime, proof, paytime)
+                                            cardnum, round(amount, 2), remark, tradenum, createtime, proof, paytime)
         if not result:
             return SYSTEM_ERROR
         response = import_status("charge_money_success", "OK")
@@ -557,7 +553,7 @@ class CAccount():
         for real in real_list:
             phonenum = get_model_return_dict(self.smycenter.get_user_basicinfo(real['USid']))['USphonenum']
             real['userphonenum'] = phonenum
-            real['discount'] = self.get_mydiscount(real['USid'], month)
+            real['discount'] = round(self.get_mydiscount(real['USid'], month), 2)
             real['teamperformance'] = self.get_myteamsalenum(real['USid'], month)
             real['myprofit'] = real['discount'] + real['reward']
 
@@ -587,6 +583,39 @@ class CAccount():
             print 'start deal reward and discount'
             last_month = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y%m")
             print last_month
+
+            # 将没有在金额表里的用户插入一条数据
+            session = db_session()
+            try:
+                all_user_list = get_model_return_list(self.suser.get_all_user_info())
+                print 'len(all_user_list)', len(all_user_list)
+                usid_list = []
+                account_list2 = get_model_return_list(self.saccount.get_all_account_by_month2(last_month))
+                for account in account_list2:
+                    usid_list.append(account['USid'])
+                print 'len(usid_list)', len(usid_list)
+                if len(usid_list) != len(all_user_list):
+                    for user in all_user_list:
+                        if user['USid'] not in usid_list:
+                            print '2222222'
+                            amount = Amount()
+                            amount.USid = user['USid']
+                            amount.AMid = str(uuid.uuid4())
+                            amount.USagentid = user['USagentid']
+                            amount.USname = user['USname']
+                            amount.reward = 0
+                            amount.AMstatus = 1
+                            amount.USheadimg = user['USheadimg']
+                            amount.AMcreattime = datetime.datetime.strftime(datetime.datetime.now(), format_for_db)
+                            amount.AMmonth = last_month
+                            session.add(amount)
+                    session.commit()
+            except Exception as e:
+                print '3333333', e
+                session.rollback()
+            finally:
+                session.close()
+
             account_list = get_model_return_list(self.saccount.get_all_account_by_month(last_month))
             if account_list:
                 result = self.deal_account_list(account_list, last_month)
@@ -601,10 +630,12 @@ class CAccount():
         TIMER.start()
 
     def deal_account_list(self, account_list, last_month):
+
+
         time_now = datetime.strftime(datetime.now(), format_for_db)
         for account in account_list:
+            session = db_session()
             try:
-                session = db_session()
                 mydiscount = self.get_mydiscount(account['USid'], last_month)
                 # 写入代理消息
                 tradenum = datetime.strftime(datetime.now(), format_for_db_no_HMS) + get_random_str(8)
@@ -633,7 +664,7 @@ class CAccount():
                 return None
             finally:
                 session.close()
-            return True
+        return True
 
     @verify_token_decorator
     def get_directagent_performance(self):
@@ -774,7 +805,7 @@ class CAccount():
                     self.smycenter.get_user_basicinfo(result['USid']) else None
                 session.query(DrawMoney).filter(DrawMoney.DMid == dmid).update({"DMreason": str(reason)})
                 update = {}
-                update['USmount'] = user['USmount'] + result['DMamount']
+                update['USmount'] = round(user['USmount'] + result['DMamount'], 2)
                 self.smycenter.update_user_by_uid(session, result['USid'], update)
             session.commit()
         except Exception as e:
@@ -864,7 +895,7 @@ class CAccount():
                 user = get_model_return_dict(self.smycenter.get_user_basicinfo(result['USid'])) if \
                     self.smycenter.get_user_basicinfo(result['USid']) else None
                 update = {}
-                update['USmount'] = user['USmount'] + result['CMamount']
+                update['USmount'] = round(user['USmount'] + result['CMamount'], 2)
                 self.smycenter.update_user_by_uid(session, result['USid'], update)
             if willstatus == 3:
                 # 写入代理消息
@@ -1102,11 +1133,13 @@ class CAccount():
         today = date.today()
         year = today.year
         month = today.month
+        print '11111111111111month', month
         year_month = str(year) + str(month)
         date_list = []
-        date_list.append(self.get_data_by_month(year_month))
-        for i in range(month-1):
-            last_month = str((int(month) - (i+1))) if ((int(month) - (i+1))) >= 10 else '0'+str((int(month) - (i+1)))
+        # date_list.append(self.get_data_by_month(year_month))
+        print '1111111111111int()', int(month)
+        for i in range(1, int(month) + 1):
+            last_month = str(i) if i >= 10 else '0'+str(i)
             last_yearmonth = str(year) + last_month
             date_list.append(self.get_data_by_month(last_yearmonth))
         response = import_status("get_year_data_success", "OK")
@@ -1130,11 +1163,11 @@ class CAccount():
         total_agent_num = int(self.suser.get_user_num())
         response = import_status("get_count_data_success", "OK")
         data = {}
-        data['total_sale_num'] = total_sale_num
+        data['total_sale_num'] = round(total_sale_num, 2)
         data['total_sale_money'] = total_sale_money
         data['total_agent_num'] = total_agent_num
         data['total_order_num'] = total_order_num
-        data['unit_price'] = unit_price
+        data['unit_price'] = round(unit_price, 2)
         response['data'] = data
         return response
 
@@ -1142,9 +1175,11 @@ class CAccount():
     def get_thismonth_agentnum(self):
         if not is_admin():
             return TOKEN_ERROR
-        starttime = datetime.strftime(datetime.now(), format_for_db)[6] + '01000000'
+        starttime = datetime.strftime(datetime.now(), format_for_db)[:6] + '01000000'
         endtime = datetime.strftime(datetime.now(), format_for_db)
         num = int(self.suser.get_thismonth_agentnum(starttime, endtime))
+        print starttime, endtime
+        print '111111111111111num', num
         response = import_status("get_thismonth_agentnum_success", "OK")
         data = {
             "num": num
